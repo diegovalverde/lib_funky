@@ -1,0 +1,230 @@
+; ModuleID = 'funk/core/c_model/funk_sdl.c'
+source_filename = "funk/core/c_model/funk_sdl.c"
+target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-apple-macosx10.16.0"
+
+%struct.SDL_Renderer = type opaque
+%struct.tnode = type { i32, i32, i32, %struct.tpool*, %struct.tdimensions }
+%struct.tpool = type { [250000 x %struct.tdata], i32, i32 }
+%struct.tdata = type { i8, %union.data_type }
+%union.data_type = type { double }
+%struct.tdimensions = type { i32, [2 x i32] }
+%struct.SDL_Rect = type { i32, i32, i32, i32 }
+%struct.SDL_Window = type opaque
+%struct.sdl_context = type { %struct.tnode }
+%union.SDL_Event = type { %struct.SDL_TouchFingerEvent, [8 x i8] }
+%struct.SDL_TouchFingerEvent = type { i32, i32, i64, i64, float, float, float, float, float }
+
+@renderer = global %struct.SDL_Renderer* null, align 8
+@g_sdl_user_global_state = common global %struct.tnode zeroinitializer, align 8
+@__FUNCTION__.sdl_set_color = private unnamed_addr constant [14 x i8] c"sdl_set_color\00", align 1
+@__FUNCTION__.sdl_rect = private unnamed_addr constant [9 x i8] c"sdl_rect\00", align 1
+@.str = private unnamed_addr constant [25 x i8] c"-I- Initializing SDL 2D\0A\00", align 1
+@.str.1 = private unnamed_addr constant [28 x i8] c"Couldn't initialize SDL: %s\00", align 1
+@.str.2 = private unnamed_addr constant [40 x i8] c"Couldn't create window and renderer: %s\00", align 1
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @set_sdl_user_global_state(%struct.tnode*) #0 {
+  %2 = alloca %struct.tnode*, align 8
+  store %struct.tnode* %0, %struct.tnode** %2, align 8
+  %3 = load %struct.tnode*, %struct.tnode** %2, align 8
+  call void @funk_copy_node(%struct.tnode* @g_sdl_user_global_state, %struct.tnode* %3)
+  ret void
+}
+
+declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #1
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
+  %4 = alloca %struct.tnode*, align 8
+  %5 = alloca %struct.tnode*, align 8
+  %6 = alloca %struct.tnode*, align 8
+  store %struct.tnode* %0, %struct.tnode** %4, align 8
+  store %struct.tnode* %1, %struct.tnode** %5, align 8
+  store %struct.tnode* %2, %struct.tnode** %6, align 8
+  %7 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %8 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 33)
+  %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 1
+  %11 = bitcast %union.data_type* %10 to i32*
+  %12 = load i32, i32* %11, align 8
+  %13 = trunc i32 %12 to i8
+  %14 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 34)
+  %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 1
+  %17 = bitcast %union.data_type* %16 to i32*
+  %18 = load i32, i32* %17, align 8
+  %19 = trunc i32 %18 to i8
+  %20 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 35)
+  %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 1
+  %23 = bitcast %union.data_type* %22 to i32*
+  %24 = load i32, i32* %23, align 8
+  %25 = trunc i32 %24 to i8
+  %26 = call i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer* %7, i8 zeroext %13, i8 zeroext %19, i8 zeroext %25, i8 zeroext -1)
+  ret void
+}
+
+declare i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer*, i8 zeroext, i8 zeroext, i8 zeroext, i8 zeroext) #1
+
+declare %struct.tdata* @get_node(%struct.tnode*, i32, i8*, i32) #1
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
+  %5 = alloca %struct.tnode*, align 8
+  %6 = alloca %struct.tnode*, align 8
+  %7 = alloca %struct.tnode*, align 8
+  %8 = alloca %struct.tnode*, align 8
+  %9 = alloca %struct.SDL_Rect, align 4
+  store %struct.tnode* %0, %struct.tnode** %5, align 8
+  store %struct.tnode* %1, %struct.tnode** %6, align 8
+  store %struct.tnode* %2, %struct.tnode** %7, align 8
+  store %struct.tnode* %3, %struct.tnode** %8, align 8
+  %10 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 40)
+  %12 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 1
+  %13 = bitcast %union.data_type* %12 to i32*
+  %14 = load i32, i32* %13, align 8
+  %15 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 0
+  store i32 %14, i32* %15, align 4
+  %16 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %17 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 41)
+  %18 = getelementptr inbounds %struct.tdata, %struct.tdata* %17, i32 0, i32 1
+  %19 = bitcast %union.data_type* %18 to i32*
+  %20 = load i32, i32* %19, align 8
+  %21 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 1
+  store i32 %20, i32* %21, align 4
+  %22 = load %struct.tnode*, %struct.tnode** %7, align 8
+  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 42)
+  %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 1
+  %25 = bitcast %union.data_type* %24 to i32*
+  %26 = load i32, i32* %25, align 8
+  %27 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 2
+  store i32 %26, i32* %27, align 4
+  %28 = load %struct.tnode*, %struct.tnode** %8, align 8
+  %29 = call %struct.tdata* @get_node(%struct.tnode* %28, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 43)
+  %30 = getelementptr inbounds %struct.tdata, %struct.tdata* %29, i32 0, i32 1
+  %31 = bitcast %union.data_type* %30 to i32*
+  %32 = load i32, i32* %31, align 8
+  %33 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 3
+  store i32 %32, i32* %33, align 4
+  %34 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %35 = call i32 @SDL_RenderFillRect(%struct.SDL_Renderer* %34, %struct.SDL_Rect* %9)
+  ret void
+}
+
+declare i32 @SDL_RenderFillRect(%struct.SDL_Renderer*, %struct.SDL_Rect*) #1
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @sdl_render_loop(i8*) #0 {
+  %2 = alloca i8*, align 8
+  %3 = alloca %struct.tnode, align 8
+  store i8* %0, i8** %2, align 8
+  %4 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %5 = call i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer* %4, i8 zeroext 100, i8 zeroext 100, i8 zeroext 100, i8 zeroext -1)
+  %6 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %7 = call i32 @SDL_RenderClear(%struct.SDL_Renderer* %6)
+  call void @funk_create_int_scalar(i32 1, %struct.tnode* %3, i32 0)
+  call void @sdl_render(%struct.tnode* %3, i32 1, %struct.tnode* @g_sdl_user_global_state)
+  %8 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  call void @SDL_RenderPresent(%struct.SDL_Renderer* %8)
+  ret void
+}
+
+declare i32 @SDL_RenderClear(%struct.SDL_Renderer*) #1
+
+declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #1
+
+declare void @sdl_render(%struct.tnode*, i32, %struct.tnode*) #1
+
+declare void @SDL_RenderPresent(%struct.SDL_Renderer*) #1
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 {
+  %4 = alloca i32, align 4
+  %5 = alloca i32, align 4
+  %6 = alloca %struct.tnode*, align 8
+  %7 = alloca %struct.SDL_Window*, align 8
+  %8 = alloca %struct.sdl_context, align 8
+  %9 = alloca %union.SDL_Event, align 8
+  store i32 %0, i32* %4, align 4
+  store i32 %1, i32* %5, align 4
+  store %struct.tnode* %2, %struct.tnode** %6, align 8
+  %10 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([25 x i8], [25 x i8]* @.str, i64 0, i64 0))
+  %11 = call i32 @SDL_Init(i32 32)
+  %12 = icmp slt i32 %11, 0
+  br i1 %12, label %13, label %15
+
+13:                                               ; preds = %3
+  %14 = call i8* @SDL_GetError()
+  call void (i32, i8*, ...) @SDL_LogError(i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i64 0, i64 0), i8* %14)
+  br label %15
+
+15:                                               ; preds = %13, %3
+  %16 = load i32, i32* %4, align 4
+  %17 = load i32, i32* %5, align 4
+  %18 = call i32 @SDL_CreateWindowAndRenderer(i32 %16, i32 %17, i32 32, %struct.SDL_Window** %7, %struct.SDL_Renderer** @renderer)
+  %19 = icmp ne i32 %18, 0
+  br i1 %19, label %20, label %22
+
+20:                                               ; preds = %15
+  %21 = call i8* @SDL_GetError()
+  call void (i32, i8*, ...) @SDL_LogError(i32 0, i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.2, i64 0, i64 0), i8* %21)
+  br label %22
+
+22:                                               ; preds = %20, %15
+  %23 = load %struct.tnode*, %struct.tnode** %6, align 8
+  call void @funk_copy_node(%struct.tnode* @g_sdl_user_global_state, %struct.tnode* %23)
+  br label %24
+
+24:                                               ; preds = %22, %31
+  %25 = bitcast %struct.sdl_context* %8 to i8*
+  call void @sdl_render_loop(i8* %25)
+  %26 = call i32 @SDL_PollEvent(%union.SDL_Event* %9)
+  %27 = bitcast %union.SDL_Event* %9 to i32*
+  %28 = load i32, i32* %27, align 8
+  %29 = icmp eq i32 %28, 256
+  br i1 %29, label %30, label %31
+
+30:                                               ; preds = %24
+  br label %32
+
+31:                                               ; preds = %24
+  br label %24
+
+32:                                               ; preds = %30
+  %33 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  call void @SDL_DestroyRenderer(%struct.SDL_Renderer* %33)
+  %34 = load %struct.SDL_Window*, %struct.SDL_Window** %7, align 8
+  call void @SDL_DestroyWindow(%struct.SDL_Window* %34)
+  call void @SDL_Quit()
+  ret void
+}
+
+declare i32 @printf(i8*, ...) #1
+
+declare i32 @SDL_Init(i32) #1
+
+declare void @SDL_LogError(i32, i8*, ...) #1
+
+declare i8* @SDL_GetError() #1
+
+declare i32 @SDL_CreateWindowAndRenderer(i32, i32, i32, %struct.SDL_Window**, %struct.SDL_Renderer**) #1
+
+declare i32 @SDL_PollEvent(%union.SDL_Event*) #1
+
+declare void @SDL_DestroyRenderer(%struct.SDL_Renderer*) #1
+
+declare void @SDL_DestroyWindow(%struct.SDL_Window*) #1
+
+declare void @SDL_Quit() #1
+
+attributes #0 = { noinline nounwind optnone ssp uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #1 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="penryn" "target-features"="+cx16,+cx8,+fxsr,+mmx,+sahf,+sse,+sse2,+sse3,+sse4.1,+ssse3,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.module.flags = !{!0, !1}
+!llvm.ident = !{!2}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{i32 7, !"PIC Level", i32 2}
+!2 = !{!"clang version 9.0.1 "}
