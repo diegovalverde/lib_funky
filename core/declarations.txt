@@ -1,0 +1,110 @@
+;;; ==== Data types ==== 
+;;;
+%struct.tpool = type { [250000 x %struct.tdata], i32, i32 }
+%struct.tdata = type { i8, %union.data_type }
+%union.data_type = type { double }
+%struct.tnode = type { i32, i32, i32, %struct.tpool*, %struct.tdimensions }
+%struct.tdimensions = type { i32, [2 x i32] }
+%struct.__sFILE = type { i8*, i32, i32, i16, i16, %struct.__sbuf, i32, i8*, i32 (i8*)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*, i8*, i32)*, %struct.__sbuf, %struct.__sFILEX*, i32, [3 x i8], [1 x i8], %struct.__sbuf, i32, i64 }
+%struct.__sFILEX = type opaque
+%struct.__sbuf = type { i8*, i32 }
+;;;
+;;; ==== Declarations ==== 
+;;;
+declare %struct.tpool* @get_pool_ptr(i32) #0 
+declare %struct.tnode* @validate_node(%struct.tnode*, i8*) #0 
+declare %struct.tdata* @get_node(%struct.tnode*, i32, i8*, i32) #0 
+declare void @funk_sleep(i32) #0 
+declare void @funk_increment_pool_tail(%struct.tpool*, i32) #0 
+declare void @funk_print_node_info(%struct.tnode*) #0 
+declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
+declare void @funk_print_type(i8 zeroext) #0 
+declare void @funk_exit() #0 
+declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
+declare void @funk_init() #0 
+declare i32 @is_list_consecutive_in_memory(%struct.tnode*, i32) #0 
+declare void @funk_create_list_slide_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare void @funk_create_list_slide_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_create_list_slide_1d_lit(%struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_create_list_slide_1d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_create_list_slide_lit(%struct.tnode*, %struct.tnode*, i32*, i32) #0 
+declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare void @funk_create_scalar(%struct.tpool*, %struct.tnode*, i8*, i32) #0 
+declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
+declare void @funk_create_float_scalar(%struct.tpool*, %struct.tnode*, double) #0 
+declare void @funk_create_list_int_literal(i32, %struct.tnode*, i32*, i32) #0 
+declare void @funk_create_2d_matrix_int_literal(i32, %struct.tnode*, i32*, i32, i32) #0 
+declare void @funk_copy_element_from_pool(%struct.tpool*, %struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare void @funk_print_scalar_element(i8, i64) #0 
+declare void @funk_get_node_type(%struct.tnode*, i32, i8*) #0 
+declare void @funk_set_node_type(%struct.tnode*, i32, i8 zeroext) #0 
+declare void @funk_increment_node_data_int(%struct.tnode*) #0 
+declare void @funk_copy_node_into_node_list(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_set_node_value_int(%struct.tnode*, i32, i32) #0 
+declare i32 @funk_get_node_value_int(%struct.tnode*, i32) #0 
+declare void @funk_print_pool(%struct.tpool*, i32, i32) #0 
+declare void @funk_get_next_node(%struct.tnode*, %struct.tnode*) #0 
+declare void @funk_debug_function_entry_hook(i8*) #0 
+declare void @funk_memcp_arr(%struct.tnode*, %struct.tnode*, i32, i8 zeroext) #0 
+declare void @debug_print_arith_operation(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_mul(i8*, i8*, i8*, i32) #0 
+declare void @funk_div(i8*, i8*, i8*, i32) #0 
+declare void @funk_add(i8*, i8*, i8*, i32) #0 
+declare void @funk_sub(i8*, i8*, i8*, i32) #0 
+declare void @funk_mod(i8*, i8*, i8*, i32) #0 
+declare void @funk_slt(i8*, i8*, i8*, i32) #0 
+declare void @funk_sgt(i8*, i8*, i8*, i32) #0 
+declare void @funk_sge(i8*, i8*, i8*, i32) #0 
+declare void @funk_eq(i8*, i8*, i8*, i32) #0 
+declare void @funk_ne(i8*, i8*, i8*, i32) #0 
+declare void @funk_or(i8*, i8*, i8*, i32) #0 
+declare void @funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
+declare void @funk_mul_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_add_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_sub_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_div_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_mod_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_or_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_ne_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_add_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
+declare void @funk_sub_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_add_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_div_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_mul_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_sub_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
+declare void @funk_slt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_sgt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_sge_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_print_dimension(%struct.tnode*) #0 
+declare void @print_scalar(%struct.tnode*) #0 
+declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
+declare float @funk_ToFloat(%struct.tnode*) #0 
+declare void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 
+declare void @reshape(%struct.tnode*, i32*, i32) #0 
+declare void @funk_get_len(%struct.tnode*, %struct.tnode*) #0 
+declare void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32, i32, i32) #0 
+declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
+declare void @set_sdl_user_global_state(%struct.tnode*) #0 
+declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @sdl_render_loop(i8*) #0 
+declare void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 
+;;;
+;; ==== external declarations ====
+declare i32 @printf(i8*, ...) #1
+declare void @exit(i32) #2
+declare i32 @"\01_sleep"(i32) #1
+declare i64 @time(i64*) #1
+declare void @srand(i32) #1
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1 immarg) #3
+declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) #1
+declare i32 @fscanf(%struct.__sFILE*, i8*, ...) #1
+declare i32 @fclose(%struct.__sFILE*) #1
+declare i32 @abs(i32) #4
+declare i8* @malloc(i64) #5
+declare void @free(i8*) #1
