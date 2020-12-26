@@ -4,7 +4,6 @@
 #include <emscripten/html5.h>
 #endif
 
-#include "funk_sdl.h"
 #include "funk_c_model.h"
 
 struct sdl_context
@@ -61,6 +60,7 @@ void sdl_render_loop(void *arg)
 
 }
 
+#ifdef FUNK_BUILD_FOR_WEB
 // The event handler functions can return 1 to suppress the event and disable the default action. That calls event.preventDefault();
 // Returning 0 signals that the event was not consumed by the code, and will allow the event to pass on and bubble up normally.
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *userData)
@@ -70,22 +70,25 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *user
   //https://chromium.googlesource.com/external/github.com/kripken/emscripten/+/refs/tags/1.36.0/tests/test_html5_fullscreen.c
   return 0;
 }
+#endif
 
 void funk_sdl_create_window(int32_t w, int32_t h, struct tnode * user_data)
 {
-    printf("-I- Initializing SDL 2D\n");
+  printf("-I- Initializing SDL 2D\n");
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
-    }
-    SDL_Window *window;
-    //SDL_Renderer *renderer;
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
+  }
+  SDL_Window *window;
+  //SDL_Renderer *renderer;
 
-    emscripten_set_keypress_callback("#canvas", 0, 0, key_callback);
-    //Emscripten, by default, captures all user events to the page.
-    //This makes sense for a fullscreen game but not for out application
+  #ifdef FUNK_BUILD_FOR_WEB
+  emscripten_set_keypress_callback("#canvas", 0, 0, key_callback);
+  //Emscripten, by default, captures all user events to the page.
+  //This makes sense for a fullscreen game but not for out application
 
-    SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
+  SDL_SetHint(SDL_HINT_EMSCRIPTEN_KEYBOARD_ELEMENT, "#canvas");
+  #endif
     if (SDL_CreateWindowAndRenderer(w, h, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create window and renderer: %s", SDL_GetError());
 
@@ -111,13 +114,11 @@ void funk_sdl_create_window(int32_t w, int32_t h, struct tnode * user_data)
     // This is the path to run on your laptop
     SDL_Event event;
     while (1){
-      sdl_render_loop((void*)&ctx);
-
       SDL_PollEvent(&event);
       if (event.type == SDL_QUIT) {
             break;
       }
-
+      sdl_render_loop((void*)&ctx);
     }
   #endif
   SDL_DestroyRenderer(renderer);

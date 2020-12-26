@@ -177,22 +177,22 @@ define void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 {
   call void @funk_copy_node(%struct.tnode* @g_sdl_user_global_state, %struct.tnode* %23)
   br label %24
 
-24:                                               ; preds = %22, %31
-  %25 = bitcast %struct.sdl_context* %8 to i8*
-  call void @sdl_render_loop(i8* %25)
-  %26 = call i32 @SDL_PollEvent(%union.SDL_Event* %9)
-  %27 = bitcast %union.SDL_Event* %9 to i32*
-  %28 = load i32, i32* %27, align 8
-  %29 = icmp eq i32 %28, 256
-  br i1 %29, label %30, label %31
+24:                                               ; preds = %22, %30
+  %25 = call i32 @SDL_PollEvent(%union.SDL_Event* %9)
+  %26 = bitcast %union.SDL_Event* %9 to i32*
+  %27 = load i32, i32* %26, align 8
+  %28 = icmp eq i32 %27, 256
+  br i1 %28, label %29, label %30
 
-30:                                               ; preds = %24
+29:                                               ; preds = %24
   br label %32
 
-31:                                               ; preds = %24
+30:                                               ; preds = %24
+  %31 = bitcast %struct.sdl_context* %8 to i8*
+  call void @sdl_render_loop(i8* %31)
   br label %24
 
-32:                                               ; preds = %30
+32:                                               ; preds = %29
   %33 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
   call void @SDL_DestroyRenderer(%struct.SDL_Renderer* %33)
   %34 = load %struct.SDL_Window*, %struct.SDL_Window** %7, align 8
