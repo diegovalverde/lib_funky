@@ -28,7 +28,10 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
 
             found = False
             for include_path in include_paths:
-                dep_path = os.path.join(include_path, '{}.f'.format(dep))
+                current_path = format(os.path.dirname(os.path.abspath(__file__)))
+                dep_path = os.path.join(current_path,include_path, '{}.f'.format(dep))
+                
+
                 if os.path.isfile(dep_path):
                     dependencies.append(dep_path)
                     found = True
@@ -135,7 +138,7 @@ def build(src_path, include_paths, build_path, debug):
         obj_list += ' {} '.format(obj_name)
 
     libs = ''
-    
+
     if link_with_sdl:
         # TODO: allow user to specify the path to libs
         libs += '-L/usr/local/lib -lSDL2 '
@@ -155,5 +158,3 @@ def build_source(src_path, include_paths, build_path, debug=False):
             continue
         build_source(dependency, include_paths=include_paths,
                      build_path=build_path, debug=debug)
-
-

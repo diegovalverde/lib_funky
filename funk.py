@@ -88,6 +88,7 @@ class Funk:
         try:
             if ll1_path is None:
                 ll1_path = '{}/funk_ll1.lark'.format(os.path.dirname(os.path.abspath(__file__)))
+
             with open(ll1_path, 'r') as myfile:
                 funk_grammar = myfile.read()
         except IOError:

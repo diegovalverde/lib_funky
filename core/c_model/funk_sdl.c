@@ -14,7 +14,7 @@ struct sdl_context
 };
 
 SDL_Renderer *renderer = NULL;
-
+int stop_render = 0;
 
 struct tnode g_sdl_user_global_state;
 
@@ -61,11 +61,20 @@ void sdl_render_loop(void *arg)
 }
 
 #ifdef FUNK_BUILD_FOR_WEB
+
+void funk_sdl_stop_render(){
+  stop_render  = 1;
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
+}
+
+
 // The event handler functions can return 1 to suppress the event and disable the default action. That calls event.preventDefault();
 // Returning 0 signals that the event was not consumed by the code, and will allow the event to pass on and bubble up normally.
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *userData)
 {
-  printf("In Weeeeeeeeeee\n");
+  printf("key_callback\n");
   // Take a lool at
   //https://chromium.googlesource.com/external/github.com/kripken/emscripten/+/refs/tags/1.36.0/tests/test_html5_fullscreen.c
   return 0;
