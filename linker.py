@@ -5,7 +5,10 @@ import os
 link_with_sdl = False
 dependency_satisfied = set()
 link_targets = set()
+cwd=format(os.path.dirname(os.path.abspath(__file__)))
 
+def set_cwd(path):
+    cwd=path
 
 def get_dependencies(src, include_paths=['.',os.getcwd()]):
     """
@@ -28,9 +31,8 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
 
             found = False
             for include_path in include_paths:
-                current_path = format(os.path.dirname(os.path.abspath(__file__)))
-                dep_path = os.path.join(current_path,include_path, '{}.f'.format(dep))
-                
+                dep_path = os.path.join(cwd,include_path, '{}.f'.format(dep))
+
 
                 if os.path.isfile(dep_path):
                     dependencies.append(dep_path)
