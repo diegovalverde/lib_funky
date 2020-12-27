@@ -14,6 +14,7 @@ struct sdl_context
 };
 
 SDL_Renderer *renderer = NULL;
+SDL_Window *window = NULL;
 int stop_render = 0;
 
 struct tnode g_sdl_user_global_state;
@@ -62,7 +63,7 @@ void sdl_render_loop(void *arg)
 
 #ifdef FUNK_BUILD_FOR_WEB
 
-void funk_sdl_stop_render(){
+EMSCRIPTEN_KEEPALIVE void funk_sdl_stop_render(){
   stop_render  = 1;
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
@@ -88,8 +89,6 @@ void funk_sdl_create_window(int32_t w, int32_t h, struct tnode * user_data)
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
   }
-  SDL_Window *window;
-  //SDL_Renderer *renderer;
 
   #ifdef FUNK_BUILD_FOR_WEB
   emscripten_set_keypress_callback("#canvas", 0, 0, key_callback);
