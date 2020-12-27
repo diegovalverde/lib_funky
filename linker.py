@@ -5,10 +5,11 @@ import os
 link_with_sdl = False
 dependency_satisfied = set()
 link_targets = set()
-cwd=format(os.path.dirname(os.path.abspath(__file__)))
+funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
 
 def set_cwd(path):
-    cwd=path
+    global funk_build_cwd
+    funk_build_cwd=path
 
 def get_dependencies(src, include_paths=['.',os.getcwd()]):
     """
@@ -19,7 +20,7 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
     """
     dependencies = []
     for line in src.splitlines():
-        global link_with_sdl
+        global link_with_sdl, funk_build_cwd
         match = re.findall('^ *\t*use +(.*)', line)
         if len(match) == 0:
             continue
@@ -31,7 +32,7 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
 
             found = False
             for include_path in include_paths:
-                dep_path = os.path.join(cwd,include_path, '{}.f'.format(dep))
+                dep_path = os.path.join(funk_build_cwd,include_path, '{}.f'.format(dep))
 
 
                 if os.path.isfile(dep_path):
