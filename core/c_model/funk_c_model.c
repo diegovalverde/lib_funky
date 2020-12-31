@@ -342,7 +342,7 @@ void funk_create_list_slide_1d_var(struct tnode * src, struct tnode * dst , stru
 
 }
 
-void funk_create_list_slide_lit(struct tnode * src, struct tnode * dst , int32_t * idx, int32_t idx_cnt){
+void funk_create_list_slide_lit(struct tnode * src, struct tnode * dst , int32_t * idx, uint32_t idx_cnt){
 
 
   if (idx_cnt != dst->dimension.count){
@@ -350,7 +350,7 @@ void funk_create_list_slide_lit(struct tnode * src, struct tnode * dst , int32_t
       __FUNCTION__, idx_cnt, dst->dimension.count );
   }
 
-  for (int i = 0; i < idx_cnt; i++){
+  for (uint32_t i = 0; i < idx_cnt; i++){
     if (idx[i] >= dst->dimension.d[i]){
       printf("-E- %s the index %d >  upper bound %d for dimension %d\n",
         __FUNCTION__, idx[i], dst->dimension.d[i], i );
