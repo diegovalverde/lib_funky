@@ -1171,7 +1171,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             self.code += """
             ;; sdl_render_callback
             call void @set_sdl_user_global_state(%struct.tnode* {global_state})
-    
+
             """.format(global_state=global_state)
 
     def sdl_point(self, funk, args):
