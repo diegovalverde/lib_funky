@@ -17,6 +17,7 @@
 
 
 from .funk_llvm_emitter import Emitter
+from .funk_utils import *
 import os
 import re
 
@@ -218,31 +219,36 @@ target datalayout = ""
         return str_out
 
     def compile(self, text):
-        if self.debug:
-            print ('-I- debug mode on')
-        preprocessed_text = text
-
-        # The grammar does not really allow you to put ',\n'
-        # Let's just fix this in some pre-processing stage
-        escapable_symbols = [',', '\\/', '-', '+', '*', '<-', '|']
-        for symbol in escapable_symbols:
-            preprocessed_text = preprocessed_text.replace('{}\n'.format(symbol), symbol)
-
-        preprocessed_text = self.replace_macros(preprocessed_text)
-
-        parse_tree = self.grammar.parse(preprocessed_text)
-
-        ast_generator = TreeToAst(self, debug=self.debug)
-
-        ast_generator.transform(parse_tree)
-
-        for fn in ast_generator.function_definition_list:
+        try:
             if self.debug:
-                print('-I- Emitting Function {}/{} '.format(fn, ast_generator.function_map[fn].arity))
+                print ('-I- debug mode on')
+            preprocessed_text = text
 
-            ast_generator.function_map[fn].eval()
+            # The grammar does not really allow you to put ',\n'
+            # Let's just fix this in some pre-processing stage
+            escapable_symbols = [',', '\\/', '-', '+', '*', '<-', '|']
+            for symbol in escapable_symbols:
+                preprocessed_text = preprocessed_text.replace('{}\n'.format(symbol), symbol)
 
-        print('-I- Success')
+            preprocessed_text = self.replace_macros(preprocessed_text)
+
+            parse_tree = self.grammar.parse(preprocessed_text)
+
+            ast_generator = TreeToAst(self, debug=self.debug)
+
+            ast_generator.transform(parse_tree)
+
+            for fn in ast_generator.function_definition_list:
+                if self.debug:
+                    print('-I- Emitting Function {}/{} '.format(fn, ast_generator.function_map[fn].arity))
+
+                ast_generator.function_map[fn].eval()
+
+            print('-I- Success')
+
+        except Exception as e:
+            print('ERROR!!!!')
+            raise Exception(formatCompilationError(e))
 
     def alloc_literal_symbol(self, symbol, pool, symbol_name):
         return self.emitter.alloc_tnode(symbol_name, symbol.eval(), pool, symbol.get_compile_type())
