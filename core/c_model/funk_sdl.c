@@ -16,6 +16,7 @@ struct sdl_context
 SDL_Renderer *renderer = NULL;
 SDL_Window *window = NULL;
 int stop_render = 0;
+int bg_color[] = {100,100,100};
 
 struct tnode g_sdl_user_global_state;
 
@@ -47,20 +48,24 @@ void sdl_rect(struct tnode * x, struct tnode * y, struct tnode * w,struct tnode 
 }
 
 void sdl_point(struct tnode * x, struct tnode * y){
-  SDL_Rect r;
   struct tdata * nx = GET_NODE(x,0);
   struct tdata * ny = GET_NODE(y,0);
 
   int x_ = (nx->type == type_int) ? nx->data.i : (int) nx->data.f;
   int y_ = (ny->type == type_int) ? ny->data.i : (int) ny->data.f;
+  printf("SDL %d, %d", x_, y_);
+  // Set our color for the draw functions
+  SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
   SDL_RenderDrawPoint(renderer, x_,y_);
+  SDL_SetRenderDrawColor(renderer, bg_color[0], bg_color[1], bg_color[2], 255);
+
 }
 
 void sdl_render_loop(void *arg)
 {
 
     // black background
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_SetRenderDrawColor(renderer, bg_color[0], bg_color[1], bg_color[2], 255);
     SDL_RenderClear(renderer);
 
     struct tnode result;

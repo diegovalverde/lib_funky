@@ -827,7 +827,7 @@ void funk_mod(void *x, void *a, void *b, int type){
 void funk_slt(void *x, void *a, void *b, int type){
 
   if (type == 1){
-    *((double *)x) = ((double)(*(double*)a) < (double)(*(double*)b)) ? 1 :0 ;
+    *((int *)x) = ((double)(*(double*)a) < (double)(*(double*)b)) ? 1 :0 ;
   } else {
     *((int *)x) = ((int)(*(int*)a) < (int)(*(int*)b)) ? 1 : 0;
   }
@@ -837,7 +837,7 @@ void funk_slt(void *x, void *a, void *b, int type){
 void funk_sgt(void *x, void *a, void *b, int type){
 
   if (type == 1){
-    *((double *)x) = ((double)(*(double*)a) > (double)(*(double*)b)) ? 1 :0 ;
+    *((int *)x) = ((double)(*(double*)a) > (double)(*(double*)b)) ? 1 :0 ;
   } else {
     *((int *)x) = ((int)(*(int*)a) > (int)(*(int*)b)) ? 1 : 0;
   }
@@ -847,7 +847,7 @@ void funk_sgt(void *x, void *a, void *b, int type){
 void funk_sge(void *x, void *a, void *b, int type){
 
   if (type == 1){
-    *((double *)x) = ((double)(*(double*)a) >= (double)(*(double*)b)) ? 1 :0 ;
+    *((int *)x) = ((double)(*(double*)a) >= (double)(*(double*)b)) ? 1 :0 ;
   } else {
     *((int *)x) = ((int)(*(int*)a) >= (int)(*(int*)b)) ? 1 : 0;
   }
@@ -857,7 +857,7 @@ void funk_sge(void *x, void *a, void *b, int type){
 void funk_eq(void *x, void *a, void *b, int type){
 
   if (type == 1){
-    *((double *)x) = ((double)(*(double*)a) == (double)(*(double*)b)) ? 1 :0 ;
+    *((int *)x) = ((double)(*(double*)a) == (double)(*(double*)b)) ? 1 :0 ;
   } else {
     *((int *)x) = ((int)(*(int*)a) == (int)(*(int*)b)) ? 1 : 0;
   }
@@ -866,7 +866,7 @@ void funk_eq(void *x, void *a, void *b, int type){
 void funk_ne(void *x, void *a, void *b, int type){
 
   if (type == 1){
-    *((double *)x) = ((double)(*(double*)a) != (double)(*(double*)b)) ? 1 :0 ;
+    *((int *)x) = ((double)(*(double*)a) != (double)(*(double*)b)) ? 1 :0 ;
   } else {
     *((int *)x) = ((int)(*(int*)a) != (int)(*(int*)b)) ? 1 : 0;
   }
@@ -875,7 +875,7 @@ void funk_ne(void *x, void *a, void *b, int type){
 void funk_or(void *x, void *a, void *b, int type){
 
   if (type == 1){
-    *((double *)x) = ((double)(*(double*)a) != 0.0 || (double)(*(double*)b) != 0.0) ? 1 :0 ;
+    *((int *)x) = ((double)(*(double*)a) != 0.0 || (double)(*(double*)b) != 0.0) ? 1 :0 ;
   } else {
     *((int *)x) = ((int)(*(int*)a) != 0 ||  (int)(*(int*)b) != 0) ? 1 : 0;
   }
@@ -1126,12 +1126,18 @@ void funk_slt_ri(struct tnode * node_r, int32_t r_offset,
 void funk_flt_rf(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,
                 double value){
-
                 struct tnode node_b;
+
                 funk_create_double_scalar(function_pool, &node_b, value);
                 funk_arith_op_rr(node_r, r_offset,
                                  node_a, a_offset,
                                  &node_b, 0, funk_slt);
+
+                printf("%f < %f = %d\n",
+                GET_NODE(node_a,0)->data.f,
+                value,
+                GET_NODE(node_r,0)->data.i);
+
 
 }
 
@@ -1384,5 +1390,12 @@ void funk_set_node_dimensions(struct tnode  * node, int * dimensions, int count)
   for (int i = 0; ((i < count) && (i < FUNK_MAX_DIMENSIONS)); i++){
     node->dimension.d[i] = dimensions[i];
   }
+
+}
+
+double rand_double(double lower, double upper){
+
+  return (((double)rand()/(double)(RAND_MAX)) * (upper-lower)) + lower;
+
 
 }

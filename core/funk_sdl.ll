@@ -18,13 +18,15 @@ target triple = "x86_64-apple-macosx10.16.0"
 @renderer = global %struct.SDL_Renderer* null, align 8
 @window = global %struct.SDL_Window* null, align 8
 @stop_render = global i32 0, align 4
+@bg_color = global [3 x i32] [i32 100, i32 100, i32 100], align 4
 @g_sdl_user_global_state = common global %struct.tnode zeroinitializer, align 8
 @__FUNCTION__.sdl_set_color = private unnamed_addr constant [14 x i8] c"sdl_set_color\00", align 1
 @__FUNCTION__.sdl_rect = private unnamed_addr constant [9 x i8] c"sdl_rect\00", align 1
 @__FUNCTION__.sdl_point = private unnamed_addr constant [10 x i8] c"sdl_point\00", align 1
-@.str = private unnamed_addr constant [25 x i8] c"-I- Initializing SDL 2D\0A\00", align 1
-@.str.1 = private unnamed_addr constant [28 x i8] c"Couldn't initialize SDL: %s\00", align 1
-@.str.2 = private unnamed_addr constant [40 x i8] c"Couldn't create window and renderer: %s\00", align 1
+@.str = private unnamed_addr constant [11 x i8] c"SDL %d, %d\00", align 1
+@.str.1 = private unnamed_addr constant [25 x i8] c"-I- Initializing SDL 2D\0A\00", align 1
+@.str.2 = private unnamed_addr constant [28 x i8] c"Couldn't initialize SDL: %s\00", align 1
+@.str.3 = private unnamed_addr constant [40 x i8] c"Couldn't create window and renderer: %s\00", align 1
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define void @set_sdl_user_global_state(%struct.tnode*) #0 {
@@ -47,19 +49,19 @@ define void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
   store %struct.tnode* %2, %struct.tnode** %6, align 8
   %7 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
   %8 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 34)
+  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 35)
   %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 1
   %11 = bitcast %union.data_type* %10 to i32*
   %12 = load i32, i32* %11, align 8
   %13 = trunc i32 %12 to i8
   %14 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 35)
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 36)
   %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 1
   %17 = bitcast %union.data_type* %16 to i32*
   %18 = load i32, i32* %17, align 8
   %19 = trunc i32 %18 to i8
   %20 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 36)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 37)
   %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 1
   %23 = bitcast %union.data_type* %22 to i32*
   %24 = load i32, i32* %23, align 8
@@ -84,28 +86,28 @@ define void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tn
   store %struct.tnode* %2, %struct.tnode** %7, align 8
   store %struct.tnode* %3, %struct.tnode** %8, align 8
   %10 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 41)
+  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 42)
   %12 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 1
   %13 = bitcast %union.data_type* %12 to i32*
   %14 = load i32, i32* %13, align 8
   %15 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 0
   store i32 %14, i32* %15, align 4
   %16 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %17 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 42)
+  %17 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 43)
   %18 = getelementptr inbounds %struct.tdata, %struct.tdata* %17, i32 0, i32 1
   %19 = bitcast %union.data_type* %18 to i32*
   %20 = load i32, i32* %19, align 8
   %21 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 1
   store i32 %20, i32* %21, align 4
   %22 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 43)
+  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 44)
   %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 1
   %25 = bitcast %union.data_type* %24 to i32*
   %26 = load i32, i32* %25, align 8
   %27 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 2
   store i32 %26, i32* %27, align 4
   %28 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %29 = call %struct.tdata* @get_node(%struct.tnode* %28, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 44)
+  %29 = call %struct.tdata* @get_node(%struct.tnode* %28, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 45)
   %30 = getelementptr inbounds %struct.tdata, %struct.tdata* %29, i32 0, i32 1
   %31 = bitcast %union.data_type* %30 to i32*
   %32 = load i32, i32* %31, align 8
@@ -122,75 +124,89 @@ declare i32 @SDL_RenderFillRect(%struct.SDL_Renderer*, %struct.SDL_Rect*) #1
 define void @sdl_point(%struct.tnode*, %struct.tnode*) #0 {
   %3 = alloca %struct.tnode*, align 8
   %4 = alloca %struct.tnode*, align 8
-  %5 = alloca %struct.SDL_Rect, align 4
+  %5 = alloca %struct.tdata*, align 8
   %6 = alloca %struct.tdata*, align 8
-  %7 = alloca %struct.tdata*, align 8
+  %7 = alloca i32, align 4
   %8 = alloca i32, align 4
-  %9 = alloca i32, align 4
   store %struct.tnode* %0, %struct.tnode** %3, align 8
   store %struct.tnode* %1, %struct.tnode** %4, align 8
-  %10 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.sdl_point, i64 0, i64 0), i32 51)
-  store %struct.tdata* %11, %struct.tdata** %6, align 8
-  %12 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %13 = call %struct.tdata* @get_node(%struct.tnode* %12, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.sdl_point, i64 0, i64 0), i32 52)
-  store %struct.tdata* %13, %struct.tdata** %7, align 8
-  %14 = load %struct.tdata*, %struct.tdata** %6, align 8
-  %15 = getelementptr inbounds %struct.tdata, %struct.tdata* %14, i32 0, i32 0
-  %16 = load i8, i8* %15, align 8
-  %17 = zext i8 %16 to i32
-  %18 = icmp eq i32 %17, 1
-  br i1 %18, label %19, label %24
+  %9 = load %struct.tnode*, %struct.tnode** %3, align 8
+  %10 = call %struct.tdata* @get_node(%struct.tnode* %9, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.sdl_point, i64 0, i64 0), i32 51)
+  store %struct.tdata* %10, %struct.tdata** %5, align 8
+  %11 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.sdl_point, i64 0, i64 0), i32 52)
+  store %struct.tdata* %12, %struct.tdata** %6, align 8
+  %13 = load %struct.tdata*, %struct.tdata** %5, align 8
+  %14 = getelementptr inbounds %struct.tdata, %struct.tdata* %13, i32 0, i32 0
+  %15 = load i8, i8* %14, align 8
+  %16 = zext i8 %15 to i32
+  %17 = icmp eq i32 %16, 1
+  br i1 %17, label %18, label %23
 
-19:                                               ; preds = %2
-  %20 = load %struct.tdata*, %struct.tdata** %6, align 8
-  %21 = getelementptr inbounds %struct.tdata, %struct.tdata* %20, i32 0, i32 1
-  %22 = bitcast %union.data_type* %21 to i32*
-  %23 = load i32, i32* %22, align 8
-  br label %30
+18:                                               ; preds = %2
+  %19 = load %struct.tdata*, %struct.tdata** %5, align 8
+  %20 = getelementptr inbounds %struct.tdata, %struct.tdata* %19, i32 0, i32 1
+  %21 = bitcast %union.data_type* %20 to i32*
+  %22 = load i32, i32* %21, align 8
+  br label %29
 
-24:                                               ; preds = %2
-  %25 = load %struct.tdata*, %struct.tdata** %6, align 8
-  %26 = getelementptr inbounds %struct.tdata, %struct.tdata* %25, i32 0, i32 1
-  %27 = bitcast %union.data_type* %26 to double*
-  %28 = load double, double* %27, align 8
-  %29 = fptosi double %28 to i32
-  br label %30
+23:                                               ; preds = %2
+  %24 = load %struct.tdata*, %struct.tdata** %5, align 8
+  %25 = getelementptr inbounds %struct.tdata, %struct.tdata* %24, i32 0, i32 1
+  %26 = bitcast %union.data_type* %25 to double*
+  %27 = load double, double* %26, align 8
+  %28 = fptosi double %27 to i32
+  br label %29
 
-30:                                               ; preds = %24, %19
-  %31 = phi i32 [ %23, %19 ], [ %29, %24 ]
-  store i32 %31, i32* %8, align 4
-  %32 = load %struct.tdata*, %struct.tdata** %7, align 8
-  %33 = getelementptr inbounds %struct.tdata, %struct.tdata* %32, i32 0, i32 0
-  %34 = load i8, i8* %33, align 8
-  %35 = zext i8 %34 to i32
-  %36 = icmp eq i32 %35, 1
-  br i1 %36, label %37, label %42
+29:                                               ; preds = %23, %18
+  %30 = phi i32 [ %22, %18 ], [ %28, %23 ]
+  store i32 %30, i32* %7, align 4
+  %31 = load %struct.tdata*, %struct.tdata** %6, align 8
+  %32 = getelementptr inbounds %struct.tdata, %struct.tdata* %31, i32 0, i32 0
+  %33 = load i8, i8* %32, align 8
+  %34 = zext i8 %33 to i32
+  %35 = icmp eq i32 %34, 1
+  br i1 %35, label %36, label %41
 
-37:                                               ; preds = %30
-  %38 = load %struct.tdata*, %struct.tdata** %7, align 8
-  %39 = getelementptr inbounds %struct.tdata, %struct.tdata* %38, i32 0, i32 1
-  %40 = bitcast %union.data_type* %39 to i32*
-  %41 = load i32, i32* %40, align 8
-  br label %48
+36:                                               ; preds = %29
+  %37 = load %struct.tdata*, %struct.tdata** %6, align 8
+  %38 = getelementptr inbounds %struct.tdata, %struct.tdata* %37, i32 0, i32 1
+  %39 = bitcast %union.data_type* %38 to i32*
+  %40 = load i32, i32* %39, align 8
+  br label %47
 
-42:                                               ; preds = %30
-  %43 = load %struct.tdata*, %struct.tdata** %7, align 8
-  %44 = getelementptr inbounds %struct.tdata, %struct.tdata* %43, i32 0, i32 1
-  %45 = bitcast %union.data_type* %44 to double*
-  %46 = load double, double* %45, align 8
-  %47 = fptosi double %46 to i32
-  br label %48
+41:                                               ; preds = %29
+  %42 = load %struct.tdata*, %struct.tdata** %6, align 8
+  %43 = getelementptr inbounds %struct.tdata, %struct.tdata* %42, i32 0, i32 1
+  %44 = bitcast %union.data_type* %43 to double*
+  %45 = load double, double* %44, align 8
+  %46 = fptosi double %45 to i32
+  br label %47
 
-48:                                               ; preds = %42, %37
-  %49 = phi i32 [ %41, %37 ], [ %47, %42 ]
-  store i32 %49, i32* %9, align 4
-  %50 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
-  %51 = load i32, i32* %8, align 4
-  %52 = load i32, i32* %9, align 4
-  %53 = call i32 @SDL_RenderDrawPoint(%struct.SDL_Renderer* %50, i32 %51, i32 %52)
+47:                                               ; preds = %41, %36
+  %48 = phi i32 [ %40, %36 ], [ %46, %41 ]
+  store i32 %48, i32* %8, align 4
+  %49 = load i32, i32* %7, align 4
+  %50 = load i32, i32* %8, align 4
+  %51 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @.str, i64 0, i64 0), i32 %49, i32 %50)
+  %52 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %53 = call i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer* %52, i8 zeroext 0, i8 zeroext -1, i8 zeroext 0, i8 zeroext -1)
+  %54 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %55 = load i32, i32* %7, align 4
+  %56 = load i32, i32* %8, align 4
+  %57 = call i32 @SDL_RenderDrawPoint(%struct.SDL_Renderer* %54, i32 %55, i32 %56)
+  %58 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %59 = load i32, i32* getelementptr inbounds ([3 x i32], [3 x i32]* @bg_color, i64 0, i64 0), align 4
+  %60 = trunc i32 %59 to i8
+  %61 = load i32, i32* getelementptr inbounds ([3 x i32], [3 x i32]* @bg_color, i64 0, i64 1), align 4
+  %62 = trunc i32 %61 to i8
+  %63 = load i32, i32* getelementptr inbounds ([3 x i32], [3 x i32]* @bg_color, i64 0, i64 2), align 4
+  %64 = trunc i32 %63 to i8
+  %65 = call i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer* %58, i8 zeroext %60, i8 zeroext %62, i8 zeroext %64, i8 zeroext -1)
   ret void
 }
+
+declare i32 @printf(i8*, ...) #1
 
 declare i32 @SDL_RenderDrawPoint(%struct.SDL_Renderer*, i32, i32) #1
 
@@ -200,13 +216,19 @@ define void @sdl_render_loop(i8*) #0 {
   %3 = alloca %struct.tnode, align 8
   store i8* %0, i8** %2, align 8
   %4 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
-  %5 = call i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer* %4, i8 zeroext 100, i8 zeroext 100, i8 zeroext 100, i8 zeroext -1)
-  %6 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
-  %7 = call i32 @SDL_RenderClear(%struct.SDL_Renderer* %6)
+  %5 = load i32, i32* getelementptr inbounds ([3 x i32], [3 x i32]* @bg_color, i64 0, i64 0), align 4
+  %6 = trunc i32 %5 to i8
+  %7 = load i32, i32* getelementptr inbounds ([3 x i32], [3 x i32]* @bg_color, i64 0, i64 1), align 4
+  %8 = trunc i32 %7 to i8
+  %9 = load i32, i32* getelementptr inbounds ([3 x i32], [3 x i32]* @bg_color, i64 0, i64 2), align 4
+  %10 = trunc i32 %9 to i8
+  %11 = call i32 @SDL_SetRenderDrawColor(%struct.SDL_Renderer* %4, i8 zeroext %6, i8 zeroext %8, i8 zeroext %10, i8 zeroext -1)
+  %12 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  %13 = call i32 @SDL_RenderClear(%struct.SDL_Renderer* %12)
   call void @funk_create_int_scalar(i32 1, %struct.tnode* %3, i32 0)
   call void @sdl_render(%struct.tnode* %3, i32 1, %struct.tnode* @g_sdl_user_global_state)
-  %8 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
-  call void @SDL_RenderPresent(%struct.SDL_Renderer* %8)
+  %14 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
+  call void @SDL_RenderPresent(%struct.SDL_Renderer* %14)
   ret void
 }
 
@@ -228,14 +250,14 @@ define void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 {
   store i32 %0, i32* %4, align 4
   store i32 %1, i32* %5, align 4
   store %struct.tnode* %2, %struct.tnode** %6, align 8
-  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([25 x i8], [25 x i8]* @.str, i64 0, i64 0))
+  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([25 x i8], [25 x i8]* @.str.1, i64 0, i64 0))
   %10 = call i32 @SDL_Init(i32 32)
   %11 = icmp slt i32 %10, 0
   br i1 %11, label %12, label %14
 
 12:                                               ; preds = %3
   %13 = call i8* @SDL_GetError()
-  call void (i32, i8*, ...) @SDL_LogError(i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.1, i64 0, i64 0), i8* %13)
+  call void (i32, i8*, ...) @SDL_LogError(i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.2, i64 0, i64 0), i8* %13)
   br label %14
 
 14:                                               ; preds = %12, %3
@@ -247,7 +269,7 @@ define void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 {
 
 19:                                               ; preds = %14
   %20 = call i8* @SDL_GetError()
-  call void (i32, i8*, ...) @SDL_LogError(i32 0, i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.2, i64 0, i64 0), i8* %20)
+  call void (i32, i8*, ...) @SDL_LogError(i32 0, i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.3, i64 0, i64 0), i8* %20)
   br label %21
 
 21:                                               ; preds = %19, %14
@@ -278,8 +300,6 @@ define void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 {
   call void @SDL_Quit()
   ret void
 }
-
-declare i32 @printf(i8*, ...) #1
 
 declare i32 @SDL_Init(i32) #1
 

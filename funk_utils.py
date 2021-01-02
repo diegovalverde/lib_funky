@@ -8,4 +8,3 @@ def formatCompilationError(e):
         return e.__str__()
     else:
         return 'Syntax error row:{} col:{}\n'.format(e.line,  e.column)
-

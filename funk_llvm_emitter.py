@@ -1164,15 +1164,15 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         """.format(w=w, h=h, node=node)
 
     def sdl_render_callback(self,funk,args):
-        if len(args) != 1:
-            raise Exception('=== sdl_render_callback takes 1 parameter')
+        if len(args) > 1:
+            raise Exception('=== sdl_render_callback takes at 1 or 0 parameters')
+        if len(args) == 1:
+            global_state = args[0].eval()
+            self.code += """
+            ;; sdl_render_callback
+            call void @set_sdl_user_global_state(%struct.tnode* {global_state})
 
-        global_state = args[0].eval()
-        self.code += """
-        ;; sdl_render_callback
-        call void @set_sdl_user_global_state(%struct.tnode* {global_state})
-
-        """.format(global_state=global_state)
+            """.format(global_state=global_state)
 
     def sdl_point(self, funk, args):
         if len(args) != 2:
