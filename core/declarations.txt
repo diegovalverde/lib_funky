@@ -32,6 +32,7 @@ declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode
 declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_scalar(%struct.tpool*, %struct.tnode*, i8*, i32) #0 
+declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_create_float_scalar(%struct.tpool*, %struct.tnode*, double) #0 
 declare void @funk_create_list_int_literal(i32, %struct.tnode*, i32*, i32) #0 
@@ -70,11 +71,14 @@ declare void @funk_or_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode
 declare void @funk_ne_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_add_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_sub_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_mod_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_add_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_div_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_mul_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_sub_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
+declare void @funk_mul_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_slt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_flt_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_sgt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_sge_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
@@ -92,6 +96,7 @@ declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 
 declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @sdl_point(%struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_render_loop(i8*) #0 
 declare void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 
 ;;;

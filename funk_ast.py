@@ -773,6 +773,7 @@ class FunctionCall(Expression):
             'dim': Dim,
             'sdl_window': SDLCreateWindow,
             'sdl_rect':SDLRect,
+            'sdl_point': SDLPoint,
             'sdl_set_color':SDLColor,
             'sdl_render': SDLRenderFunction,
             'exit': Exit,
@@ -1169,6 +1170,14 @@ class SDLRenderFunction:
 
     def eval(self, result=None):
         self.funk.emitter.sdl_render_callback(self.funk, self.arg_list)
+
+class SDLPoint:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        self.funk.emitter.sdl_point(self.funk, self.arg_list)
 
 class SDLRect:
     def __init__(self, funk, arg_list):

@@ -46,6 +46,16 @@ void sdl_rect(struct tnode * x, struct tnode * y, struct tnode * w,struct tnode 
   SDL_RenderFillRect(renderer, &r );
 }
 
+void sdl_point(struct tnode * x, struct tnode * y){
+  SDL_Rect r;
+  struct tdata * nx = GET_NODE(x,0);
+  struct tdata * ny = GET_NODE(y,0);
+
+  int x_ = (nx->type == type_int) ? nx->data.i : (int) nx->data.f;
+  int y_ = (ny->type == type_int) ? ny->data.i : (int) ny->data.f;
+  SDL_RenderDrawPoint(renderer, x_,y_);
+}
+
 void sdl_render_loop(void *arg)
 {
 

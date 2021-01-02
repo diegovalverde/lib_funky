@@ -958,6 +958,12 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         %{0} = alloca %struct.tnode, align 8
         call void @funk_create_int_scalar(i32 {pool}, %struct.tnode* %{0},  i32 {val})
         """.format(p[0], val=value, name=name, pool=pool)
+        elif data_type == funk_types.double:
+            self.code += """
+                ;; create tnode '{name}' of type double
+                %{0} = alloca %struct.tnode, align 8
+                call void @funk_create_double_scalar(i32 {pool}, %struct.tnode* %{0},  double {val})
+                """.format(p[0], val=value, name=name, pool=pool)
         else:
             print('Data type not implemented')
 
@@ -1140,7 +1146,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         node_val = '%{}'.format(p[-1])
 
         if result is None:
-            result = self.alloc_tnode(name='rand_double_result', value=node_val, data_type=funk_types.double)
+            result = self.alloc_tnode(name='rand_double_result', pool=funk_types.function_pool, value=node_val, data_type=funk_types.double)
         else:
             self.set_node_data_value('rand_double_result', result, node_val, as_type=funk_types.double)
 
@@ -1167,6 +1173,17 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         call void @set_sdl_user_global_state(%struct.tnode* {global_state})
 
         """.format(global_state=global_state)
+
+    def sdl_point(self, funk, args):
+        if len(args) != 2:
+            raise Exception('=== sdl_point takes 2 parameters')
+
+        x = args[0].eval()
+        y = args[1].eval()
+
+        self.code += """
+                call void @sdl_point(%struct.tnode* {x}, %struct.tnode* {y})
+                """.format(x=x, y=y)
 
     def sdl_rect(self, funk, args):
         if len(args) != 4:

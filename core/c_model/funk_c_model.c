@@ -495,6 +495,13 @@ void funk_create_scalar(struct tpool * pool, struct tnode * n, void * val, int32
 
 }
 
+void funk_create_double_scalar(enum pool_types pool, struct tnode * n, double val){
+
+  funk_create_scalar(get_pool_ptr(pool), n, (void*)&val, type_double);
+  VALIDATE_NODE(n);
+
+}
+
 void funk_create_int_scalar(enum pool_types pool, struct tnode * n, int32_t val){
   #ifdef FUNK_DEBUG_BUILD
   if (g_funk_internal_function_tracing_enabled)
@@ -1032,6 +1039,18 @@ void funk_sub_ri(struct tnode * node_r, int32_t r_offset,
                                    &node_b, 0, funk_sub);
                 }
 
+void funk_mod_ri(struct tnode * node_r, int32_t r_offset,
+                struct tnode * node_a, int32_t a_offset,
+                int value){
+
+                  struct tnode node_b;
+
+                  funk_create_int_scalar(function_pool, &node_b, value);
+                  funk_arith_op_rr(node_r, r_offset,
+                                   node_a, a_offset,
+                                   &node_b, 0, funk_mod);
+                }
+
 void funk_add_ri(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,
                 int value){
@@ -1080,12 +1099,36 @@ void funk_sub_rf(struct tnode * node_r, int32_t r_offset,
                                    &node_b, 0, funk_sub);
                 }
 
+void funk_mul_rf(struct tnode * node_r, int32_t r_offset,
+                struct tnode * node_a, int32_t a_offset,
+                double value){
+
+                  struct tnode node_b;
+
+                  funk_create_float_scalar(&funk_functions_memory_pool, &node_b, value);
+                  funk_arith_op_rr(node_r, r_offset,
+                                   node_a, a_offset,
+                                   &node_b, 0, funk_mul);
+                }
+
 void funk_slt_ri(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,
                 int value){
 
                 struct tnode node_b;
                 funk_create_int_scalar(function_pool, &node_b, value);
+                funk_arith_op_rr(node_r, r_offset,
+                                 node_a, a_offset,
+                                 &node_b, 0, funk_slt);
+
+}
+
+void funk_flt_rf(struct tnode * node_r, int32_t r_offset,
+                struct tnode * node_a, int32_t a_offset,
+                double value){
+
+                struct tnode node_b;
+                funk_create_double_scalar(function_pool, &node_b, value);
                 funk_arith_op_rr(node_r, r_offset,
                                  node_a, a_offset,
                                  &node_b, 0, funk_slt);
