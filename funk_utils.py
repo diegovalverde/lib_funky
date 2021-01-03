@@ -7,4 +7,4 @@ def formatCompilationError(e):
     elif isinstance(e,UnexpectedToken) or isinstance(e,UnexpectedCharacters):
         return 'Syntax error row:{} col:{}\n'.format(e.line,  e.column)
     else:
-        return '>>>>>>' + e.__str__()
+        return e.__str__()
