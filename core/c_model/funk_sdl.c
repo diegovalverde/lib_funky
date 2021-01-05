@@ -53,7 +53,7 @@ void sdl_point(struct tnode * x, struct tnode * y){
 
   int x_ = (nx->type == type_int) ? nx->data.i : (int) nx->data.f;
   int y_ = (ny->type == type_int) ? ny->data.i : (int) ny->data.f;
-  printf("SDL %d, %d", x_, y_);
+  
   // Set our color for the draw functions
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
   SDL_RenderDrawPoint(renderer, x_,y_);

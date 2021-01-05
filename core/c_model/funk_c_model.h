@@ -47,7 +47,7 @@ struct tnode;
 struct tdata
 {
 
-  unsigned char type;
+  enum funk_types type;
   union data_type{
     double f;
     int32_t i;
