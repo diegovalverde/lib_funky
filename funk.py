@@ -256,10 +256,11 @@ target datalayout = ""
     def alloc_variable_list_symbol(self, p_start, p_end, expr):
         return self.emitter.alloc_variable_linked_list(p_start, p_end, expr)
 
-    def alloc_literal_list_symbol(self, elements, dimensions, pool):
-       return self.emitter.alloc_literal_list(name='list[]', lit_list=elements, dimensions=dimensions, pool=pool)
+    def alloc_literal_list_symbol(self, elements, dimensions, pool, result=None):
+       return self.emitter.alloc_literal_list(name='list[]', lit_list=elements, dimensions=dimensions, pool=pool, result=result)
 
     def create_variable_symbol(self, symbol, symbol_name):
         allocation = self.emitter.alloc_tnode(symbol_name, 0, funk_types.function_pool, data_type=symbol.get_compile_type())
+        self.emitter.add_comment(symbol.__repr__())
         symbol.eval(result=allocation)
         return allocation

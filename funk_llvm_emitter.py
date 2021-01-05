@@ -21,6 +21,14 @@ from . import funk_constants
 from . import funk_ast
 
 
+def to_funk_type(x):
+    if isinstance(x, int):
+        return funk_types.int
+    elif isinstance(x, float):
+        return funk_types.double
+    else:
+        return funk_types.unknown
+
 def add_constant_string_symbol(funk, arg):
     format_string = arg
     format_len = len(format_string) + 1
@@ -89,19 +97,20 @@ class Emitter:
 
         return '%{}'.format(p[0])
 
-    def set_node_data_value(self, name, node, value, as_type, offset=0):
+    def set_node_data_value(self, name, node, value, offset=0, as_type=funk_types.int):
 
         if as_type == funk_types.double:
             self.code += """
-        ERROR Un-implemented
-         """.format(node=node, value=self.enconde_double_to_ieee754_32(value), name=name)
-        else:
+        ;; {name}.data.value = {value} -- double
+          call void @funk_set_node_value_double(%struct.tnode* {node}, i32 {offset}, double {value})
+         """.format(node=node, value=self.enconde_double_to_ieee754_32(value), name=name, offset=offset)
+        elif as_type == funk_types.int:
             self.code += """
         ;; {name}.data.value = {value} -- int
           call void @funk_set_node_value_int(%struct.tnode* {node}, i32 {offset}, i32 {value})
         """.format(node=node, value=value, name=name, offset=offset)
-
-            #raise Exception('Unsupported type {}'.format(type))
+        else:
+            raise Exception('Unsupported type {}'.format(as_type))
 
     def get_node_data_type(self, node, ret_i8=False, offset=0):
 
@@ -128,15 +137,11 @@ class Emitter:
 
         return '%{}'.format(p[-1])
 
-    def set_node_data_type(self, name, node, type):
-        p = [x for x in range(self.index, self.index + 2)]
-        self.index = p[-1] + 1
+    def set_node_data_type(self, name, node, type, offset=0):
         self.code += """
         ;; {name}.data.type = '{type_string}\'
-        %{0} = getelementptr inbounds %struct.tnode, %struct.tnode* {node}, i32 0, i32 1
-        %{1} = getelementptr inbounds %struct.tdata, %struct.tdata* %{0}, i32 0, i32 0
-        store i8 {type}, i8* %{1}, align 8
-        """.format(p[0], p[1], node=node, type=type, name=name, type_string=funk_types.to_str[type])
+        call void @funk_set_node_type(%struct.tnode* {node}, i32 {offset}, i32 {type})
+        """.format( node=node, type=type, name=name, type_string=funk_types.to_str[type], offset=offset)
 
     def get_node_pointer(self, node):
         p = [x for x in range(self.index, self.index + 1)]
@@ -558,34 +563,6 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return '%{}'.format(p[-1])
 
-    def malloc_right_node(self, ptr_left):
-        p = [x for x in range(self.index, self.index + 1)]
-        self.index = p[-1] + 1
-
-        self.code += """
-        %{0} = call %struct.tnode* @funk_mallocNodeRight(%struct.tnode* {ptr_left})
-        """.format(p[0], ptr_left=ptr_left)
-
-        return '%{}'.format(p[-1])
-
-    def print_collector_status(self):
-        self.code += """
-        ;;call void @printCollectorStatus()
-        """
-
-    def allocate_in_heap(self):
-
-        p = [x for x in range(self.index, self.index + 2)]
-        self.index = p[-1] + 1
-
-        self.code += """
-        %{0} = call i8* @malloc(i32 {tnode_size}) #3
-        %{1} = bitcast i8* %{0} to %struct.tnode*
-
-        """.format(p[0], p[1], tnode_size=funk_constants.tnode_size_bytes)
-
-        return '%{}'.format(p[1])
-
     def alloc_tnode_pointer(self):
         p = [x for x in range(self.index, self.index + 1)]
         self.index = p[-1] + 1
@@ -670,7 +647,14 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return result
 
-    def alloc_literal_list(self, name, lit_list, dimensions, pool):
+
+
+    def alloc_literal_list(self, name, lit_list, dimensions, pool, result=None):
+
+        if result is None:
+            result = self.allocate_result()
+
+        as_type = to_funk_type(lit_list[0])
         p = [x for x in range(self.index, self.index + 3)]
         self.index = p[-1] + 1
         A = p[0]
@@ -678,40 +662,38 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         n = len(lit_list)
         self.code += """
         ;; variable \'{name}\': {lit_list}
-        %{0} = alloca [{n} x i32], align 16
-        %{1} = bitcast [{n} x i32]* %{0} to i8*
-        %{2} = bitcast i8* %{1} to [{n} x i32]*
-        """.format(p[0], p[1], p[2], name=name, lit_list=lit_list, n=n)
+        %{0} = alloca [{n} x {data_type}], align 16
+        %{1} = bitcast [{n} x {data_type}]* %{0} to i8*
+        %{2} = bitcast i8* %{1} to [{n} x {data_type}]*
+        """.format(p[0], p[1], p[2], name=name, lit_list=lit_list, n=n, data_type=funk_types.to_str[as_type])
 
         i = 0
         for lit in lit_list:
             p = [x for x in range(self.index, self.index + 1)]
             self.index = p[-1] + 1
             self.code += """
-        %{0} = getelementptr [{n} x i32], [{n} x i32]* %{p}, i64 0, i64 {i}
-        store i32 {lit}, i32* %{0}
-        """.format(p[0], p=ptr, n=n, lit=lit, i = i)
+        %{0} = getelementptr [{n} x {data_type}], [{n} x {data_type}]* %{p}, i64 0, i64 {i}
+        store {data_type} {lit}, {data_type}* %{0}
+        """.format(p[0], p=ptr, n=n, lit=lit, i = i, data_type=funk_types.to_str[as_type])
             i += 1
 
-        p = [x for x in range(self.index, self.index + 2)]
+        p = [x for x in range(self.index, self.index + 1)]
         self.index = p[-1] + 1
 
         if len(dimensions) == 2:
             self.code += """
             %{0} = getelementptr inbounds [{n} x i32], [{n} x i32]* %{A}, i32 0, i32 0
-            %{1} = alloca %struct.tnode, align 8
-            call void @funk_create_2d_matrix_int_literal(i32 {pool}, %struct.tnode* %{1}, i32* %{0}, i32 {N}, i32 {M})
+            call void @funk_create_2d_matrix_int_literal(i32 {pool}, %struct.tnode* {result}, i32* %{0}, i32 {N}, i32 {M})
 
-            """.format(p[0], p[1], A=A, name=name, lit_list=lit_list, n=n, pool=pool, N=dimensions[0], M=dimensions[1])
+            """.format(p[0], result=result, A=A, name=name, lit_list=lit_list, n=n, pool=pool, N=dimensions[0], M=dimensions[1])
         else:
             self.code += """
-            %{0} = getelementptr inbounds [{n} x i32], [{n} x i32]* %{A}, i32 0, i32 0
-            %{1} = alloca %struct.tnode, align 8
-            call void @funk_create_list_int_literal(i32 {pool}, %struct.tnode* %{1}, i32* %{0}, i32 {n})
+            %{0} = getelementptr inbounds [{n} x {data_type}], [{n} x {data_type}]* %{A}, i32 0, i32 0
+            call void @funk_create_list_{data_type}_literal(i32 {pool}, %struct.tnode* {result}, {data_type}* %{0}, i32 {n})
 
-            """.format(p[0], p[1], A=A, name=name, lit_list=lit_list, pool=pool, n=dimensions[0])
+            """.format(p[0], result=result, A=A, name=name, lit_list=lit_list, pool=pool, n=dimensions[0], data_type=funk_types.to_str[as_type])
 
-        return '%{}'.format(p[1])
+        return result
 
     def create_slice_lit_2d(self, node, indexes, result=None):
         i,j = indexes[0].eval(), indexes[1].eval()
@@ -819,46 +801,6 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
                 call void @funk_get_len(%struct.tnode* {node}, %struct.tnode * {result})
                """.format(node=node, result=result)
-        return result
-
-    def create_fixed_range_list(self, expr, iterator, range_start, range_end, result):
-        if result is None:
-            result = self.allocate_result()
-
-        p = [x for x in range(self.index, self.index + 6)]
-        self.index = p[-1] + 1
-        iterator_reg = p[0]
-
-        self.code += """
-        %{iterator_reg} = alloca i32, align 4
-          store i32 {range_start}, i32* %{iterator_reg}, align 4
-          br label %{1}
-
-        {1}:                                                ; preds = %8, %0
-          %{2} = load i32, i32* %{iterator_reg}, align 4
-          %{3} = icmp slt i32 %{2}, {range_end}
-          br i1 %{3}, label %{4}, label %{10}
-
-        {4}:                                                ; preds = %{1}
-          %{5} = load i32, i32* %{iterator_reg}, align 4
-        """.format(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9],p[10],
-        range_start=range_start, range_end=range_end, iterator_reg=iterator_reg)
-
-        expr.replace(iterator, iterator_reg).eval(result=result)
-
-        self.code +="""
-          %{6} = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.23, i64 0, i64 0), i32 %6)
-          br label %{7}
-
-        {7}:                                                ; preds = %5
-          %{8} = load i32, i32* %{0}, align 4
-          %{9} = add nsw i32 %{8}, 1
-          store i32 %{9}, i32* %{iterator_reg}, align 4
-          br label %{1}
-        {10}:
-        """.format(p[0],p[1],p[2],p[3],p[4],p[5],p[6],p[7],p[8],p[9],p[10],
-        range_start=range_start, range_end=range_end, iterator_reg=iterator_reg)
-
         return result
 
     def create_submatrix(self, node, indexes, result=None):
@@ -1050,6 +992,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
     def print_funk(self, funk, args):
         if args is not None:
             for arg_expr in args:
+                self.add_comment(arg_expr.__repr__() )
                 arg = arg_expr.eval()
 
                 if arg[:1] != '%':

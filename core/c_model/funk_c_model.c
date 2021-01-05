@@ -501,7 +501,7 @@ void funk_create_float_scalar(enum pool_types pool_type, struct tnode * n, doubl
 
 }
 
-void funk_create_list_int_literal(enum pool_types pool_type, struct tnode * n, int32_t * list , int32_t size ){
+void funk_create_list_i32_literal(enum pool_types pool_type, struct tnode * n, int32_t * list , int32_t size ){
   TRACE("start");
 
   struct tpool * pool = get_pool_ptr(pool_type);
@@ -520,6 +520,26 @@ void funk_create_list_int_literal(enum pool_types pool_type, struct tnode * n, i
     GET_NODE(n,i)->data.i = list[i];
   }
 
+}
+
+void funk_create_list_double_literal(enum pool_types pool_type, struct tnode * n, double * list , int32_t size ){
+  TRACE("start");
+
+  struct tpool * pool = get_pool_ptr(pool_type);
+
+  n->start  = pool->tail;
+  n->len = size;
+  n->pool = pool;
+  n->wrap_creation = pool->wrap_count;
+  n->dimension.count = 1;
+
+  funk_increment_pool_tail(pool, size);
+
+
+  for (int i = 0; i < size; i++){
+    GET_NODE(n,i)->type = type_double;
+    GET_NODE(n,i)->data.f = list[i];
+  }
 
 }
 
@@ -528,7 +548,7 @@ void funk_create_2d_matrix_int_literal(enum pool_types  pool_type, struct tnode 
 
   // Internally matrices are representes as contiguos
   // arrays in memory
-  funk_create_list_int_literal(pool_type, node, list, n*m );
+  funk_create_list_i32_literal(pool_type, node, list, n*m );
   node->dimension.count = 2;
   node->dimension.d[0] = n;
   node->dimension.d[1] = m;
@@ -579,7 +599,7 @@ void funk_get_node_type(struct tnode  * node, uint32_t offset, unsigned char * t
   TRACE("end");
 }
 
-void funk_set_node_type(struct tnode  * node, uint32_t offset, unsigned char type){
+void funk_set_node_type(struct tnode  * node, uint32_t offset, enum funk_types type){
   TRACE("start");
 
   if (offset >= node->len){
@@ -607,8 +627,18 @@ void funk_set_node_value_int(struct tnode  * node, uint32_t offset, uint32_t val
   if (offset >= node->len){
     printf("-E- %s: offset %d out of bounds for len %d", __FUNCTION__, offset, node->len);
   }
-  GET_NODE(node, offset )->type = (unsigned char)type_int;
+  GET_NODE(node, offset )->type = type_int;
   GET_NODE(node, offset )->data.i = value;
+}
+
+void funk_set_node_value_double(struct tnode  * node, uint32_t offset, double value){
+  TRACE("start");
+
+  if (offset >= node->len){
+    printf("-E- %s: offset %d out of bounds for len %d", __FUNCTION__, offset, node->len);
+  }
+  GET_NODE(node, offset )->type = type_double;
+  GET_NODE(node, offset )->data.f = value;
 }
 
 int32_t funk_get_node_value_int(struct tnode * node, int32_t offset){
@@ -1113,6 +1143,17 @@ void funk_slt_ri(struct tnode * node_r, int32_t r_offset,
                                  &node_b, 0, funk_slt);
 
 }
+
+
+void funk_slt_rr(struct tnode * node_r, int32_t r_offset,
+                struct tnode * node_a, int32_t a_offset,
+                struct tnode * node_b, int32_t b_offset){
+
+                  TRACE("start");
+                  funk_arith_op_rr(node_r, r_offset,
+                                   node_a, a_offset,
+                                   node_b, b_offset, funk_slt);
+                }
 
 void funk_flt_rf(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,

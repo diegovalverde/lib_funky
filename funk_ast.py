@@ -101,8 +101,6 @@ class IntegerConstant:
         val = self.sign * int(self.value)
         if result is not None:
             self.funk.emitter.set_node_data_value('result element', result, val, as_type=funk_types.int)
-
-
         return val
 
     def __deepcopy__(self, memo):
@@ -306,10 +304,10 @@ class FixedSizeLiteralList(List):
 
         literal_list = []
         for element in flattened_list:
-            literal_list.append(element.eval(result=result))
+            literal_list.append(element.eval())
 
 
-        return self.funk.alloc_literal_list_symbol(literal_list, dimensions, self.pool)
+        return self.funk.alloc_literal_list_symbol(literal_list, dimensions, self.pool, result=result)
 
     def __repr__(self):
         return 'FixedSizeLiteralList({})'.format(self.elements)
