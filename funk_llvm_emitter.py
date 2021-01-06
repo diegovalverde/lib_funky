@@ -1117,6 +1117,19 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
             """.format(global_state=global_state)
 
+    def sdl_line(self, funk, args):
+        if len(args) != 4:
+            raise Exception('=== sdl_line takes 4 parameters')
+
+        x1 = args[0].eval()
+        y1 = args[1].eval()
+        x2 = args[2].eval()
+        y2 = args[3].eval()
+
+        self.code += """
+                call void @sdl_line(%struct.tnode* {x1}, %struct.tnode* {y1}, %struct.tnode* {x2}, %struct.tnode* {y2})
+                """.format(x1=x1, y1=y1, x2=x2, y2=y2)
+
     def sdl_point(self, funk, args):
         if len(args) != 2:
             raise Exception('=== sdl_point takes 2 parameters')

@@ -357,8 +357,8 @@ class Identifier:
             if arg == self.name:
                 idx = self.funk.function_scope.args.index(arg)
                 node = self.funk.emitter.get_function_argument_tnode(idx)
-               # if result is not None:
-               #     self.funk.emitter.copy_node(node, result)
+                if result is not None:
+                    self.funk.emitter.copy_node(node, result)
                 return self.eval_node_index(node, result)
 
         for head_tail in self.funk.function_scope.tail_pairs:
@@ -772,6 +772,7 @@ class FunctionCall(Expression):
             'sdl_window': SDLCreateWindow,
             'sdl_rect':SDLRect,
             'sdl_point': SDLPoint,
+            'sdl_line': SDLLine,
             'sdl_set_color':SDLColor,
             'sdl_render': SDLRenderFunction,
             'exit': Exit,
@@ -1168,6 +1169,14 @@ class SDLRenderFunction:
 
     def eval(self, result=None):
         self.funk.emitter.sdl_render_callback(self.funk, self.arg_list)
+
+class SDLLine:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        self.funk.emitter.sdl_line(self.funk, self.arg_list)
 
 class SDLPoint:
     def __init__(self, funk, arg_list):

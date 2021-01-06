@@ -53,10 +53,29 @@ void sdl_point(struct tnode * x, struct tnode * y){
 
   int x_ = (nx->type == type_int) ? nx->data.i : (int) nx->data.f;
   int y_ = (ny->type == type_int) ? ny->data.i : (int) ny->data.f;
-  
+
   // Set our color for the draw functions
   SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
   SDL_RenderDrawPoint(renderer, x_,y_);
+  SDL_SetRenderDrawColor(renderer, bg_color[0], bg_color[1], bg_color[2], 255);
+
+}
+
+void sdl_line(struct tnode * x1, struct tnode * y1,
+struct tnode * x2, struct tnode * y2){
+  struct tdata * nx1 = GET_NODE(x1,0);
+  struct tdata * ny1 = GET_NODE(y1,0);
+  struct tdata * nx2 = GET_NODE(x2,0);
+  struct tdata * ny2 = GET_NODE(y2,0);
+
+  int x_1 = (nx1->type == type_int) ? nx1->data.i : (int) nx1->data.f;
+  int y_1 = (ny1->type == type_int) ? ny1->data.i : (int) ny1->data.f;
+  int x_2 = (nx2->type == type_int) ? nx2->data.i : (int) nx2->data.f;
+  int y_2 = (ny2->type == type_int) ? ny2->data.i : (int) ny2->data.f;
+
+  // Set our color for the draw functions
+  SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+  SDL_RenderDrawLine(renderer, x_1,y_1,x_2,y_2);
   SDL_SetRenderDrawColor(renderer, bg_color[0], bg_color[1], bg_color[2], 255);
 
 }

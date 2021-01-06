@@ -101,6 +101,7 @@ declare void @set_sdl_user_global_state(%struct.tnode*) #0
 declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_point(%struct.tnode*, %struct.tnode*) #0 
+declare void @sdl_line(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_render_loop(i8*) #0 
 declare void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 
 ;;;
