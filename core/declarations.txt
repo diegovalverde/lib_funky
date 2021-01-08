@@ -23,11 +23,10 @@ declare void @funk_exit() #0
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
 declare i32 @is_list_consecutive_in_memory(%struct.tnode*, i32) #0 
-declare void @funk_create_list_slide_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
-declare void @funk_create_list_slide_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @funk_create_list_slide_1d_lit(%struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_create_list_slide_1d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @funk_create_list_slide_lit(%struct.tnode*, %struct.tnode*, i32*, i32) #0 
+declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_get_element_in_array_lit(%struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
@@ -95,6 +94,8 @@ declare void @reshape(%struct.tnode*, i32*, i32) #0
 declare void @funk_get_len(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32, i32, i32) #0 
 declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
 declare double @rand_double(double, double) #0 
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 

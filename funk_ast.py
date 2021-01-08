@@ -343,9 +343,11 @@ class Identifier:
             if len(self.indexes) == 2 and isinstance(self.indexes[0], Range)  and isinstance(self.indexes[1], Range):
                 return self.funk.emitter.create_submatrix(node, self.indexes, result=result)
             elif  len(self.indexes) == 2 and isinstance(self.indexes[0], IntegerConstant) and isinstance(self.indexes[1], IntegerConstant):
-                return self.funk.emitter.create_slice_lit_2d(node, self.indexes, result=result)
+                return self.funk.emitter.get_element_in_array_2d_lit(node, self.indexes, result=result)
+            elif len(self.indexes) == 1 and isinstance(self.indexes[0], Range):
+                return self.funk.emitter.create_sub_array(node, c1=self.indexes[0].left, c2=self.indexes[0].right, result=result)
             else:
-                return self.funk.emitter.create_slice(node, self.indexes, result=result)
+                return self.funk.emitter.get_element_in_matrix(node, self.indexes, result=result)
         else:
             return node
 
@@ -712,7 +714,7 @@ class Range(BinaryOp):
         if self.rhs_type == '<=':
             range_end += 1
 
-        if self.expr.__repr__() == self.identifier.__repr__():
+        if self.expr is not None and self.expr.__repr__() == self.identifier.__repr__():
             for i in range(range_start, range_end):
                 list_elements.append(IntegerConstant(self.funk, i))
             return FixedSizeLiteralList(self.funk, '', list_elements)
@@ -1148,6 +1150,7 @@ class Sleep:
 
     def eval(self, result=None):
         return self.funk.emitter.sleep(self.funk, self.arg_list)
+
 class SDLCreateWindow:
     def __init__(self, funk, arg_list):
         self.funk = funk

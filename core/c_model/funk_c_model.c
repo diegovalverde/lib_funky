@@ -1,6 +1,7 @@
 
 #include "funk_c_model.h"
 
+//#define FUNK_DEBUG_BUILD 1
 struct tpool funk_global_memory_pool, funk_functions_memory_pool;
 static uint32_t g_debug_continue = 0;
 
@@ -35,7 +36,7 @@ struct tpool * get_pool_ptr(enum pool_types pool){
 // using the interactive debugger
 #ifdef FUNK_DEBUG_BUILD
 uint32_t g_funk_debug_current_executed_line = 0;
-uint32_t g_funk_internal_function_tracing_enabled = 0;
+uint32_t g_funk_internal_function_tracing_enabled = 1;
 #endif
 
 
@@ -182,7 +183,6 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
 
 }
 
-
 void funk_print_type(unsigned char type){
   TRACE("start");
 
@@ -266,7 +266,7 @@ int is_list_consecutive_in_memory(struct tnode * list, int32_t size){
   return 0;
 }
 
-void funk_create_list_slide_2d_lit(struct tnode * src, struct tnode * dst , int32_t idx_0, int32_t idx_1){
+void funk_get_element_in_matrix_2d_lit(struct tnode * src, struct tnode * dst , int32_t idx_0, int32_t idx_1){
     TRACE("start");
     // negative indexes allow getting last elemets like in python
     idx_0 = (idx_0 < 0) ? src->dimension.d[0] + idx_0 : idx_0;
@@ -284,7 +284,7 @@ void funk_create_list_slide_2d_lit(struct tnode * src, struct tnode * dst , int3
 
 }
 
-void funk_create_list_slide_2d_var(struct tnode * src, struct tnode * dst , struct tnode * node_i, struct tnode * node_j){
+void funk_get_element_in_matrix_2d_var(struct tnode * src, struct tnode * dst , struct tnode * node_i, struct tnode * node_j){
   TRACE("start");
 
   if (GET_NODE(node_i, 0)->type != type_int){
@@ -300,11 +300,11 @@ void funk_create_list_slide_2d_var(struct tnode * src, struct tnode * dst , stru
   int32_t idx_0 = GET_NODE(node_i,0)->data.i;
   int32_t idx_1 = GET_NODE(node_j,0)->data.i;
 
- funk_create_list_slide_2d_lit(src, dst, idx_0, idx_1);
+ funk_get_element_in_matrix_2d_lit(src, dst, idx_0, idx_1);
 
 }
 
-void funk_create_list_slide_1d_lit(struct tnode * src, struct tnode * dst, int32_t idx){
+void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32_t idx){
   TRACE("start");
   // negative indexes allow getting last elemets like in python
   idx = (idx < 0) ? src->len + idx : idx;
@@ -319,7 +319,7 @@ void funk_create_list_slide_1d_lit(struct tnode * src, struct tnode * dst, int32
 
 }
 
-void funk_create_list_slide_1d_var(struct tnode * src, struct tnode * dst , struct tnode * node_i){
+void funk_get_element_in_array_var(struct tnode * src, struct tnode * dst , struct tnode * node_i){
   TRACE("start");
   if (GET_NODE(node_i,0)->type != type_int){
     printf("-E- %s node lhs data type is %d but shall be int\n",
@@ -328,40 +328,7 @@ void funk_create_list_slide_1d_var(struct tnode * src, struct tnode * dst , stru
 
   int32_t idx_0 = GET_NODE(node_i, 0)->data.i;
 
-  funk_create_list_slide_1d_lit(src, dst, idx_0);
-
-}
-
-void funk_create_list_slide_lit(struct tnode * src, struct tnode * dst , int32_t * idx, uint32_t idx_cnt){
-  TRACE("start");
-
-  if (idx_cnt != dst->dimension.count){
-    printf("-E- %s the number of indexes provided %d does not match dimension count %d\n",
-      __FUNCTION__, idx_cnt, dst->dimension.count );
-  }
-
-  for (uint32_t i = 0; i < idx_cnt; i++){
-    if (idx[i] >= dst->dimension.d[i]){
-      printf("-E- %s the index %d >  upper bound %d for dimension %d\n",
-        __FUNCTION__, idx[i], dst->dimension.d[i], i );
-    }
-  }
-
-  dst->pool = src->pool;
-  dst->wrap_creation = src->pool->wrap_count;
-  dst->dimension.count = 0;
-  dst->len = 1;
-  if (idx_cnt == 1){
-    dst->start = (src->start + idx[0]) % FUNK_MAX_POOL_SIZE;
-  } else if (idx_cnt == 2){
-    dst->start =  (src->start + dst->dimension.d[0]* idx[0] + idx[1])% FUNK_MAX_POOL_SIZE;
-  } else {
-    printf("-E- %s %d dimensions are not yet supported\n", __FUNCTION__, idx_cnt );
-  }
-
-  if (dst->start >= src->len){
-    printf("-E- %s index %d out of range for len %d\n", __FUNCTION__, dst->start, src->len );
-  }
+  funk_get_element_in_array_lit(src, dst, idx_0);
 
 }
 
@@ -1364,7 +1331,7 @@ void funk_create_sub_matrix_lit_indexes(struct tnode * src, struct tnode * dst,
       for (int j = c1; j <= c2; j++){
 
         int idx_i = (i < 0) ? i + src->dimension.d[0] : i;
-        int idx_j = (i < 0) ? j + src->dimension.d[1] : j;
+        int idx_j = (j < 0) ? j + src->dimension.d[1] : j;
 
         idx_i %= src->dimension.d[0];
         idx_j %= src->dimension.d[1];
@@ -1399,6 +1366,49 @@ void funk_create_sub_matrix(struct tnode * src, struct tnode * dst,
   int32_t c2 = GET_NODE(C2,0)->data.i;
 
   funk_create_sub_matrix_lit_indexes(src, dst, r1,  r2, c1,  c2);
+
+}
+
+void funk_create_sub_array_lit_indexes(struct tnode * src, struct tnode * dst,
+  int32_t c1, int32_t c2){
+    TRACE("start");
+
+    if (c1 > c2){
+      printf("%s Error c1 (%d) > c2 (%d)\n", __FUNCTION__,c1, c2 );
+      exit(1);
+    }
+
+    int32_t n = abs((c2 - c1)+1);
+    int32_t * list = (int32_t *)malloc(sizeof(int32_t)*n);
+    int k = 0;
+
+    for (int j = c1; j <= c2; j++){
+
+      int idx_j = (j < 0) ? j + src->dimension.d[0] : j;
+      idx_j %= src->dimension.d[0];
+      list[k] = GET_NODE(src,idx_j)->data.i;
+      k++;
+
+    }
+
+    funk_create_list_i32_literal(global_pool,  dst, list, n );
+    free(list);
+
+  }
+
+void funk_create_sub_array(struct tnode * src, struct tnode * dst,
+  struct tnode * i,struct tnode * j){
+  TRACE("start");
+  if (src->dimension.count != 1){
+    //funk_print_node_info(src);
+    printf("Error: %s shall have 1 dimensions and not %d\n", __FUNCTION__, src->dimension.count);
+    exit(1);
+  }
+
+  int32_t c1 = GET_NODE(i,0)->data.i;
+  int32_t c2 = GET_NODE(j,0)->data.i;
+
+  funk_create_sub_array_lit_indexes(src, dst, c1,  c2);
 
 }
 

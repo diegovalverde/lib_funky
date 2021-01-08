@@ -695,7 +695,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return result
 
-    def create_slice_lit_2d(self, node, indexes, result=None):
+    def get_element_in_matrix_2d_lit(self, node, indexes, result=None):
         i,j = indexes[0].eval(), indexes[1].eval()
         if result is None:
             p = [x for x in range(self.index, self.index + 1)]
@@ -706,22 +706,22 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
                    """.format(p[0])
             result = '%{}'.format(p[0])
 
-            self.code += """
-                ;; create slice
-                ;; allocate result
-                 call void @funk_create_list_slide_2d_lit(%struct.tnode* {node}, %struct.tnode * {result}, i32 {i}, i32 {j})
-            """.format(node=node, result=result, i=i, j=j)
+        self.code += """
+            ;; create slice
+            ;; allocate result
+             call void @funk_get_element_in_matrix_2d_lit(%struct.tnode* {node}, %struct.tnode * {result}, i32 {i}, i32 {j})
+        """.format(node=node, result=result, i=i, j=j)
 
-            return result
+        return result
 
-    def create_slice_lit_index(self, node, indexes, result=None):
+    def get_element_in_array_1d_lit(self, node, indexes, result=None):
 
         if len(indexes) == 1:
             i = indexes[0].eval()
             self.code += """
                         ;; create slice
                         ;; allocate result
-                         call void @funk_create_list_slide_1d_lit(%struct.tnode* {node}, %struct.tnode * {result}, i32 {i})
+                         call void @funk_get_element_in_array_lit(%struct.tnode* {node}, %struct.tnode * {result}, i32 {i})
                     """.format(node=node, result=result, i=i)
 
 
@@ -803,6 +803,20 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
                """.format(node=node, result=result)
         return result
 
+    def create_sub_array(self,node, c1, c2, result=None):
+        if result is None:
+           result = self.allocate_result()
+
+        i = c1.eval()
+        j = c2.eval()
+        self.code += """
+        ;; create sub array
+         call void @funk_create_sub_array(%struct.tnode* {node}, %struct.tnode * {result}, %struct.tnode * {c1}, %struct.tnode * {c2})
+        """.format(node=node, result=result, c1=i, c2=j)
+
+        return result
+
+
     def create_submatrix(self, node, indexes, result=None):
         if result is None:
             p = [x for x in range(self.index, self.index + 1)]
@@ -835,7 +849,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return result
 
-    def create_slice(self, node, indexes, result=None):
+    def get_element_in_matrix(self, node, indexes, result=None):
         if result is None:
             p = [x for x in range(self.index, self.index + 1)]
             self.index = p[-1] + 1
@@ -853,10 +867,10 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         if all_indexes_are_int:
             if len(indexes) == 1:
-                self.create_slice_lit_index(node, indexes, result)
+                self.get_element_in_array_1d_lit(node, indexes, result)
                 return result
             elif len(indexes) == 2:
-                self.create_slice_lit_2d(node, indexes, result)
+                self.funk_get_element_in_matrix_2d_lit(node, indexes, result)
                 return result
             else:
                 print(indexes, [  i.get_compile_type() for i in indexes])
@@ -867,15 +881,16 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
             self.code += """
             ;; create slice
-             call void @funk_create_list_slide_1d_var(%struct.tnode* {node}, %struct.tnode * {result}, %struct.tnode * {i})
+             call void @funk_get_element_in_array_var(%struct.tnode* {node}, %struct.tnode * {result}, %struct.tnode * {i})
         """.format( node=node, result=result, i=i)
         elif len(indexes) == 2:
+            # todo create aux in case i or j is integer
             i = indexes[0].eval()
             j = indexes[1].eval()
 
             self.code += """
-            ;; create slice
-             call void @funk_create_list_slide_2d_var(%struct.tnode* {node}, %struct.tnode * {result}, %struct.tnode * {i}, %struct.tnode * {j})
+
+             call void @funk_get_element_in_matrix_2d_var(%struct.tnode* {node}, %struct.tnode * {result}, %struct.tnode * {i}, %struct.tnode * {j})
             """.format( node=node, i=i, j=j, result=result)
         else:
             print('ERROR multi-dimension slicing Unimplemented')
