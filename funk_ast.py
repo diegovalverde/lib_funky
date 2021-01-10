@@ -21,13 +21,21 @@ import collections
 import copy
 from functools import reduce
 
+
+def flatten(x):
+    if isinstance(x, collections.Iterable):
+        return [a for i in x for a in flatten(i)]
+    elif isinstance(x, List):
+        return [a for i in x.elements for a in flatten(i)]
+    else:
+        return [x]
+
 def list_concat_tail(funk, left, right, result=None):
     """
     This corresponds to:
         [X] ~> [MyArray]
 
-    Note that this operation will allocate the resulting
-    list in the Heap.
+
 
     """
 
@@ -49,6 +57,8 @@ def list_concat_head(funk, left, right, result=None):
 
     funk.emitter.add_comment('Concatenating head to array')
     ptr_left = left.eval(result=result)
+    ptr_right = right.eval()
+    return funk.emitter.concat_list(ptr_left, ptr_right)
 
 def create_ast_named_symbol(name, funk, right, pool):
     symbol_name = '{}_{}_{}'.format(funk.function_scope.name, funk.function_scope.clause_idx, name)
@@ -177,14 +187,6 @@ class List(Expression):
 
         return traverse(self)
 
-    def flatten(self,x):
-        if isinstance(x, collections.Iterable):
-            return [a for i in x for a in self.flatten(i)]
-        elif isinstance(x, List):
-            return [a for i in x.elements for a in self.flatten(i)]
-        else:
-            return [x]
-
     def __repr__(self):
         return 'List({})'.format(self.elements)
 
@@ -239,7 +241,7 @@ class FixedSizeExpressionList(List):
             if isinstance(e,List):
                 dimensions.append( e.get_dimensions() )
 
-        return self.flatten(dimensions)
+        return flatten(dimensions)
 
     def eval(self, result=None):
         start, end = self.start, self.end
@@ -289,6 +291,34 @@ class FixedSizeExpressionList(List):
         # create a copy with self.linked_to *not copied*, just referenced.
         return FixedSizeExpressionList(self.funk, start=self.start, end=self.end, iterator_symbol=copy.deepcopy(self.iterator_symbol,memo), expr=copy.deepcopy(self.elements, memo))
 
+class CompileTimeExprList(List):
+
+    def __init__(self, funk, name, elements):
+        super().__init__(funk, name, elements)
+        self.funk = funk
+        self.name = name
+        self.elements = elements
+
+    def eval(self, result=None):
+
+        dimensions = self.get_dimensions()
+        flattened_list = flatten(self.elements)
+
+        elements = []
+        for element in flattened_list:
+            elements.append(element.eval())
+
+
+        return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
+
+    def __repr__(self):
+        return 'FixedSizeIdentifierList({})'.format(self.elements)
+
+    def __deepcopy__(self, memo):
+        # create a copy with self.linked_to *not copied*, just referenced.
+        return CompileTimeExprList(self.funk, name=self.name, elements=copy.deepcopy(self.elements, memo))
+
+
 class FixedSizeLiteralList(List):
 
     def __init__(self, funk, name, elements):
@@ -300,7 +330,7 @@ class FixedSizeLiteralList(List):
     def eval(self, result=None):
 
         dimensions = self.get_dimensions()
-        flattened_list = self.flatten(self.elements)
+        flattened_list = flatten(self.elements)
 
         literal_list = []
         for element in flattened_list:
@@ -355,6 +385,34 @@ class Identifier:
         # Check the current function that we are building
         # To see if the identifier is a function argument
 
+
+        for head_tail in self.funk.function_scope.tail_pairs:
+            head, tail = head_tail
+            if self.name == tail:
+                idx = self.funk.function_scope.args.index(head)
+                head_node = self.funk.emitter.get_function_argument_tnode(idx)
+                tail_node = self.funk.emitter.get_next_node(head_node)
+                if result is not None:
+                    self.funk.emitter.copy_node(tail_node, result)
+                return tail_node
+
+            if self.name == head:
+                idx = self.funk.function_scope.args.index(head)
+                head_node = self.funk.emitter.get_function_argument_tnode(idx)
+                self.funk.emitter.add_comment('h <~ [T]. Create a tnode with len 1 pointing to the first element of the head')
+                detached_head_node = self.funk.emitter.alloc_tnode_raw()
+                pool = self.funk.emitter.get_node_pool(head_node)
+                start = self.funk.emitter.get_node_start(head_node)
+                self.funk.emitter.set_node_pool(detached_head_node, pool )
+                self.funk.emitter.set_node_start(detached_head_node, start)
+                self.funk.emitter.set_node_len(detached_head_node,  1)
+
+                if result is not None:
+                    self.funk.emitter.copy_node(detached_head_node, result)
+
+                return detached_head_node
+
+
         for arg in self.funk.function_scope.args:
             if arg == self.name:
                 idx = self.funk.function_scope.args.index(arg)
@@ -362,18 +420,6 @@ class Identifier:
                 if result is not None:
                     self.funk.emitter.copy_node(node, result)
                 return self.eval_node_index(node, result)
-
-        for head_tail in self.funk.function_scope.tail_pairs:
-            head, tail = head_tail
-            if self.name == tail:
-                idx = self.funk.function_scope.args.index(head)
-                head_node = self.funk.emitter.get_function_argument_tnode(idx)
-
-                self.funk.emitter.reshape(self.funk, [head_node, FixedSizeLiteralList(funk=self.funk,name='',elements=[])], result=head_node)
-                tail_node = self.funk.emitter.get_next_node(head_node)
-                if result is not None:
-                    self.funk.emitter.copy_node(tail_node, result)
-                return tail_node
 
         global_symbol_name = '@{}'.format(self.name)
         local_symbol_name = '{}_{}_{}'.format(self.funk.function_scope.name, self.funk.function_scope.clause_idx,
@@ -768,6 +814,7 @@ class FunctionCall(Expression):
             'rand_int': RandInt,
             'rand_float': RandFloat,
             'say': Print,
+            'info': DebugInfo,
             'len': Len,
             'sum': FunkSum,
             'dim': Dim,
@@ -1058,6 +1105,13 @@ class Dim(Expression):
 
     def eval(self, result=None):
         self.funk.emitter.print_dim(self.funk, self.arg_list)
+class DebugInfo:
+    def __init__(self, funk, arg):
+        self.funk = funk
+        self.arg = arg
+
+    def eval(self, result=None):
+        self.funk.emitter.debug_print_node_info(self.funk, self.arg)
 
 class Print:
     def __init__(self, funk, arg):

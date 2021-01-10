@@ -16,9 +16,9 @@ declare %struct.tnode* @validate_node(%struct.tnode*, i8*) #0
 declare %struct.tdata* @get_node(%struct.tnode*, i32, i8*, i32) #0 
 declare void @funk_sleep(i32) #0 
 declare void @funk_increment_pool_tail(%struct.tpool*, i32) #0 
+declare void @funk_print_type(i8 zeroext) #0 
 declare void @funk_print_node_info(%struct.tnode*) #0 
 declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
-declare void @funk_print_type(i8 zeroext) #0 
 declare void @funk_exit() #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
@@ -34,6 +34,7 @@ declare void @funk_create_scalar(%struct.tpool*, %struct.tnode*, i8*, i32) #0
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_create_float_scalar(i32, %struct.tnode*, double) #0 
+declare void @funk_create_list_of_regs(i32, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
 declare void @funk_create_list_double_literal(i32, %struct.tnode*, double*, i32) #0 
 declare void @funk_create_2d_matrix_int_literal(i32, %struct.tnode*, i32*, i32, i32) #0 
@@ -98,6 +99,14 @@ declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, 
 declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
 declare double @rand_double(double, double) #0 
+declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
+declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare i32 @funk_get_node_start(%struct.tnode*) #0 
+declare i32 @funk_get_node_pool(%struct.tnode*) #0 
+declare void @funk_set_node_len(%struct.tnode*, i32) #0 
+declare void @funk_set_node_pool(%struct.tnode*, i32) #0 
+declare void @funk_set_node_start(%struct.tnode*, i32) #0 
+declare void @foo() #0 
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 
 declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 

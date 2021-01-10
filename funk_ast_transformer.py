@@ -231,7 +231,7 @@ class TreeToAst(Transformer):
         lhs, rhs = children
 
         if isinstance(lhs, funk_ast.List):
-            rhs.left = lhs.name
+            rhs.left = lhs
             rhs.direction = funk_ast.ListConcat.tail
         else:
             rhs.left = lhs
@@ -249,15 +249,15 @@ class TreeToAst(Transformer):
         return children
 
     def action_list_concat_lsh(self, children):
-        lhs = children[0]
+        lhs = flatten(children)
 
-        return funk_ast.List(self.funk, lhs, None)
+        return funk_ast.List(self.funk,'[]' ,lhs)
 
     def action_list_concat_rhs(self, children):
         if len(children) != 1:
             raise Exception('Malformed list concatenation statement')
 
-        rhs = children[0]
+        rhs = flatten(children)[0]
 
         return funk_ast.ListConcat(self.funk, left=None, right=rhs)
 
@@ -353,13 +353,24 @@ class TreeToAst(Transformer):
 
         elements = flatten(tokens)
         is_fixed_size_lit_list = True
+        is_compile_time_size_expr_list = True
         for i in elements:
             if not isinstance(i, funk_ast.IntegerConstant) and not isinstance(i, funk_ast.DoubleConstant):
                 is_fixed_size_lit_list = False
                 break
 
+        for i in elements:
+            if isinstance(i, funk_ast.List):
+                is_compile_time_size_expr_list = False
+                break
+            if not isinstance(i, funk_ast.Identifier) and not isinstance(i, funk_ast.Expression):
+                is_compile_time_size_expr_list = False
+                break
+
         if is_fixed_size_lit_list:
             return [funk_ast.FixedSizeLiteralList(self.funk,'anon',elements)]
+        elif is_compile_time_size_expr_list:
+           return [funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
         else:
             return [elements]
 

@@ -32,7 +32,7 @@
 
     assignment: assignment_lhs assignment_rhs  -> action_assignment
 
-    assignment_lhs: "[" identifier "]" -> action_list_concat_lsh
+    assignment_lhs: "[" list_initialization "]" -> action_list_concat_lsh
                     | expr       -> action_assignment_lhs
 
 

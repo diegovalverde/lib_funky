@@ -156,13 +156,28 @@ void funk_increment_pool_tail(struct tpool * pool, uint32_t len){
   pool->tail = (pool->tail + len) % FUNK_MAX_POOL_SIZE;
 }
 
+
+void funk_print_type(unsigned char type){
+  TRACE("start");
+
+  if (type >= 0 && type < max_types){
+      printf("%s", funk_types_str[type]);
+  } else {
+      printf("-E- %s Invalid type %d\n", __FUNCTION__, type);
+  }
+
+}
+
 void funk_print_node_info(struct tnode * n){
   TRACE("start");
 
+  printf("\n\n");
   printf("%p\n", n);
   printf("%s[%d :%d] %d-d\n",((n->pool == &funk_global_memory_pool)?"gpool":"fpool"), n->start, n->len, n->dimension.count );
   printf("int: %d\n", GET_NODE(n,0)->data.i);
   printf("double: %f\n", GET_NODE(n,0)->data.f);
+  funk_print_type(GET_NODE(n,0)->type);
+  printf("\n\n");
 
   TRACE("end");
 }
@@ -183,16 +198,6 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
 
 }
 
-void funk_print_type(unsigned char type){
-  TRACE("start");
-
-  if (type >= 0 && type < max_types){
-      printf("%s", funk_types_str[type]);
-  } else {
-      printf("-E- %s Invalid type %d\n", __FUNCTION__, type);
-  }
-
-}
 
 void funk_exit(){
   TRACE("start");
@@ -207,11 +212,12 @@ void funk_sum_list(struct tnode * src, struct tnode * dst){
   uint32_t total = 0;
   uint32_t m = src->len;
 
+
   if (src->dimension.count == 2) {
     m = src->dimension.d[0]*src->dimension.d[1];
   }
 
-  for (uint32_t i = 0; i <= m; i++)
+  for (uint32_t i = 0; i < m; i++)
   {
     total += GET_NODE(src,i)->data.i;
   }
@@ -430,6 +436,11 @@ void funk_create_scalar(struct tpool * pool, struct tnode * n, void * val, enum 
     GET_NODE(n,0)->data.f = *(double*)val;
     break;
 
+    case type_empty_array:
+    GET_NODE(n,0)->data.i = 0;
+    GET_NODE(n,0)->data.f = 0;
+    break;
+
     default:
       printf("-E- %s\n",__FUNCTION__);
       break;
@@ -465,6 +476,27 @@ void funk_create_float_scalar(enum pool_types pool_type, struct tnode * n, doubl
 
   funk_create_scalar(pool, n, (void*)&val, type_double);
   VALIDATE_NODE(n);
+
+}
+
+void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * n, struct tnode * list , int32_t size ){
+  TRACE("start");
+
+  struct tpool * pool = get_pool_ptr(pool_type);
+
+  n->start  = pool->tail;
+  n->len = size;
+  n->pool = pool;
+  n->wrap_creation = pool->wrap_count;
+  n->dimension.count = 1;
+
+  funk_increment_pool_tail(pool, size);
+
+
+  for (int i = 0; i < size; i++){
+
+    *GET_NODE(n,i) = *GET_NODE(&list[i],0);
+  }
 
 }
 
@@ -638,13 +670,15 @@ void funk_get_next_node(struct tnode *dst, struct tnode * n){
      dst->dimension.d[i] = n->dimension.d[i];
    }
 
-   if (n->len == 0){
-     dst->start = n->start;
-     dst->len = 1;
-     GET_NODE(dst, 0)->type = type_empty_array;
-     GET_NODE(dst, 0)->data.i = 0;
+   dst->len = n->len - 1;
+
+   if (dst->len == 0){
+
+     //void funk_create_scalar(struct tpool * pool, struct tnode * n, void * val, enum funk_types type){
+     int32_t val = 0;
+     funk_create_scalar(dst->pool, dst, (void*)&val, type_empty_array);
+
    } else {
-     dst->len = n->len - 1;
      dst->start = n->start+1;
    }
 
@@ -912,6 +946,39 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
 
   } else {
     printf("-E- %s: invalid types: ", __FUNCTION__);
+    if (f == funk_mul) {
+      printf("-E- funk_mul\n");
+    }
+    else if (f == funk_div){
+      printf("-E- funk_div\n");
+    }
+    else if (f == funk_add){
+      printf("-E- funk_add\n");
+    }
+    else if (f == funk_sub){
+      printf("-E- funk_sub\n");
+    }
+    else if (f == funk_mod){
+      printf("-E- funk_mod\n");
+    }
+    else if (f == funk_slt){
+      printf("-E- funk_slt\n");
+    }
+    else if (f == funk_sgt){
+      printf("-E- funk_sgt\n");
+    }
+    else if (f == funk_sge){
+      printf("-E- funk_sge\n");
+    }
+    else if (f == funk_eq){
+      printf("-E- funk_eq\n");
+    }
+    else if (f == funk_ne){
+      printf("-E- funk_eq\n");
+    }
+    else if (f == funk_or){
+      printf("-E- funk_or\n");
+    }
 
     funk_print_type(t1);
     printf(" , ");
@@ -1111,7 +1178,6 @@ void funk_slt_ri(struct tnode * node_r, int32_t r_offset,
 
 }
 
-
 void funk_slt_rr(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,
                 struct tnode * node_b, int32_t b_offset){
@@ -1181,10 +1247,12 @@ void funk_print_dimension(struct tnode * n){
 }
 
 void print_scalar(struct tnode * n){
+  //TODO: Something here is wrong....
   TRACE("start");
 
-  if (n->dimension.count == 0){
 
+  if (n->dimension.count == 0){
+    //printf(">----------------------------------------------------------------------------<\n");
     funk_print_scalar_element(*GET_NODE(n,0));
 
   } else if (n->dimension.count == 1){
@@ -1372,6 +1440,8 @@ void funk_create_sub_matrix(struct tnode * src, struct tnode * dst,
 void funk_create_sub_array_lit_indexes(struct tnode * src, struct tnode * dst,
   int32_t c1, int32_t c2){
     TRACE("start");
+    c1 = (c1 < 0) ? c1 + src->len : c1;
+    c2 = (c2 < 0) ? c2 + src->len : c2;
 
     if (c1 > c2){
       printf("%s Error c1 (%d) > c2 (%d)\n", __FUNCTION__,c1, c2 );
@@ -1384,8 +1454,7 @@ void funk_create_sub_array_lit_indexes(struct tnode * src, struct tnode * dst,
 
     for (int j = c1; j <= c2; j++){
 
-      int idx_j = (j < 0) ? j + src->dimension.d[0] : j;
-      idx_j %= src->dimension.d[0];
+      int idx_j = j % src->len;
       list[k] = GET_NODE(src,idx_j)->data.i;
       k++;
 
@@ -1431,4 +1500,131 @@ double rand_double(double lower, double upper){
   return (((double)rand()/(double)(RAND_MAX)) * (upper-lower)) + lower;
 
 
+}
+
+void funk_create_empty_list_element(enum pool_types pool_type, struct tnode  * n){
+  TRACE("start");
+  struct tpool * pool = get_pool_ptr(pool_type);
+
+  n->start  = pool->tail;
+  n->len = 1;
+  n->pool = pool;
+  n->wrap_creation = pool->wrap_count;
+  n->dimension.count = 1;
+  GET_NODE(n, 0)->type = type_empty_array;
+}
+
+void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  * R){
+  TRACE("start");
+  VALIDATE_NODE(L);
+  VALIDATE_NODE(R);
+
+
+  if (GET_NODE(L, 0)->type == type_empty_array && GET_NODE(R, 0)->type == type_empty_array){
+    funk_create_empty_list_element(function_pool, n);
+    printf("funk_concatenate_lists [] , [] -> []\n");
+    return;
+  }
+
+  printf("Left len %d Right len %d\n", L->len, R->len);
+  printf("Left val %d Right val %d\n", GET_NODE(L,0)->data.i, GET_NODE(R,0)->data.i);
+
+  struct tpool * pool = R->pool;
+
+  n->start  = pool->tail;
+  n->pool = pool;
+  n->wrap_creation = pool->wrap_count;
+  n->dimension.count = 1;
+
+
+  int k = 0;
+
+  for (int i = 0; i < L->len; i++){
+    if (GET_NODE(L,i)->type == type_empty_array)
+      break;
+
+    GET_NODE(n, k)->type = GET_NODE(L,i)->type;
+    GET_NODE(n, k)->data = GET_NODE(L,i)->data;
+    printf("Copied L %d\n",GET_NODE(L,i)->data.i);
+    k++;
+  }
+
+
+  for (int i = 0; i < R->len; i++){
+    if (GET_NODE(R,i)->type == type_empty_array)
+      break;
+
+    GET_NODE(n, k)->type = GET_NODE(R,i)->type;
+    GET_NODE(n, k)->data = GET_NODE(R,i)->data;
+    printf("Copied R %d\n",GET_NODE(R,i)->data.i);
+    k++;
+  }
+
+  n->len = k;
+  funk_increment_pool_tail(pool, k);
+
+}
+
+uint32_t funk_get_node_start(struct tnode  * n){
+  TRACE("start");
+  VALIDATE_NODE(n);
+  return n->start;
+}
+
+enum pool_types funk_get_node_pool(struct tnode  * n){
+  TRACE("start");
+  VALIDATE_NODE(n);
+  enum pool_types pool_type;
+
+  if (n->pool == &funk_global_memory_pool) {
+    return global_pool;
+  }
+  else if (n->pool == &funk_functions_memory_pool)
+  {
+    return function_pool;
+  } else {
+    printf("-E- %s Invalid pool\n", __FUNCTION__);
+    exit(1);
+  }
+
+  return pool_type;
+}
+
+void funk_set_node_len(struct tnode  * n, uint32_t len){
+  TRACE("start");
+  VALIDATE_NODE(n);
+  n->len = len;
+  n->dimension.count = 1;
+}
+
+void funk_set_node_pool(struct tnode  * n, enum pool_types pool_type ){
+  TRACE("start");
+
+  switch (pool_type){
+    case global_pool:
+      n->pool = &funk_global_memory_pool;
+      break;
+    case function_pool:
+      n->pool = &funk_functions_memory_pool;
+      break;
+    default:
+      printf("-E- %s Invalid pool\n", __FUNCTION__);
+      exit(1);
+      break;
+  }
+}
+
+void funk_set_node_start(struct tnode  * n, uint32_t start){
+  TRACE("start");
+  VALIDATE_NODE(n);
+  n->start = start;
+}
+
+void foo(){
+  struct tnode n1,n2,r;
+
+
+  struct tnode list[] = {n1,n2};
+
+  funk_create_list_of_regs(global_pool,&r, list, 2);
 }
