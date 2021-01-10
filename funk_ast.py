@@ -35,15 +35,17 @@ def list_concat_tail(funk, left, right, result=None):
     This corresponds to:
         [X] ~> [MyArray]
 
-
-
     """
 
     funk.emitter.add_comment('Concatenating two arrays')
-    ptr_left = left.eval(result=result)
+    if isinstance(left,List):
+        ptr_left = CompileTimeExprList(funk,'list concat',left.elements).eval()
+    else:
+        ptr_left = left.eval()
+
     ptr_right = right.eval()
 
-    return funk.emitter.concat_list(ptr_left, ptr_right)
+    return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
 
 def list_concat_head(funk, left, right, result=None):
     """
@@ -56,9 +58,10 @@ def list_concat_head(funk, left, right, result=None):
     """
 
     funk.emitter.add_comment('Concatenating head to array')
-    ptr_left = left.eval(result=result)
+    ptr_left = left.eval()
     ptr_right = right.eval()
-    return funk.emitter.concat_list(ptr_left, ptr_right)
+    #funk.emitter.debug_print_node_info(funk, [ptr_right])
+    return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
 
 def create_ast_named_symbol(name, funk, right, pool):
     symbol_name = '{}_{}_{}'.format(funk.function_scope.name, funk.function_scope.clause_idx, name)
@@ -1011,13 +1014,6 @@ class FunctionClause:
                 last_insn.eval(p_result)
                 self.funk.emitter.ret()
                 self.funk.emitter.br('l_{}_end'.format(name))
-
-            # Call the garbage collector
-            # The way it works is this: we will collect all of the
-            # LSH symbols under this function scope that have a refcount <= 0
-            # notice that this will not affect the return value since it is an
-            # un-named value, thus not part of the function named-symbol list
-
 
             self.funk.emitter.ret()
 

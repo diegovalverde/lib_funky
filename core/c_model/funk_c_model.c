@@ -1247,7 +1247,7 @@ void funk_print_dimension(struct tnode * n){
 }
 
 void print_scalar(struct tnode * n){
-  //TODO: Something here is wrong....
+
   TRACE("start");
 
 
@@ -1519,15 +1519,12 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
   VALIDATE_NODE(L);
   VALIDATE_NODE(R);
 
-
   if (GET_NODE(L, 0)->type == type_empty_array && GET_NODE(R, 0)->type == type_empty_array){
     funk_create_empty_list_element(function_pool, n);
     printf("funk_concatenate_lists [] , [] -> []\n");
     return;
   }
 
-  printf("Left len %d Right len %d\n", L->len, R->len);
-  printf("Left val %d Right val %d\n", GET_NODE(L,0)->data.i, GET_NODE(R,0)->data.i);
 
   struct tpool * pool = R->pool;
 
@@ -1545,10 +1542,9 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
 
     GET_NODE(n, k)->type = GET_NODE(L,i)->type;
     GET_NODE(n, k)->data = GET_NODE(L,i)->data;
-    printf("Copied L %d\n",GET_NODE(L,i)->data.i);
+
     k++;
   }
-
 
   for (int i = 0; i < R->len; i++){
     if (GET_NODE(R,i)->type == type_empty_array)
@@ -1556,7 +1552,7 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
 
     GET_NODE(n, k)->type = GET_NODE(R,i)->type;
     GET_NODE(n, k)->data = GET_NODE(R,i)->data;
-    printf("Copied R %d\n",GET_NODE(R,i)->data.i);
+    
     k++;
   }
 
@@ -1618,13 +1614,4 @@ void funk_set_node_start(struct tnode  * n, uint32_t start){
   TRACE("start");
   VALIDATE_NODE(n);
   n->start = start;
-}
-
-void foo(){
-  struct tnode n1,n2,r;
-
-
-  struct tnode list[] = {n1,n2};
-
-  funk_create_list_of_regs(global_pool,&r, list, 2);
 }
