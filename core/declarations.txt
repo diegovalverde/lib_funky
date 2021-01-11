@@ -71,6 +71,7 @@ declare void @funk_div_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnod
 declare void @funk_mod_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_or_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_ne_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_eq_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_add_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_sub_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_mod_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
@@ -84,6 +85,7 @@ declare void @funk_slt_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnod
 declare void @funk_flt_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_sgt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_sge_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
+declare void @funk_sge_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
 declare void @print_scalar(%struct.tnode*) #0 

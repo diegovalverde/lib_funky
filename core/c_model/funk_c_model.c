@@ -1068,6 +1068,16 @@ void funk_ne_rr(struct tnode * node_r, int32_t r_offset,
                                    node_b, b_offset, funk_ne);
                 }
 
+void funk_eq_rr(struct tnode * node_r, int32_t r_offset,
+                struct tnode * node_a, int32_t a_offset,
+                struct tnode * node_b, int32_t b_offset){
+
+                  TRACE("start");
+                  funk_arith_op_rr(node_r, r_offset,
+                                   node_a, a_offset,
+                                   node_b, b_offset, funk_eq);
+                }
+
 void funk_add_rf(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,
                 double value){
@@ -1222,6 +1232,16 @@ void funk_sge_ri(struct tnode * node_r, int32_t r_offset,
                 funk_arith_op_rr(node_r, r_offset,
                                  node_a, a_offset,
                                  &node_b, 0, funk_sge);
+
+}
+
+void funk_sge_rr(struct tnode * node_r, int32_t r_offset,
+                struct tnode * node_a, int32_t a_offset,
+                struct tnode * node_b, int32_t b_offset){
+                TRACE("start");
+                funk_arith_op_rr(node_r, r_offset,
+                                 node_a, a_offset,
+                                 node_b, b_offset, funk_sge);
 
 }
 
@@ -1552,7 +1572,7 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
 
     GET_NODE(n, k)->type = GET_NODE(R,i)->type;
     GET_NODE(n, k)->data = GET_NODE(R,i)->data;
-    
+
     k++;
   }
 

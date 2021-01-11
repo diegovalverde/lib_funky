@@ -69,13 +69,10 @@ class Emitter:
         return '%{}'.format(p[-1])
 
     def set_node_type(self, node, funk_type, index=0):
-        p = [x for x in range(self.index, self.index + 1)]
-        self.index = p[-1] + 1
         self.code += """
         ;;;store node type: {str_type}
-        %{0} = getelementptr inbounds %struct.tnode, %struct.tnode* {node}, i32 0, i32 0
-        store i8 {funk_type}, i8* %{0}, align 8
-        """.format(p[0], str_type=funk_types.to_str[funk_type], node=node, funk_type=funk_type)
+        call void @funk_set_node_type( %struct.tnode* {node}, i32 {offset}, i32 {funk_type})
+        """.format(str_type=funk_types.to_str[funk_type], node=node, funk_type=funk_type, offset=index)
 
     def get_node_data_value(self, node, as_type=funk_types.int,offset = 0):
         p = [x for x in range(self.index, self.index + 1)]

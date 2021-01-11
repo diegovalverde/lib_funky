@@ -871,7 +871,7 @@ class FunctionCall(Expression):
         for arg in self.funk.function_scope.args:
             if arg == self.name:
                 fn = self.funk.emitter.get_function_argument_tnode(i)
-                return self.funk.emitter.call_fn_ptr(fn, [create_ast_anon_symbol(self.funk, a) for a in self.args],
+                return self.funk.emitter.call_fn_ptr(fn, [create_ast_anon_symbol(self.funk, a, funk_types.function_pool) for a in self.args],
                                                      result=result)
             i += 1
 
