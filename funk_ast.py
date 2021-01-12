@@ -753,7 +753,7 @@ class Range(BinaryOp):
     def __repr__(self):
         return 'Range({} | {} {} {} {} {})'.format(self.expr, self.left, self.lhs_type, self.identifier, self.rhs_type, self.right)
 
-    def compute_ranges(self):
+    def compute_literal_range_limits(self):
         range_start = self.left.eval()
 
         if self.lhs_type == '<':
@@ -767,9 +767,7 @@ class Range(BinaryOp):
         return range_start, range_end
 
 
-
-
-    def eval(self):
+    def eval_literal_limits(self):
         list_elements = []
         range_start = self.left.eval()
 
@@ -787,10 +785,10 @@ class Range(BinaryOp):
             return FixedSizeLiteralList(self.funk, '', list_elements)
 
         elif isinstance(self.expr, FixedSizeLiteralList):
-            #orig_args = copy.copy(self.expr.args)
+            # orig_args = copy.copy(self.expr.args)
             for i in range(range_start, range_end):
-                list_elements.append( self.expr )
-                #list_elements[-1].replace_symbol(self.identifier, IntegerConstant(self.funk, i))
+                list_elements.append(self.expr)
+                # list_elements[-1].replace_symbol(self.identifier, IntegerConstant(self.funk, i))
             return FixedSizeLiteralList(self.funk, '', list_elements)
         else:
             # for i in range(range_start, range_end):
@@ -798,6 +796,12 @@ class Range(BinaryOp):
             #     list_elements[-1].replace_symbol(self.identifier, IntegerConstant(self.funk, i))
 
             return FixedLenExprRange(self.funk, range_start, range_end, self.identifier, self.expr)
+
+    def eval(self):
+        if isinstance(self.left,IntegerConstant) and isinstance(self.right,IntegerConstant):
+            return self.eval_literal_limits()
+        else:
+            raise Exception('Not implemented')
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
