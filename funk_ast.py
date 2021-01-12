@@ -219,7 +219,10 @@ class VariableList(List):
 
         return self.funk.emitter.create_variable_range_list(self.expr, self.identifier, start, end, resut=result)
 
-class FixedSizeExpressionList(List):
+class FixedLenExprRange(List):
+    """
+    [expr(itr) | literal_1 < itr < literal_2]
+    """
 
     def __init__(self, funk, start, end, iterator_symbol, expr):
         self.funk = funk
@@ -233,7 +236,7 @@ class FixedSizeExpressionList(List):
         self.expr.replace_symbol(symbol, value)
 
     def __repr__(self):
-        return 'FixedSizeExpressionList({})'.format(self.expr)
+        return 'FixedLenExprRange({})'.format(self.expr)
 
     def get_dimensions(self):
         if len(self.elements) == 0:
@@ -307,7 +310,7 @@ class FixedSizeExpressionList(List):
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return FixedSizeExpressionList(self.funk, start=self.start, end=self.end, iterator_symbol=copy.deepcopy(self.iterator_symbol,memo), expr=copy.deepcopy(self.elements, memo))
+        return FixedLenExprRange(self.funk, start=self.start, end=self.end, iterator_symbol=copy.deepcopy(self.iterator_symbol,memo), expr=copy.deepcopy(self.elements, memo))
 
 class CompileTimeExprList(List):
 
@@ -794,7 +797,7 @@ class Range(BinaryOp):
             #     list_elements.append( copy.deepcopy(self.expr) )  # the funk pointer is preventing the deepcopy!
             #     list_elements[-1].replace_symbol(self.identifier, IntegerConstant(self.funk, i))
 
-            return FixedSizeExpressionList(self.funk, range_start, range_end, self.identifier, self.expr)
+            return FixedLenExprRange(self.funk, range_start, range_end, self.identifier, self.expr)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
