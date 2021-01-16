@@ -210,12 +210,13 @@ class Emitter:
         br label %{label_true}
         """.format(label_true=label_true)
 
-    def br_cond_reg(self, reg, label_true, label_false):
+    def br_cond_reg(self, cond, reg, label_true, label_false):
         p = [x for x in range(self.index, self.index + 2)]
         self.index = p[-1]
         self.code += """
-        br i1 {reg}, label %{label_true}, label %{label_false}
-       """.format(reg=reg, label_true=label_true, label_false=label_false)
+        %{0} = icmp {cond} i32 0, {reg}
+        br i1 %{0}, label %{label_true}, label %{label_false}
+       """.format(p[0], cond=cond, reg=reg, label_true=label_true, label_false=label_false)
 
     def br_cond(self, cond, a, b, label_true, label_false):
         p = [x for x in range(self.index, self.index + 2)]
@@ -265,7 +266,7 @@ class Emitter:
         elif operation == 'add':
             return a+b
 
-    def arith_helper(self, a, b, operation, result, idx_r=0, idx_a=0, idx_b=0):
+    def arith_helper(self, a, b, operation, result=None, idx_r=0, idx_a=0, idx_b=0):
         self.add_comment('{} {} {}'.format(a, operation, b))
 
         if isinstance(a, int) and isinstance(b, int):
@@ -851,12 +852,25 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         call void @add_node_to_nodelist(%struct.tnode* %{0}, %struct.tnode* {node}, %struct.tnode* {idx}, i32 {n})
         """.format(p[0], node=node, list=node_list, idx=idx_node, n=n)
 
+    def set_tnode_array_element(self, tnode_list, iterator_reg, value_reg):
+        self.code += """
+        call void @funk_set_tnode_array_element(%struct.tnode* {tnode_list}, %struct.tnode* {iterator_reg}, %struct.tnode* {value_reg})
+        """.format(iterator_reg=iterator_reg, tnode_list=tnode_list, value_reg=value_reg)
+
+    def alloc_tnode_array_from_range_regs(self, l, r, pool):
+        node = self.allocate_result()
+        self.code += """
+        call void @funk_alloc_tnode_array_from_range_regs(%struct.tnode* {node}, %struct.tnode* {l}, %struct.tnode* {r}, i32 {pool})
+        """.format(node=node, l=l, r=r, pool=pool)
+
+        return node
+
     def increment_node_value_int(self, node):
 
         self.code += """
-                ;;; Increment the iterator of the loop
-                call void @funk_increment_node_data_int(%struct.tnode* {node})
-                """.format(node=node)
+        ;;; Increment the iterator of the loop
+        call void @funk_increment_node_data_int(%struct.tnode* {node})
+        """.format(node=node)
 
     def increment_node_len(self, node, delta_len):
         p = [x for x in range(self.index, self.index + 4)]

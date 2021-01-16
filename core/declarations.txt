@@ -108,6 +108,8 @@ declare i32 @funk_get_node_pool(%struct.tnode*) #0
 declare void @funk_set_node_len(%struct.tnode*, i32) #0 
 declare void @funk_set_node_pool(%struct.tnode*, i32) #0 
 declare void @funk_set_node_start(%struct.tnode*, i32) #0 
+declare void @funk_alloc_tnode_array_from_range_regs(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 
 declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 

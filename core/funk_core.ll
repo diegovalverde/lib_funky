@@ -132,6 +132,10 @@ target triple = "x86_64-apple-macosx10.16.0"
 @__FUNCTION__.funk_set_node_len = private unnamed_addr constant [18 x i8] c"funk_set_node_len\00", align 1
 @__FUNCTION__.funk_set_node_pool = private unnamed_addr constant [19 x i8] c"funk_set_node_pool\00", align 1
 @__FUNCTION__.funk_set_node_start = private unnamed_addr constant [20 x i8] c"funk_set_node_start\00", align 1
+@__FUNCTION__.funk_alloc_tnode_array_from_range_regs = private unnamed_addr constant [39 x i8] c"funk_alloc_tnode_array_from_range_regs\00", align 1
+@.str.62 = private unnamed_addr constant [28 x i8] c"-E- %s Invalid range %d %d\0A\00", align 1
+@__FUNCTION__.funk_set_tnode_array_element = private unnamed_addr constant [29 x i8] c"funk_set_tnode_array_element\00", align 1
+@.str.63 = private unnamed_addr constant [37 x i8] c"-E- %s Index %d out of range [0:%d]\0A\00", align 1
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define %struct.tpool* @get_pool_ptr(i32) #0 {
@@ -5304,6 +5308,124 @@ define void @funk_set_node_start(%struct.tnode*, i32) #0 {
   %8 = load %struct.tnode*, %struct.tnode** %3, align 8
   %9 = getelementptr inbounds %struct.tnode, %struct.tnode* %8, i32 0, i32 0
   store i32 %7, i32* %9, align 8
+  ret void
+}
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @funk_alloc_tnode_array_from_range_regs(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 {
+  %5 = alloca %struct.tnode*, align 8
+  %6 = alloca %struct.tnode*, align 8
+  %7 = alloca %struct.tnode*, align 8
+  %8 = alloca i32, align 4
+  %9 = alloca i32, align 4
+  %10 = alloca i32, align 4
+  %11 = alloca i32, align 4
+  %12 = alloca %struct.tpool*, align 8
+  store %struct.tnode* %0, %struct.tnode** %5, align 8
+  store %struct.tnode* %1, %struct.tnode** %6, align 8
+  store %struct.tnode* %2, %struct.tnode** %7, align 8
+  store i32 %3, i32* %8, align 4
+  %13 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %14 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 0, i8* getelementptr inbounds ([39 x i8], [39 x i8]* @__FUNCTION__.funk_alloc_tnode_array_from_range_regs, i64 0, i64 0), i32 1644)
+  %15 = getelementptr inbounds %struct.tdata, %struct.tdata* %14, i32 0, i32 1
+  %16 = bitcast %union.data_type* %15 to i32*
+  %17 = load i32, i32* %16, align 8
+  store i32 %17, i32* %9, align 4
+  %18 = load %struct.tnode*, %struct.tnode** %7, align 8
+  %19 = call %struct.tdata* @get_node(%struct.tnode* %18, i32 0, i8* getelementptr inbounds ([39 x i8], [39 x i8]* @__FUNCTION__.funk_alloc_tnode_array_from_range_regs, i64 0, i64 0), i32 1645)
+  %20 = getelementptr inbounds %struct.tdata, %struct.tdata* %19, i32 0, i32 1
+  %21 = bitcast %union.data_type* %20 to i32*
+  %22 = load i32, i32* %21, align 8
+  store i32 %22, i32* %10, align 4
+  %23 = load i32, i32* %9, align 4
+  %24 = load i32, i32* %10, align 4
+  %25 = icmp uge i32 %23, %24
+  br i1 %25, label %26, label %30
+
+26:                                               ; preds = %4
+  %27 = load i32, i32* %9, align 4
+  %28 = load i32, i32* %10, align 4
+  %29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.62, i64 0, i64 0), i8* getelementptr inbounds ([39 x i8], [39 x i8]* @__FUNCTION__.funk_alloc_tnode_array_from_range_regs, i64 0, i64 0), i32 %27, i32 %28)
+  call void @exit(i32 1) #6
+  unreachable
+
+30:                                               ; preds = %4
+  %31 = load i32, i32* %10, align 4
+  %32 = load i32, i32* %9, align 4
+  %33 = sub i32 %31, %32
+  store i32 %33, i32* %11, align 4
+  %34 = load i32, i32* %8, align 4
+  %35 = call %struct.tpool* @get_pool_ptr(i32 %34)
+  store %struct.tpool* %35, %struct.tpool** %12, align 8
+  %36 = load %struct.tpool*, %struct.tpool** %12, align 8
+  %37 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %38 = getelementptr inbounds %struct.tnode, %struct.tnode* %37, i32 0, i32 3
+  store %struct.tpool* %36, %struct.tpool** %38, align 8
+  %39 = load %struct.tpool*, %struct.tpool** %12, align 8
+  %40 = getelementptr inbounds %struct.tpool, %struct.tpool* %39, i32 0, i32 1
+  %41 = load i32, i32* %40, align 8
+  %42 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %43 = getelementptr inbounds %struct.tnode, %struct.tnode* %42, i32 0, i32 0
+  store i32 %41, i32* %43, align 8
+  %44 = load i32, i32* %11, align 4
+  %45 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %46 = getelementptr inbounds %struct.tnode, %struct.tnode* %45, i32 0, i32 1
+  store i32 %44, i32* %46, align 4
+  %47 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %48 = getelementptr inbounds %struct.tnode, %struct.tnode* %47, i32 0, i32 4
+  %49 = getelementptr inbounds %struct.tdimensions, %struct.tdimensions* %48, i32 0, i32 0
+  store i32 1, i32* %49, align 8
+  %50 = load %struct.tpool*, %struct.tpool** %12, align 8
+  %51 = getelementptr inbounds %struct.tpool, %struct.tpool* %50, i32 0, i32 2
+  %52 = load i32, i32* %51, align 4
+  %53 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %54 = getelementptr inbounds %struct.tnode, %struct.tnode* %53, i32 0, i32 2
+  store i32 %52, i32* %54, align 8
+  %55 = load %struct.tpool*, %struct.tpool** %12, align 8
+  %56 = load i32, i32* %11, align 4
+  call void @funk_increment_pool_tail(%struct.tpool* %55, i32 %56)
+  ret void
+}
+
+; Function Attrs: noinline nounwind optnone ssp uwtable
+define void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
+  %4 = alloca %struct.tnode*, align 8
+  %5 = alloca %struct.tnode*, align 8
+  %6 = alloca %struct.tnode*, align 8
+  %7 = alloca i32, align 4
+  store %struct.tnode* %0, %struct.tnode** %4, align 8
+  store %struct.tnode* %1, %struct.tnode** %5, align 8
+  store %struct.tnode* %2, %struct.tnode** %6, align 8
+  %8 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_set_tnode_array_element, i64 0, i64 0), i32 1667)
+  %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 1
+  %11 = bitcast %union.data_type* %10 to i32*
+  %12 = load i32, i32* %11, align 8
+  store i32 %12, i32* %7, align 4
+  %13 = load i32, i32* %7, align 4
+  %14 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %15 = getelementptr inbounds %struct.tnode, %struct.tnode* %14, i32 0, i32 1
+  %16 = load i32, i32* %15, align 4
+  %17 = icmp ugt i32 %13, %16
+  br i1 %17, label %18, label %24
+
+18:                                               ; preds = %3
+  %19 = load i32, i32* %7, align 4
+  %20 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %21 = getelementptr inbounds %struct.tnode, %struct.tnode* %20, i32 0, i32 1
+  %22 = load i32, i32* %21, align 4
+  %23 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.63, i64 0, i64 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_set_tnode_array_element, i64 0, i64 0), i32 %19, i32 %22)
+  br label %24
+
+24:                                               ; preds = %18, %3
+  %25 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %26 = load i32, i32* %7, align 4
+  %27 = call %struct.tdata* @get_node(%struct.tnode* %25, i32 %26, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_set_tnode_array_element, i64 0, i64 0), i32 1672)
+  %28 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %29 = call %struct.tdata* @get_node(%struct.tnode* %28, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_set_tnode_array_element, i64 0, i64 0), i32 1672)
+  %30 = bitcast %struct.tdata* %27 to i8*
+  %31 = bitcast %struct.tdata* %29 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %30, i8* align 8 %31, i64 16, i1 false)
   ret void
 }
 

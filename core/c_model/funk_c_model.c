@@ -1635,3 +1635,39 @@ void funk_set_node_start(struct tnode  * n, uint32_t start){
   VALIDATE_NODE(n);
   n->start = start;
 }
+
+void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
+  struct tnode  * l, struct tnode  * r, enum pool_types pool_type){
+    TRACE("start");
+
+
+    uint32_t left = GET_NODE(l,0)->data.i;
+    uint32_t right = GET_NODE(r,0)->data.i;
+    if (left >= right){
+      printf("-E- %s Invalid range %d %d\n", __FUNCTION__, left, right);
+      exit(1);
+    }
+
+    uint32_t len = right - left;
+    struct tpool * pool = get_pool_ptr(pool_type);
+    n->pool = pool;
+    n->start  = pool->tail;
+    n->len = len;
+    n->dimension.count = 1;
+    n->wrap_creation = pool->wrap_count;
+
+    funk_increment_pool_tail(pool, len);
+
+
+  }
+
+  void funk_set_tnode_array_element(struct tnode  * tnode_list,
+    struct tnode  * iterator_reg, struct tnode  * value_reg){
+
+      uint32_t i = GET_NODE(iterator_reg,0)->data.i;
+      if ( i > tnode_list->len){
+        printf("-E- %s Index %d out of range [0:%d]\n", __FUNCTION__, i, tnode_list->len);
+      }
+
+      *GET_NODE(tnode_list, i ) = *GET_NODE(value_reg, 0 );
+  }

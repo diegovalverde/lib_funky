@@ -249,7 +249,7 @@ class FixedLenExprRange(List):
 
         return flatten(dimensions)
 
-    def eval_lit(self, result):
+    def eval(self, result=None):
         start, end = self.start, self.end
 
         list_length = reduce((lambda x, y: x * y), self.get_dimensions())  # abs(self.end - self.start)
@@ -297,15 +297,6 @@ class FixedLenExprRange(List):
         self.funk.emitter.set_node_dimensions(head, self.get_dimensions())
 
         return head
-
-    def eval(self, result=None):
-
-        if isinstance(self.start, int) and isinstance(self.end, int):
-            return self.eval_lit(result)
-        else:
-            raise Exception("Not implemented")
-
-
 
 
     def __deepcopy__(self, memo):
@@ -801,7 +792,7 @@ class Range(BinaryOp):
         if isinstance(self.left,IntegerConstant) and isinstance(self.right,IntegerConstant):
             return self.eval_literal_limits()
         else:
-            raise Exception('Not implemented')
+            return ExprRange(self.funk,self.left, self.right, self.identifier, self.expr)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -811,6 +802,80 @@ class Range(BinaryOp):
                      expr=copy.deepcopy(self.expr, memo),
                      rhs_type=self.rhs_type,
                      lhs_type=self.lhs_type)
+
+
+class ExprRange(Range):
+    def __init__(self, funk, lhs=None, rhs=None, identifier=None, expr=None, rhs_type='<', lhs_type='<'):
+        self.funk = funk
+        self.identifier = identifier
+        self.lhs_type = lhs_type
+        self.rhs_type = rhs_type
+        self.expr = expr
+        self.right = rhs
+        self.left = lhs
+        self.iterator_symbol = identifier
+
+    def eval(self, result=None):
+        if isinstance(self.left,IntegerConstant) and isinstance(self.right,IntegerConstant):
+            return self.eval_literal_limits()
+
+        if isinstance(self.left, IntegerConstant):
+            reg_start = self.funk.emitter.alloc_tnode('start', self.left.eval(), funk_types.function_pool,
+                                                      funk_types.int)
+        else:
+            reg_start = self.right.eval()
+
+        if isinstance(self.right, IntegerConstant):
+            reg_end = self.funk.emitter.alloc_tnode('start', self.right.eval(),  funk_types.function_pool, funk_types.int)
+        else:
+            reg_end = self.right.eval()
+
+        iterator_reg = reg_start
+        self.expr.replace_symbol(self.iterator_symbol, StringConstant(self.funk, iterator_reg))
+
+        tnode_list = self.funk.emitter.alloc_tnode_array_from_range_regs(pool=funk_types.global_pool, l=reg_start,
+                                                                    r=reg_end)
+        # loop
+
+        scope_name = self.funk.function_scope.name.replace('@','')
+        label_exit = '{}_clause_{}_loop_exit__{}'.format(scope_name,
+                                                         self.funk.function_scope.clause_idx,
+                                                         self.funk.function_scope.label_count)
+        self.funk.function_scope.label_count += 1
+
+        label_loop_start = '{}_clause_{}_loop_entry__{}'.format(scope_name,
+                                                         self.funk.function_scope.clause_idx,
+                                                         self.funk.function_scope.label_count)
+        self.funk.function_scope.label_count += 1
+
+        self.funk.emitter.br(label_loop_start)
+        self.funk.emitter.add_label(label_loop_start)
+        value = self.expr.eval()
+        self.funk.emitter.set_tnode_array_element(tnode_list, iterator_reg, value)
+
+        self.funk.emitter.increment_node_value_int(iterator_reg)
+
+        diff_tnode = self.funk.emitter.arith_helper(iterator_reg, reg_end, operation='sub' )
+        diff_int = self.funk.emitter.get_node_data_value(diff_tnode)
+        self.funk.emitter.br_cond_reg('eq', diff_int, label_exit, label_loop_start)
+
+        self.funk.emitter.add_label(label_exit)
+        if result is None:
+            result = tnode_list
+        else:
+            self.funk.emitter.copy_node(tnode_list,result)
+
+        return result
+
+    def __deepcopy__(self, memo):
+        # create a copy with self.linked_to *not copied*, just referenced.
+        return ExprRange(self.funk, lhs=copy.deepcopy(self.left, memo),
+                     rhs=copy.deepcopy(self.right, memo),
+                     identifier=copy.deepcopy(self.identifier, memo),
+                     expr=copy.deepcopy(self.expr, memo),
+                     rhs_type=self.rhs_type,
+                     lhs_type=self.lhs_type)
+
 
 class ExternalFunction:
     def __init__(self, funk, name):
