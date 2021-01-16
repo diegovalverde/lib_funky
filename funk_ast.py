@@ -470,6 +470,9 @@ class Identifier:
     def replace_symbol(self, symbol, value):
         if self.indexes is not None:
             for i in range(len(self.indexes)):
+                if self.indexes[i] is None:
+                    continue
+
                 if self.indexes[i].__repr__() == symbol.__repr__():
                     self.indexes[i] = value
                 else:
@@ -551,16 +554,17 @@ class BinaryOp(Expression):
         self.pool = funk_types.function_pool
 
     def replace_symbol(self, symbol, value):
+        if self.left is not  None:
+            if self.left.__repr__() == symbol.__repr__():
+                self.left = value
+            else:
+                self.left.replace_symbol(symbol, value)
 
-        if self.left.__repr__() == symbol.__repr__():
-            self.left = value
-        else:
-            self.left.replace_symbol(symbol, value)
-
-        if self.right.__repr__() == symbol.__repr__():
-            self.right = value
-        else:
-            self.right.replace_symbol(symbol, value)
+        if self.right is not None:
+            if self.right.__repr__() == symbol.__repr__():
+                self.right = value
+            else:
+                self.right.replace_symbol(symbol, value)
 
     def get_compile_type(self):
         # if either operand is float, then auto promote to float at compile time
@@ -757,6 +761,16 @@ class Range(BinaryOp):
 
         return range_start, range_end
 
+    def replace_symbol(self, symbol, value):
+        if self.expr is not None:
+            self.expr.replace_symbol(symbol, value)
+
+        if self.left is not None:
+            self.left.replace_symbol(symbol, value)
+
+        if self.right is not None:
+            self.right.replace_symbol(symbol, value)
+
 
     def eval_literal_limits(self):
         list_elements = []
@@ -792,7 +806,9 @@ class Range(BinaryOp):
         if isinstance(self.left,IntegerConstant) and isinstance(self.right,IntegerConstant):
             return self.eval_literal_limits()
         else:
-            return ExprRange(self.funk,self.left, self.right, self.identifier, self.expr)
+            # TODO this will not work for matrices!!!
+            return ExprRange(self.funk,self.left, self.right, self.identifier, self.expr,
+                             lhs_type= self.lhs_type, rhs_type=self.rhs_type)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -816,54 +832,92 @@ class ExprRange(Range):
         self.iterator_symbol = identifier
 
     def eval(self, result=None):
-        if isinstance(self.left,IntegerConstant) and isinstance(self.right,IntegerConstant):
-            return self.eval_literal_limits()
+        self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
+
+        reg_start = self.funk.emitter.alloc_tnode('start', 0, funk_types.function_pool,
+                                                  funk_types.int)
+
+        reg_end = self.funk.emitter.alloc_tnode('end', 0, funk_types.function_pool,
+                                                funk_types.int)
 
         if isinstance(self.left, IntegerConstant):
-            reg_start = self.funk.emitter.alloc_tnode('start', self.left.eval(), funk_types.function_pool,
-                                                      funk_types.int)
+            start_val = self.left.eval()
         else:
-            reg_start = self.right.eval()
+            start_val = self.funk.emitter.get_node_data_value(self.left.eval())
 
         if isinstance(self.right, IntegerConstant):
-            reg_end = self.funk.emitter.alloc_tnode('start', self.right.eval(),  funk_types.function_pool, funk_types.int)
+            end_val = self.right.eval()
         else:
-            reg_end = self.right.eval()
+            end_val = self.funk.emitter.get_node_data_value(self.right.eval())
+
+        self.funk.emitter.set_node_data_value('start', reg_start, start_val)
+
+        self.funk.emitter.set_node_data_value('end', reg_end, end_val)
+
+        if self.lhs_type == '<':
+            self.funk.emitter.increment_node_value_int(reg_start)
+
+        if self.rhs_type == '<=':
+            self.funk.emitter.increment_node_value_int(reg_end)
+
+        loop_reg = self.funk.emitter.alloc_tnode('iterator', 0,  funk_types.function_pool, funk_types.int)
+
+        len_reg = self.funk.emitter.arith_helper(reg_end, reg_start, operation='sub' )
+        #self.funk.emitter.increment_node_value_int(len_reg)
 
         iterator_reg = reg_start
         self.expr.replace_symbol(self.iterator_symbol, StringConstant(self.funk, iterator_reg))
 
         tnode_list = self.funk.emitter.alloc_tnode_array_from_range_regs(pool=funk_types.global_pool, l=reg_start,
                                                                     r=reg_end)
-        # loop
 
-        scope_name = self.funk.function_scope.name.replace('@','')
+        scope_name = self.funk.function_scope.name.replace('@', '')
+        # loop
+        label_loop_start = '{}_clause_{}_loop_entry__{}'.format(scope_name,
+                                                                self.funk.function_scope.clause_idx,
+                                                                self.funk.function_scope.label_count)
+        self.funk.function_scope.label_count += 1
+
+
         label_exit = '{}_clause_{}_loop_exit__{}'.format(scope_name,
                                                          self.funk.function_scope.clause_idx,
                                                          self.funk.function_scope.label_count)
         self.funk.function_scope.label_count += 1
 
-        label_loop_start = '{}_clause_{}_loop_entry__{}'.format(scope_name,
-                                                         self.funk.function_scope.clause_idx,
-                                                         self.funk.function_scope.label_count)
-        self.funk.function_scope.label_count += 1
 
         self.funk.emitter.br(label_loop_start)
         self.funk.emitter.add_label(label_loop_start)
-        value = self.expr.eval()
-        self.funk.emitter.set_tnode_array_element(tnode_list, iterator_reg, value)
 
+        if isinstance(self.expr, IntegerConstant) or isinstance(self.expr, DoubleConstant):
+            value_reg = self.funk.emitter.alloc_tnode('value_reg',  self.expr.eval(),
+                                                      funk_types.function_pool, self.expr.get_compile_type())
+        elif self.expr.__repr__() == self.iterator_symbol.__repr__():
+            value_reg = iterator_reg
+        else:
+            value_reg = self.expr.eval()
+
+        self.funk.emitter.set_tnode_array_element(tnode_list, loop_reg, value_reg)
+
+        self.funk.emitter.increment_node_value_int(loop_reg)
         self.funk.emitter.increment_node_value_int(iterator_reg)
 
-        diff_tnode = self.funk.emitter.arith_helper(iterator_reg, reg_end, operation='sub' )
+        diff_tnode = self.funk.emitter.arith_helper(loop_reg, len_reg, operation='sub' )
         diff_int = self.funk.emitter.get_node_data_value(diff_tnode)
         self.funk.emitter.br_cond_reg('eq', diff_int, label_exit, label_loop_start)
 
         self.funk.emitter.add_label(label_exit)
+
         if result is None:
             result = tnode_list
         else:
             self.funk.emitter.copy_node(tnode_list,result)
+
+        self.funk.emitter.add_comment('END ============== ExprRange {}'.format(self.__repr__()))
+
+        # head = self.funk.emitter.regroup_list(list_of_nodes, n=list_length, pool=funk_types.function_pool,
+        #                                       result=result)
+        #
+        # self.funk.emitter.set_node_dimensions(head, self.get_dimensions())
 
         return result
 
@@ -932,6 +986,8 @@ class FunctionCall(Expression):
         if self.args is None:
             return
         for i, arg in enumerate(self.args):
+            if arg is None:
+                continue
             if arg.__repr__() == symbol.__repr__():
                 self.args[i] = value
             else:
