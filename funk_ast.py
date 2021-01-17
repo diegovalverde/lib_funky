@@ -915,7 +915,7 @@ class ExprRange(Range):
 
         self.calculate_ranges()
 
-        self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'>>>') , StringConstant(self.funk,self.reg_start),  StringConstant(self.funk,self.reg_end)])
+        #self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'>>>') , StringConstant(self.funk,self.reg_start),  StringConstant(self.funk,self.reg_end)])
 
         reg_start = self.reg_start
 
@@ -944,8 +944,8 @@ class ExprRange(Range):
 
         first_element_len_reg = self.funk.emitter.get_tnode_length(first_element_reg)
 
-        self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'first_element_len_reg'),
-                                                 StringConstant(self.funk,first_element_len_reg)])
+        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'first_element_len_reg'),
+        #                                          StringConstant(self.funk,first_element_len_reg)])
 
 
         total_len_reg = self.funk.emitter.arith_helper(first_element_len_reg, list_len_reg, operation='mul')
@@ -956,14 +956,14 @@ class ExprRange(Range):
         list_index_reg = self.funk.emitter.alloc_tnode('array iterator', 0, funk_types.function_pool, funk_types.int)
 
 
-        self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'list len'), StringConstant(self.funk,total_len_reg)])
+        #self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'list len'), StringConstant(self.funk,total_len_reg)])
 
         # Make sure the length of the list is greater than zero
 
         self.funk.emitter.add_node_to_nodelist(first_element_reg, list_of_nodes, list_index_reg, total_len_reg_int)
 
-        self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'added FIRST element'),
-                                                 StringConstant(self.funk, first_element_reg)])
+        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'added FIRST element'),
+        #                                          StringConstant(self.funk, first_element_reg)])
         self.funk.emitter.increment_node_value_int(iterator_reg)
         self.funk.emitter.increment_node_value_int(loop_reg)
 
@@ -1004,19 +1004,19 @@ class ExprRange(Range):
 
 
 
-        self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'adding element at index '),
-                                                 StringConstant(self.funk, list_index_reg)])
+        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'adding element at index '),
+        #                                          StringConstant(self.funk, list_index_reg)])
 
         self.funk.emitter.add_node_to_nodelist(element_reg, list_of_nodes, list_index_reg, total_len_reg_int)
 
-        self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'added element'),
-                                                 StringConstant(self.funk, element_reg)])
+        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'added element'),
+        #                                          StringConstant(self.funk, element_reg)])
 
         self.funk.emitter.increment_node_value_int(iterator_reg)
         self.funk.emitter.increment_node_value_int(loop_reg)
 
-        self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'loop'),
-                                                 StringConstant(self.funk, loop_reg)])
+        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'loop'),
+        #                                          StringConstant(self.funk, loop_reg)])
 
         self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(loop_reg, as_type=funk_types.int),
                                   list_len_int, label_exit, label_loop_start)
