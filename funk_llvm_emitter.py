@@ -620,6 +620,16 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         call void @funk_set_config_param(i32 {}, i32 {})
         """.format(id.eval(), value.eval())
 
+    def alloc_list_of_tnodes(self, size_tnode):
+        p = [x for x in range(self.index, self.index + 1)]
+        self.index = p[-1] + 1
+        self.code += """
+            %{0} = call %struct.tnode * @funk_alloc_list_of_tnodes(%struct.tnode * {size_tnode})
+        """.format(p[0],size_tnode=size_tnode)
+
+        return '%{}'.format(p[0])
+
+
     def alloc_tnode_helper_list(self, size):
         p = [x for x in range(self.index, self.index + 1)]
         self.index = p[-1] + 1
@@ -673,13 +683,11 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         if result is None:
             result = self.allocate_result()
 
-        p = [x for x in range(self.index, self.index + 1)]
-        self.index = p[-1] + 1
 
         self.code += """
-             %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* {list}, i64 0, i64 0
-             call void @funk_regroup_list(i32 {pool}, %struct.tnode* {result}, %struct.tnode* %{0}, i32 {n})
-            """.format(p[0], result=result,  list=node_list, n=n, pool=pool)
+
+             call void @funk_regroup_list_r(i32 {pool}, %struct.tnode* {result}, %struct.tnode* {list}, %struct.tnode* {n})
+            """.format(result=result,  list=node_list, n=n, pool=pool)
 
         return result
 
@@ -842,20 +850,24 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         return '%{}'.format(p[0])
 
     def add_node_to_nodelist(self, node, node_list, idx_node, n):
-        p = [x for x in range(self.index, self.index + 1)]
-        self.index = p[-1] + 1
-
 
         self.code += """
         ;;; Add node to C list of nodes
-        %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* {list}, i64 0, i64 0
-        call void @add_node_to_nodelist(%struct.tnode* %{0}, %struct.tnode* {node}, %struct.tnode* {idx}, i32 {n})
-        """.format(p[0], node=node, list=node_list, idx=idx_node, n=n)
+        call void @add_node_to_nodelist(%struct.tnode* {node_list}, %struct.tnode* {node}, %struct.tnode* {idx}, i32 {n})
+        """.format( node=node, node_list=node_list, idx=idx_node, n=n)
 
     def set_tnode_array_element(self, tnode_list, iterator_reg, value_reg):
         self.code += """
         call void @funk_set_tnode_array_element(%struct.tnode* {tnode_list}, %struct.tnode* {iterator_reg}, %struct.tnode* {value_reg})
         """.format(iterator_reg=iterator_reg, tnode_list=tnode_list, value_reg=value_reg)
+
+    def alloc_tnode_array_from_len_reg(self, pool, length):
+        node = self.allocate_result()
+        self.code += """
+                call void @funk_alloc_tnode_array_from_range_len(%struct.tnode* {node}, %struct.tnode* {length}, i32 {pool})
+                """.format(node=node, length=length, pool=pool)
+
+        return node
 
     def alloc_tnode_array_from_range_regs(self, l, r, pool):
         node = self.allocate_result()
@@ -884,6 +896,15 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         store i32 %{3}, i32* %{1}, align 4
         """.format(p[0],p[1],p[2],p[3],delta_len=delta_len,node=node)
 
+    def get_tnode_length(self, node,result=None):
+        if result is None:
+            result = self.allocate_result()
+
+            self.code += """
+            call void @funk_get_len(%struct.tnode* {node}, %struct.tnode * {result})
+           """.format(node=node, result=result)
+
+        return result
 
     def get_node_length(self,funk, args,result=None):
         node = args[0].eval()
@@ -1037,6 +1058,12 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             print('Data type not implemented')
 
         return '%{}'.format(p[0])
+
+    def set_node_dimensions_2d(self, node, d0, d1):
+        self.code += """
+
+       call void @funk_set_node_dimensions_2d(%struct.tnode* {node}, %struct.tnode* {d0}, %struct.tnode* {d1})
+       """.format(d0=d0, d1=d1, node=node)
 
     def set_node_dimensions(self, node, dim):
         p = [x for x in range(self.index, self.index + 1)]

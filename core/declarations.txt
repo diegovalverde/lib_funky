@@ -29,6 +29,7 @@ declare void @funk_get_element_in_array_lit(%struct.tnode*, %struct.tnode*, i32)
 declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_regroup_list_r(i32, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_scalar(%struct.tpool*, %struct.tnode*, i8*, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
@@ -99,6 +100,7 @@ declare void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*,
 declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
 declare double @rand_double(double, double) #0 
 declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
@@ -109,7 +111,9 @@ declare void @funk_set_node_len(%struct.tnode*, i32) #0
 declare void @funk_set_node_pool(%struct.tnode*, i32) #0 
 declare void @funk_set_node_start(%struct.tnode*, i32) #0 
 declare void @funk_alloc_tnode_array_from_range_regs(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_alloc_tnode_array_from_range_len(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare %struct.tnode* @funk_alloc_list_of_tnodes(%struct.tnode*) #0 
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 
 declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 

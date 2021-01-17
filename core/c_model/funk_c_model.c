@@ -372,7 +372,7 @@ void add_node_to_nodelist(struct tnode * list, struct tnode * node,
 
 }
 
-void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode * list , int32_t size ){
+void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode * list , uint32_t size ){
   TRACE("start");
 
   struct tpool * pool = get_pool_ptr(pool_type);
@@ -403,6 +403,11 @@ void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode
   }
 
 
+}
+
+void funk_regroup_list_r(enum pool_types pool_type, struct tnode * n, struct tnode * list , struct tnode *  size ){
+
+  funk_regroup_list(pool_type, n, list, GET_NODE(size,0)->data.i);
 }
 
 void funk_create_2d_matrix(enum pool_types pool, struct tnode * node, struct tnode * list, int32_t n, int32_t m ){
@@ -1501,6 +1506,18 @@ void funk_create_sub_array(struct tnode * src, struct tnode * dst,
 
 }
 
+void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, struct tnode  * d1_reg)
+{
+  TRACE("start");
+  uint32_t d0 = GET_NODE(d0_reg,0)->data.i; //rows
+  uint32_t d1 = GET_NODE(d1_reg,0)->data.i; //cols
+
+  //printf("funk_set_node_dimensions_2d %d x %d\n", d0, d1);
+
+  node->dimension.count = (d0 > 1)? 2: 1;
+  node->dimension.d[0] = d0;
+  node->dimension.d[1] = (d0 > 1)? d1 : 0;
+}
 void funk_set_node_dimensions(struct tnode  * node, int * dimensions, int count){
   TRACE("start");
 
@@ -1662,15 +1679,43 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
 
   }
 
+  void funk_alloc_tnode_array_from_range_len(struct tnode  * n,
+    struct tnode  * len_reg,  enum pool_types pool_type){
+      TRACE("start");
+
+
+      uint32_t len = GET_NODE(len_reg,0)->data.i;
+      struct tpool * pool = get_pool_ptr(pool_type);
+      n->pool = pool;
+      n->start  = pool->tail;
+      n->len = len;
+      n->dimension.count = 1;
+      n->wrap_creation = pool->wrap_count;
+
+      funk_increment_pool_tail(pool, len);
+
+
+    }
+
   void funk_set_tnode_array_element(struct tnode  * tnode_list,
     struct tnode  * iterator_reg, struct tnode  * value_reg){
+      TRACE("start");
 
       uint32_t i = GET_NODE(iterator_reg,0)->data.i;
-      
+
       if ( i > tnode_list->len){
         printf("-E- %s Index %d out of range [0:%d]\n", __FUNCTION__, i, tnode_list->len);
       }
 
       *GET_NODE(tnode_list, i ) = *GET_NODE(value_reg, 0 );
+
+  }
+
+  struct tnode  * funk_alloc_list_of_tnodes( struct tnode  * reg_len){
+    TRACE("start");
+    uint32_t len = GET_NODE(reg_len,0)->data.i;
+
+
+    return (struct tnode  *)malloc(len*sizeof(struct tnode));
 
   }
