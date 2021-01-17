@@ -387,7 +387,7 @@ void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode
     n->len = size;
 
   } else {
-    //printf("->>>>> I- List is not consecutive in pool. Will create a copy\n");
+    printf("->>>>> I- List is not consecutive in pool. Will create a copy\n");
     n->start  = pool->tail;
     n->len = size;
 
@@ -406,7 +406,8 @@ void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode
 }
 
 void funk_regroup_list_r(enum pool_types pool_type, struct tnode * n, struct tnode * list , struct tnode *  size ){
-
+  TRACE("start");
+  printf("funk_regroup_list_r %d\n",GET_NODE(size,0)->data.i);
   funk_regroup_list(pool_type, n, list, GET_NODE(size,0)->data.i);
 }
 
