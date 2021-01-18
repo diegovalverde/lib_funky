@@ -83,6 +83,7 @@ declare void @funk_sub_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0
 declare void @funk_mul_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_slt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_slt_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_sgt_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_flt_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_sgt_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_sge_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 

@@ -1203,6 +1203,16 @@ void funk_slt_rr(struct tnode * node_r, int32_t r_offset,
                                    node_b, b_offset, funk_slt);
                 }
 
+      void funk_sgt_rr(struct tnode * node_r, int32_t r_offset,
+                      struct tnode * node_a, int32_t a_offset,
+                      struct tnode * node_b, int32_t b_offset){
+
+                        TRACE("start");
+                        funk_arith_op_rr(node_r, r_offset,
+                                         node_a, a_offset,
+                                         node_b, b_offset, funk_sgt);
+                      }
+
 void funk_flt_rf(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_a, int32_t a_offset,
                 double value){
