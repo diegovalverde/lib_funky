@@ -909,6 +909,8 @@ class ExprRange(Range):
                                               n=total_len_reg,
                                               pool=funk_types.function_pool,
                                               result=result)
+        
+        self.funk.emitter.free_tnode_pointer(list_of_nodes)
 
         # todo: dimensions from regs
         self.funk.emitter.set_node_dimensions_2d(head, first_element_len_reg, list_len_reg)

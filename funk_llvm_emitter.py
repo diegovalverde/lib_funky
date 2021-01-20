@@ -1356,6 +1356,13 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
          """.format(p[0], ptr=ptr, node=node, n=n)
 
         return node
+    def free_tnode_pointer(self,reg):
+        p = [x for x in range(self.index, self.index + 1)]
+        self.index = p[-1] + 1
+        self.code += """
+        %{0} = bitcast %struct.tnode* {reg} to i8*
+        call void @free(i8* %{0})
+        """.format(p[0], reg=reg)
 
     def fread_list(self, funk, args, result, pool=funk_types.global_pool):
         if len(args) != 1:
