@@ -28,7 +28,8 @@
     statement: assignment
              | expr
 
-    expr: term [expr_]
+    expr:  "[" term "]" "<~" term  -> action_push_at_tail
+           | term [expr_]
 
     assignment: assignment_lhs assignment_rhs  -> action_assignment
 
@@ -46,6 +47,7 @@
     ///////////////////////////////////////////
     expr_:    "+" term [expr_]  -> action_arith_add
             | "-" term [expr_]  -> action_arith_sub
+           // | "<~" term [expr_]  -> action_push_at_tail
 
 
     term: factor [term_]
@@ -123,6 +125,7 @@
     fn_call_arguments:  "(" [list_elements] ")" -> action_function_call_args
 
 
+
     ///////////////////////////////////////////
     // Function firms
     ///////////////////////////////////////////
@@ -138,7 +141,7 @@
                      |"[" "]"                     -> action_match_empty_list
                    //  | number                     -> action_match_literal
 
-    fn_firm_element_: "<~" "[" identifier "]"   -> action_pop_list_head
+    fn_firm_element_:   "<~" "[" identifier "]"   -> action_pop_list_head
                         |                       -> action_match_identifier
 
     fn_precondition: "|" boolean_expr

@@ -51,6 +51,7 @@ struct tdata
   union data_type{
     double f;
     int32_t i;
+    void (*fn)(struct tnode *, int, struct tnode *);
   } data;
 
 };

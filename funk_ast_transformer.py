@@ -209,6 +209,9 @@ class TreeToAst(Transformer):
         else:
             return None
 
+    def action_push_at_tail(self, tokens):
+        return funk_ast.ListConcatTail(self.funk, left=tokens[0], right=tokens[1])
+
     def action_arith_sub(self, token):
         return self.bin_op(token, funk_ast.Sub)
 
@@ -419,6 +422,11 @@ class TreeToAst(Transformer):
 
     def factor(self, token):
         return token[0]
+
+    def ext_fn_call_arguments(self, token):
+        return flatten(token)
+
+
 
     def fn_call_arguments(self, token):
         return token[0]

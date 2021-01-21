@@ -318,25 +318,16 @@ class Emitter:
         self.add_comment('Create the argument array')
         array = self.alloc_array_on_stack(n)
 
-        prev = None
         for i in range(n):
             p_element = self.get_array_element(array, i, n)
             self.copy_node(arguments[i], p_element)
 
         head = self.get_array_element(array, 0, n)
 
-        fn_data = self.get_node_data(fn_node)
-
-        p = [x for x in range(self.index, self.index + 3)]
-        self.index = p[-1] + 1
         self.code += """
         ;; call Function Pointer
-
-        %{0} = getelementptr inbounds %struct.tdata, %struct.tdata* {fn_data}, i32 0, i32 1
-        %{1} = bitcast %union.data_type* %{0} to void (%struct.tnode*, i32, %struct.tnode*)**
-        %{2} = load void (%struct.tnode*, i32, %struct.tnode*)*, void (%struct.tnode*, i32, %struct.tnode*)** %{1}, align 8
-        call void %{2}(%struct.tnode* {result}, i32 {n}, %struct.tnode* {args})
-        """.format(p[0], p[1], p[2], fn_data=fn_data, result=result, n=n, args=head)
+        call void @funk_call_fn_pointer(%struct.tnode* {fn_node}, %struct.tnode* {result}, i32 {n}, %struct.tnode* {args})
+        """.format(fn_node=fn_node, result=result, n=n, args=head)
 
         return result
 
@@ -540,16 +531,13 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         # return hex(struct.unpack('Q', struct.pack('d', double(value)))[0])[:-8] + '00000000'
         return value
 
-    def load_global_function_to_data(self, data, global_symbol):
-        p = [x for x in range(self.index, self.index + 2)]
-        self.index = p[-1] + 1
+    def set_node_value_fn_ptr(self, dst, global_symbol):
 
         self.code += """
         ;; Store pointer to global function: \'{global_symbol}\'
-        %{0} = getelementptr inbounds %struct.tdata, %struct.tdata* {data}, i32 0, i32 1
-        %{1} = bitcast %union.data_type* %{0} to void (%struct.tnode*, i32, %struct.tnode*)**
-        store void (%struct.tnode*, i32, %struct.tnode*)* {global_symbol}, void (%struct.tnode*, i32, %struct.tnode*)**  %{1}, align 8
-        """.format(p[0], p[1], data=data, global_symbol=global_symbol)
+
+        call void @funk_set_node_value_fn_ptr(%struct.tnode* {dst}, i32 0, void (%struct.tnode*, i32, %struct.tnode*)* {global_symbol} )
+        """.format(dst=dst, global_symbol=global_symbol)
 
     def concat_list(self,left,right,result=None):
         if result is None:

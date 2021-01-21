@@ -635,6 +635,16 @@ void funk_set_node_value_int(struct tnode  * node, uint32_t offset, uint32_t val
   GET_NODE(node, offset )->data.i = value;
 }
 
+void funk_set_node_value_fn_ptr(struct tnode  * node, uint32_t offset, void (*fn)(struct tnode *, int, struct tnode *)){
+  TRACE("start");
+
+  if (offset >= node->len){
+    printf("-E- %s: offset %d out of bounds for len %d", __FUNCTION__, offset, node->len);
+  }
+  GET_NODE(node, offset )->type = type_function;
+  GET_NODE(node, offset )->data.fn = fn;
+}
+
 void funk_set_node_value_double(struct tnode  * node, uint32_t offset, double value){
   TRACE("start");
 
@@ -1516,8 +1526,7 @@ void funk_create_sub_array(struct tnode * src, struct tnode * dst,
 
 }
 
-void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, struct tnode  * d1_reg)
-{
+void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, struct tnode  * d1_reg){
   TRACE("start");
   uint32_t d0 = GET_NODE(d0_reg,0)->data.i; //rows
   uint32_t d1 = GET_NODE(d1_reg,0)->data.i; //cols
@@ -1528,6 +1537,7 @@ void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, s
   node->dimension.d[0] = d0;
   node->dimension.d[1] = (d0 > 1)? d1 : 0;
 }
+
 void funk_set_node_dimensions(struct tnode  * node, int * dimensions, int count){
   TRACE("start");
 
@@ -1728,4 +1738,35 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
 
     return (struct tnode  *)malloc(len*sizeof(struct tnode));
 
+  }
+
+/*
+;; call Function Pointer
+
+        %{0} = getelementptr inbounds %struct.tdata, %struct.tdata* {fn_data}, i32 0, i32 1
+        %{1} = bitcast %union.data_type* %{0} to void (%struct.tnode*, i32, %struct.tnode*)**
+        %{2} = load void (%struct.tnode*, i32, %struct.tnode*)*, void (%struct.tnode*, i32, %struct.tnode*)** %{1}, align 8
+        call void %{2}(%struct.tnode* {result}, i32 {n}, %struct.tnode* {args})
+*/
+  void funk_call_fn_pointer(struct tnode  * n,
+      struct tnode * result,
+      int arity,
+      struct tnode * arguments){
+
+    TRACE("start");
+    if (GET_NODE(n,0)->type != type_function){
+      printf("-E- calling node wwhich is not a function!\n");
+      exit(1);
+    }
+    //execute the function
+    GET_NODE(n,0)->data.fn(result, arity, arguments);
+  }
+
+  void caca(struct tnode * x, int y, struct tnode * z){
+
+  }
+  void foo()
+  {
+    struct tnode * n;
+    funk_set_node_value_fn_ptr(n,0, &caca );
   }

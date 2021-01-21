@@ -46,6 +46,7 @@ declare void @funk_set_node_type(%struct.tnode*, i32, i32) #0
 declare void @funk_increment_node_data_int(%struct.tnode*) #0 
 declare void @funk_copy_node_into_node_list(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_value_int(%struct.tnode*, i32, i32) #0 
+declare void @funk_set_node_value_fn_ptr(%struct.tnode*, i32, void (%struct.tnode*, i32, %struct.tnode*)*) #0 
 declare void @funk_set_node_value_double(%struct.tnode*, i32, double) #0 
 declare i32 @funk_get_node_value_int(%struct.tnode*, i32) #0 
 declare void @funk_print_pool(%struct.tpool*, i32, i32) #0 
@@ -115,6 +116,9 @@ declare void @funk_alloc_tnode_array_from_range_regs(%struct.tnode*, %struct.tno
 declare void @funk_alloc_tnode_array_from_range_len(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare %struct.tnode* @funk_alloc_list_of_tnodes(%struct.tnode*) #0 
+declare void @funk_call_fn_pointer(%struct.tnode*, %struct.tnode*, i32, %struct.tnode*) #0 
+declare void @caca(%struct.tnode*, i32, %struct.tnode*) #0 
+declare void @foo() #0 
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 
 declare void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 

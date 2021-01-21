@@ -333,6 +333,8 @@ class Identifier:
     def eval(self, result=None):
         # Check the current function that we are building
         # To see if the identifier is a function argument
+        if self.name == 'Tree':
+            print('here')
 
         for head_tail in self.funk.function_scope.tail_pairs:
             head, tail = head_tail
@@ -382,9 +384,8 @@ class Identifier:
 
         if global_symbol_name in self.funk.symbol_table:
             self.funk.emitter.add_comment('creating reference to global function {}'.format(global_symbol_name))
-            node = self.funk.emitter.alloc_tnode('global_symbol_ref', value=0, data_type=funk_types.function)
-            data = self.funk.emitter.get_node_data(node)
-            self.funk.emitter.load_global_function_to_data(data, global_symbol_name)
+            node = self.funk.emitter.alloc_tnode('global_symbol_ref', value=0, pool=funk_types.function_pool, data_type=funk_types.int)
+            self.funk.emitter.set_node_value_fn_ptr(node, global_symbol_name)
             if result is not None:
                 self.funk.emitter.copy_node(node, result)
             return self.eval_node_index(node, result)
@@ -674,6 +675,7 @@ class ListConcat(BinaryOp):
     def __init__(self, funk, left=None, right=None):
         BinaryOp.__init__(self, funk, left, right)
         self.direction = ListConcat.head
+        self.name = None
 
     def __repr__(self):
         return 'ListConcatTail({} , {})'.format(self.left, self.right)
@@ -683,6 +685,28 @@ class ListConcat(BinaryOp):
             list_concat_tail(self.funk, self.left, self.right, result=result)
         else:
             list_concat_head(self.funk, self.left, self.right, result=result)
+
+    def __deepcopy__(self, memo):
+        # create a copy with self.linked_to *not copied*, just referenced.
+        return ListConcat(self.funk, left=copy.deepcopy(self.left, memo),
+                     right=copy.deepcopy(self.right, memo))
+
+class ListConcatTail(BinaryOp):
+    def __init__(self, funk, left=None, right=None):
+        BinaryOp.__init__(self, funk, left, right)
+        self.direction = ListConcat.head
+        #self.name = ''
+
+    def __repr__(self):
+        return 'ListConcatTail({} , {})'.format(self.left, self.right)
+
+    def eval(self, result=None):
+        return list_concat_tail(self.funk, self.left, self.right, result=result)
+
+    def __deepcopy__(self, memo):
+        # create a copy with self.linked_to *not copied*, just referenced.
+        return ListConcatTail(self.funk, left=copy.deepcopy(self.left, memo),
+                     right=copy.deepcopy(self.right, memo))
 
 class Assignment(BinaryOp):
     def __repr__(self):
@@ -909,7 +933,7 @@ class ExprRange(Range):
                                               n=total_len_reg,
                                               pool=funk_types.function_pool,
                                               result=result)
-        
+
         self.funk.emitter.free_tnode_pointer(list_of_nodes)
 
         # todo: dimensions from regs
@@ -1122,6 +1146,7 @@ class FunctionClause:
             self.funk.emitter.add_label(clause_entry_label)
 
             for stmt in self.body[:-1]:
+                self.funk.emitter.add_comment(stmt)
                 stmt.eval()
 
             self.funk.emitter.add_comment('This is the last instruction in the function')
@@ -1137,6 +1162,7 @@ class FunctionClause:
             # TODO: if hasinstance_of( FucntionCall, self.name) print('Warning tail recursion could not be done here')
             elif isinstance(last_insn, FunctionCall) and last_insn.name == self.name[1:]:
                 self.funk.emitter.add_comment('========== Applying TAIL RECURSION =========')
+                self.funk.emitter.add_comment(last_insn)
                 # Essentially
                 # 1- leave the result pointer alone
                 # 2- Store your vals in the pointer to argument list

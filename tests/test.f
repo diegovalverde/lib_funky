@@ -1,5 +1,5 @@
 
-use sort
+use sort, bfs
 N <-> 20
 
 assert(actual, expected | actual != expected ):
@@ -21,6 +21,10 @@ fibo(n): fib(n,0,1).
 _sum([]): 0.
 _sum( x <~ [A]):
      x +_sum(A).
+
+
+idem_list([]) : [].
+idem_list(h <~ [T]) : h ~> [idem_list(T)].
 
 triangular_series(n): (n*n + n)/2.
 
@@ -49,6 +53,21 @@ arr_eq(a <~ [A] , b <~ [B]): arr_eq(A,B).
 
 get_matrix(): [1, 2, 3, 4].
 
+
+tree(0): [1,2,3,4].
+tree(1): [5,6].
+tree(4): [7,8].
+tree(7): [9,10].
+tree(_): [].
+
+tree_is_goal(10) :
+    say('found solution = 10')
+    1.
+
+tree_is_goal(n):
+    say(n)
+    0.
+
 main():
 
 
@@ -74,6 +93,8 @@ main():
       assert(len( [0] ), 1)
       assert(len( [0] ), len( [1] ))
       A <- [1,2,3,4,5,6,7]
+
+
 
       assert(A[0], 1)
       assert(A[1], 2)
@@ -217,6 +238,7 @@ main():
 
       #test sort
       say('Sorting tests')
+      assert(arr_eq(A, idem_list(A)),1)
       assert(arr_eq([1,2,3], [1,2,3]), 1)
       assert(arr_eq([1,2,3,4], [1,2,3,4]), 1)
       assert(arr_eq([1,2,3], [1,2,3,4]), 0)
@@ -227,5 +249,14 @@ main():
 
       assert(arr_eq(sort([12,8,2,9,15,4,13,0,6,11,7,1,14,5,3,10]), [i | 0 <= i <= 15]), 1)
       assert(arr_eq(sort([98,95,92,90,93,96,91,99,94,97]), [i | 90 <= i <= 99]), 1)
+
+      say('test tree')
+      assert(arr_eq(tree(0), [1,2,3,4]), 1)
+      assert(arr_eq(tree(1), [5,6]), 1)
+      assert(arr_eq(tree(4), [7,8]), 1)
+      assert(arr_eq(tree(7), [9,10]), 1)
+
+      assert(bfs(tree_is_goal,tree,[0]), 10)
+
 
       say('All tests passed ;)').
