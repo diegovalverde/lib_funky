@@ -68,7 +68,26 @@ tree_is_goal(n):
     say(n)
     0.
 
+get_arity(): 0.
+get_arity(_): 1.
+get_arity(_,_): 2.
+get_arity(_,_,_): 3.
+get_arity(_,_,_,_): 4.
+
+cmp_gt(x,y | x > y): 1.
+cmp_gt(x,y): 0.
+
 main():
+      say('=== test functions arity === ')
+
+      assert(get_arity(),0)
+      assert(get_arity(1),1)
+      assert(get_arity([1]),1)
+      assert(get_arity([1,2]),1)
+      assert(get_arity(1,1),2)
+      assert(get_arity(1,[6,6,6]),2)
+      assert(get_arity(1,1,1),3)
+      assert(get_arity(1,1,1,1),4)
 
 
       #say('Test strings')
@@ -250,6 +269,9 @@ main():
       assert(arr_eq(sort([12,8,2,9,15,4,13,0,6,11,7,1,14,5,3,10]), [i | 0 <= i <= 15]), 1)
       assert(arr_eq(sort([98,95,92,90,93,96,91,99,94,97]), [i | 90 <= i <= 99]), 1)
 
+      # now test sort with custom comparator function
+      assert( arr_eq( sort( [8,4,9,1,3,5,10,0,7,2,6], cmp_gt), [10,9,8,7,6,5,4,3,2,1,0]), 1  )
+      assert(arr_eq(sort([2, 5, 4, 3, 1], cmp_gt), [5,4,3,2,1]), 1)
       say('test tree')
       assert(arr_eq(tree(0), [1,2,3,4]), 1)
       assert(arr_eq(tree(1), [5,6]), 1)

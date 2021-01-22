@@ -2,8 +2,6 @@
 #ifndef FUNK_C_MODEL_H_INCLUDED
 #define FUNK_C_MODEL_H_INCLUDED
 
-//#define FUNK_DEBUG_BUILD 0
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

@@ -1063,6 +1063,7 @@ class FunctionClause:
 
     def emit(self, clause_idx, arity):
         # TODO: refactor
+
         if self.name in ['main','sdl_render']:
 
             for stmt in self.body:
@@ -1075,6 +1076,8 @@ class FunctionClause:
             # I need some kind of clause_exit_label here...
             # check for clause arity
             name = self.name[1:]
+
+          
             clause_entry_label = '{}_{}_clause_entry'.format(name, clause_idx)
             clause_exit_label = '{}_{}_clause_exit'.format(name, clause_idx)
             clause_pm_label = '{}_{}_pattern_match'.format(name, clause_idx)
@@ -1208,6 +1211,7 @@ class FunctionMap:
 
         # Now implement the function
         arity = self.funk.emitter.open_function(self.funk, self.name, len(self.arguments))
+
 
         index = 0
         for clause in self.clauses:

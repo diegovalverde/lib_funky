@@ -2,6 +2,10 @@
 #include "funk_c_model.h"
 
 //#define FUNK_DEBUG_BUILD 1
+
+#ifdef FUNK_DEBUG_BUILD
+  #warning Compiling for DEBUG
+#endif
 struct tpool funk_global_memory_pool, funk_functions_memory_pool;
 static uint32_t g_debug_continue = 0;
 
@@ -699,7 +703,7 @@ void funk_get_next_node(struct tnode *dst, struct tnode * n){
 
  }
 
-void funk_debug_function_entry_hook(const char * function_name){
+void funk_debug_function_entry_hook(const char * function_name, int arity){
   TRACE("start");
 
   #ifdef FUNK_DEBUG_BUILD
@@ -713,7 +717,7 @@ void funk_debug_function_entry_hook(const char * function_name){
     return;
   }
 
-  printf("\n\n\n=== %s === \n", function_name);
+  printf("\n\n\n=== %s arity %d  === \n", function_name, arity);
   do {
       printf(">");
       fgets(str,8,stdin);
@@ -748,7 +752,7 @@ void funk_debug_function_entry_hook(const char * function_name){
   #endif
 }
 
-void funk_memcp_arr(struct tnode * dst, struct tnode * src, int n, unsigned char dst_on_stack){
+void funk_memcp_arr(struct tnode * dst, struct tnode * src, int n){
   TRACE("start");
 
   for (int i = 0; i < n; ++i){
@@ -757,10 +761,7 @@ void funk_memcp_arr(struct tnode * dst, struct tnode * src, int n, unsigned char
 
   }
 
-  #ifdef FUNK_DEBUG_BUILD
-  if (g_funk_internal_function_tracing_enabled)
-      printf("END %s \n", __FUNCTION__);
-  #endif
+  TRACE("end");
 
 }
 
@@ -1760,13 +1761,4 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
     }
     //execute the function
     GET_NODE(n,0)->data.fn(result, arity, arguments);
-  }
-
-  void caca(struct tnode * x, int y, struct tnode * z){
-
-  }
-  void foo()
-  {
-    struct tnode * n;
-    funk_set_node_value_fn_ptr(n,0, &caca );
   }

@@ -361,8 +361,8 @@ class Emitter:
 
 
         self.code += """
-        call void @funk_debug_function_entry_hook(i8* getelementptr inbounds ({format_len}, {format_len}* {name_str}, i64 0, i64 0))
-        """.format(name_str=name_str, format_len=format_len)
+        call void @funk_debug_function_entry_hook(i8* getelementptr inbounds ({format_len}, {format_len}* {name_str}, i64 0, i64 0), i32 {arity})
+        """.format(name_str=name_str, format_len=format_len, arity=len(arguments))
 
         n = len(arguments)
         self.add_comment('Create the argument array')
@@ -447,7 +447,6 @@ define i32 @main() #0 {
             """
             self.index = 1
         else:
-
             self.index = 4  # number of arguments + result + the first label
 
             if name == 'sdl_render': name = '@sdl_render'
@@ -465,9 +464,11 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             self.add_comment('pointer to result')
             p_result = self.alloc_tnode_pointer()
 
+
+
             # TODO: Arity is already a copy, why do I
             # TODO: need yet another copy on the stack?
-            self.add_comment('function arity')
+            self.add_comment('function arity {}'.format(arg_count))
             arity = self.alloc_i32()
 
             self.code += """
@@ -483,26 +484,6 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         store %struct.tnode* %2, %struct.tnode** {p_arglist}, align 8
                 """.format(p_arglist=p_arglist)
 
-            # Note that all of the input arguments to the function
-            # are copied into a new vector (sequential in memory) under
-            # the function stack frame. The reason for this is:
-            #   1 - In case of tail recursion we want to update this same vector
-            #   2 - We don't wan't the callee to modify the caller's stack thus the copy
-            # Note that this does not incur in additional stack space since this
-            # is done only once in case of tail recursion (which is the most used
-            # pattern in Funk
-
-            self.add_comment('Create the argument array')
-            array = self.alloc_array_on_stack(arg_count)
-
-            array_ptr = self.get_array_element(array, 0, arg_count)
-            self.code += """
-            call void @funk_memcp_arr(%struct.tnode* {dst}, %struct.tnode* {src}, i32 {n}, i8 1)
-            """.format(dst=array_ptr, src='%2', n=arg_count)
-
-            self.code += """
-            store %struct.tnode* {src}, %struct.tnode** {dst}, align 8
-            """.format(src=array_ptr, dst=self.p_fn_args)
             start_label = 'start_{}'.format(name[1:])
 
             self.br(start_label)
