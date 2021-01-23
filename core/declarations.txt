@@ -66,6 +66,7 @@ declare void @funk_eq(i8*, i8*, i8*, i32) #0
 declare void @funk_ne(i8*, i8*, i8*, i32) #0 
 declare void @funk_or(i8*, i8*, i8*, i32) #0 
 declare void @funk_and(i8*, i8*, i8*, i32) #0 
+declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
 declare void @funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
 declare void @funk_mul_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_add_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 

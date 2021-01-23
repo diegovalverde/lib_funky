@@ -358,7 +358,7 @@ class TreeToAst(Transformer):
         is_fixed_size_lit_list = True
         is_compile_time_size_expr_list = True
         for i in elements:
-            if not isinstance(i, funk_ast.IntegerConstant) and not isinstance(i, funk_ast.DoubleConstant):
+            if not isinstance(i, funk_ast.IntegerConstant) and not isinstance(i, funk_ast.DoubleConstant) and not isinstance(i, funk_ast.FixedSizeLiteralList):
                 is_fixed_size_lit_list = False
                 break
 

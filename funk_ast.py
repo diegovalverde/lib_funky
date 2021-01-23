@@ -829,7 +829,6 @@ class ExprRange(Range):
 
         list_len_reg = self.get_range_len()
 
-
         iterator_reg= self.funk.emitter.alloc_tnode('iterator_reg', self.funk.emitter.get_node_data_value(reg_start),
                                                     funk_types.function_pool, funk_types.int)
 
@@ -1077,7 +1076,7 @@ class FunctionClause:
             # check for clause arity
             name = self.name[1:]
 
-          
+
             clause_entry_label = '{}_{}_clause_entry'.format(name, clause_idx)
             clause_exit_label = '{}_{}_clause_exit'.format(name, clause_idx)
             clause_pm_label = '{}_{}_pattern_match'.format(name, clause_idx)

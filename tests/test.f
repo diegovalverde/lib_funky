@@ -165,8 +165,9 @@ main():
             [0,0,1,0],
             [0,0,0,1]]
 
-      #say(M1)
-      #assert(len(M1),16)
+      say(M1)
+      assert(len(M1),16)
+      assert(sum(M1),4)
 
       #assert(sum(reshape(M,[1])), 4)
       M2 <- [[j | 0<= j <= 3] | 0 <= i <= 3]
@@ -177,7 +178,10 @@ main():
       assert(M2[x,x],0)
       #[[assert(M2[i,j],j) | 0 <= j <= 3] | 0 <= i <= 3]
 
-      say(M2)
+      say('M1',M1)
+      say('M2',M2)
+
+      say(M1 + M2)
 
       a <- 0
       b <- 2

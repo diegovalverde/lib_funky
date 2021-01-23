@@ -925,7 +925,7 @@ void funk_and(void *x, void *a, void *b, enum funk_types type){
 
 }
 
-void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
+void _funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
                  struct tnode * node_a, int32_t a_offset,
                  struct tnode * node_b, int32_t b_offset,
                  void (*f)(void *, void *, void *, enum funk_types )){
@@ -1024,6 +1024,45 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
     }
   #endif
 
+}
+
+void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
+                 struct tnode * node_a, int32_t a_offset,
+                 struct tnode * node_b, int32_t b_offset,
+                 void (*f)(void *, void *, void *, enum funk_types )){
+
+      TRACE("start");
+      //check dimensions
+      int32_t dim1 = (node_a->dimension.count == 0) ? 1 : node_a->dimension.count;
+      int32_t dim2 = (node_b->dimension.count == 0) ? 1 : node_b->dimension.count;
+
+      if (dim1 != dim2){
+        printf("-E- cannot perform arithmetic operation in operand A of dimension %d and operand B of dimension %d\n",
+      dim1, dim2);
+      exit(1);
+      }
+
+      int32_t dim_count = dim1;
+      if (dim_count > 1){
+        for (int d = 0; d < dim_count; d++){
+          if (node_a->dimension.d[d] != node_b->dimension.d[d]){
+            printf("-E- invalid dimensions %d %d\n",
+              node_a->dimension.d[d], node_b->dimension.d[d]);
+          }
+        }
+      }
+
+      if (dim_count == 1){
+        _funk_arith_op_rr(node_r, r_offset, node_a, a_offset, node_b, b_offset,f);
+      } else {
+
+        for (int d = 0; d < dim_count; d++){
+          for (int k = 0; k < node_a->dimension.d[d]; k++){
+            _funk_arith_op_rr(node_r, k, node_a, k, node_b, k,f);
+          }
+        }
+        printf("-E- cannot perform operation in dimension \n");
+      }
 }
 
 void funk_mul_rr(struct tnode * node_r, int32_t r_offset,
