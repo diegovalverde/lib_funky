@@ -181,7 +181,10 @@ main():
       say('M1',M1)
       say('M2',M2)
 
-      say(M1 + M2)
+      M3 <- M1 + M2
+      assert(arr_eq([M3[i,i] | 0 <= i <= 3], [1,2,3,4]),1)
+
+
 
       a <- 0
       b <- 2

@@ -1018,6 +1018,7 @@ void _funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
     r->type = type_invalid;
   }
 
+
   #ifdef FUNK_DEBUG_BUILD
   if (g_funk_internal_function_tracing_enabled){
       debug_print_arith_operation(node_r, r_offset, node_a, a_offset, node_b, b_offset);
@@ -1032,12 +1033,14 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
                  void (*f)(void *, void *, void *, enum funk_types )){
 
       TRACE("start");
+      struct tpool * pool = get_pool_ptr(function_pool);
+
       //check dimensions
       int32_t dim1 = (node_a->dimension.count == 0) ? 1 : node_a->dimension.count;
       int32_t dim2 = (node_b->dimension.count == 0) ? 1 : node_b->dimension.count;
 
       if (dim1 != dim2){
-        printf("-E- cannot perform arithmetic operation in operand A of dimension %d and operand B of dimension %d\n",
+        printf("\n-E- cannot perform arithmetic operation in operand A of dimension %d and operand B of dimension %d\n",
       dim1, dim2);
       exit(1);
       }
@@ -1054,14 +1057,28 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
 
       if (dim_count == 1){
         _funk_arith_op_rr(node_r, r_offset, node_a, a_offset, node_b, b_offset,f);
-      } else {
+      } else if (dim_count == 2) {
 
-        for (int d = 0; d < dim_count; d++){
-          for (int k = 0; k < node_a->dimension.d[d]; k++){
+        node_r->dimension.count = dim_count;
+
+        int32_t array_len = node_r->dimension.d[0]*node_r->dimension.d[1];
+        node_r->start  = pool->tail;
+        node_r->len = array_len;
+        node_r->dimension.d[0] = node_a->dimension.d[0];
+        node_r->dimension.d[1] = node_a->dimension.d[1];
+
+        funk_increment_pool_tail(pool, array_len);
+
+        for (int i = 0; i < node_r->dimension.d[0]; i++){
+          for (int j = 0; j < node_r->dimension.d[1]; j++){
+            int32_t k = i*node_r->dimension.d[1] + j;
             _funk_arith_op_rr(node_r, k, node_a, k, node_b, k,f);
           }
         }
-        printf("-E- cannot perform operation in dimension \n");
+
+      } else {
+        printf("-E- Arithmetic operation in %d is not currently supported\n", dim_count );
+        exit(1);
       }
 }
 
@@ -1487,6 +1504,7 @@ void reshape(struct tnode * dst, int * idx, int count){
 
   if (dst->len > 0u && number_of_elements > dst->len){
     printf("-E- reshape operation not possible for variable with %d elements\n", dst->len);
+    exit(1);
   }
 }
 
