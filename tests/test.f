@@ -183,7 +183,9 @@ main():
 
       M3 <- M1 + M2
       assert(arr_eq([M3[i,i] | 0 <= i <= 3], [1,2,3,4]),1)
-
+      assert(sum(M1-M1),0)
+      assert(sum(M1+M1),8)
+      assert(sum(M1*M1),4)
 
 
       a <- 0
