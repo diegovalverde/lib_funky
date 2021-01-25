@@ -262,7 +262,7 @@ class CompileTimeExprList(List):
         return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
 
     def __repr__(self):
-        return 'FixedSizeIdentifierList({})'.format(self.elements)
+        return 'CompileTimeExprList({})'.format(self.elements)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -330,11 +330,34 @@ class Identifier:
         else:
             return node
 
+    def pattern_match_list_of_identifiers(self, result):
+        """
+
+        foo([ x, y, z]):
+            say(y)
+        """
+        for pm in self.funk.function_scope.pattern_matches:
+            if isinstance(pm, PatternMatchListOfIdentifiers):
+                for i in range(len(pm.elements)):
+                    pm_element = pm.elements[i]
+                    if self.name == pm_element.name:
+                        list_node = self.funk.emitter.get_function_argument_tnode(pm.position)
+                        val = self.funk.emitter.get_node_data_value(list_node, offset=i )
+                        element_node = self.funk.emitter.alloc_tnode('@[]{}'.format(i),val,
+                                                                     pool=funk_types.function_pool,
+                                                                     data_type=funk_types.int)
+                        if result is not None:
+                            self.funk.emitter.copy_node(element_node, result)
+                        return element_node
+        return None
+
     def eval(self, result=None):
         # Check the current function that we are building
         # To see if the identifier is a function argument
-        if self.name == 'Tree':
-            print('here')
+
+        pattern_matched_in_list = self.pattern_match_list_of_identifiers(result)
+        if pattern_matched_in_list is not None:
+            return pattern_matched_in_list
 
         for head_tail in self.funk.function_scope.tail_pairs:
             head, tail = head_tail
@@ -361,7 +384,6 @@ class Identifier:
                     self.funk.emitter.copy_node(detached_head_node, result)
 
                 return detached_head_node
-
 
         for arg in self.funk.function_scope.args:
             if arg == self.name:
@@ -439,6 +461,7 @@ class PatternMatch:
         self.is_literal = True
         self.position = None
 
+
     def __repr__(self):
         return 'PatternMatch()'
 
@@ -487,7 +510,7 @@ class PatternMatchLiteral(PatternMatch):
         # create a copy with self.linked_to *not copied*, just referenced.
         return PatternMatchLiteral(self.funk,value=copy.deepcopy(self.value, memo))
 
-class PatternMatchIdentifier:
+class PatternMatchIdentifier(PatternMatch):
     def __init__(self, funk, name):
         self.funk = funk
         self.name = name
@@ -502,6 +525,22 @@ class PatternMatchIdentifier:
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return PatternMatchIdentifier(self.funk,name=copy.deepcopy(self.name, memo))
+
+class PatternMatchListOfIdentifiers(PatternMatch):
+    def __init__(self, funk, elements, position):
+        self.elements = elements
+        self.position = position
+        self.funk = funk
+
+    def __repr__(self):
+        return 'PatternMatchListOfIdentifiers({})'.format(self.elements)
+
+    def eval(self, result=None):
+        pass
+
+    def __deepcopy__(self, memo):
+        # create a copy with self.linked_to *not copied*, just referenced.
+        return PatternMatchListOfIdentifiers(self.funk,name=copy.deepcopy(self.name, memo))
 
 class BinaryOp(Expression):
     def __init__(self, funk, left=None, right=None, indexes=None):
@@ -1083,9 +1122,9 @@ class FunctionClause:
             clause_precondition_label = '{}_{}_clause_precondition'.format(name, clause_idx)
             self.funk.function_scope.args = self.arguments
             self.funk.function_scope.tail_pairs = self.tail_pairs
+            self.funk.function_scope.pattern_matches = self.pattern_matches
 
             # check for arity
-            label_next = clause_entry_label
             if self.pattern_matches is not None and len(self.pattern_matches) != 0:
                 label_next = clause_pm_label
             elif self.preconditions is not None:
@@ -1096,7 +1135,14 @@ class FunctionClause:
             # So the first function arguments is always the pointer to the
             # return value and the second (#1) is the arity (passed as a constant)
             self.funk.emitter.add_comment('Check clause arity or exit. Arity = {}'.format(self.arguments))
-            self.funk.emitter.br_cond('eq', '%1', len(self.arguments), label_next, clause_exit_label)
+
+            number_of_arguments = len(self.arguments)
+            if self.pattern_matches is not None:
+                for pm in self.pattern_matches:
+                    if isinstance(pm,PatternMatchListOfIdentifiers):
+                        number_of_arguments += 1
+
+            self.funk.emitter.br_cond('eq', '%1', number_of_arguments, label_next, clause_exit_label)
 
             # check for clause pattern matches
             if self.pattern_matches is not None and len(self.pattern_matches) != 0:
@@ -1129,7 +1175,14 @@ class FunctionClause:
                         self.funk.emitter.add_label(label_match_literal_check_value)
                         value = self.funk.emitter.get_node_data_value(arg)
                         self.funk.emitter.br_cond('ne', value, pattern.value, clause_exit_label, label_next)
-
+                    elif isinstance(pattern, PatternMatchListOfIdentifiers):
+                        self.funk.emitter.add_comment('Pattern match element against a list of {} elements '.format(len(pattern.elements)))
+                        node_len = self.funk.emitter.get_tnode_length(arg)
+                        #self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk, node_len)])
+                        val = self.funk.emitter.get_node_data_value(node_len)
+                        self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label,label_next)
+                    else:
+                        raise Exception('Unsupported Pattern Match type')
                     if not last:
                         self.funk.emitter.add_label(label_next)
                     pm_count += 1

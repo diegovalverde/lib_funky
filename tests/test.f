@@ -77,7 +77,28 @@ get_arity(_,_,_,_): 4.
 cmp_gt(x,y | x > y): 1.
 cmp_gt(x,y): 0.
 
+
+pattern_match([a,b,c,d]):
+    # say(a,b,c)
+    # say(a)
+    # say(b)
+    # say(c)
+    # x <- (a - b + c)
+    # say('x=',x)
+    [d,c,b,a].
+
+
+pattern_match_2([a,b,c]):
+    # say(a,b,c)
+    # say(a)
+    # say(b)
+    # say(c)
+    a - b + c.
+
+
 main():
+      assert(arr_eq(pattern_match([77,7,30,666]) ,[666,30,7,77]),1 )
+
       say('=== test functions arity === ')
 
       assert(get_arity(),0)

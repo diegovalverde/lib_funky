@@ -74,6 +74,8 @@ class TreeToAst(Transformer):
                 fn_arguments.append('_')
                 arg.position = position
                 pattern_matches.append(arg)
+            elif isinstance(arg,funk_ast.CompileTimeExprList):
+                pattern_matches.append(funk_ast.PatternMatchListOfIdentifiers(self.funk, arg.elements, position))
             else:
                 fn_arguments.append(arg.name)
 
