@@ -39,7 +39,6 @@ declare void @funk_create_list_of_regs(i32, %struct.tnode*, %struct.tnode*, i32)
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
 declare void @funk_create_list_double_literal(i32, %struct.tnode*, double*, i32) #0 
 declare void @funk_create_2d_matrix_int_literal(i32, %struct.tnode*, i32*, i32, i32) #0 
-declare void @funk_copy_element_from_pool(%struct.tpool*, %struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_scalar_element(i32, i64) #0 
 declare void @funk_get_node_type(%struct.tnode*, i32, i8*) #0 
 declare void @funk_set_node_type(%struct.tnode*, i32, i32) #0 

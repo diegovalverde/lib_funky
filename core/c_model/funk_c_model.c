@@ -343,7 +343,7 @@ void funk_get_element_in_array_var(struct tnode * src, struct tnode * dst , stru
 }
 
 void add_node_to_nodelist(struct tnode * list, struct tnode * node,
-  struct tnode * idx_node, int32_t list_len){
+  struct tnode * idx_node, uint32_t list_len){
   TRACE("start");
 
 
@@ -356,8 +356,8 @@ void add_node_to_nodelist(struct tnode * list, struct tnode * node,
   //int32_t k = 0;
   //TODO k < node->len only when len != 0
   //printf("pointer list_len: %d node->len: %d \n", list_len, node->len);
-  int32_t k = 0;
-  for (int i = idx; (k < node->len) && (i < list_len); i++){
+  uint32_t k = 0;
+  for (uint32_t i = idx; (k < node->len) && (i < list_len); i++){
     //printf("i: %d k: %d nl: %d ll:%d \n", i, k, node->len, list_len);
     list[i].pool  = node->pool;
     list[i].wrap_creation = node->pool->wrap_count;
@@ -397,7 +397,7 @@ void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode
 
     funk_increment_pool_tail(pool, size);
 
-    for (int i = 0; i < size; i++){
+    for (uint32_t i = 0; i < size; i++){
 
       struct tdata * p = GET_NODE(&list[i],0);
       *GET_NODE(n,i) = *p;
@@ -564,19 +564,6 @@ void funk_create_2d_matrix_int_literal(enum pool_types  pool_type, struct tnode 
 
 }
 
-void funk_copy_element_from_pool(struct tpool * pool, struct tnode * dst, struct tnode * src, int32_t i, int32_t j){
-  TRACE("start");
-
-  int32_t offset = (src->dimension.d[0] * i) + j;
-
-  if (offset >= src->len){
-      printf("-E- Indexes %d, %d are out of bounds\n", i, j);
-  } else {
-      dst->start = src->start + offset;
-      dst->len = 1;
-  }
-
-}
 
 void funk_print_scalar_element(struct tdata n){
   TRACE("start");
@@ -659,7 +646,7 @@ void funk_set_node_value_double(struct tnode  * node, uint32_t offset, double va
   GET_NODE(node, offset )->data.f = value;
 }
 
-int32_t funk_get_node_value_int(struct tnode * node, int32_t offset){
+int32_t funk_get_node_value_int(struct tnode * node, uint32_t offset){
   TRACE("start");
     if (offset > node->len){
       printf("-E- %s: offset %d out of bounds for len %d", __FUNCTION__, offset, node->len);
@@ -925,9 +912,9 @@ void funk_and(void *x, void *a, void *b, enum funk_types type){
 
 }
 
-void _funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
-                 struct tnode * node_a, int32_t a_offset,
-                 struct tnode * node_b, int32_t b_offset,
+void _funk_arith_op_rr(struct tnode * node_r, uint32_t r_offset,
+                 struct tnode * node_a, uint32_t a_offset,
+                 struct tnode * node_b, uint32_t b_offset,
                  void (*f)(void *, void *, void *, enum funk_types )){
     TRACE("start");
 
@@ -1069,8 +1056,8 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
 
         funk_increment_pool_tail(pool, array_len);
 
-        for (int i = 0; i < node_r->dimension.d[0]; i++){
-          for (int j = 0; j < node_r->dimension.d[1]; j++){
+        for (uint32_t i = 0; i < node_r->dimension.d[0]; i++){
+          for (uint32_t j = 0; j < node_r->dimension.d[1]; j++){
             int32_t k = i*node_r->dimension.d[1] + j;
             _funk_arith_op_rr(node_r, k, node_a, k, node_b, k,f);
           }
@@ -1488,14 +1475,14 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
 
 }
 
-void reshape(struct tnode * dst, int * idx, int count){
+void reshape(struct tnode * dst, int * idx, uint32_t count){
   TRACE("start");
   if (GET_NODE(dst,0)->type == type_empty_array){
     return;
   }
   dst->dimension.count = count;
-  int number_of_elements = 1;
-  for (int i = 0;  (i < count && i < FUNK_MAX_DIMENSIONS); i++){
+  uint32_t number_of_elements = 1;
+  for (uint32_t i = 0;  (i < count && i < FUNK_MAX_DIMENSIONS); i++){
     dst->dimension.d[i] = idx[i];
     number_of_elements *= dst->dimension.d[i];
   }
@@ -1686,9 +1673,9 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
   n->dimension.count = 1;
 
 
-  int k = 0;
+  uint32_t k = 0;
 
-  for (int i = 0; i < L->len; i++){
+  for (uint32_t i = 0; i < L->len; i++){
     if (GET_NODE(L,i)->type == type_empty_array)
       break;
 
@@ -1698,7 +1685,7 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
     k++;
   }
 
-  for (int i = 0; i < R->len; i++){
+  for (uint32_t i = 0; i < R->len; i++){
     if (GET_NODE(R,i)->type == type_empty_array)
       break;
 

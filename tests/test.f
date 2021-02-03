@@ -46,8 +46,12 @@ float_test(prev_x, prev_y,r, e_x, e_y):
     1.
 
 arr_eq([],[]): 1.
-arr_eq(A,B | len(A) != len(B)): 0.
-arr_eq(a <~ [A] , b <~ [B] | a != b): 0.
+arr_eq(A,B | len(A) != len(B)):
+    say('arr_eq: len(',A,') != len(',B,')', len(A), len(B))
+    0.
+arr_eq(a <~ [A] , b <~ [B] | a != b):
+    say('arr_eq', a, '!=', b)
+    0.
 arr_eq(a <~ [A] , b <~ [B]): arr_eq(A,B).
 
 
@@ -79,21 +83,18 @@ cmp_gt(x,y): 0.
 
 
 pattern_match([a,b,c,d]):
-    # say(a,b,c)
-    # say(a)
-    # say(b)
-    # say(c)
-    # x <- (a - b + c)
-    # say('x=',x)
+
     [d,c,b,a].
 
 
 pattern_match_2([a,b,c]):
-    # say(a,b,c)
-    # say(a)
-    # say(b)
-    # say(c)
-    a - b + c.
+    a + b + c.
+
+    or( x, y | x = 1 \/ y = 1): 1.
+    or(x,y) : 0.
+
+    and( x, y | x = 1 /\ y = 1): 1.
+    and(x,y) : 0.
 
 
 main():
@@ -266,11 +267,12 @@ main():
       assert(sum([0]),0)
       assert(triangular_series(7), sum(A))
 
+      zero <- 0
       one <- 1
       two <- 2
       three <- 3
       numbers <- [one, two, three]
-      say(numbers)
+      say('numbers = ', numbers)
 
       assert(len(numbers),3)
       assert(numbers[0],1)
@@ -309,6 +311,18 @@ main():
       assert(arr_eq(tree(7), [9,10]), 1)
 
       assert(bfs(tree_is_goal,tree,[0]), 10)
+
+      say('boolean test')
+
+      assert(or(zero, zero),0)
+      assert(or(zero, one),1)
+      assert(or(one, zero),1)
+      assert(or(one, one),1)
+
+      assert(and(zero, zero),0)
+      assert(and(zero, one),0)
+      assert(and(one, zero),0)
+      assert(and(one, one),1)
 
 
       say('All tests passed ;)').

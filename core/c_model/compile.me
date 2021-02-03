@@ -10,10 +10,10 @@ fi
 echo "C_INCLUDE_PATH=$C_INCLUDE_PATH"
 
 echo $LLVM_BIN_PATH/clang -O0 -S -emit-llvm funk/core/c_model/funk_c_model.c -I$C_INCLUDE_PATH -o funk/core/funk_core.ll
-$LLVM_BIN_PATH/clang -O0 -S -emit-llvm funk/core/c_model/funk_c_model.c -I$C_INCLUDE_PATH -o funk/core/funk_core.ll
+$LLVM_BIN_PATH/clang -O0 -W -Wall -Wextra  -S -emit-llvm funk/core/c_model/funk_c_model.c -I$C_INCLUDE_PATH -o funk/core/funk_core.ll
 
 echo $LLVM_BIN_PATH/clang -O0 -S -emit-llvm funk/core/c_model/funk_sdl.c -I$C_INCLUDE_PATH -o funk/core/funk_sdl.ll
-$LLVM_BIN_PATH/clang -O0 -S -emit-llvm funk/core/c_model/funk_sdl.c -I$C_INCLUDE_PATH -o funk/core/funk_sdl.ll
+$LLVM_BIN_PATH/clang -W -Wall -Wextra  -O0 -S -emit-llvm funk/core/c_model/funk_sdl.c -I$C_INCLUDE_PATH -o funk/core/funk_sdl.ll
 
 
 echo ";;; ==== Data types ==== " > funk/core/data_types.txt
