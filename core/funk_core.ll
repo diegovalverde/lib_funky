@@ -413,7 +413,7 @@ define void @funk_print_type(i8 zeroext) #0 {
 6:                                                ; preds = %1
   %7 = load i8, i8* %2, align 1
   %8 = zext i8 %7 to i32
-  %9 = icmp slt i32 %8, 7
+  %9 = icmp slt i32 %8, 8
   br i1 %9, label %10, label %16
 
 10:                                               ; preds = %6

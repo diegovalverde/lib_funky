@@ -16,14 +16,15 @@ enum pool_types{
 };
 
 enum funk_types{
-type_invalid = 0,
-type_int = 1,
-type_double = 2,
-type_array = 3,
-type_empty_array = 4,
-type_scalar = 5,
-type_function = 6,
-max_types = 7
+type_invalid,
+type_int,
+type_double,
+type_array ,
+type_empty_array ,
+type_scalar ,
+type_function ,
+type_next_node ,
+max_types
 };
 
 
