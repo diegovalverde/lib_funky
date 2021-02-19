@@ -100,7 +100,6 @@ declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %st
 declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
 declare float @funk_ToFloat(%struct.tnode*) #0 
 declare void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 
-declare void @reshape(%struct.tnode*, i32*, i32) #0 
 declare void @funk_get_len(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32, i32, i32) #0 
 declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
@@ -108,6 +107,7 @@ declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, 
 declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
 declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @reshape(%struct.tnode*, i32*, i32) #0 
 declare double @rand_double(double, double) #0 
 declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 

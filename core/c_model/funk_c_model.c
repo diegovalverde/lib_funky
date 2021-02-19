@@ -455,31 +455,23 @@ void add_node_to_nodelist(struct tnode * list, struct tnode * node,
 
 }
 
-void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode * list , uint32_t size ){
+void funk_regroup_list(enum pool_types pool_type, struct tnode * dst, struct tnode * list , uint32_t size ){
   TRACE("start");
 
-  struct tpool * pool = get_pool_ptr(pool_type);
-  n->pool = pool;
-  n->wrap_creation = pool->wrap_count;
-  DIM_COUNT(n) = 1;
+  VALIDATE_NODE(list); //validate node[0]
+  funk_create_node(dst, size, pool_type, DIM_COUNT(list), 0, NULL);
 
-  //printf("START %s ======================\n",__FUNCTION__);
 
   if (is_list_consecutive_in_memory(list, size) == 1){
-    n->start = list[0].start;
-    LEN(n) = size;
+    dst->start = list[0].start;
+
 
   } else {
-    //printf("->>>>> I- List is not consecutive in pool. Will create a copy\n");
-    n->start  = pool->tail;
-    LEN(n) = size;
-
-    funk_increment_pool_tail(pool, size);
 
     for (uint32_t i = 0; i < size; i++){
 
       struct tdata * p = DATA(&list[i],0);
-      *DATA(n,i) = *p;
+      *DATA(dst,i) = *p;
 
     }
 
@@ -1535,25 +1527,7 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
 
 }
 
-void reshape(struct tnode * dst, int * idx, uint32_t count){
-  TRACE("start");
-  if (DATA(dst,0)->type == type_empty_array){
-    return;
-  }
-  DIM_COUNT(dst) = count;
-  uint32_t number_of_elements = 1;
-  for (uint32_t i = 0;  (i < count && i < FUNK_MAX_DIMENSIONS); i++){
-    DIM(dst,i) = idx[i];
-    number_of_elements *= DIM(dst,i);
-  }
 
-  //printf("%d:[%d x %d]\n", DIM_COUNT(dst), DIM(dst,0),DIM(dst,1));
-
-  if (LEN(dst) > 0u && number_of_elements > LEN(dst)){
-    printf("-E- reshape operation not possible for variable with %d elements\n", LEN(dst));
-    exit(1);
-  }
-}
 
 void funk_get_len(struct tnode * src, struct tnode * dst){
   TRACE("start");
@@ -1692,6 +1666,25 @@ void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, s
 
   int array[] = {d0, d1};
   funk_set_node_dimensions(node, array, 2);
+}
+void reshape(struct tnode * dst, int * idx, uint32_t count){
+  TRACE("start");
+  if (DATA(dst,0)->type == type_empty_array){
+    return;
+  }
+  DIM_COUNT(dst) = count;
+  uint32_t number_of_elements = 1;
+  for (uint32_t i = 0;  (i < count && i < FUNK_MAX_DIMENSIONS); i++){
+    DIM(dst,i) = idx[i];
+    number_of_elements *= DIM(dst,i);
+  }
+
+  //printf("%d:[%d x %d]\n", DIM_COUNT(dst), DIM(dst,0),DIM(dst,1));
+
+  if (LEN(dst) > 0u && number_of_elements > LEN(dst)){
+    printf("-E- reshape operation not possible for variable with %d elements\n", LEN(dst));
+    exit(1);
+  }
 }
 
 
@@ -1864,7 +1857,7 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * dst,
     TRACE("start");
     uint32_t len = DATA(reg_len,0)->data.i;
 
-
+    MEM_USAGE(__FUNCTION__);
     return (struct tnode  *)malloc(len*sizeof(struct tnode));
 
   }
