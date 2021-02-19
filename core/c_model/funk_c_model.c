@@ -85,6 +85,9 @@ struct tnode * validate_node(struct tnode * n, const char * function){
   return n;
 }
 
+void set_dimension(struct tnode * n, uint32_t i, uint32_t d){
+  n->dimension.d[i] = d;
+}
 
 struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int line ){
   TRACE("start");
@@ -1103,15 +1106,14 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
         _funk_arith_op_rr(node_r, r_offset, node_a, a_offset, node_b, b_offset,f);
       } else if (dim_count == 2) {
 
-        DIM_COUNT(node_r) = dim_count;
+        uint32_t array_len = DIM(node_a,0)*DIM(node_a,1);
+        funk_create_node(node_r, array_len, function_pool,
+          type_int, dim_count, NULL);
 
-        int32_t array_len = DIM(node_r,0)*DIM(node_r,1);
-        node_r->start  = pool->tail;
-        LEN(node_r) = array_len;
-        DIM(node_r,0) = DIM(node_a,0);
-        DIM(node_r,1) = DIM(node_a,1);
 
-        funk_increment_pool_tail(pool, array_len);
+        SET_DIM(node_r,0, DIM(node_a,0) ) ;
+        SET_DIM(node_r,1, DIM(node_a,1) );
+
 
         for (uint32_t i = 0; i < DIM(node_r,0); i++){
           for (uint32_t j = 0; j < DIM(node_r,1); j++){

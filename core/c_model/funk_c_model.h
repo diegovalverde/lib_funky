@@ -80,10 +80,6 @@ struct tnode
 
 };
 
-inline uint32_t get_dimension(struct tnode * n, uint32_t i)
-{
-  return 0;
-}
 
 #define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__)
 #define LEN(n) n->len
@@ -92,6 +88,7 @@ inline uint32_t get_dimension(struct tnode * n, uint32_t i)
 #define DIM_COUNT(n) n->dimension.count
 #define SET_DIM_COUNT(n,i) n->dimension.count = i
 #define DIM(n,i) n->dimension.d[i]
+#define SET_DIM(n,i,d) set_dimension(n,i,d)
 #define WRAP_CREATION(n)  n->wrap_creation
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int  );
 
