@@ -256,8 +256,18 @@ class CompileTimeExprList(List):
 
         elements = []
         for element in flattened_list:
-            elements.append(element.eval())
+            if isinstance(element, IntegerConstant):
+                reg = self.funk.emitter.alloc_tnode('anon', element.eval(),
+                                                              funk_types.function_pool, funk_types.int )
 
+                elements.append(reg)
+            elif isinstance(element, DoubleConstant):
+                reg = self.funk.emitter.alloc_tnode('anon', element.eval(),
+                                                    funk_types.function_pool, funk_types.double)
+
+                elements.append(reg)
+            else:
+                elements.append(element.eval())
 
         return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
 
@@ -319,11 +329,14 @@ class Identifier:
 
     def eval_node_index(self,node,result=None):
         if self.indexes is not None:
+            # M[i..j, i+1 .. j+1]
             if len(self.indexes) == 2 and isinstance(self.indexes[0], Range)  and isinstance(self.indexes[1], Range):
                 return self.funk.emitter.create_submatrix(node, self.indexes, result=result)
+                #M[1,2]
             elif  len(self.indexes) == 2 and isinstance(self.indexes[0], IntegerConstant) and isinstance(self.indexes[1], IntegerConstant):
                 return self.funk.emitter.get_element_in_array_2d_lit(node, self.indexes, result=result)
             elif len(self.indexes) == 1 and isinstance(self.indexes[0], Range):
+                #L[1..2]
                 return self.funk.emitter.create_sub_array(node, c1=self.indexes[0].left, c2=self.indexes[0].right, result=result)
             else:
                 return self.funk.emitter.get_element_in_matrix(node, self.indexes, result=result)
@@ -366,6 +379,7 @@ class Identifier:
                 head_node = self.funk.emitter.get_function_argument_tnode(idx)
                 tail_node = self.funk.emitter.get_next_node(head_node)
                 if result is not None:
+                    #dst, src
                     self.funk.emitter.copy_node(tail_node, result)
                 return tail_node
 
@@ -373,6 +387,7 @@ class Identifier:
                 idx = self.funk.function_scope.args.index(head)
                 head_node = self.funk.emitter.get_function_argument_tnode(idx)
                 self.funk.emitter.add_comment('h <~ [T]. Create a tnode with len 1 pointing to the first element of the head')
+
                 detached_head_node = self.funk.emitter.alloc_tnode_raw()
                 pool = self.funk.emitter.get_node_pool(head_node)
                 start = self.funk.emitter.get_node_start(head_node)
@@ -1132,16 +1147,18 @@ class FunctionClause:
             else:
                 label_next = clause_entry_label
 
-            # So the first function arguments is always the pointer to the
+            # The first function arguments is always the pointer to the
             # return value and the second (#1) is the arity (passed as a constant)
             self.funk.emitter.add_comment('Check clause arity or exit. Arity = {}'.format(self.arguments))
-
+            # foo(x,y,z):  # number_of_arguments = arity = 3
+            # foo( [x,y,z]): # even if the arity is 1 (only one input variable in the fuction firm)
+            # the number_of_arguments is also 3
             number_of_arguments = len(self.arguments)
             if self.pattern_matches is not None:
                 for pm in self.pattern_matches:
                     if isinstance(pm,PatternMatchListOfIdentifiers):
                         number_of_arguments += 1
-
+            #self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'Checking arity')])
             self.funk.emitter.br_cond('eq', '%1', number_of_arguments, label_next, clause_exit_label)
 
             # check for clause pattern matches
@@ -1178,7 +1195,8 @@ class FunctionClause:
                     elif isinstance(pattern, PatternMatchListOfIdentifiers):
                         self.funk.emitter.add_comment('Pattern match element against a list of {} elements '.format(len(pattern.elements)))
                         node_len = self.funk.emitter.get_tnode_length(arg)
-                        #self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk, node_len)])
+                        self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
+                             StringConstant(self.funk, node_len)])
                         val = self.funk.emitter.get_node_data_value(node_len)
                         self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label,label_next)
                     else:
