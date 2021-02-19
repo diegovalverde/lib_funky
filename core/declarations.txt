@@ -18,6 +18,7 @@ declare void @funk_sleep(i32) #0
 declare void @funk_increment_pool_tail(%struct.tpool*, i32) #0 
 declare void @funk_print_type(i8 zeroext) #0 
 declare void @funk_print_node_info(%struct.tnode*) #0 
+declare void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0 
 declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_exit() #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
@@ -34,7 +35,6 @@ declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i3
 declare void @funk_create_scalar(%struct.tpool*, %struct.tnode*, i8*, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
-declare void @funk_create_float_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_list_of_regs(i32, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
 declare void @funk_create_list_double_literal(i32, %struct.tnode*, double*, i32) #0 
