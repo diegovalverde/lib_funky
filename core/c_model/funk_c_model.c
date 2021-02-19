@@ -730,26 +730,19 @@ void funk_print_pool(struct tpool * pool, int begin, int len){
 
 void funk_get_next_node(struct tnode *dst, struct tnode * n){
   TRACE("start");
+  VALIDATE_NODE(n);
 
-   dst->pool = n->pool;
-   dst->wrap_creation = n->pool->wrap_count;
-   DIM_COUNT(dst) = DIM_COUNT(n);
-   for (int i =0; i < FUNK_MAX_DIMENSIONS; i++){
-     DIM(dst,i) = DIM(n,i);
-   }
+   funk_copy_node(dst, n);
 
    LEN(dst) = LEN(n) - 1;
+   //printf("LEN(n) = %d, LEN(dst) = %d\n", LEN(n), LEN(dst));
 
    if (LEN(dst) == 0){
-
-     //void funk_create_scalar(struct tpool * pool, struct tnode * n, void * val, enum funk_types type){
-     int32_t val = 0;
-     funk_create_scalar(dst->pool, dst, (void*)&val, type_empty_array);
-
+     funk_create_node(dst, 1, function_pool, type_empty_array, 0, NULL);
    } else {
-     dst->start = n->start+1;
+     dst->start = n->start + 1;
    }
-
+   //CHECK_TYPES(dst);
  }
 
 void funk_debug_function_entry_hook(const char * function_name, int arity){
@@ -1091,6 +1084,8 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
       if (dim1 != dim2){
         printf("\n-E- cannot perform arithmetic operation in operand A of dimension %d and operand B of dimension %d\n",
       dim1, dim2);
+      funk_print_node_info(node_a);
+      funk_print_node_info(node_b);
       exit(1);
       }
 
@@ -1516,11 +1511,8 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
   int value = 0;
   int count = 0;
 
-  //TODO: move to function
-  dst->start = pool->tail;
-  DIM_COUNT(dst) = 1;
-  dst->pool = pool;
-  dst->wrap_creation = pool->wrap_count;
+
+  funk_create_node(dst, 0, pool_type, type_int, 0,  NULL);
 
   while(fscanf(fp,"%d",&value) == 1)
   {
@@ -1581,8 +1573,10 @@ void funk_create_sub_matrix_lit_indexes(struct tnode * src, struct tnode * dst,
 
     int32_t n = abs((r2 - r1)+1);
     int32_t m = abs((c2 - c1)+1);
+    MEM_USAGE(__FUNCTION__);
 
     int32_t * list = (int32_t *)malloc(sizeof(int32_t)*n*m);
+
     int k = 0;
     for (int i = r1; i <= r2; i++){
       for (int j = c1; j <= c2; j++){
@@ -1613,7 +1607,8 @@ void funk_create_sub_matrix(struct tnode * src, struct tnode * dst,
 
   if (DIM_COUNT(src) != 2){
     //funk_print_node_info(src);
-    printf("Error: %s shall have 2 dimensions and not %d\n", __FUNCTION__, DIM_COUNT(src));
+    printf("Error: %s shall have 2 dimensions and not %d\n", __FUNCTION__,
+     DIM_COUNT(src));
     exit(1);
   }
 
@@ -1638,6 +1633,7 @@ void funk_create_sub_array_lit_indexes(struct tnode * src, struct tnode * dst,
     }
 
     int32_t n = abs((c2 - c1)+1);
+    MEM_USAGE(__FUNCTION__);
     int32_t * list = (int32_t *)malloc(sizeof(int32_t)*n);
     int k = 0;
 
@@ -1669,19 +1665,6 @@ void funk_create_sub_array(struct tnode * src, struct tnode * dst,
   funk_create_sub_array_lit_indexes(src, dst, c1,  c2);
 
 }
-
-void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, struct tnode  * d1_reg){
-  TRACE("start");
-  uint32_t d0 = DATA(d0_reg,0)->data.i; //rows
-  uint32_t d1 = DATA(d1_reg,0)->data.i; //cols
-
-  //printf("funk_set_node_dimensions_2d %d x %d\n", d0, d1);
-
-  DIM_COUNT(node) = (d0 > 1)? 2: 1;
-  DIM(node,0) = d0;
-  DIM(node,1) = (d0 > 1)? d1 : 0;
-}
-
 void funk_set_node_dimensions(struct tnode  * node, int * dimensions, int count){
   TRACE("start");
 
@@ -1696,6 +1679,17 @@ void funk_set_node_dimensions(struct tnode  * node, int * dimensions, int count)
 
 }
 
+void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, struct tnode  * d1_reg){
+  TRACE("start");
+  uint32_t d0 = DATA(d0_reg,0)->data.i; //rows
+  uint32_t d1 = DATA(d1_reg,0)->data.i; //cols
+
+  int array[] = {d0, d1};
+  funk_set_node_dimensions(node, array, 2);
+}
+
+
+
 double rand_double(double lower, double upper){
   TRACE("start");
   return (((double)rand()/(double)(RAND_MAX)) * (upper-lower)) + lower;
@@ -1703,16 +1697,9 @@ double rand_double(double lower, double upper){
 
 }
 
-void funk_create_empty_list_element(enum pool_types pool_type, struct tnode  * n){
+void funk_create_empty_list_element(enum pool_types pool_type, struct tnode  * dst){
   TRACE("start");
-  struct tpool * pool = get_pool_ptr(pool_type);
-
-  n->start  = pool->tail;
-  LEN(n) = 1;
-  n->pool = pool;
-  n->wrap_creation = pool->wrap_count;
-  DIM_COUNT(n) = 1;
-  DATA(n, 0)->type = type_empty_array;
+  funk_create_node(dst, 1, pool_type, type_empty_array, 0, NULL);
 }
 
 void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  * R){
@@ -1817,7 +1804,7 @@ void funk_set_node_start(struct tnode  * n, uint32_t start){
   n->start = start;
 }
 
-void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
+void funk_alloc_tnode_array_from_range_regs(struct tnode  * dst,
   struct tnode  * l, struct tnode  * r, enum pool_types pool_type){
     TRACE("start");
 
@@ -1831,33 +1818,19 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
 
 
     uint32_t len = right - left;
-    struct tpool * pool = get_pool_ptr(pool_type);
-    n->pool = pool;
-    n->start  = pool->tail;
-    LEN(n) = len;
-    DIM_COUNT(n) = 1;
-    n->wrap_creation = pool->wrap_count;
 
-    funk_increment_pool_tail(pool, len);
+
+    funk_create_node(dst, len, pool_type, type_array, 0, NULL);
+
 
 
   }
 
-  void funk_alloc_tnode_array_from_range_len(struct tnode  * n,
+  void funk_alloc_tnode_array_from_range_len(struct tnode  * dst,
     struct tnode  * len_reg,  enum pool_types pool_type){
       TRACE("start");
-
-
       uint32_t len = DATA(len_reg,0)->data.i;
-      struct tpool * pool = get_pool_ptr(pool_type);
-      n->pool = pool;
-      n->start  = pool->tail;
-      LEN(n) = len;
-      DIM_COUNT(n) = 1;
-      n->wrap_creation = pool->wrap_count;
-
-      funk_increment_pool_tail(pool, len);
-
+      funk_create_node(dst, len, pool_type, type_array, 0, NULL);
 
     }
 
@@ -1899,7 +1872,7 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
 
     TRACE("start");
     if (DATA(n,0)->type != type_function){
-      printf("-E- calling node wwhich is not a function!\n");
+      printf("-E- calling node which is not a function!\n");
       exit(1);
     }
     //execute the function

@@ -105,8 +105,8 @@ declare void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*,
 declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
+declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare double @rand_double(double, double) #0 
 declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
