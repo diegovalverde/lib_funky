@@ -177,7 +177,7 @@ void funk_print_node_info(struct tnode * n){
 
   printf("\n\n");
   printf("%p\n", n);
-  printf("%s[%d :%d] %d-d\n",((n->pool == &funk_global_memory_pool)?"gpool":"fpool"), n->start, n->len, n->dimension.count );
+  printf("%s[%d :%d] %d-d\n",((n->pool == &funk_global_memory_pool)?"gpool":"fpool"), n->start, n->len, DIM_COUNT(n) );
   printf("int: %d\n", GET_NODE(n,0)->data.i);
   printf("double: %f\n", GET_NODE(n,0)->data.f);
   funk_print_type(GET_NODE(n,0)->type);
@@ -191,7 +191,7 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
 
   dst->start = src->start;
   dst->len = src->len;
-  dst->dimension.count = src->dimension.count;
+  DIM_COUNT(dst) = DIM_COUNT(src);
   for (int i = 0; i < FUNK_MAX_DIMENSIONS; i++){
     dst->dimension.d[i] = src->dimension.d[i];
   }
@@ -217,7 +217,7 @@ void funk_sum_list(struct tnode * src, struct tnode * dst){
   uint32_t m = src->len;
 
 
-  if (src->dimension.count == 2) {
+  if (DIM_COUNT(src) == 2) {
     m = src->dimension.d[0]*src->dimension.d[1];
   }
 
@@ -228,7 +228,7 @@ void funk_sum_list(struct tnode * src, struct tnode * dst){
 
   GET_NODE(dst,0)->data.i = total;
   dst->len = 1;
-  dst->dimension.count = 1;
+  DIM_COUNT(dst) = 1;
 
 
 
@@ -287,7 +287,7 @@ void funk_get_element_in_matrix_2d_lit(struct tnode * src, struct tnode * dst , 
 
     dst->pool = src->pool;
     dst->wrap_creation = src->pool->wrap_count;
-    dst->dimension.count = 0;
+    DIM_COUNT(dst) = 0;
     dst->len = 1;
     dst->start = (src->start + src->dimension.d[0]* idx_0 + idx_1) % FUNK_MAX_POOL_SIZE;
 
@@ -322,7 +322,7 @@ void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32
 
   dst->pool = src->pool;
   dst->wrap_creation = src->pool->wrap_count;
-  dst->dimension.count = 0;
+  DIM_COUNT(dst) = 0;
   dst->len = 1;
   dst->start = (src->start + idx) % FUNK_MAX_POOL_SIZE;
 
@@ -382,7 +382,7 @@ void funk_regroup_list(enum pool_types pool_type, struct tnode * n, struct tnode
   struct tpool * pool = get_pool_ptr(pool_type);
   n->pool = pool;
   n->wrap_creation = pool->wrap_count;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
 
   //printf("START %s ======================\n",__FUNCTION__);
 
@@ -418,7 +418,7 @@ void funk_create_2d_matrix(enum pool_types pool, struct tnode * node, struct tno
   TRACE("start");
 
   funk_regroup_list(pool, node, list, n*m );
-  node->dimension.count = 2;
+  DIM_COUNT(node) = 2;
   node->dimension.d[0] = n;
   node->dimension.d[1] = m;
 
@@ -429,7 +429,7 @@ void funk_create_scalar(struct tpool * pool, struct tnode * n, void * val, enum 
   n->start  = pool->tail;
   n->len = 1;
   n->pool = pool;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
   n->wrap_creation = pool->wrap_count;
 
   funk_increment_pool_tail(pool,1);
@@ -497,7 +497,7 @@ void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * n, struc
   n->len = size;
   n->pool = pool;
   n->wrap_creation = pool->wrap_count;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
 
   funk_increment_pool_tail(pool, size);
 
@@ -518,7 +518,7 @@ void funk_create_list_i32_literal(enum pool_types pool_type, struct tnode * n, i
   n->len = size;
   n->pool = pool;
   n->wrap_creation = pool->wrap_count;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
 
   funk_increment_pool_tail(pool, size);
 
@@ -539,7 +539,7 @@ void funk_create_list_double_literal(enum pool_types pool_type, struct tnode * n
   n->len = size;
   n->pool = pool;
   n->wrap_creation = pool->wrap_count;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
 
   funk_increment_pool_tail(pool, size);
 
@@ -557,7 +557,7 @@ void funk_create_2d_matrix_int_literal(enum pool_types  pool_type, struct tnode 
   // Internally matrices are representes as contiguos
   // arrays in memory
   funk_create_list_i32_literal(pool_type, node, list, n*m );
-  node->dimension.count = 2;
+  DIM_COUNT(node) = 2;
   node->dimension.d[0] = n;
   node->dimension.d[1] = m;
 
@@ -671,7 +671,7 @@ void funk_get_next_node(struct tnode *dst, struct tnode * n){
 
    dst->pool = n->pool;
    dst->wrap_creation = n->pool->wrap_count;
-   dst->dimension.count = n->dimension.count;
+   DIM_COUNT(dst) = DIM_COUNT(n);
    for (int i =0; i < FUNK_MAX_DIMENSIONS; i++){
      dst->dimension.d[i] = n->dimension.d[i];
    }
@@ -1023,8 +1023,8 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
       struct tpool * pool = get_pool_ptr(function_pool);
 
       //check dimensions
-      int32_t dim1 = (node_a->dimension.count == 0) ? 1 : node_a->dimension.count;
-      int32_t dim2 = (node_b->dimension.count == 0) ? 1 : node_b->dimension.count;
+      int32_t dim1 = (DIM_COUNT(node_a) == 0) ? 1 : DIM_COUNT(node_a);
+      int32_t dim2 = (DIM_COUNT(node_b) == 0) ? 1 : DIM_COUNT(node_b);
 
       if (dim1 != dim2){
         printf("\n-E- cannot perform arithmetic operation in operand A of dimension %d and operand B of dimension %d\n",
@@ -1046,7 +1046,7 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
         _funk_arith_op_rr(node_r, r_offset, node_a, a_offset, node_b, b_offset,f);
       } else if (dim_count == 2) {
 
-        node_r->dimension.count = dim_count;
+        DIM_COUNT(node_r) = dim_count;
 
         int32_t array_len = node_r->dimension.d[0]*node_r->dimension.d[1];
         node_r->start  = pool->tail;
@@ -1366,7 +1366,7 @@ void funk_eq_ri(struct tnode * node_r, int32_t r_offset,
 void funk_print_dimension(struct tnode * n){
   TRACE("start");
   printf("( ");
-  for (uint32_t i = 0; i < n->dimension.count; i++){
+  for (uint32_t i = 0; i < DIM_COUNT(n); i++){
     printf("%d ", n->dimension.d[i]);
   }
   printf(")");
@@ -1377,11 +1377,11 @@ void print_scalar(struct tnode * n){
   TRACE("start");
 
 
-  if (n->dimension.count == 0){
+  if (DIM_COUNT(n) == 0){
     //printf(">----------------------------------------------------------------------------<\n");
     funk_print_scalar_element(*GET_NODE(n,0));
 
-  } else if (n->dimension.count == 1){
+  } else if (DIM_COUNT(n) == 1){
 
 
     for (uint32_t i = 0; i < n->len; i++){
@@ -1389,7 +1389,7 @@ void print_scalar(struct tnode * n){
     }
 
 
-  } else if (n->dimension.count == 2){
+  } else if (DIM_COUNT(n) == 2){
     //printf(">------------------<\n");
     funk_print_node_info(n);
     printf("%d x %d \n",n->dimension.d[0], n->dimension.d[1]);
@@ -1401,7 +1401,7 @@ void print_scalar(struct tnode * n){
       printf("\n");
     }
   } else {
-    printf(" [...] %d-dimensional with %d elements\n", n->dimension.count, n->len);
+    printf(" [...] %d-dimensional with %d elements\n", DIM_COUNT(n), n->len);
   }
 
 }
@@ -1409,8 +1409,8 @@ void print_scalar(struct tnode * n){
 void print_2d_array_element_reg_reg(struct tnode * n, struct tnode * i, struct tnode * j){
   TRACE("start");
   funk_print_node_info(n);
-  if (n->dimension.count != 2){
-    printf("%s Error cannot address as a matrix since node has %d dimensions", __FUNCTION__, n->dimension.count);
+  if (DIM_COUNT(n) != 2){
+    printf("%s Error cannot address as a matrix since node has %d dimensions", __FUNCTION__, DIM_COUNT(n));
   }
   int i_idx = GET_NODE(i,0)->data.i;
   int j_idx = GET_NODE(j,0)->data.i;
@@ -1456,7 +1456,7 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
 
   //TODO: move to function
   dst->start = pool->tail;
-  dst->dimension.count = 1;
+  DIM_COUNT(dst) = 1;
   dst->pool = pool;
   dst->wrap_creation = pool->wrap_count;
 
@@ -1480,14 +1480,14 @@ void reshape(struct tnode * dst, int * idx, uint32_t count){
   if (GET_NODE(dst,0)->type == type_empty_array){
     return;
   }
-  dst->dimension.count = count;
+  DIM_COUNT(dst) = count;
   uint32_t number_of_elements = 1;
   for (uint32_t i = 0;  (i < count && i < FUNK_MAX_DIMENSIONS); i++){
     dst->dimension.d[i] = idx[i];
     number_of_elements *= dst->dimension.d[i];
   }
 
-  //printf("%d:[%d x %d]\n", dst->dimension.count, dst->dimension.d[0],dst->dimension.d[1]);
+  //printf("%d:[%d x %d]\n", DIM_COUNT(dst), dst->dimension.d[0],dst->dimension.d[1]);
 
   if (dst->len > 0u && number_of_elements > dst->len){
     printf("-E- reshape operation not possible for variable with %d elements\n", dst->len);
@@ -1549,9 +1549,9 @@ void funk_create_sub_matrix(struct tnode * src, struct tnode * dst,
   struct tnode * C1, struct tnode *C2){
     TRACE("start");
 
-  if (src->dimension.count != 2){
+  if (DIM_COUNT(src) != 2){
     //funk_print_node_info(src);
-    printf("Error: %s shall have 2 dimensions and not %d\n", __FUNCTION__, src->dimension.count);
+    printf("Error: %s shall have 2 dimensions and not %d\n", __FUNCTION__, DIM_COUNT(src));
     exit(1);
   }
 
@@ -1595,9 +1595,9 @@ void funk_create_sub_array_lit_indexes(struct tnode * src, struct tnode * dst,
 void funk_create_sub_array(struct tnode * src, struct tnode * dst,
   struct tnode * i,struct tnode * j){
   TRACE("start");
-  if (src->dimension.count != 1){
+  if (DIM_COUNT(src) != 1){
     //funk_print_node_info(src);
-    printf("Error: %s shall have 1 dimensions and not %d\n", __FUNCTION__, src->dimension.count);
+    printf("Error: %s shall have 1 dimensions and not %d\n", __FUNCTION__, DIM_COUNT(src));
     exit(1);
   }
 
@@ -1615,7 +1615,7 @@ void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, s
 
   //printf("funk_set_node_dimensions_2d %d x %d\n", d0, d1);
 
-  node->dimension.count = (d0 > 1)? 2: 1;
+  DIM_COUNT(node) = (d0 > 1)? 2: 1;
   node->dimension.d[0] = d0;
   node->dimension.d[1] = (d0 > 1)? d1 : 0;
 }
@@ -1623,7 +1623,7 @@ void funk_set_node_dimensions_2d(struct tnode  * node, struct tnode  * d0_reg, s
 void funk_set_node_dimensions(struct tnode  * node, int * dimensions, int count){
   TRACE("start");
 
-  node->dimension.count = count;
+  DIM_COUNT(node) = count;
 
   if (dimensions == NULL)
     return;
@@ -1649,7 +1649,7 @@ void funk_create_empty_list_element(enum pool_types pool_type, struct tnode  * n
   n->len = 1;
   n->pool = pool;
   n->wrap_creation = pool->wrap_count;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
   GET_NODE(n, 0)->type = type_empty_array;
 }
 
@@ -1670,7 +1670,7 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
   n->start  = pool->tail;
   n->pool = pool;
   n->wrap_creation = pool->wrap_count;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
 
 
   uint32_t k = 0;
@@ -1729,7 +1729,7 @@ void funk_set_node_len(struct tnode  * n, uint32_t len){
   TRACE("start");
   VALIDATE_NODE(n);
   n->len = len;
-  n->dimension.count = 1;
+  DIM_COUNT(n) = 1;
 }
 
 void funk_set_node_pool(struct tnode  * n, enum pool_types pool_type ){
@@ -1773,7 +1773,7 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
     n->pool = pool;
     n->start  = pool->tail;
     n->len = len;
-    n->dimension.count = 1;
+    DIM_COUNT(n) = 1;
     n->wrap_creation = pool->wrap_count;
 
     funk_increment_pool_tail(pool, len);
@@ -1791,7 +1791,7 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * n,
       n->pool = pool;
       n->start  = pool->tail;
       n->len = len;
-      n->dimension.count = 1;
+      DIM_COUNT(n) = 1;
       n->wrap_creation = pool->wrap_count;
 
       funk_increment_pool_tail(pool, len);
