@@ -82,10 +82,12 @@ cmp_gt(x,y | x > y): 1.
 cmp_gt(x,y): 0.
 
 
-pattern_match([a,b,c,d]):
-
+reverse_pm([a,b,c,d]):
     [d,c,b,a].
 
+reverse_pm_reg([a,b,c,d]):
+    x <- [d,c,b,a]
+    x.
 
 pattern_match_2([a,b,c]):
     a + b + c.
@@ -96,9 +98,28 @@ pattern_match_2([a,b,c]):
     and( x, y | x = 1 /\ y = 1): 1.
     and(x,y) : 0.
 
+add_two(x,y):
+    x + y.
+
 
 main():
-      assert(arr_eq(pattern_match([77,7,30,666]) ,[666,30,7,77]),1 )
+      assert(add_two(1,1),2)
+      assert(arr_eq(add_two(1,1),2),1)
+      u <-[4,3,2,1]
+      v <- reverse_pm([9,8,7,6])
+      assert(arr_eq(add_two(u,v),[10,10,10,10]),1)
+
+
+      assert(arr_eq(u+v,[10,10,10,10]),1)
+
+      assert(arr_eq(u+reverse_pm([9,8,7,6]),[10,10,10,10]),1)
+      assert(arr_eq([4,3,2,1]+reverse_pm([9,8,7,6]),[10,10,10,10]),1)
+
+
+      assert(arr_eq(u+reverse_pm_reg([9,8,7,6]),[10,10,10,10]),1)
+      assert(arr_eq([4,3,2,1]+reverse_pm_reg([9,8,7,6]),[10,10,10,10]),1)
+
+      assert(arr_eq(reverse_pm([77,7,30,666]) ,[666,30,7,77]),1 )
 
       say('=== test functions arity === ')
 
@@ -159,10 +180,12 @@ main():
       assert(len([ k | 0 <= k < len(A)]), len(A))
       assert( sum([ 2 | 0 <= k < len(A)]), 14)
       assert( sum([ 2 | 0 <= k < 2*len(A)]), 28)
+      assert( sum([ 5, 5, 5]), 15)
+      assert( sum([ 5, -5, 5]), 5)
 
 
       # test the array slicing
-      say('Test array slciing')
+      say('Test array slcing')
       assert(len(A[0 .. len(A)/2]),4)
       assert(sum(A[0 .. len(A)/2]),10)
       assert(len(A[len(A)/2 + 1 .. -1]),3)
@@ -198,6 +221,9 @@ main():
       assert(len(M2),16)
       x <- 0
       assert(M2[x,x],0)
+      assert(M2[x,x+1],1)
+      assert(M2[x,x+2],2)
+      assert(M2[x,x+3],3)
       #[[assert(M2[i,j],j) | 0 <= j <= 3] | 0 <= i <= 3]
 
       say('M1',M1)
@@ -290,6 +316,7 @@ main():
       #test sort
       say('Sorting tests')
       assert(arr_eq(A, idem_list(A)),1)
+      assert(arr_eq([7,7,8,7], idem_list([7,7,8,7])),1)
       assert(arr_eq([1,2,3], [1,2,3]), 1)
       assert(arr_eq([1,2,3,4], [1,2,3,4]), 1)
       assert(arr_eq([1,2,3], [1,2,3,4]), 0)
@@ -304,7 +331,7 @@ main():
       # now test sort with custom comparator function
       assert( arr_eq( sort( [8,4,9,1,3,5,10,0,7,2,6], cmp_gt), [10,9,8,7,6,5,4,3,2,1,0]), 1  )
       assert(arr_eq(sort([2, 5, 4, 3, 1], cmp_gt), [5,4,3,2,1]), 1)
-      say('test tree')
+      say('=== BFS test tree ===')
       assert(arr_eq(tree(0), [1,2,3,4]), 1)
       assert(arr_eq(tree(1), [5,6]), 1)
       assert(arr_eq(tree(4), [7,8]), 1)
@@ -312,7 +339,7 @@ main():
 
       assert(bfs(tree_is_goal,tree,[0]), 10)
 
-      say('boolean test')
+      say('=== boolean test ===')
 
       assert(or(zero, zero),0)
       assert(or(zero, one),1)

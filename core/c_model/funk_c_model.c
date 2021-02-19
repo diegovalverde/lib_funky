@@ -1103,7 +1103,11 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
       }
 
       if (dim_count == 1){
-        _funk_arith_op_rr(node_r, r_offset, node_a, a_offset, node_b, b_offset,f);
+        funk_create_node(node_r, LEN(node_a), function_pool,
+          type_int, 0, NULL);
+          for (uint32_t i = 0; i < LEN(node_a); i++){
+              _funk_arith_op_rr(node_r, i, node_a, i, node_b, i,f);
+          }
       } else if (dim_count == 2) {
 
         uint32_t array_len = DIM(node_a,0)*DIM(node_a,1);
