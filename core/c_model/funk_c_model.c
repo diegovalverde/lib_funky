@@ -1708,24 +1708,27 @@ void funk_create_empty_list_element(enum pool_types pool_type, struct tnode  * d
   funk_create_node(dst, 1, pool_type, type_empty_array, 0, NULL);
 }
 
-void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  * R){
-  TRACE("start");
+void funk_concatenate_lists(struct tnode  * dst, struct tnode  * L, struct tnode  * R){
+  TRACE("start"); //printf("%d <- %d ++ %d", dst->start, L->start, R->start);
+
   VALIDATE_NODE(L);
   VALIDATE_NODE(R);
 
+
   if (DATA(L, 0)->type == type_empty_array && DATA(R, 0)->type == type_empty_array){
-    funk_create_empty_list_element(function_pool, n);
+    funk_create_node(dst, 1, function_pool, type_empty_array, 0, NULL);
     printf("funk_concatenate_lists [] , [] -> []\n");
     return;
   }
 
 
-  struct tpool * pool = R->pool;
+  funk_create_node(dst,
+      ((DATA(L,0)->type == type_empty_array) ? 0 : LEN(L)) +
+      ((DATA(R,0)->type == type_empty_array) ? 0 : LEN(R)) ,
+      function_pool, type_array, 0,  NULL);
 
-  n->start  = pool->tail;
-  n->pool = pool;
-  n->wrap_creation = pool->wrap_count;
-  DIM_COUNT(n) = 1;
+
+  struct tpool * pool = R->pool;
 
 
   uint32_t k = 0;
@@ -1734,8 +1737,8 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
     if (DATA(L,i)->type == type_empty_array)
       break;
 
-    DATA(n, k)->type = DATA(L,i)->type;
-    DATA(n, k)->data = DATA(L,i)->data;
+    DATA(dst, k)->type = DATA(L,i)->type;
+    DATA(dst, k)->data = DATA(L,i)->data;
 
     k++;
   }
@@ -1744,16 +1747,19 @@ void funk_concatenate_lists(struct tnode  * n, struct tnode  * L, struct tnode  
     if (DATA(R,i)->type == type_empty_array)
       break;
 
-    DATA(n, k)->type = DATA(R,i)->type;
-    DATA(n, k)->data = DATA(R,i)->data;
+    DATA(dst, k)->type = DATA(R,i)->type;
+    DATA(dst, k)->data = DATA(R,i)->data;
 
     k++;
   }
 
-  LEN(n) = k;
+
   funk_increment_pool_tail(pool, k);
 
+
+
 }
+
 
 uint32_t funk_get_node_start(struct tnode  * n){
   TRACE("start");
