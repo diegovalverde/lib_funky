@@ -85,6 +85,7 @@ struct tnode
 #define GET_DIM_POOL_IDX(n) n->dimension_idx
 #define SET_DIM_POOL_IDX(n, i) n->dimension_idx = i;
 #define DIM_COUNT(n) n->dimension.count
+#define DIM(n,i) n->dimension.d[i]
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int  );
 
 void funk_create_int_scalar(enum pool_types  , struct tnode * , int32_t );
