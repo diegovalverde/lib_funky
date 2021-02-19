@@ -32,24 +32,24 @@ void set_sdl_user_global_state(struct tnode * state)
 }
 void sdl_set_color(struct tnode * r, struct tnode * g, struct tnode * b){
   SDL_SetRenderDrawColor(renderer,
-    GET_NODE(r,0)->data.i,
-    GET_NODE(g,0)->data.i,
-    GET_NODE(b,0)->data.i, 255 );
+    DATA(r,0)->data.i,
+    DATA(g,0)->data.i,
+    DATA(b,0)->data.i, 255 );
 }
 
 void sdl_rect(struct tnode * x, struct tnode * y, struct tnode * w,struct tnode * h){
   SDL_Rect r;
-  r.x = GET_NODE(x,0)->data.i;
-  r.y = GET_NODE(y,0)->data.i;
-  r.w = GET_NODE(w,0)->data.i;
-  r.h = GET_NODE(h,0)->data.i;
+  r.x = DATA(x,0)->data.i;
+  r.y = DATA(y,0)->data.i;
+  r.w = DATA(w,0)->data.i;
+  r.h = DATA(h,0)->data.i;
 
   SDL_RenderFillRect(renderer, &r );
 }
 
 void sdl_point(struct tnode * x, struct tnode * y){
-  struct tdata * nx = GET_NODE(x,0);
-  struct tdata * ny = GET_NODE(y,0);
+  struct tdata * nx = DATA(x,0);
+  struct tdata * ny = DATA(y,0);
 
   int x_ = (nx->type == type_int) ? nx->data.i : (int) nx->data.f;
   int y_ = (ny->type == type_int) ? ny->data.i : (int) ny->data.f;
@@ -63,10 +63,10 @@ void sdl_point(struct tnode * x, struct tnode * y){
 
 void sdl_line(struct tnode * x1, struct tnode * y1,
 struct tnode * x2, struct tnode * y2){
-  struct tdata * nx1 = GET_NODE(x1,0);
-  struct tdata * ny1 = GET_NODE(y1,0);
-  struct tdata * nx2 = GET_NODE(x2,0);
-  struct tdata * ny2 = GET_NODE(y2,0);
+  struct tdata * nx1 = DATA(x1,0);
+  struct tdata * ny1 = DATA(y1,0);
+  struct tdata * nx2 = DATA(x2,0);
+  struct tdata * ny2 = DATA(y2,0);
 
   int x_1 = (nx1->type == type_int) ? nx1->data.i : (int) nx1->data.f;
   int y_1 = (ny1->type == type_int) ? ny1->data.i : (int) ny1->data.f;

@@ -80,11 +80,16 @@ struct tnode
 
 };
 
+inline uint32_t get_dimension(struct tnode * n, uint32_t i)
+{
+  return 0;
+}
 
-#define GET_NODE(n,i) get_node(n,i,__FUNCTION__, __LINE__)
+#define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__)
 #define GET_DIM_POOL_IDX(n) n->dimension_idx
 #define SET_DIM_POOL_IDX(n, i) n->dimension_idx = i;
 #define DIM_COUNT(n) n->dimension.count
+#define SET_DIM_COUNT(n,i) n->dimension.count = i
 #define DIM(n,i) n->dimension.d[i]
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int  );
 
