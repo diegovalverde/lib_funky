@@ -5,9 +5,9 @@ target triple = "x86_64-apple-macosx10.16.0"
 
 %struct.SDL_Renderer = type opaque
 %struct.SDL_Window = type opaque
-%struct.tnode = type { i32, i32, i32, i32, %struct.tpool*, %struct.tdimensions }
-%struct.tpool = type { [250000 x %struct.tdata], i32, i32 }
-%struct.tdata = type { i32, %union.data_type }
+%struct.tnode = type { i32, i32, i8, i32, %struct.tpool*, %struct.tdimensions }
+%struct.tpool = type { [250000 x %struct.tdata], i32, i8 }
+%struct.tdata = type { i32, i8, %union.data_type }
 %union.data_type = type { double }
 %struct.tdimensions = type { i32, [2 x i32] }
 %struct.SDL_Rect = type { i32, i32, i32, i32 }
@@ -50,19 +50,19 @@ define void @sdl_set_color(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
   %7 = load %struct.SDL_Renderer*, %struct.SDL_Renderer** @renderer, align 8
   %8 = load %struct.tnode*, %struct.tnode** %4, align 8
   %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 35)
-  %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 1
+  %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 2
   %11 = bitcast %union.data_type* %10 to i32*
   %12 = load i32, i32* %11, align 8
   %13 = trunc i32 %12 to i8
   %14 = load %struct.tnode*, %struct.tnode** %5, align 8
   %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 36)
-  %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 1
+  %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 2
   %17 = bitcast %union.data_type* %16 to i32*
   %18 = load i32, i32* %17, align 8
   %19 = trunc i32 %18 to i8
   %20 = load %struct.tnode*, %struct.tnode** %6, align 8
   %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([14 x i8], [14 x i8]* @__FUNCTION__.sdl_set_color, i64 0, i64 0), i32 37)
-  %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 1
+  %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 2
   %23 = bitcast %union.data_type* %22 to i32*
   %24 = load i32, i32* %23, align 8
   %25 = trunc i32 %24 to i8
@@ -87,28 +87,28 @@ define void @sdl_rect(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tn
   store %struct.tnode* %3, %struct.tnode** %8, align 8
   %10 = load %struct.tnode*, %struct.tnode** %5, align 8
   %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 42)
-  %12 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 1
+  %12 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 2
   %13 = bitcast %union.data_type* %12 to i32*
   %14 = load i32, i32* %13, align 8
   %15 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 0
   store i32 %14, i32* %15, align 4
   %16 = load %struct.tnode*, %struct.tnode** %6, align 8
   %17 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 43)
-  %18 = getelementptr inbounds %struct.tdata, %struct.tdata* %17, i32 0, i32 1
+  %18 = getelementptr inbounds %struct.tdata, %struct.tdata* %17, i32 0, i32 2
   %19 = bitcast %union.data_type* %18 to i32*
   %20 = load i32, i32* %19, align 8
   %21 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 1
   store i32 %20, i32* %21, align 4
   %22 = load %struct.tnode*, %struct.tnode** %7, align 8
   %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 44)
-  %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 1
+  %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 2
   %25 = bitcast %union.data_type* %24 to i32*
   %26 = load i32, i32* %25, align 8
   %27 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 2
   store i32 %26, i32* %27, align 4
   %28 = load %struct.tnode*, %struct.tnode** %8, align 8
   %29 = call %struct.tdata* @get_node(%struct.tnode* %28, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.sdl_rect, i64 0, i64 0), i32 45)
-  %30 = getelementptr inbounds %struct.tdata, %struct.tdata* %29, i32 0, i32 1
+  %30 = getelementptr inbounds %struct.tdata, %struct.tdata* %29, i32 0, i32 2
   %31 = bitcast %union.data_type* %30 to i32*
   %32 = load i32, i32* %31, align 8
   %33 = getelementptr inbounds %struct.SDL_Rect, %struct.SDL_Rect* %9, i32 0, i32 3
@@ -144,14 +144,14 @@ define void @sdl_point(%struct.tnode*, %struct.tnode*) #0 {
 
 17:                                               ; preds = %2
   %18 = load %struct.tdata*, %struct.tdata** %5, align 8
-  %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 1
+  %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 2
   %20 = bitcast %union.data_type* %19 to i32*
   %21 = load i32, i32* %20, align 8
   br label %28
 
 22:                                               ; preds = %2
   %23 = load %struct.tdata*, %struct.tdata** %5, align 8
-  %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 1
+  %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 2
   %25 = bitcast %union.data_type* %24 to double*
   %26 = load double, double* %25, align 8
   %27 = fptosi double %26 to i32
@@ -168,14 +168,14 @@ define void @sdl_point(%struct.tnode*, %struct.tnode*) #0 {
 
 34:                                               ; preds = %28
   %35 = load %struct.tdata*, %struct.tdata** %6, align 8
-  %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 1
+  %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 2
   %37 = bitcast %union.data_type* %36 to i32*
   %38 = load i32, i32* %37, align 8
   br label %45
 
 39:                                               ; preds = %28
   %40 = load %struct.tdata*, %struct.tdata** %6, align 8
-  %41 = getelementptr inbounds %struct.tdata, %struct.tdata* %40, i32 0, i32 1
+  %41 = getelementptr inbounds %struct.tdata, %struct.tdata* %40, i32 0, i32 2
   %42 = bitcast %union.data_type* %41 to double*
   %43 = load double, double* %42, align 8
   %44 = fptosi double %43 to i32
@@ -241,14 +241,14 @@ define void @sdl_line(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tn
 
 29:                                               ; preds = %4
   %30 = load %struct.tdata*, %struct.tdata** %9, align 8
-  %31 = getelementptr inbounds %struct.tdata, %struct.tdata* %30, i32 0, i32 1
+  %31 = getelementptr inbounds %struct.tdata, %struct.tdata* %30, i32 0, i32 2
   %32 = bitcast %union.data_type* %31 to i32*
   %33 = load i32, i32* %32, align 8
   br label %40
 
 34:                                               ; preds = %4
   %35 = load %struct.tdata*, %struct.tdata** %9, align 8
-  %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 1
+  %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 2
   %37 = bitcast %union.data_type* %36 to double*
   %38 = load double, double* %37, align 8
   %39 = fptosi double %38 to i32
@@ -265,14 +265,14 @@ define void @sdl_line(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tn
 
 46:                                               ; preds = %40
   %47 = load %struct.tdata*, %struct.tdata** %10, align 8
-  %48 = getelementptr inbounds %struct.tdata, %struct.tdata* %47, i32 0, i32 1
+  %48 = getelementptr inbounds %struct.tdata, %struct.tdata* %47, i32 0, i32 2
   %49 = bitcast %union.data_type* %48 to i32*
   %50 = load i32, i32* %49, align 8
   br label %57
 
 51:                                               ; preds = %40
   %52 = load %struct.tdata*, %struct.tdata** %10, align 8
-  %53 = getelementptr inbounds %struct.tdata, %struct.tdata* %52, i32 0, i32 1
+  %53 = getelementptr inbounds %struct.tdata, %struct.tdata* %52, i32 0, i32 2
   %54 = bitcast %union.data_type* %53 to double*
   %55 = load double, double* %54, align 8
   %56 = fptosi double %55 to i32
@@ -289,14 +289,14 @@ define void @sdl_line(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tn
 
 63:                                               ; preds = %57
   %64 = load %struct.tdata*, %struct.tdata** %11, align 8
-  %65 = getelementptr inbounds %struct.tdata, %struct.tdata* %64, i32 0, i32 1
+  %65 = getelementptr inbounds %struct.tdata, %struct.tdata* %64, i32 0, i32 2
   %66 = bitcast %union.data_type* %65 to i32*
   %67 = load i32, i32* %66, align 8
   br label %74
 
 68:                                               ; preds = %57
   %69 = load %struct.tdata*, %struct.tdata** %11, align 8
-  %70 = getelementptr inbounds %struct.tdata, %struct.tdata* %69, i32 0, i32 1
+  %70 = getelementptr inbounds %struct.tdata, %struct.tdata* %69, i32 0, i32 2
   %71 = bitcast %union.data_type* %70 to double*
   %72 = load double, double* %71, align 8
   %73 = fptosi double %72 to i32
@@ -313,14 +313,14 @@ define void @sdl_line(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tn
 
 80:                                               ; preds = %74
   %81 = load %struct.tdata*, %struct.tdata** %12, align 8
-  %82 = getelementptr inbounds %struct.tdata, %struct.tdata* %81, i32 0, i32 1
+  %82 = getelementptr inbounds %struct.tdata, %struct.tdata* %81, i32 0, i32 2
   %83 = bitcast %union.data_type* %82 to i32*
   %84 = load i32, i32* %83, align 8
   br label %91
 
 85:                                               ; preds = %74
   %86 = load %struct.tdata*, %struct.tdata** %12, align 8
-  %87 = getelementptr inbounds %struct.tdata, %struct.tdata* %86, i32 0, i32 1
+  %87 = getelementptr inbounds %struct.tdata, %struct.tdata* %86, i32 0, i32 2
   %88 = bitcast %union.data_type* %87 to double*
   %89 = load double, double* %88, align 8
   %90 = fptosi double %89 to i32

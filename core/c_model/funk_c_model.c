@@ -65,6 +65,15 @@ uint32_t g_funk_internal_function_tracing_enabled = 1;
 
 #define VALIDATE_NODE(n) validate_node(n, __FUNCTION__)
 
+
+uint8_t _get_wrap_creation(struct tnode * n){
+  return n->wrap_creation;
+}
+
+void _set_wrap_creation(struct tnode * n, uint8_t d){
+  n->wrap_creation = d;
+}
+
 struct tnode * validate_node(struct tnode * n, const char * function){
   TRACE("start");
   if (n == NULL){
@@ -226,7 +235,7 @@ void funk_create_node(struct tnode * dst,
 
   for (uint32_t i = 0; i < len; i++){
     DATA(dst,i)->type=type;
-    WRAP_CREATION(dst)=pool->wrap_count;
+    SET_WRAP_CREATION(dst, pool->wrap_count);
     funk_increment_pool_tail(pool);
 
       if (val == NULL)
@@ -271,7 +280,7 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
     DIM(dst,i) = DIM(src,i);
   }
   dst->pool = src->pool;
-  WRAP_CREATION(dst) = src->pool->wrap_count;
+  SET_WRAP_CREATION(dst,src->pool->wrap_count);
 
   TRACE("end");
 
@@ -410,7 +419,7 @@ void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32
   idx %= LEN(src);
 
   dst->pool = src->pool;
-  WRAP_CREATION(dst) = src->pool->wrap_count;
+  SET_WRAP_CREATION(dst,src->pool->wrap_count);
   DIM_COUNT(dst) = 0;
   LEN(dst) = 1;
   dst->start = (src->start + idx) % FUNK_MAX_POOL_SIZE;
@@ -530,7 +539,7 @@ void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * n, struc
   n->start  = pool->tail;
   LEN(n) = size;
   n->pool = pool;
-  WRAP_CREATION(n) = pool->wrap_count;
+  SET_WRAP_CREATION(n,pool->wrap_count);
   DIM_COUNT(n) = 1;
 
 
@@ -551,7 +560,7 @@ void funk_create_list_i32_literal(enum pool_types pool_type, struct tnode * n, i
   n->start  = pool->tail;
   LEN(n) = size;
   n->pool = pool;
-  WRAP_CREATION(n) = pool->wrap_count;
+  SET_WRAP_CREATION(n,pool->wrap_count);
   DIM_COUNT(n) = 1;
 
 
@@ -573,7 +582,7 @@ void funk_create_list_double_literal(enum pool_types pool_type, struct tnode * n
   n->start  = pool->tail;
   LEN(n) = size;
   n->pool = pool;
-  WRAP_CREATION(n) = pool->wrap_count;
+  SET_WRAP_CREATION(n,pool->wrap_count);
   DIM_COUNT(n) = 1;
 
 

@@ -47,6 +47,7 @@ struct tdata
 {
 
   enum funk_types type;
+  uint8_t wrap_creation;
   union data_type{
     double f;
     int32_t i;
@@ -59,7 +60,7 @@ struct tpool
 {
   struct tdata data[FUNK_MAX_POOL_SIZE];
   uint32_t tail;
-  uint32_t wrap_count;
+  uint8_t wrap_count;
 } ;
 
 #define FUNK_MAX_DIMENSIONS 2 //may optimize when creating the runtime
@@ -72,7 +73,7 @@ struct tdimensions
 struct tnode
 {
   uint32_t start, len;
-  uint32_t wrap_creation;
+  uint8_t wrap_creation;
   uint32_t dimension_idx;
   struct tpool * pool;
   struct tdimensions  dimension; //stride shall be an array of MAX_DIMENSIONS?
@@ -89,7 +90,8 @@ struct tnode
 #define SET_DIM_COUNT(n,i) n->dimension.count = i
 #define DIM(n,i) n->dimension.d[i]
 #define SET_DIM(n,i,d) set_dimension(n,i,d)
-#define WRAP_CREATION(n)  n->wrap_creation
+#define WRAP_CREATION(n)  _get_wrap_creation(n)
+#define SET_WRAP_CREATION(n,d)  _set_wrap_creation(n,d)
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int  );
 
 void funk_create_int_scalar(enum pool_types  , struct tnode * , int32_t );
