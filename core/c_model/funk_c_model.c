@@ -64,15 +64,7 @@ uint32_t g_funk_internal_function_tracing_enabled = 1;
 #endif
 
 #define VALIDATE_NODE(n) validate_node(n, __FUNCTION__)
-
-
-uint8_t _get_wrap_creation(struct tnode * n){
-  return n->wrap_creation;
-}
-
-void _set_wrap_creation(struct tnode * n, uint8_t d){
-  n->wrap_creation = d;
-}
+uint8_t _get_wrap_creation(struct tnode * n, uint32_t i);
 
 struct tnode * validate_node(struct tnode * n, const char * function){
   TRACE("start");
@@ -98,7 +90,7 @@ void set_dimension(struct tnode * n, uint32_t i, uint32_t d){
   n->dimension.d[i] = d;
 }
 
-struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int line ){
+struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int line, int check ){
   TRACE("start");
 
   if (n == NULL){
@@ -110,10 +102,7 @@ struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int l
     exit(1);
   }
 
-  if (WRAP_CREATION(n) < n->pool->wrap_count && n->start <= n->pool->tail){
-    printf("-E- attemping to access overwritten position in ring\n");
-    exit(1);
-  }
+
   uint32_t idx = (n->start + i);
 
   #ifdef FUNK_DEBUG_BUILD
@@ -126,9 +115,33 @@ struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int l
   }
   #endif
 
-  return &(n->pool->data[idx % FUNK_MAX_POOL_SIZE]);
+  struct tdata * data =  &(n->pool->data[idx % FUNK_MAX_POOL_SIZE]);
+
+  if (check && data->wrap_creation < n->pool->wrap_count && n->start <= n->pool->tail){
+    printf("-E- %s:%d get_node: attemping to access overwritten position %d:%d in '%s':%d\n",
+    caller, line, idx,
+    data->wrap_creation, POOL_STR(n->pool),n->pool->wrap_count);
+    printf("%s[%d:%d]\n", POOL_STR(n->pool), n->start, n->start+n->len);
+    exit(1);
+  }
+
+
+  return data;
 }
 
+
+uint8_t _get_wrap_creation(struct tnode * n, uint32_t i){
+
+  return DATA(n,i)->wrap_creation;
+  //return n->wrap_creation;
+}
+
+void _set_wrap_creation(struct tnode * n, uint32_t i, uint8_t d){
+
+  //dont do checks since we are overwitting
+  DATA_NO_CHECK(n,i)->wrap_creation = d;
+  //n->wrap_creation = d;
+}
 
 
 #ifdef FUNK_DEBUG_BUILD
@@ -234,8 +247,8 @@ void funk_create_node(struct tnode * dst,
 
 
   for (uint32_t i = 0; i < len; i++){
-    DATA(dst,i)->type=type;
-    SET_WRAP_CREATION(dst, pool->wrap_count);
+    DATA_NO_CHECK(dst,i)->type=type;
+    SET_WRAP_CREATION(dst,i, pool->wrap_count);
     funk_increment_pool_tail(pool);
 
       if (val == NULL)
@@ -262,6 +275,7 @@ void funk_create_node(struct tnode * dst,
 
   if (dim_count >= 2){
     for (uint32_t i = 0; i < dim_count; i++){
+        SET_WRAP_CREATION(dst,len+i, pool->wrap_count);
         funk_increment_pool_tail(pool);
     }
   }
@@ -278,9 +292,10 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
   DIM_COUNT(dst) = DIM_COUNT(src);
   for (int i = 0; i < FUNK_MAX_DIMENSIONS; i++){
     DIM(dst,i) = DIM(src,i);
+
   }
   dst->pool = src->pool;
-  SET_WRAP_CREATION(dst,src->pool->wrap_count);
+
 
   TRACE("end");
 
@@ -419,7 +434,6 @@ void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32
   idx %= LEN(src);
 
   dst->pool = src->pool;
-  SET_WRAP_CREATION(dst,src->pool->wrap_count);
   DIM_COUNT(dst) = 0;
   LEN(dst) = 1;
   dst->start = (src->start + idx) % FUNK_MAX_POOL_SIZE;
@@ -457,11 +471,12 @@ void add_node_to_nodelist(struct tnode * list, struct tnode * node,
   uint32_t k = 0;
   for (uint32_t i = idx; (k < LEN(node)) && (i < list_len); i++){
     //printf("i: %d k: %d nl: %d ll:%d \n", i, k, LEN(node), list_len);
-    list[i].pool  = node->pool;
-    list[i].wrap_creation = node->pool->wrap_count;
-    list[i].start = node->start + k;
-    list[i].len = 1;
-    SET_DIM_COUNT((list+i) ,1);
+    struct tnode * l = (list + i);
+    l->pool  = node->pool;
+
+    l->start = node->start + k;
+    LEN(l) = 1;
+    SET_DIM_COUNT(l ,1);
     //list[i].dimension.count = 1;
     //printf("list[%d] = node{%p}[%d + %d]\n", i, node, node->start, k);
     //funk_copy_node(&list[i], node);
@@ -531,68 +546,28 @@ void funk_create_int_scalar(enum pool_types pool, struct tnode * dst, int32_t va
 }
 
 
-void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * n, struct tnode * list , int32_t size ){
+void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * dst, struct tnode * list , int32_t size ){
   TRACE("start");
 
-  struct tpool * pool = get_pool_ptr(pool_type);
-
-  n->start  = pool->tail;
-  LEN(n) = size;
-  n->pool = pool;
-  SET_WRAP_CREATION(n,pool->wrap_count);
-  DIM_COUNT(n) = 1;
-
-
-
+  funk_create_node(dst, size, pool_type, type_int, 0, NULL);
 
   for (int i = 0; i < size; i++){
-    funk_increment_pool_tail(pool);
-    *DATA(n,i) = *DATA(&list[i],0);
+    
+    *DATA_NO_CHECK(dst,i) = *DATA(&list[i],0);
+
   }
 
 }
 
-void funk_create_list_i32_literal(enum pool_types pool_type, struct tnode * n, int32_t * list , int32_t size ){
+void funk_create_list_i32_literal(enum pool_types pool_type, struct tnode * dst, int32_t * list , int32_t size ){
   TRACE("start");
-
-  struct tpool * pool = get_pool_ptr(pool_type);
-
-  n->start  = pool->tail;
-  LEN(n) = size;
-  n->pool = pool;
-  SET_WRAP_CREATION(n,pool->wrap_count);
-  DIM_COUNT(n) = 1;
-
-
-
-
-  for (int i = 0; i < size; i++){
-    funk_increment_pool_tail(pool);
-    DATA(n,i)->type = type_int;
-    DATA(n,i)->data.i = list[i];
-  }
+  funk_create_node(dst, size, pool_type, type_int, 0, (void*)list);
 
 }
 
-void funk_create_list_double_literal(enum pool_types pool_type, struct tnode * n, double * list , int32_t size ){
+void funk_create_list_double_literal(enum pool_types pool_type, struct tnode * dst, double * list , int32_t size ){
   TRACE("start");
-
-  struct tpool * pool = get_pool_ptr(pool_type);
-
-  n->start  = pool->tail;
-  LEN(n) = size;
-  n->pool = pool;
-  SET_WRAP_CREATION(n,pool->wrap_count);
-  DIM_COUNT(n) = 1;
-
-
-
-
-  for (int i = 0; i < size; i++){
-    funk_increment_pool_tail(pool);
-    DATA(n,i)->type = type_double;
-    DATA(n,i)->data.f = list[i];
-  }
+  funk_create_node(dst, size, pool_type, type_double, 0, (void*)list);
 
 }
 

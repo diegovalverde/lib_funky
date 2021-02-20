@@ -73,7 +73,6 @@ struct tdimensions
 struct tnode
 {
   uint32_t start, len;
-  uint8_t wrap_creation;
   uint32_t dimension_idx;
   struct tpool * pool;
   struct tdimensions  dimension; //stride shall be an array of MAX_DIMENSIONS?
@@ -82,7 +81,8 @@ struct tnode
 };
 
 
-#define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__)
+#define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__,1)
+#define DATA_NO_CHECK(n,i) get_node(n,i,__FUNCTION__, __LINE__,0)
 #define LEN(n) n->len
 #define GET_DIM_POOL_IDX(n) n->dimension_idx
 #define SET_DIM_POOL_IDX(n, i) n->dimension_idx = i;
@@ -90,9 +90,9 @@ struct tnode
 #define SET_DIM_COUNT(n,i) n->dimension.count = i
 #define DIM(n,i) n->dimension.d[i]
 #define SET_DIM(n,i,d) set_dimension(n,i,d)
-#define WRAP_CREATION(n)  _get_wrap_creation(n)
-#define SET_WRAP_CREATION(n,d)  _set_wrap_creation(n,d)
-struct tdata * get_node(struct tnode * , uint32_t , const char * , int  );
+#define WRAP_CREATION(n,i)  _get_wrap_creation(n,i)
+#define SET_WRAP_CREATION(n,i,d)  _set_wrap_creation(n,i,d)
+struct tdata * get_node(struct tnode * , uint32_t , const char * , int, int  );
 
 void funk_create_int_scalar(enum pool_types  , struct tnode * , int32_t );
 void funk_copy_node(struct tnode * , struct tnode * );

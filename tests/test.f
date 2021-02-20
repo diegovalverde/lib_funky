@@ -103,6 +103,7 @@ add_two(x,y):
 
 
 main():
+      say('Running tests')
       assert(add_two(1,1),2)
       assert(arr_eq(add_two(1,1),2),1)
       u <-[4,3,2,1]
