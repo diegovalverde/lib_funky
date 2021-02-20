@@ -177,7 +177,8 @@ class Emitter:
         self.code += """
         ;;get the next node (will not copy)
         %{0} = alloca %struct.tnode, align 8
-        ;;; ARE WE SURE WE CAN PASS node LIKE THAT???
+
+        ;; dst src
         call void @funk_get_next_node(%struct.tnode* %{0}, %struct.tnode* {node})
         """.format(p[0],  node=node)
 
@@ -303,9 +304,15 @@ class Emitter:
         store i32 {val}, i32* %{p_data}, align 4
         """.format(val=val, p_data=p_data)
 
+    def clone_node(self,node_src, node_dst, len):
+        self.code += """
+        ;;  dst src
+        call void @funk_clone_node(%struct.tnode* {dst}, %struct.tnode* {src}, i32 {len})
+        """.format(dst=node_dst, src=node_src, len=len)
+
     def copy_node(self, node_src, node_dst):
         self.code += """
-        ;; copy node
+        ;; copy node dst src
         call void @funk_copy_node(%struct.tnode* {dst}, %struct.tnode* {src} )
         """.format(dst=node_dst, src=node_src)
 
@@ -359,11 +366,6 @@ class Emitter:
             name_str, format_len =  funk.function_debug_name_map[extern_name]
 
 
-
-        self.code += """
-        call void @funk_debug_function_entry_hook(i8* getelementptr inbounds ({format_len}, {format_len}* {name_str}, i64 0, i64 0), i32 {arity})
-        """.format(name_str=name_str, format_len=format_len, arity=len(arguments))
-
         n = len(arguments)
         self.add_comment('Create the argument array')
         array = self.alloc_array_on_stack(n)
@@ -376,6 +378,11 @@ class Emitter:
 
         if result is None:
             result = self.allocate_fn_return_node()
+
+        self.code += """
+                call void @funk_debug_function_entry_hook(i8* getelementptr inbounds ({format_len}, {format_len}* {name_str}, i64 0, i64 0), %struct.tnode* {arguments}, i32 {arity})
+                """.format(name_str=name_str, format_len=format_len, arity=len(arguments), arguments=head)
+
 
         self.code += """
          ;;call the function
@@ -1134,7 +1141,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
                     self.index = p[-1] + 1
                 else:
                     self.code += """
-        call void @print_scalar(%struct.tnode* {node})
+        call void @funk_print_node(%struct.tnode* {node})
             """.format(node=arg)
 
         p = [x for x in range(self.index, self.index + 1)]

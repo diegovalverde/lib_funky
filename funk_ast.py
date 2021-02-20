@@ -377,6 +377,7 @@ class Identifier:
             if self.name == tail:
                 idx = self.funk.function_scope.args.index(head)
                 head_node = self.funk.emitter.get_function_argument_tnode(idx)
+                # TODO: dim_idx no initialized
                 tail_node = self.funk.emitter.get_next_node(head_node)
                 if result is not None:
                     #dst, src
@@ -389,10 +390,12 @@ class Identifier:
                 self.funk.emitter.add_comment('h <~ [T]. Create a tnode with len 1 pointing to the first element of the head')
 
                 detached_head_node = self.funk.emitter.alloc_tnode_raw()
-                pool = self.funk.emitter.get_node_pool(head_node)
-                start = self.funk.emitter.get_node_start(head_node)
-                self.funk.emitter.set_node_pool(detached_head_node, pool )
-                self.funk.emitter.set_node_start(detached_head_node, start)
+                self.funk.emitter.clone_node(head_node,detached_head_node, len=1)
+                #self.funk.emitter.copy_node(head_node, detached_head_node)
+                #pool = self.funk.emitter.get_node_pool(head_node)
+                #start = self.funk.emitter.get_node_start(head_node)
+                #self.funk.emitter.set_node_pool(detached_head_node, pool )
+                #self.funk.emitter.set_node_start(detached_head_node, start)
                 self.funk.emitter.set_node_len(detached_head_node,  1)
 
                 if result is not None:
