@@ -16,7 +16,7 @@ declare %struct.tnode* @validate_node(%struct.tnode*, i8*) #0
 declare void @set_dimension(%struct.tnode*, i32, i32) #0 
 declare %struct.tdata* @get_node(%struct.tnode*, i32, i8*, i32) #0 
 declare void @funk_sleep(i32) #0 
-declare void @funk_increment_pool_tail(%struct.tpool*, i32) #0 
+declare void @funk_increment_pool_tail(%struct.tpool*) #0 
 declare void @funk_print_type(i8 zeroext) #0 
 declare void @funk_print_node_info(%struct.tnode*) #0 
 declare void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0 
@@ -33,7 +33,6 @@ declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode
 declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_regroup_list_r(i32, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
-declare void @funk_create_scalar(%struct.tpool*, %struct.tnode*, i8*, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_create_list_of_regs(i32, %struct.tnode*, %struct.tnode*, i32) #0 
@@ -135,6 +134,7 @@ declare void @exit(i32) #2
 declare i32 @"\01_sleep"(i32) #1
 declare i64 @time(i64*) #1
 declare void @srand(i32) #1
+declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) #3
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1 immarg) #3
 declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) #1
 declare i32 @fscanf(%struct.__sFILE*, i8*, ...) #1

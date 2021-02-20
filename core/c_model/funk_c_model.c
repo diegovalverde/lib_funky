@@ -101,7 +101,7 @@ struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int l
     exit(1);
   }
 
-  if (n->wrap_creation < n->pool->wrap_count && n->start <= n->pool->tail){
+  if (WRAP_CREATION(n) < n->pool->wrap_count && n->start <= n->pool->tail){
     printf("-E- attemping to access overwritten position in ring\n");
     exit(1);
   }
@@ -154,10 +154,10 @@ void funk_sleep(int aSeconds){
   sleep(aSeconds);
 }
 
-void funk_increment_pool_tail(struct tpool * pool, uint32_t len){
+void funk_increment_pool_tail(struct tpool * pool){
   TRACE("start");
 
-  if (pool == &funk_global_memory_pool && (pool->tail + len >= FUNK_MAX_POOL_SIZE) ){
+  if (pool == &funk_global_memory_pool && (pool->tail + 1 >= FUNK_MAX_POOL_SIZE) ){
     pool->wrap_count++;
     printf("%s -I- wrapping around pool %s. tail = %d, max = %d. Wrap Count %d\n", __FUNCTION__,
     ((pool == &funk_global_memory_pool)?"gpool":"fpool"),
@@ -165,7 +165,7 @@ void funk_increment_pool_tail(struct tpool * pool, uint32_t len){
     g_debug_continue = 0;
 
   }
-  pool->tail = (pool->tail + len) % FUNK_MAX_POOL_SIZE;
+  pool->tail = (pool->tail + 1) % FUNK_MAX_POOL_SIZE;
 }
 
 
@@ -216,17 +216,18 @@ void funk_create_node(struct tnode * dst,
   if (dim_count >= 2){
 
       SET_DIM_POOL_IDX(dst, dst->start  + data_len);
-      funk_increment_pool_tail(pool,  data_len + dim_count);
+    //  funk_increment_pool_tail(pool,  data_len + dim_count);
   } else {
 
       SET_DIM_POOL_IDX(dst, 0);
-      funk_increment_pool_tail(pool,  data_len );
+    //  funk_increment_pool_tail(pool,  data_len );
   }
 
 
   for (uint32_t i = 0; i < len; i++){
     DATA(dst,i)->type=type;
     WRAP_CREATION(dst)=pool->wrap_count;
+    funk_increment_pool_tail(pool);
 
       if (val == NULL)
         continue;
@@ -250,6 +251,12 @@ void funk_create_node(struct tnode * dst,
     }
   }
 
+  if (dim_count >= 2){
+    for (uint32_t i = 0; i < dim_count; i++){
+        funk_increment_pool_tail(pool);
+    }
+  }
+
 
 }
 
@@ -264,7 +271,7 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
     DIM(dst,i) = DIM(src,i);
   }
   dst->pool = src->pool;
-  dst->wrap_creation = src->pool->wrap_count;
+  WRAP_CREATION(dst) = src->pool->wrap_count;
 
   TRACE("end");
 
@@ -309,6 +316,10 @@ void funk_init(void){
   funk_global_memory_pool.wrap_count = 0;
   funk_functions_memory_pool.tail = 0;
   funk_functions_memory_pool.wrap_count = 0;
+
+  // clear out the memory
+  memset(&funk_global_memory_pool.data,0,FUNK_MAX_POOL_SIZE*sizeof(struct tdata));
+
 
 #ifdef FUNK_DEBUG_BUILD
     for (int i = 0; i < FUNK_MAX_POOL_SIZE; i++){
@@ -399,7 +410,7 @@ void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32
   idx %= LEN(src);
 
   dst->pool = src->pool;
-  dst->wrap_creation = src->pool->wrap_count;
+  WRAP_CREATION(dst) = src->pool->wrap_count;
   DIM_COUNT(dst) = 0;
   LEN(dst) = 1;
   dst->start = (src->start + idx) % FUNK_MAX_POOL_SIZE;
@@ -495,40 +506,6 @@ void funk_create_2d_matrix(enum pool_types pool, struct tnode * node, struct tno
 
 }
 
-void funk_create_scalar(struct tpool * pool, struct tnode * n, void * val, enum funk_types type){
-  TRACE("start");
-  n->start  = pool->tail;
-  LEN(n) = 1;
-  n->pool = pool;
-  DIM_COUNT(n) = 1;
-  n->wrap_creation = pool->wrap_count;
-
-  funk_increment_pool_tail(pool,1);
-
-  DATA(n,0)->type = type;
-
-  switch (type) {
-    case type_int:
-    DATA(n,0)->data.i = *(int*)val;
-    break;
-
-    case type_double:
-    DATA(n,0)->data.f = *(double*)val;
-    break;
-
-    case type_empty_array:
-    DATA(n,0)->data.i = 0;
-    DATA(n,0)->data.f = 0;
-    break;
-
-    default:
-      printf("-E- %s\n",__FUNCTION__);
-      break;
-  }
-
-
-}
-
 void funk_create_double_scalar(enum pool_types pool, struct tnode * dst, double val){
   TRACE("start");
   funk_create_node(dst, 1, pool, type_double, 0, (void*)&val);
@@ -553,14 +530,14 @@ void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * n, struc
   n->start  = pool->tail;
   LEN(n) = size;
   n->pool = pool;
-  n->wrap_creation = pool->wrap_count;
+  WRAP_CREATION(n) = pool->wrap_count;
   DIM_COUNT(n) = 1;
 
-  funk_increment_pool_tail(pool, size);
+
 
 
   for (int i = 0; i < size; i++){
-
+    funk_increment_pool_tail(pool);
     *DATA(n,i) = *DATA(&list[i],0);
   }
 
@@ -574,13 +551,14 @@ void funk_create_list_i32_literal(enum pool_types pool_type, struct tnode * n, i
   n->start  = pool->tail;
   LEN(n) = size;
   n->pool = pool;
-  n->wrap_creation = pool->wrap_count;
+  WRAP_CREATION(n) = pool->wrap_count;
   DIM_COUNT(n) = 1;
 
-  funk_increment_pool_tail(pool, size);
+
 
 
   for (int i = 0; i < size; i++){
+    funk_increment_pool_tail(pool);
     DATA(n,i)->type = type_int;
     DATA(n,i)->data.i = list[i];
   }
@@ -595,13 +573,14 @@ void funk_create_list_double_literal(enum pool_types pool_type, struct tnode * n
   n->start  = pool->tail;
   LEN(n) = size;
   n->pool = pool;
-  n->wrap_creation = pool->wrap_count;
+  WRAP_CREATION(n) = pool->wrap_count;
   DIM_COUNT(n) = 1;
 
-  funk_increment_pool_tail(pool, size);
+
 
 
   for (int i = 0; i < size; i++){
+    funk_increment_pool_tail(pool);
     DATA(n,i)->type = type_double;
     DATA(n,i)->data.f = list[i];
   }
@@ -1516,7 +1495,7 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
   {
     DATA(dst, pool->tail)->data.i = value;
     DATA(dst,pool->tail)->type = type_int;
-    funk_increment_pool_tail(pool, 1);
+    funk_increment_pool_tail(pool);
 
 
     count++;
@@ -1743,11 +1722,12 @@ void funk_concatenate_lists(struct tnode  * dst, struct tnode  * L, struct tnode
     DATA(dst, k)->type = DATA(R,i)->type;
     DATA(dst, k)->data = DATA(R,i)->data;
 
+    funk_increment_pool_tail(pool);
     k++;
   }
 
 
-  funk_increment_pool_tail(pool, k);
+
 
 
 
