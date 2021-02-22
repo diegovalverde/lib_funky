@@ -63,33 +63,45 @@ struct tpool
   uint8_t wrap_count;
 } ;
 
-#define FUNK_MAX_DIMENSIONS 2 //may optimize when creating the runtime
 struct tdimensions
 {
-  uint32_t count;  //stores 3,4,5...
-  uint32_t d[FUNK_MAX_DIMENSIONS];
+  uint32_t count;
+  uint32_t ptr_idx;
+};
+
+struct tsiblings
+{
+  uint32_t count;
+  uint32_t ptr_idx;
 };
 
 struct tnode
 {
   uint32_t start, len;
-  uint32_t dimension_idx;
+
+
   struct tpool * pool;
-  struct tdimensions  dimension; //stride shall be an array of MAX_DIMENSIONS?
-
-
+  struct tdimensions  dimension;
+  struct tsiblings siblings;
 };
 
 
 #define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__,1)
 #define DATA_NO_CHECK(n,i) get_node(n,i,__FUNCTION__, __LINE__,0)
 #define LEN(n) n->len
-#define GET_DIM_POOL_IDX(n) n->dimension_idx
-#define SET_DIM_POOL_IDX(n, i) n->dimension_idx = i;
+#define GET_DIM_POOL_IDX(n) n->dimension.ptr_idx
+#define SET_DIM_POOL_IDX(n, i) n->dimension.ptr_idx = i
+#define GET_SIBLING_IDX(n) n->siblings.ptr_idx
+#define SET_SIBLING_IDX(n, i) n->siblings.ptr_idx = i
+#define SIBLING_COUNT(n) n->siblings.count
+#define SET_SIBLING_COUNT(n,i) n->siblings.count = i
+
 #define DIM_COUNT(n) _funk_get_node_dimension_count(n)
 #define SET_DIM_COUNT(n,i) _funk_set_node_dimension_count(n,i)
 #define DIM(n,i) _funk_get_node_dimension(n,i,(char*)__FUNCTION__, __LINE__)
+#define SIBLING(n,i) // todo
 #define SET_DIM(n,i,d) _funk_set_node_dimension(n,i,d,__FUNCTION__,__LINE__)
+#define SET_SIBLING(n,i,d) // todo
 #define WRAP_CREATION(n,i)  _get_wrap_creation(n,i)
 #define SET_WRAP_CREATION(n,i,d)  _set_wrap_creation(n,i,d)
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int, int  );

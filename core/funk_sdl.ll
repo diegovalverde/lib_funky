@@ -5,11 +5,12 @@ target triple = "x86_64-apple-macosx10.16.0"
 
 %struct.SDL_Renderer = type opaque
 %struct.SDL_Window = type opaque
-%struct.tnode = type { i32, i32, i32, %struct.tpool*, %struct.tdimensions }
+%struct.tnode = type { i32, i32, %struct.tpool*, %struct.tdimensions, %struct.tsiblings }
 %struct.tpool = type { [250000 x %struct.tdata], i32, i8 }
 %struct.tdata = type { i32, i8, %union.data_type }
 %union.data_type = type { double }
-%struct.tdimensions = type { i32, [2 x i32] }
+%struct.tdimensions = type { i32, i32 }
+%struct.tsiblings = type { i32, i32 }
 %struct.SDL_Rect = type { i32, i32, i32, i32 }
 %struct.sdl_context = type { %struct.tnode }
 %union.SDL_Event = type { %struct.SDL_TouchFingerEvent, [8 x i8] }
