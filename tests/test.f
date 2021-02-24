@@ -89,7 +89,7 @@ reverse_pm_reg([a,b,c,d]):
     x <- [d,c,b,a]
     x.
 
-pattern_match_2([a,b,c]):
+ unidimension_list([a,b,c]):
     a + b + c.
 
     or( x, y | x = 1 \/ y = 1): 1.
@@ -97,6 +97,9 @@ pattern_match_2([a,b,c]):
 
     and( x, y | x = 1 /\ y = 1): 1.
     and(x,y) : 0.
+
+  multidimension_list([M,L,x,y]):
+    [L,M,x+1,y+1].
 
 add_two(x,y):
     x + y.
@@ -109,6 +112,9 @@ main():
       u <-[4,3,2,1]
       v <- reverse_pm([9,8,7,6])
       assert(arr_eq(add_two(u,v),[10,10,10,10]),1)
+      assert(unidimension_list([3,2,5]),10)
+      assert(unidimension_list([1,1,1]),3)
+
 
 
       assert(arr_eq(u+v,[10,10,10,10]),1)
@@ -351,6 +357,19 @@ main():
       assert(and(zero, one),0)
       assert(and(one, zero),0)
       assert(and(one, one),1)
+
+
+      R <- multidimension_list([ M1, fib_nums, one, two])
+      say(R)
+
+      say(R[0])
+      say(R[1])
+      say(R[2])
+      say(R[3])
+      assert(arr_eq(R[0], fib_nums), 1)
+      assert(arr_eq(R[1], M1), 1)
+      assert(R[2], 2)
+      assert(R[3], 3)
 
 
       say('All tests passed ;)').

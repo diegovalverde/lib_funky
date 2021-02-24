@@ -14,6 +14,8 @@
 ;;;
 declare %struct.tpool* @get_pool_ptr(i32) #0 
 declare %struct.tnode* @validate_node(%struct.tnode*, i8*) #0 
+declare %struct.tdata* @_get_sibling(%struct.tnode*, i32, i8*, i32) #0 
+declare void @_set_sibling(%struct.tnode*, i32, i32, i8*, i32) #0 
 declare void @_funk_set_node_dimension_count(%struct.tnode*, i32) #0 
 declare i32 @_funk_get_node_dimension_count(%struct.tnode*) #0 
 declare i32 @_funk_get_node_dimension(%struct.tnode*, i32, i8*, i32) #0 
@@ -36,6 +38,7 @@ declare i32 @is_list_consecutive_in_memory(%struct.tnode*, i32) #0
 declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_get_element_in_array_lit(%struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
@@ -102,6 +105,7 @@ declare void @funk_sge_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0
 declare void @funk_sge_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
+declare void @_funk_print_node(%struct.tnode*) #0 
 declare void @funk_print_node(%struct.tnode*) #0 
 declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
@@ -120,6 +124,7 @@ declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare i32 @funk_get_node_start(%struct.tnode*) #0 
 declare i32 @funk_get_node_pool(%struct.tnode*) #0 
+declare void @funk_set_node_sibling_count(%struct.tnode*, i32) #0 
 declare void @funk_set_node_len(%struct.tnode*, i32) #0 
 declare void @funk_set_node_pool(%struct.tnode*, i32) #0 
 declare void @funk_set_node_start(%struct.tnode*, i32) #0 

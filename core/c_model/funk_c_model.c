@@ -22,8 +22,9 @@ static char funk_types_str[][100]=
 };
 #define POOL_STR(pool) ((pool == &funk_global_memory_pool)?"gpool":"fpool")
 
-void funk_print_node_info(struct tnode * n);
-void funk_print_pool(struct tpool * pool, int begin, int len);
+void funk_print_node_info(struct tnode * );
+void funk_print_pool(struct tpool * , int , int );
+void funk_get_element_in_list_of_regs(struct tnode * ,struct tnode *, uint32_t);
 /*
   Exporting globals does not work very well with web-assembly
   this is why we use these enums instead
@@ -88,6 +89,19 @@ struct tnode * validate_node(struct tnode * n, const char * function){
   return n;
 }
 
+struct tdata * _get_sibling(struct tnode * n, uint32_t i, const char * caller, int line){
+    uint32_t idx = GET_SIBLING_IDX(n) + i;
+    return &(n->pool->data[idx % FUNK_MAX_POOL_SIZE]);
+}
+
+void _set_sibling(struct tnode * n, uint32_t i, uint32_t d, const char * caller, int line){
+  uint32_t idx = GET_SIBLING_IDX(n) + i;
+  //printf("_set_sibling %s[%d] = %d\n", POOL_STR(n->pool),idx,d);
+  n->pool->data[idx % FUNK_MAX_POOL_SIZE].data.i = d;
+  n->pool->data[idx % FUNK_MAX_POOL_SIZE].type = type_int;
+
+}
+
 void _funk_set_node_dimension_count(struct tnode * n, uint32_t i){
   n->dimension.count = i;
 }
@@ -99,23 +113,10 @@ uint32_t _funk_get_node_dimension_count(struct tnode * n){
 uint32_t _funk_get_node_dimension(struct tnode * n,
   uint32_t idx, char * caller, int line){
 
-
   uint32_t dim_idx = GET_DIM_POOL_IDX(n);
-
-
-
   uint32_t dimension = (dim_idx == 0) ? 1: n->pool->data[(dim_idx + idx) % FUNK_MAX_POOL_SIZE].data.i;
-  /*uint32_t validation = (n->dimension.count < 2) ? 1 : n->dimension.d[idx];
-
-  if (dimension != validation){
-    printf("MISMATCH! %d != %d\n", dimension, validation);
-    exit(1);
-  }
-*/
 
   return dimension;
-
-
 }
 
 void _funk_set_node_dimension(struct tnode * n, uint32_t idx,
@@ -361,8 +362,9 @@ void funk_clone_node(struct tnode * dst, struct tnode * src, uint32_t len){
   for (uint32_t i = 0; i < len; i++){
     *DATA(dst,i) = *DATA(src,i);
   }
+
+  SET_SIBLING_IDX(dst,GET_SIBLING_IDX(src));
   if (len == 1){
-    SET_SIBLING_IDX(dst,0);
     SET_DIM_POOL_IDX(dst,0);
     return;
   }
@@ -371,7 +373,7 @@ void funk_clone_node(struct tnode * dst, struct tnode * src, uint32_t len){
   }
 
   for (uint32_t i = 0; i < SIBLING_COUNT(src); i++){
-    SET_SIBLING(dst,i, GET_SIBLING(src,i));
+    SET_SIBLING(dst,i, SIBLING(src,i));
   }
 
 }
@@ -384,6 +386,8 @@ void funk_copy_node(struct tnode * dst, struct tnode * src){
 
   LEN(dst) = LEN(src);
   SET_DIM_COUNT(dst, DIM_COUNT(src));
+  SET_SIBLING_COUNT(dst,SIBLING_COUNT(src));
+  SET_SIBLING_IDX(dst,GET_SIBLING_IDX(src));
 
   dst->pool = src->pool;
   uint32_t idx = GET_DIM_POOL_IDX(src);
@@ -526,11 +530,14 @@ void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32
   idx = (idx < 0) ? LEN(src) + idx : idx;
   idx %= LEN(src);
 
-
-  funk_copy_node(dst,src);
-  LEN(dst) = 1;
-  dst->start = dst->start + idx;
-
+  if (SIBLING_COUNT(src) == 0 || idx == 0) {
+    funk_copy_node(dst,src);
+    LEN(dst) = (SIBLING_COUNT(src) == 0) ? 1 : LEN(src);
+    SET_SIBLING_COUNT(dst,0);
+    dst->start = dst->start + idx;
+} else {
+    funk_get_element_in_list_of_regs(dst, src, idx-1);
+}
 
 }
 
@@ -638,14 +645,69 @@ void funk_create_int_scalar(enum pool_types pool, struct tnode * dst, int32_t va
 }
 
 
+void funk_get_element_in_list_of_regs(struct tnode *dst, struct tnode * src, uint32_t i){
+  TRACE("start");
+  uint32_t sib_count = SIBLING_COUNT(src);
+  if (sib_count == 0){
+    funk_get_element_in_array_lit(src,dst,i+1);
+    return;
+  }
+
+  if (i >= sib_count)
+  {
+    printf("Funk Runtime Error: Function: %s Line: %d. idx %d > len %d\n", __FUNCTION__, __LINE__, i, sib_count);
+    exit(1);
+  }
+
+  funk_copy_node(dst,src);
+  int idx = GET_SIBLING_IDX(src) + SIBLING_POOL_ENTRY_LEN*i;
+
+  dst->start = src->pool->data[ idx %FUNK_MAX_POOL_SIZE].data.i;
+  dst->len = src->pool->data[(idx  + 1)%FUNK_MAX_POOL_SIZE].data.i;
+  dst->dimension.count = src->pool->data[(idx + 2)%FUNK_MAX_POOL_SIZE].data.i;
+  dst->dimension.ptr_idx = src->pool->data[(idx  + 3)%FUNK_MAX_POOL_SIZE].data.i;
+  SET_SIBLING_COUNT(dst,0);
+  //printf("{%d / %d:  %d %d %d %d}\n",GET_SIBLING_IDX(src),
+  // SIBLING_COUNT(src),
+  // dst->start, dst->len, dst->dimension, dst->dimension.ptr_idx);
+  //funk_print_node_info(dst);
+  TRACE("end");
+}
 void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * dst, struct tnode * list , int32_t size ){
   TRACE("start");
-
-  funk_create_node(dst, size, pool_type, type_int, 0, NULL);
-
+  //TODO: here multi list
+  uint8_t all_regs_have_same_dimension = 1;
+  uint32_t dim_count = DIM_COUNT(list);
   for (int i = 0; i < size; i++){
+    if (DIM_COUNT(&list[i]) != dim_count){
+      all_regs_have_same_dimension = 0;
+      break;
+    }
+  }
 
-    *DATA_NO_CHECK(dst,i) = *DATA(&list[i],0);
+
+  if (all_regs_have_same_dimension){
+    funk_create_node(dst, size, pool_type, type_int, 0, NULL);
+    for (int i = 0; i < size; i++){
+      *DATA_NO_CHECK(dst,i) = *DATA(&list[i],0);
+    }
+  } else {
+    funk_copy_node(dst,list);
+    // In case we have something with different dimensions
+    // then create a list
+
+    SET_SIBLING_COUNT(dst,size-1);
+
+    uint32_t sibling_idx = _funk_alloc_raw_tdata(dst->pool, SIBLING_POOL_ENTRY_LEN*size, type_int);
+  
+    SET_SIBLING_IDX(dst, sibling_idx);
+    for (int i = 1, k = 0; i < size; i++, k += SIBLING_POOL_ENTRY_LEN){
+
+      SET_SIBLING(dst, k, list[i].start);
+      SET_SIBLING(dst, k+1, list[i].len);
+      SET_SIBLING(dst, k+2, list[i].dimension.count);
+      SET_SIBLING(dst, k+3, list[i].dimension.ptr_idx);
+    }
 
   }
 
@@ -679,16 +741,19 @@ void funk_print_scalar_element(struct tdata n){
 
     switch( n.type ){
       case type_int:
-        printf(" %3d ", n.data.i);
+        printf("%3d", n.data.i);
         break;
       case type_double:
-        printf(" %5.5f ", n.data.f);
+        printf("%5.5f", n.data.f);
         break;
       case type_empty_array:
-        printf(" %5s ", "[]");
+        printf("%5s", "[]");
+        break;
+      case type_function:
+        printf("<function> %p",n.data.fn);
         break;
       default:
-        printf(" %5s ","?");
+        printf("%5s","?");
     }
 }
 
@@ -1491,38 +1556,58 @@ void funk_print_dimension(struct tnode * n){
   printf(")");
 }
 
-void funk_print_node(struct tnode * n){
+void _funk_print_node(struct tnode * n){
 
   TRACE("start");
 
+  if (DIM_COUNT(n) == 0 || LEN(n) == 1){
 
-  if (DIM_COUNT(n) == 0){
-    //printf(">----------------------------------------------------------------------------<\n");
     funk_print_scalar_element(*DATA(n,0));
 
   } else if (DIM_COUNT(n) == 1){
 
-
+    printf("[");
     for (uint32_t i = 0; i < LEN(n); i++){
       funk_print_scalar_element(*DATA(n,i));
+      if (i+1 < LEN(n)) printf(",");
     }
+    printf("]");
 
 
   } else if (DIM_COUNT(n) == 2){
-    //printf(">------------------<\n");
-    funk_print_node_info(n);
-    printf("%d x %d \n",DIM(n,0), DIM(n,1));
 
+    //funk_print_node_info(n);
+    //printf("%d x %d \n",DIM(n,0), DIM(n,1));
+    printf("[");
     for (uint32_t i = 0; i < DIM(n,1); i++){
+      printf("[");
       for (uint32_t j = 0; j < DIM(n,0); j++){
           funk_print_scalar_element(*DATA(n, i * DIM(n,0) + j));
+          if (j+1<DIM(n,0)) printf(",");
       }
-      printf("\n");
+      printf("]");
+      //if (i+1<DIM(n,0)) printf(",");
     }
+    printf("]");
   } else {
     printf(" [...] %d-dimensional with %d elements\n", DIM_COUNT(n), LEN(n));
   }
 
+}
+
+void funk_print_node(struct tnode * n){
+  if (SIBLING_COUNT(n) > 0) printf("[    ");
+  _funk_print_node(n);
+  if (SIBLING_COUNT(n)==0) return;
+
+  printf(", ");
+  for (int i = 0; i < SIBLING_COUNT(n); i++){
+      struct tnode sibling;
+      funk_get_element_in_list_of_regs(&sibling,n,i);
+      _funk_print_node(&sibling);
+      if (i+1 < SIBLING_COUNT(n)) printf(", ");
+  }
+  printf("   ]\n");
 }
 
 void print_2d_array_element_reg_reg(struct tnode * n, struct tnode * i, struct tnode * j){
@@ -1595,7 +1680,10 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
 
 void funk_get_len(struct tnode * src, struct tnode * dst){
   TRACE("start");
-  funk_create_int_scalar(function_pool, dst, LEN(src) );
+  uint32_t len = (SIBLING_COUNT(src) == 0)? LEN(src) :
+    1 + SIBLING_COUNT(src);
+
+  funk_create_int_scalar(function_pool, dst, len );
 
 }
 
@@ -1758,22 +1846,7 @@ void reshape(struct tnode * dst, int * dimensions, uint32_t dim_count){
   }
 
   funk_set_node_dimensions(dst, dimensions, dim_count);
-  /*
-  SET_DIM_COUNT(dst,count);
 
-  uint32_t number_of_elements = 1;
-  for (uint32_t i = 0;  (i < count && i < FUNK_MAX_DIMENSIONS); i++){
-    SET_DIM(dst,i, idx[i]);
-    number_of_elements *= DIM(dst,i);
-  }
-
-  //printf("%d:[%d x %d]\n", DIM_COUNT(dst), DIM(dst,0),DIM(dst,1));
-
-  if (LEN(dst) > 0u && number_of_elements > LEN(dst)){
-    printf("-E- reshape operation not possible for variable with %d elements\n", LEN(dst));
-    exit(1);
-  }
-  */
 }
 
 
@@ -1869,12 +1942,18 @@ enum pool_types funk_get_node_pool(struct tnode  * n){
   return pool_type;
 }
 
+void funk_set_node_sibling_count(struct tnode  * n, uint32_t len){
+  TRACE("start");
+  SET_SIBLING_COUNT(n,len);
+
+}
 void funk_set_node_len(struct tnode  * n, uint32_t len){
   TRACE("start");
 
   VALIDATE_NODE(n);
   LEN(n) = len;
   SET_DIM_COUNT(n,1);
+  SET_SIBLING_COUNT(n,0);
 }
 
 void funk_set_node_pool(struct tnode  * n, enum pool_types pool_type ){

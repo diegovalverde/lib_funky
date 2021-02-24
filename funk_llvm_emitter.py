@@ -80,12 +80,9 @@ class Emitter:
 
         if as_type == funk_types.double:
             self.code += """
-            ;; Get node.data.value
-            %{0} = getelementptr inbounds %struct.tnode, %struct.tnode* {node}, i32 0, i32 1
-            %{1} = getelementptr inbounds %struct.tdata, %struct.tdata* %{0}, i32 0, i32 1
-            %{2} = bitcast %union.data_type* %{1} to double*
-            %{3} = load double, double* %{2}, align 8
-            """.format(p[0], p[1], p[2], p[3], node=node)
+            ;; Get node.data.value Double
+            %{0} = call i32 @funk_get_node_value_double(%struct.tnode* {node}, i32 {offset})
+            """.format(p[0], node=node, offset=offset)
         else:
             self.code += """
             ;; Get node.data.value INT
@@ -374,7 +371,11 @@ class Emitter:
             p_element = self.get_array_element(array, i, n)
             self.copy_node(arguments[i], p_element)
 
+            # self.print_funk(funk, [funk_ast.StringConstant(funk, 'before!!!!!!!!!!!!!!!!!!!!!!!!'),
+            #                        funk_ast.StringConstant(funk, p_element)])
+
         head = self.get_array_element(array, 0, n)
+
 
         if result is None:
             result = self.allocate_fn_return_node()
@@ -408,6 +409,19 @@ class Emitter:
 
         self.index = p[-1] + 1
         return '%{}'.format(p[1])
+
+    def set_node_sibling_count(self, dst, count):
+        self.code += """
+            ;; get_element_in_list_of_regs
+            call void @funk_set_node_sibling_count(%struct.tnode * {dst},  i32 {i})
+            """.format(dst=dst, i=count)
+
+    def get_element_in_list_of_regs(self, dst, src, i):
+        self.code += """
+            ;; get_element_in_list_of_regs
+            call void @funk_get_element_in_list_of_regs(%struct.tnode * {dst}, %struct.tnode * {src}, i32 {i})
+            """.format(dst=dst, src=src, i=i)
+
 
     def get_function_argument_tnode(self, idx):
         p = [x for x in range(self.index, self.index + 2)]

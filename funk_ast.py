@@ -352,13 +352,23 @@ class Identifier:
         for pm in self.funk.function_scope.pattern_matches:
             if isinstance(pm, PatternMatchListOfIdentifiers):
                 for i in range(len(pm.elements)):
+
                     pm_element = pm.elements[i]
                     if self.name == pm_element.name:
+
+
                         list_node = self.funk.emitter.get_function_argument_tnode(pm.position)
-                        val = self.funk.emitter.get_node_data_value(list_node, offset=i )
-                        element_node = self.funk.emitter.alloc_tnode('@[]{}'.format(i),val,
-                                                                     pool=funk_types.function_pool,
+                        element_node = self.funk.emitter.alloc_tnode('', 0, pool=funk_types.function_pool,
                                                                      data_type=funk_types.int)
+
+                        if i == 0:
+                            self.funk.emitter.copy_node(list_node,element_node)
+                            self.funk.emitter.set_node_sibling_count(element_node,0)
+
+                        #val = self.funk.emitter.get_node_data_value(list_node, offset=i )
+                        else:
+                            self.funk.emitter.get_element_in_list_of_regs(element_node,list_node,i-1)
+
                         if result is not None:
                             self.funk.emitter.copy_node(element_node, result)
                         return element_node

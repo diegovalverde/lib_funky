@@ -45,7 +45,10 @@ struct tnode;
 
 struct tdata
 {
-
+  //one option is having the types (initially set to unknown) here
+  //for later optimization. Since variables are
+  //immutable, then the types will not change,
+  //so you need to determine only once
   enum funk_types type;
   uint8_t wrap_creation;
   union data_type{
@@ -69,11 +72,13 @@ struct tdimensions
   uint32_t ptr_idx;
 };
 
+#define SIBLING_POOL_ENTRY_LEN 4
 struct tsiblings
 {
   uint32_t count;
   uint32_t ptr_idx;
 };
+
 
 struct tnode
 {
@@ -99,9 +104,9 @@ struct tnode
 #define DIM_COUNT(n) _funk_get_node_dimension_count(n)
 #define SET_DIM_COUNT(n,i) _funk_set_node_dimension_count(n,i)
 #define DIM(n,i) _funk_get_node_dimension(n,i,(char*)__FUNCTION__, __LINE__)
-#define SIBLING(n,i) // todo
+#define SIBLING(n,i) _get_sibling(n,i,__FUNCTION__,__LINE__)
 #define SET_DIM(n,i,d) _funk_set_node_dimension(n,i,d,__FUNCTION__,__LINE__)
-#define SET_SIBLING(n,i,d) // todo
+#define SET_SIBLING(n,i,d) _set_sibling(n,i,d,__FUNCTION__,__LINE__)
 #define WRAP_CREATION(n,i)  _get_wrap_creation(n,i)
 #define SET_WRAP_CREATION(n,i,d)  _set_wrap_creation(n,i,d)
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int, int  );
