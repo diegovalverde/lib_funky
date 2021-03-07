@@ -23,6 +23,7 @@ static char funk_types_str[][100]=
 #define POOL_STR(pool) ((pool == &funk_global_memory_pool)?"gpool":"fpool")
 
 void funk_print_node_info(struct tnode * );
+void funk_print_node(struct tnode *);
 void funk_print_pool(struct tpool * , int , int );
 void funk_get_element_in_list_of_regs(struct tnode * ,struct tnode *, uint32_t);
 /*
@@ -522,7 +523,7 @@ void funk_get_element_in_matrix_2d_var(struct tnode * src, struct tnode * dst , 
 
 }
 
-void funk_get_element_in_array_lit(struct tnode * src, struct tnode * dst, int32_t idx){
+void funk_get_element_in_array(struct tnode * src, struct tnode * dst, int32_t idx){
   TRACE("start");
   VALIDATE_NODE(src);
 
@@ -550,7 +551,7 @@ void funk_get_element_in_array_var(struct tnode * src, struct tnode * dst , stru
 
   int32_t idx_0 = DATA(node_i, 0)->data.i;
 
-  funk_get_element_in_array_lit(src, dst, idx_0);
+  funk_get_element_in_array(src, dst, idx_0);
 
 }
 
@@ -649,7 +650,7 @@ void funk_get_element_in_list_of_regs(struct tnode *dst, struct tnode * src, uin
   TRACE("start");
   uint32_t sib_count = SIBLING_COUNT(src);
   if (sib_count == 0){
-    funk_get_element_in_array_lit(src,dst,i+1);
+    funk_get_element_in_array(src,dst,i+1);
     return;
   }
 
@@ -699,7 +700,7 @@ void funk_create_list_of_regs(enum pool_types pool_type, struct tnode * dst, str
     SET_SIBLING_COUNT(dst,size-1);
 
     uint32_t sibling_idx = _funk_alloc_raw_tdata(dst->pool, SIBLING_POOL_ENTRY_LEN*size, type_int);
-  
+
     SET_SIBLING_IDX(dst, sibling_idx);
     for (int i = 1, k = 0; i < size; i++, k += SIBLING_POOL_ENTRY_LEN){
 
@@ -916,6 +917,17 @@ void funk_debug_function_entry_hook(const char * function_name,struct tnode * in
   #endif
 }
 
+void funk_debug_function_exit_hook(struct tnode * retval){
+  TRACE("start");
+
+
+  #ifdef FUNK_DEBUG_BUILD
+    printf("Function returned:\n");
+    funk_print_node(retval);
+    printf("\n==========================\n\n");
+  #endif
+
+}
 void funk_memcp_arr(struct tnode * dst, struct tnode * src, int n){
   TRACE("start");
 

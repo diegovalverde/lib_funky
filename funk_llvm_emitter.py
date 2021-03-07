@@ -702,15 +702,13 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         i = 0
         for reg in reg_list:
 
-            p = [x for x in range(self.index, self.index + 3)]
+            p = [x for x in range(self.index, self.index + 1)]
             self.index = p[-1] + 1
             self.code += """
 
                 %{0} = getelementptr inbounds %struct.tnode, %struct.tnode* %{p}, i64 {i}
-                %{1} = bitcast %struct.tnode* %{0} to i8*
-                %{2} = bitcast %struct.tnode* {reg} to i8*
-                call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %{1}, i8* align 8 %{2}, i64 40, i1 false)
-                """.format(p[0], p[1], p[2], p=ptr, n=n, reg=reg, i=i)
+                call void @funk_copy_node(%struct.tnode * %{0} ,%struct.tnode * {reg})
+                """.format(p[0], p=ptr, n=n, reg=reg, i=i)
             i += 1
 
         p = [x for x in range(self.index, self.index + 1)]
