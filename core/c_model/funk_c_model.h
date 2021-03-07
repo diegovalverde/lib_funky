@@ -23,7 +23,8 @@ type_array ,
 type_empty_array ,
 type_scalar ,
 type_function ,
-type_next_node ,
+type_pointer_to_pool_entry,
+type_pool_node_entry,
 max_types
 };
 
@@ -72,43 +73,35 @@ struct tdimensions
   uint32_t ptr_idx;
 };
 
-#define SIBLING_POOL_ENTRY_LEN 4
-struct tsiblings
-{
-  uint32_t count;
-  uint32_t ptr_idx;
-};
+#define POOL_ENTRY_LEN 4
+#define MAX_DEFERENCE_DEPTH 10
 
 
 struct tnode
 {
   uint32_t start, len;
-
-
   struct tpool * pool;
   struct tdimensions  dimension;
-  struct tsiblings siblings;
+
 };
 
 
 #define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__,1)
+#define IS_PTR(n,idx)  (DATA(n,idx)->type ==  type_pointer_to_pool_entry)
+#define IS_NODE_IN_POOL(n,idx)  (DATA(n,idx)->type ==  type_pool_node_entry)
+#define PTR(n,idx) (DATA(n,idx)->data.i)
 #define DATA_NO_CHECK(n,i) get_node(n,i,__FUNCTION__, __LINE__,0)
 #define LEN(n) n->len
 #define GET_DIM_POOL_IDX(n) n->dimension.ptr_idx
 #define SET_DIM_POOL_IDX(n, i) n->dimension.ptr_idx = i
-#define GET_SIBLING_IDX(n) n->siblings.ptr_idx
-#define SET_SIBLING_IDX(n, i) n->siblings.ptr_idx = i
-#define SIBLING_COUNT(n) n->siblings.count
-#define SET_SIBLING_COUNT(n,i) n->siblings.count = i
 
 #define DIM_COUNT(n) _funk_get_node_dimension_count(n)
 #define SET_DIM_COUNT(n,i) _funk_set_node_dimension_count(n,i)
 #define DIM(n,i) _funk_get_node_dimension(n,i,(char*)__FUNCTION__, __LINE__)
-#define SIBLING(n,i) _get_sibling(n,i,__FUNCTION__,__LINE__)
 #define SET_DIM(n,i,d) _funk_set_node_dimension(n,i,d,__FUNCTION__,__LINE__)
-#define SET_SIBLING(n,i,d) _set_sibling(n,i,d,__FUNCTION__,__LINE__)
 #define WRAP_CREATION(n,i)  _get_wrap_creation(n,i)
 #define SET_WRAP_CREATION(n,i,d)  _set_wrap_creation(n,i,d)
+#define DEREF(dst,src,idx) _dereference(dst, src->pool, src->start, idx, MAX_DEFERENCE_DEPTH);
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int, int  );
 
 void funk_create_int_scalar(enum pool_types  , struct tnode * , int32_t );

@@ -3,9 +3,8 @@
 %struct.tpool = type { [250000 x %struct.tdata], i32, i8 }
 %struct.tdata = type { i32, i8, %union.data_type }
 %union.data_type = type { double }
-%struct.tnode = type { i32, i32, %struct.tpool*, %struct.tdimensions, %struct.tsiblings }
+%struct.tnode = type { i32, i32, %struct.tpool*, %struct.tdimensions }
 %struct.tdimensions = type { i32, i32 }
-%struct.tsiblings = type { i32, i32 }
 %struct.__sFILE = type { i8*, i32, i32, i16, i16, %struct.__sbuf, i32, i8*, i32 (i8*)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*, i8*, i32)*, %struct.__sbuf, %struct.__sFILEX*, i32, [3 x i8], [1 x i8], %struct.__sbuf, i32, i64 }
 %struct.__sFILEX = type opaque
 %struct.__sbuf = type { i8*, i32 }
@@ -14,8 +13,6 @@
 ;;;
 declare %struct.tpool* @get_pool_ptr(i32) #0 
 declare %struct.tnode* @validate_node(%struct.tnode*, i8*) #0 
-declare %struct.tdata* @_get_sibling(%struct.tnode*, i32, i8*, i32) #0 
-declare void @_set_sibling(%struct.tnode*, i32, i32, i8*, i32) #0 
 declare void @_funk_set_node_dimension_count(%struct.tnode*, i32) #0 
 declare i32 @_funk_get_node_dimension_count(%struct.tnode*) #0 
 declare i32 @_funk_get_node_dimension(%struct.tnode*, i32, i8*, i32) #0 
@@ -29,16 +26,19 @@ declare void @funk_print_type(i8 zeroext) #0
 declare void @funk_print_node_info(%struct.tnode*) #0 
 declare i32 @_funk_alloc_raw_tdata(%struct.tpool*, i32, i32) #0 
 declare void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0 
-declare void @funk_clone_node(%struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_clone_node(%struct.tnode*, %struct.tnode*) #0 
+declare void @_dereference(%struct.tnode*, %struct.tpool*, i32, i32, i32) #0 
 declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_exit() #0 
+declare void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_print_node(%struct.tnode*) #0 
+declare void @funk_not(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
 declare i32 @is_list_consecutive_in_memory(%struct.tnode*, i32) #0 
 declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @funk_get_element_in_array_lit(%struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
@@ -46,6 +46,8 @@ declare void @funk_regroup_list_r(i32, %struct.tnode*, %struct.tnode*, %struct.t
 declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
+declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
+declare i32 @_copy_node_to_pool(%struct.tnode*) #0 
 declare void @funk_create_list_of_regs(i32, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
 declare void @funk_create_list_double_literal(i32, %struct.tnode*, double*, i32) #0 
@@ -62,6 +64,7 @@ declare i32 @funk_get_node_value_int(%struct.tnode*, i32) #0
 declare void @funk_print_pool(%struct.tpool*, i32, i32) #0 
 declare void @funk_get_next_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_debug_function_entry_hook(i8*, %struct.tnode*, i32) #0 
+declare void @funk_debug_function_exit_hook(i8*, %struct.tnode*) #0 
 declare void @funk_memcp_arr(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @debug_print_arith_operation(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_mul(i8*, i8*, i8*, i32) #0 
@@ -106,7 +109,6 @@ declare void @funk_sge_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnod
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
 declare void @_funk_print_node(%struct.tnode*) #0 
-declare void @funk_print_node(%struct.tnode*) #0 
 declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
 declare float @funk_ToFloat(%struct.tnode*) #0 
@@ -124,7 +126,6 @@ declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare i32 @funk_get_node_start(%struct.tnode*) #0 
 declare i32 @funk_get_node_pool(%struct.tnode*) #0 
-declare void @funk_set_node_sibling_count(%struct.tnode*, i32) #0 
 declare void @funk_set_node_len(%struct.tnode*, i32) #0 
 declare void @funk_set_node_pool(%struct.tnode*, i32) #0 
 declare void @funk_set_node_start(%struct.tnode*, i32) #0 
@@ -146,13 +147,13 @@ declare i32 @printf(i8*, ...) #1
 declare void @exit(i32) #2
 declare i32 @"\01_sleep"(i32) #1
 declare void @llvm.memcpy.p0i8.p0i8.i64(i8* nocapture writeonly, i8* nocapture readonly, i64, i1 immarg) #3
+declare i8* @malloc(i64) #4
+declare void @free(i8*) #1
 declare i64 @time(i64*) #1
 declare void @srand(i32) #1
 declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) #3
 declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) #1
 declare i32 @fscanf(%struct.__sFILE*, i8*, ...) #1
 declare i32 @fclose(%struct.__sFILE*) #1
-declare i32 @abs(i32) #4
-declare i8* @malloc(i64) #5
-declare void @free(i8*) #1
+declare i32 @abs(i32) #5
 declare i32 @rand() #1

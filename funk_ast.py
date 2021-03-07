@@ -59,6 +59,9 @@ def list_concat_head(funk, left, right, result=None):
 
     funk.emitter.add_comment('Concatenating head to array')
     ptr_left = left.eval()
+
+    if isinstance(ptr_left,int):
+        ptr_left = funk.emitter.alloc_tnode('', ptr_left, funk_types.function_pool, funk_types.int)
     ptr_right = right.eval()
     #funk.emitter.debug_print_node_info(funk, [ptr_right])
     return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
@@ -361,13 +364,8 @@ class Identifier:
                         element_node = self.funk.emitter.alloc_tnode('', 0, pool=funk_types.function_pool,
                                                                      data_type=funk_types.int)
 
-                        if i == 0:
-                            self.funk.emitter.copy_node(list_node,element_node)
-                            self.funk.emitter.set_node_sibling_count(element_node,0)
 
-                        #val = self.funk.emitter.get_node_data_value(list_node, offset=i )
-                        else:
-                            self.funk.emitter.get_element_in_list_of_regs(element_node,list_node,i-1)
+                        self.funk.emitter.get_element_in_list_of_regs(dst=element_node,src=list_node,i=i)
 
                         if result is not None:
                             self.funk.emitter.copy_node(element_node, result)
@@ -400,13 +398,13 @@ class Identifier:
                 self.funk.emitter.add_comment('h <~ [T]. Create a tnode with len 1 pointing to the first element of the head')
 
                 detached_head_node = self.funk.emitter.alloc_tnode_raw()
-                self.funk.emitter.clone_node(head_node,detached_head_node, len=1)
+                self.funk.emitter.clone_node(head_node,detached_head_node)
                 #self.funk.emitter.copy_node(head_node, detached_head_node)
                 #pool = self.funk.emitter.get_node_pool(head_node)
                 #start = self.funk.emitter.get_node_start(head_node)
                 #self.funk.emitter.set_node_pool(detached_head_node, pool )
                 #self.funk.emitter.set_node_start(detached_head_node, start)
-                self.funk.emitter.set_node_len(detached_head_node,  1)
+                #self.funk.emitter.set_node_len(detached_head_node,  1)
 
                 if result is not None:
                     self.funk.emitter.copy_node(detached_head_node, result)
@@ -1047,6 +1045,8 @@ class FunctionCall(Expression):
             'info': DebugInfo,
             'len': Len,
             'sum': FunkSum,
+            'not': FunkNot,
+            'roll': FunkRoll,
             'dim': Dim,
             'sdl_window': SDLCreateWindow,
             'sdl_rect':SDLRect,
@@ -1263,12 +1263,18 @@ class FunctionClause:
                 self.funk.emitter.br(start_label)
             else:
                 last_insn.eval(p_result)
+                self.funk.emitter.debug_function_exit_hook(self.funk, self.name, p_result)
                 self.funk.emitter.ret()
                 self.funk.emitter.br('l_{}_end'.format(name))
 
+            self.funk.emitter.debug_function_exit_hook(self.funk, self.name, p_result)
             self.funk.emitter.ret()
 
             self.funk.emitter.add_label(clause_exit_label)
+
+    def debug_print(self, strings):
+        arr = [StringConstant(self.funk, str) for str in strings]
+        self.funk.emitter.print_funk(self.funk, arr)
 
 class FunctionMap:
     def __init__(self, funk, name, arguments=None, tail_pairs=None, pattern_matches=None):
@@ -1325,15 +1331,36 @@ class String(Expression):
     def eval(self, result=None):
         return self.fmt_str
 
+
+class FunkNot(Expression):
+    def __init__(self, funk, arg_list):
+        super().__init__()
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        return self.funk.emitter.funk_not(self.funk, self.arg_list, result=result, pool=self.pool)
+
+
+class FunkRoll(Expression):
+    def __init__(self, funk, arg_list):
+        super().__init__()
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        return self.funk.emitter.funk_roll(self.funk, self.arg_list, result=result, pool=self.pool)
+
+
 class FunkSum(Expression):
     def __init__(self, funk, arg_list):
         super().__init__()
         self.funk = funk
         self.arg_list = arg_list
 
-
     def eval(self, result=None):
         return self.funk.emitter.funk_summation_function(self.funk, self.arg_list, result=result, pool=self.pool)
+
 
 class Len(Expression):
     def __init__(self, funk, arg_list):

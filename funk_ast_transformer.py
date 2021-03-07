@@ -357,6 +357,13 @@ class TreeToAst(Transformer):
             return [funk_ast.Identifier(self.funk, 'empty'), funk_ast.FixedSizeLiteralList(self.funk, 'anon-empty-list', [])]
 
         elements = flatten(tokens)
+        # ranges like [i | 0 <= i < l] are a special case
+
+        if len(elements) == 1:
+            if isinstance(elements[0], funk_ast.Range) or isinstance(elements[0], funk_ast.FunctionCall):
+                return [elements]
+
+
         is_fixed_size_lit_list = True
         is_compile_time_size_expr_list = True
         for i in elements:
@@ -365,9 +372,9 @@ class TreeToAst(Transformer):
                 break
 
         for i in elements:
-            if len(elements) == 1:
-                is_compile_time_size_expr_list = False
-                break
+            # if len(elements) == 1:
+            #     is_compile_time_size_expr_list = False
+            #     break
             if isinstance(i, funk_ast.List):
                 is_compile_time_size_expr_list = False
                 break

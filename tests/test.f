@@ -1,5 +1,5 @@
 
-use sort, bfs
+use sort, bfs, not
 N <-> 20
 
 assert(actual, expected | actual != expected ):
@@ -104,14 +104,22 @@ reverse_pm_reg([a,b,c,d]):
 add_two(x,y):
     x + y.
 
+idem(x): x.
 
 main():
       say('Running tests')
+      say(not([3]))
+      say(not([1,0,1]))
+      assert(arr_eq(not([1,0,1]),[0,1,0]),1)
+
+
       assert(add_two(1,1),2)
       assert(arr_eq(add_two(1,1),2),1)
       u <-[4,3,2,1]
       v <- reverse_pm([9,8,7,6])
       assert(arr_eq(add_two(u,v),[10,10,10,10]),1)
+      assert(arr_eq(add_two(u,v),idem_list([10,10,10,10])),1)
+
       assert(unidimension_list([3,2,5]),10)
       assert(unidimension_list([1,1,1]),3)
 
@@ -192,10 +200,12 @@ main():
 
 
       # test the array slicing
-      say('Test array slcing')
+      say('Test array slicing')
+      say(A[0 .. len(A)/2])
       assert(len(A[0 .. len(A)/2]),4)
       assert(sum(A[0 .. len(A)/2]),10)
       assert(len(A[len(A)/2 + 1 .. -1]),3)
+      say(A[len(A)/2 + 1 .. -1])
       assert(sum(A[len(A)/2 + 1 .. -1]),18)
       assert(len(A[2 .. 3]),2)
       assert(sum(A[2 .. 3]),7)
@@ -206,6 +216,7 @@ main():
 
 
       say('====== Test Matrix =====')
+
       B <- [1, 2, 3, 4]
       assert(sum([ B | 0 <= k < len(B)]), 4*sum(B))
       assert(sum([ get_matrix() | 0 <= k < len(B)]), 4*sum(B))
@@ -218,14 +229,16 @@ main():
             [0,0,0,1]]
 
       say(M1)
-      assert(len(M1),16)
+      assert(len(M1[0 .. 1]),2)
+
+      assert(len(M1)*len(M1[0]),16)
       assert(sum(M1),4)
 
       #assert(sum(reshape(M,[1])), 4)
       M2 <- [[j | 0<= j <= 3] | 0 <= i <= 3]
       say(M2)
       say([j | 0<= j <= 3])
-      assert(len(M2),16)
+      assert(len(M2)*len(M2[0]),16)
       x <- 0
       assert(M2[x,x],0)
       assert(M2[x,x+1],1)
@@ -257,6 +270,45 @@ main():
 
       assert(sum([0 | 1<= j <= 10]),0)
       assert(sum([1 | 1<= j <= 10]),10)
+
+      say('====== more test matrix ====== ')
+      a1 <- [[-1,1],[1,1]]
+      assert(len(a1[0]),2)
+      assert(len(a1[1]),2)
+
+      assert(arr_eq(a1[0], [-1,1]),1)
+      assert(arr_eq(a1[1], [1,1]),1)
+      assert(arr_eq(idem(a1[0]), a1[0]),1)
+      assert(arr_eq(idem(a1[0]), [-1,1]),1)
+      assert(sum(a1[0]), 0)
+      assert(sum(a1[1]), 2)
+
+
+      a2 <- [[-1,1],[-1,-1],[7,3]]
+      assert(len(a2[0]),2)
+      assert(len(a2[1]),2)
+      assert(len(a2[2]),2)
+
+      assert(arr_eq(a2[0], [-1,1]),1)
+      say(a2[0])
+      say(a2[1])
+      say(a2[2])
+      assert(arr_eq(a2[1], [-1,-1]),1)
+      assert(arr_eq(a2[2], [7,3]),1)
+      assert(arr_eq(idem(a2[0]), a2[0]),1)
+      assert(arr_eq(idem(a2[0]), [-1,1]),1)
+      assert(sum(a2[0]), 0)
+      assert(sum(a2[1]), -2)
+      assert(sum(a2[2]), 10)
+
+
+      a3 <- [[-1,1,-1],[-1,-1,-1],[10,7,3]]
+      assert(sum(a3[0]), -1)
+      assert(sum(a3[1]), -3)
+      assert(sum(a3[2]), 20)
+      assert(arr_eq(idem(a3[2]), [10,7,3]),1)
+      #assert(arr_eq(sort(a3[2]), [3,7,10]),1)
+
 
       say('==== Test triangular series === ')
       assert(triangular_series(7), _sum(A))  # Something fails if you do sum instead of _sum
@@ -359,6 +411,7 @@ main():
       assert(and(one, one),1)
 
 
+      say('=== multidim test ===')
       R <- multidimension_list([ M1, fib_nums, one, two])
       say(R)
 
@@ -370,6 +423,12 @@ main():
       assert(arr_eq(R[1], M1), 1)
       assert(R[2], 2)
       assert(R[3], 3)
+
+      one_element <- [ R ]
+      say('one_element', one_element[0])
+      assert(len(one_element), 1)
+
+      assert(len([ [1,2] ]), 1)
 
 
       say('All tests passed ;)').

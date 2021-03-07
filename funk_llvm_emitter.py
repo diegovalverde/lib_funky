@@ -301,11 +301,11 @@ class Emitter:
         store i32 {val}, i32* %{p_data}, align 4
         """.format(val=val, p_data=p_data)
 
-    def clone_node(self,node_src, node_dst, len):
+    def clone_node(self,node_src, node_dst):
         self.code += """
         ;;  dst src
-        call void @funk_clone_node(%struct.tnode* {dst}, %struct.tnode* {src}, i32 {len})
-        """.format(dst=node_dst, src=node_src, len=len)
+        call void @funk_clone_node(%struct.tnode* {dst}, %struct.tnode* {src})
+        """.format(dst=node_dst, src=node_src)
 
     def copy_node(self, node_src, node_dst):
         self.code += """
@@ -347,11 +347,8 @@ class Emitter:
 
         return '%{}'.format(p[0])
 
-    def call_function(self, funk, fn, arguments, result=None):
-        if None in arguments:
-            print('???')
-
-        self.add_comment('====== call function {} {} ====='.format(fn, arguments))
+    def get_function_name_str(self, funk, fn):
+        name_str = fn
 
         extern_name = 'extern::{}'.format(fn)
         if fn in funk.function_debug_name_map:
@@ -359,8 +356,18 @@ class Emitter:
         elif extern_name in funk.function_debug_name_map:
             name_str, format_len = funk.function_debug_name_map[extern_name]
         else:
-            funk.function_debug_name_map[extern_name] = add_constant_string_symbol(funk,extern_name)
-            name_str, format_len =  funk.function_debug_name_map[extern_name]
+            funk.function_debug_name_map[extern_name] = add_constant_string_symbol(funk, extern_name)
+            name_str, format_len = funk.function_debug_name_map[extern_name]
+
+        return name_str, format_len
+
+    def call_function(self, funk, fn, arguments, result=None):
+        if None in arguments:
+            print('???')
+
+        self.add_comment('====== call function {} {} ====='.format(fn, arguments))
+
+        name_str, format_len = self.get_function_name_str(funk,fn)
 
 
         n = len(arguments)
@@ -371,8 +378,6 @@ class Emitter:
             p_element = self.get_array_element(array, i, n)
             self.copy_node(arguments[i], p_element)
 
-            # self.print_funk(funk, [funk_ast.StringConstant(funk, 'before!!!!!!!!!!!!!!!!!!!!!!!!'),
-            #                        funk_ast.StringConstant(funk, p_element)])
 
         head = self.get_array_element(array, 0, n)
 
@@ -391,6 +396,15 @@ class Emitter:
         """.format(result=result, fn=fn, arguments=head, n=n)
 
         return result
+
+    def debug_function_exit_hook(self, funk, fn, presult):
+
+        name_str, format_len = self.get_function_name_str(funk, fn)
+
+        self.code += """
+
+             call void @funk_debug_function_exit_hook(i8* getelementptr inbounds ({format_len}, {format_len}* {name_str}, i64 0, i64 0), %struct.tnode * {presult})
+             """.format(name_str=name_str, format_len=format_len, presult=presult)
 
     def set_null_result(self):
         self.set_node_type('%0', funk_types.empty_array)
@@ -702,15 +716,13 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         i = 0
         for reg in reg_list:
 
-            p = [x for x in range(self.index, self.index + 3)]
+            p = [x for x in range(self.index, self.index + 1)]
             self.index = p[-1] + 1
             self.code += """
 
                 %{0} = getelementptr inbounds %struct.tnode, %struct.tnode* %{p}, i64 {i}
-                %{1} = bitcast %struct.tnode* %{0} to i8*
-                %{2} = bitcast %struct.tnode* {reg} to i8*
-                call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %{1}, i8* align 8 %{2}, i64 40, i1 false)
-                """.format(p[0], p[1], p[2], p=ptr, n=n, reg=reg, i=i)
+                call void @funk_copy_node(%struct.tnode * %{0} ,%struct.tnode * {reg})
+                """.format(p[0], p=ptr, n=n, reg=reg, i=i)
             i += 1
 
         p = [x for x in range(self.index, self.index + 1)]
@@ -799,7 +811,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             self.code += """
                         ;; create slice
                         ;; allocate result
-                         call void @funk_get_element_in_array_lit(%struct.tnode* {node}, %struct.tnode * {result}, i32 {i})
+                         call void @funk_get_element_in_array(%struct.tnode* {node}, %struct.tnode * {result}, i32 {i})
                     """.format(node=node, result=result, i=i)
 
 
@@ -821,8 +833,57 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             result = self.alloc_tnode('sum result', 0, pool, funk_types.int)
 
         self.code += """
-                call void @funk_sum_list(%struct.tnode* {node}, %struct.tnode * {result})
+                call void @funk_sum_list(%struct.tnode* {result}, %struct.tnode * {node})
                """.format(node=node, result=result)
+        return result
+
+    def funk_not(self, funk, args,pool, result=None):
+        node = args[0].eval()
+        if result is None:
+            result = self.alloc_tnode('sum result', 0, pool, funk_types.int)
+
+        self.code += """
+                call void @funk_not(%struct.tnode* {result}, %struct.tnode * {node})
+               """.format(node=node, result=result)
+        return result
+
+    def funk_roll(self, funk, args,pool, result=None):
+        print(args[1])
+        node = args[0].eval()
+        deltas = args[1:] #args[1].eval()
+        print('!!!!!!!', deltas)
+        n = len(deltas)
+
+        if result is None:
+            result = self.alloc_tnode('', 0, pool, funk_types.int)
+
+        p = [x for x in range(self.index, self.index + 1)]
+        self.index = p[-1] + 1
+        self.code += """
+                ;;; ====== alloc_expression_list  =====
+                %{0} = alloca [{n} x %struct.tnode], align 16
+                """.format(p[0], n=n )
+
+
+        pdeltas = p[0]
+
+        for i, expr in enumerate(deltas):
+            expr = expr.eval()
+            p = [x for x in range(self.index, self.index + 1)]
+            self.index = p[-1] + 1
+            print(i)
+
+            self.code += """
+            %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* %{dst}, i64 0, i64 {i}
+            call void @funk_copy_node(%struct.tnode* %{0}, %struct.tnode* {src} )
+                """.format(p[0], n=n, i=i, dst=pdeltas, src=expr, tnode_size=funk_constants.tnode_size_bytes)
+
+        p = [x for x in range(self.index, self.index + 1)]
+        self.index = p[-1] + 1
+        self.code += """
+                 %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* %{pdeltas}, i64 0, i64 0
+                call void @funk_roll(%struct.tnode* {result}, %struct.tnode * {node}, %struct.tnode* %{0}, i32 {n} )
+               """.format(p[0], node=node, result=result, pdeltas=pdeltas, n=n)
         return result
 
     def get_node_lenght_as_int(self,node):
