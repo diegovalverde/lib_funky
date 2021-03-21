@@ -60,11 +60,11 @@ def list_concat_head(funk, left, right, result=None):
     funk.emitter.add_comment('Concatenating head to array')
     ptr_left = left.eval()
 
-    if isinstance(ptr_left,int):
+    if isinstance(ptr_left, int):
         ptr_left = funk.emitter.alloc_tnode('', ptr_left, funk_types.function_pool, funk_types.int)
     ptr_right = right.eval()
     #funk.emitter.debug_print_node_info(funk, [ptr_right])
-    return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
+    return funk.emitter.prepend_element_to_list(ptr_left, ptr_right, result=result)
 
 def create_ast_named_symbol(name, funk, right, pool):
     symbol_name = '{}_{}_{}'.format(funk.function_scope.name, funk.function_scope.clause_idx, name)
@@ -271,7 +271,7 @@ class CompileTimeExprList(List):
                 elements.append(reg)
             else:
                 elements.append(element.eval())
-
+#DIEGO
         return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
 
     def __repr__(self):
@@ -881,7 +881,7 @@ class ExprRange(Range):
 
         self.range_register_calculation_emitted = True
 
-    def eval(self, result=None, parent_tnode_list=None, parent_offset=None):
+    def eval2(self, result=None, parent_tnode_list=None, parent_offset=None):
         self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
 
         self.calculate_ranges()
@@ -916,7 +916,6 @@ class ExprRange(Range):
 
         # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'first_element_len_reg'),
         #                                          StringConstant(self.funk,first_element_len_reg)])
-
 
         total_len_reg = self.funk.emitter.arith_helper(first_element_len_reg, list_len_reg, operation='mul')
         total_len_reg_int = self.funk.emitter.get_node_data_value(total_len_reg)
@@ -1005,6 +1004,80 @@ class ExprRange(Range):
         self.funk.emitter.add_comment('END ============== ExprRange {}'.format(self.__repr__()))
 
         return head
+
+    def eval(self, result=None, parent_tnode_list=None, parent_offset=None):
+
+            self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
+
+            self.calculate_ranges()
+
+            reg_start = self.reg_start
+
+            loop_reg = self.funk.emitter.alloc_tnode('loop reg', 0, funk_types.function_pool, funk_types.int)
+
+            list_len_reg = self.get_range_len()
+            list_len_int = self.funk.emitter.get_node_data_value(list_len_reg)
+
+            iterator_reg = self.funk.emitter.alloc_tnode('iterator_reg',
+                                                         self.funk.emitter.get_node_data_value(reg_start),
+                                                         funk_types.function_pool, funk_types.int)
+
+            expr = copy.deepcopy(self.expr)
+            # create a node pointer for each element in the range
+
+            elements = self.funk.emitter.alloc_list_of_tnodes(list_len_reg)
+
+
+            scope_name = self.funk.function_scope.name.replace('@', '')
+            # loop
+            label_loop_start = '{}_clause_{}_loop_entry__{}'.format(scope_name,
+                                                                    self.funk.function_scope.clause_idx,
+                                                                    self.funk.function_scope.label_count)
+            self.funk.function_scope.label_count += 1
+
+            label_exit = '{}_clause_{}_loop_exit__{}'.format(scope_name,
+                                                             self.funk.function_scope.clause_idx,
+                                                             self.funk.function_scope.label_count)
+            self.funk.function_scope.label_count += 1
+
+            self.funk.emitter.br(label_loop_start)
+
+            self.funk.emitter.add_label(label_loop_start)
+            #### Loop =====
+
+            # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'eval element '), StringConstant(self.funk, loop_reg)])
+            if expr.__repr__() == self.iterator_symbol.__repr__():
+                element_reg = self.funk.emitter.alloc_tnode(self.expr.__repr__(),
+                                                            self.funk.emitter.get_node_data_value(iterator_reg),
+                                                            funk_types.function_pool, funk_types.int)
+            else:
+                expr.replace_symbol(self.iterator_symbol, StringConstant(self.funk, iterator_reg))
+                element_reg = expr.eval()
+
+            if isinstance(element_reg, int):
+                element_reg = self.funk.emitter.alloc_tnode(expr.__repr__(), element_reg, funk_types.function_pool,
+                                                            funk_types.int)
+
+            self.funk.emitter.set_tnode_array_element(tnode_list=elements, value_reg=element_reg,
+                                                      iterator_reg=loop_reg,
+                                                      len=list_len_int)
+
+            self.funk.emitter.increment_node_value_int(loop_reg)
+            self.funk.emitter.increment_node_value_int(iterator_reg)
+            self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(loop_reg, as_type=funk_types.int),
+                                      list_len_int, label_exit, label_loop_start)
+
+            self.funk.emitter.add_label(label_exit)
+
+            # finally add the element pointers to the list
+            #head = self.funk.alloc_compile_time_expr_list(elements, [1], self.pool, result=result)
+            head = self.funk.emitter.create_list_of_tnodes(result=result, pool=funk_types.function_pool, n=list_len_int, reg_list=elements)
+            self.funk.emitter.free_tnode_pointer(elements)
+            self.funk.emitter.add_comment('END ============== ExprRange {}'.format(self.__repr__()))
+
+            # try to flatten
+            head = self.funk.emitter.flatten_pointer_list_to_matrix(head, result=result)
+            return head
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -1208,8 +1281,8 @@ class FunctionClause:
                     elif isinstance(pattern, PatternMatchListOfIdentifiers):
                         self.funk.emitter.add_comment('Pattern match element against a list of {} elements '.format(len(pattern.elements)))
                         node_len = self.funk.emitter.get_tnode_length(arg)
-                        self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
-                             StringConstant(self.funk, node_len)])
+                        # self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
+                        #      StringConstant(self.funk, node_len)])
                         val = self.funk.emitter.get_node_data_value(node_len)
                         self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label,label_next)
                     else:

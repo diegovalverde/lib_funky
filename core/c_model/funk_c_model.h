@@ -97,11 +97,11 @@ struct tnode
 
 #define DIM_COUNT(n) _funk_get_node_dimension_count(n)
 #define SET_DIM_COUNT(n,i) _funk_set_node_dimension_count(n,i)
-#define DIM(n,i) _funk_get_node_dimension(n,i,(char*)__FUNCTION__, __LINE__)
+#define DIM(n,i) _funk_get_node_dimension(n,i)
 #define SET_DIM(n,i,d) _funk_set_node_dimension(n,i,d,__FUNCTION__,__LINE__)
 #define WRAP_CREATION(n,i)  _get_wrap_creation(n,i)
 #define SET_WRAP_CREATION(n,i,d)  _set_wrap_creation(n,i,d)
-#define DEREF(dst,src,idx) _dereference(dst, src->pool, src->start, idx, MAX_DEFERENCE_DEPTH);
+#define DEREF(dst,src,idx) _dereference(dst, src->pool, src->start, idx, MAX_DEFERENCE_DEPTH, (char*)__FUNCTION__,__LINE__);
 struct tdata * get_node(struct tnode * , uint32_t , const char * , int, int  );
 
 void funk_create_int_scalar(enum pool_types  , struct tnode * , int32_t );

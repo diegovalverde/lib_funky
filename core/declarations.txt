@@ -11,11 +11,12 @@
 ;;;
 ;;; ==== Declarations ==== 
 ;;;
+declare i32 @get_pool_enum(%struct.tpool*) #0 
 declare %struct.tpool* @get_pool_ptr(i32) #0 
 declare %struct.tnode* @validate_node(%struct.tnode*, i8*) #0 
 declare void @_funk_set_node_dimension_count(%struct.tnode*, i32) #0 
 declare i32 @_funk_get_node_dimension_count(%struct.tnode*) #0 
-declare i32 @_funk_get_node_dimension(%struct.tnode*, i32, i8*, i32) #0 
+declare i32 @_funk_get_node_dimension(%struct.tnode*, i32) #0 
 declare void @_funk_set_node_dimension(%struct.tnode*, i32, i32, i8*, i32) #0 
 declare %struct.tdata* @get_node(%struct.tnode*, i32, i8*, i32, i32) #0 
 declare zeroext i8 @_get_wrap_creation(%struct.tnode*, i32) #0 
@@ -27,15 +28,16 @@ declare void @funk_print_node_info(%struct.tnode*) #0
 declare i32 @_funk_alloc_raw_tdata(%struct.tpool*, i32, i32) #0 
 declare void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0 
 declare void @funk_clone_node(%struct.tnode*, %struct.tnode*) #0 
-declare void @_dereference(%struct.tnode*, %struct.tpool*, i32, i32, i32) #0 
+declare void @_dereference(%struct.tnode*, %struct.tpool*, i32, i32, i32, i8*, i32) #0 
 declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_exit() #0 
 declare void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_print_node(%struct.tnode*) #0 
 declare void @funk_not(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
 declare i32 @is_list_consecutive_in_memory(%struct.tnode*, i32) #0 
+declare void @funk_get_element_in_matrix_ptr(%struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare void @funk_print_node(%struct.tnode*) #0 
 declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
@@ -48,7 +50,7 @@ declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
 declare i32 @_copy_node_to_pool(%struct.tnode*) #0 
-declare void @funk_create_list_of_regs(i32, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_create_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
 declare void @funk_create_list_double_literal(i32, %struct.tnode*, double*, i32) #0 
 declare void @funk_create_2d_matrix_int_literal(i32, %struct.tnode*, i32*, i32, i32) #0 
@@ -80,6 +82,8 @@ declare void @funk_ne(i8*, i8*, i8*, i32) #0
 declare void @funk_or(i8*, i8*, i8*, i32) #0 
 declare void @funk_and(i8*, i8*, i8*, i32) #0 
 declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
+declare i32 @funk_can_flatten_node_pointer_list_to_matrix(%struct.tnode*) #0 
+declare void @_flatten_node_pointer_list_to_matrix(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
 declare void @funk_mul_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_add_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
@@ -123,6 +127,7 @@ declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struc
 declare void @reshape(%struct.tnode*, i32*, i32) #0 
 declare double @rand_double(double, double) #0 
 declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
+declare void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare i32 @funk_get_node_start(%struct.tnode*) #0 
 declare i32 @funk_get_node_pool(%struct.tnode*) #0 
@@ -132,6 +137,7 @@ declare void @funk_set_node_start(%struct.tnode*, i32) #0
 declare void @funk_alloc_tnode_array_from_range_regs(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_alloc_tnode_array_from_range_len(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_set_tnode_array_elementEX(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare %struct.tnode* @funk_alloc_list_of_tnodes(%struct.tnode*) #0 
 declare void @funk_call_fn_pointer(%struct.tnode*, %struct.tnode*, i32, %struct.tnode*) #0 
 declare void @set_sdl_user_global_state(%struct.tnode*) #0 

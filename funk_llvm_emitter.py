@@ -555,6 +555,17 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         call void @funk_set_node_value_fn_ptr(%struct.tnode* {dst}, i32 0, void (%struct.tnode*, i32, %struct.tnode*)* {global_symbol} )
         """.format(dst=dst, global_symbol=global_symbol)
 
+    def prepend_element_to_list(self, left,right, result=None):
+        if result is None:
+            result = self.allocate_result()
+
+        self.code += """
+         call void @funk_prepend_element_to_list(%struct.tnode* {dst}, %struct.tnode* {L}, %struct.tnode* {R})
+        """.format( result=result, dst=result, L=left, R=right)
+
+
+        return result
+
     def concat_list(self,left,right,result=None):
         if result is None:
             result = self.allocate_result()
@@ -695,6 +706,16 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return result
 
+    def create_list_of_tnodes(self,reg_list , pool, n, result=None):
+        if result is None:
+            result = self.allocate_result()
+
+        self.code += """
+        call void @funk_create_list_of_regs( %struct.tnode* {result}, %struct.tnode* {reg_list}, i32 {n})
+
+        """.format(result=result, reg_list=reg_list,n=n)
+        return result
+
     def create_list_of_regs(self, name, reg_list, dimensions, pool, result=None):
 
         if result is None:
@@ -733,7 +754,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         else:
             self.code += """
             %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* %{A}, i64 0, i64 0
-            call void @funk_create_list_of_regs(i32 {pool}, %struct.tnode* {result}, %struct.tnode* %{0}, i32 {n})
+            call void @funk_create_list_of_regs( %struct.tnode* {result}, %struct.tnode* %{0}, i32 {n})
 
             """.format(p[0], result=result, A=A, name=name,  pool=pool, n=n)
 
@@ -907,10 +928,29 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         call void @add_node_to_nodelist(%struct.tnode* {node_list}, %struct.tnode* {node}, %struct.tnode* {idx}, i32 {n})
         """.format( node=node, node_list=node_list, idx=idx_node, n=n)
 
-    def set_tnode_array_element(self, tnode_list, iterator_reg, value_reg):
+    def can_flatten_node_pointer_list_to_matrix(self, node):
+        p = [x for x in range(self.index, self.index + 1)]
+        self.index = p[-1] + 1
+
         self.code += """
-        call void @funk_set_tnode_array_element(%struct.tnode* {tnode_list}, %struct.tnode* {iterator_reg}, %struct.tnode* {value_reg})
-        """.format(iterator_reg=iterator_reg, tnode_list=tnode_list, value_reg=value_reg)
+        {0} = call i32 @funk_can_flatten_node_pointer_list_to_matrix(%struct.tnode* {node})
+        """.format(p[0], node=node)
+
+        return '{}'.format(p[-1])
+
+    def flatten_pointer_list_to_matrix(self, node_list,result=None):
+        if result is None:
+            result = self.allocate_result()
+
+        self.code += """
+            call void @_flatten_node_pointer_list_to_matrix(%struct.tnode* {result}, %struct.tnode* {node_list})
+            """.format(result=result, node_list=node_list)
+
+        return result
+    def set_tnode_array_element(self, tnode_list, iterator_reg, value_reg, len):
+        self.code += """
+        call void @funk_set_tnode_array_elementEX(%struct.tnode* {tnode_list}, %struct.tnode* {iterator_reg}, %struct.tnode* {value_reg}, i32 {len})
+        """.format(iterator_reg=iterator_reg, tnode_list=tnode_list, value_reg=value_reg, len=len)
 
     def alloc_tnode_array_from_len_reg(self, pool, length):
         node = self.allocate_result()

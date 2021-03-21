@@ -372,9 +372,6 @@ class TreeToAst(Transformer):
                 break
 
         for i in elements:
-            # if len(elements) == 1:
-            #     is_compile_time_size_expr_list = False
-            #     break
             if isinstance(i, funk_ast.List):
                 is_compile_time_size_expr_list = False
                 break

@@ -55,7 +55,9 @@ arr_eq(a <~ [A] , b <~ [B] | a != b):
 arr_eq(a <~ [A] , b <~ [B]): arr_eq(A,B).
 
 
-get_matrix(): [1, 2, 3, 4].
+get_an_array(): [1, 2, 3, 4].
+
+get_a_matrix(): [[1, 2, 3],[5, 6, 0],[7, 8, 4]].
 
 
 tree(0): [1,2,3,4].
@@ -186,7 +188,9 @@ main():
       assert(sum([1 | 100 <= i < 200]),100)
       assert(sum([1 | 100 <= i <= 200]),101)
       assert(sum([1 | 1000 <= i < 2000]),1000)
+      say([1 | 10 <= i < 20])
       assert(len([1 | 100 <= i < 200]),100)
+
       assert(len([1 | 57 <= i <= 59]),3)
       assert(len([1 | 1997 <= i < 2000]),3)
       assert(len(A),7)
@@ -218,8 +222,9 @@ main():
       say('====== Test Matrix =====')
 
       B <- [1, 2, 3, 4]
+      say( [B | 0 <= k < len(B)])
       assert(sum([ B | 0 <= k < len(B)]), 4*sum(B))
-      assert(sum([ get_matrix() | 0 <= k < len(B)]), 4*sum(B))
+      assert(sum([ get_an_array() | 0 <= k < len(B)]), 4*sum(B))
       assert(sum([ [1,2,3,4] | 0 <= k < len(B)]), 4*sum(B))
 
 
@@ -236,7 +241,7 @@ main():
 
       #assert(sum(reshape(M,[1])), 4)
       M2 <- [[j | 0<= j <= 3] | 0 <= i <= 3]
-      say(M2)
+      say('M2',M2)
       say([j | 0<= j <= 3])
       assert(len(M2)*len(M2[0]),16)
       x <- 0
@@ -250,6 +255,7 @@ main():
       say('M2',M2)
 
       M3 <- M1 + M2
+      say('M3',M3)
       assert(arr_eq([M3[i,i] | 0 <= i <= 3], [1,2,3,4]),1)
       assert(sum(M1-M1),0)
       assert(sum(M1+M1),8)
@@ -429,6 +435,55 @@ main():
       assert(len(one_element), 1)
 
       assert(len([ [1,2] ]), 1)
+      assert(len([ [one_element, 1,2] ]), 1)
 
+      delta <- [[-1,0], [1,0], [0,1], [0,-1]]
+      the_meaning_of_life <- 42
+      say([ get_an_array() , delta[0],the_meaning_of_life] )
+      WW <- [ get_an_array(), delta[0],the_meaning_of_life]
+      assert(len(WW), 3)
+      assert(arr_eq(WW[0], get_an_array()),1 )
+      assert(arr_eq(WW[1], delta[0]),1 )
+      assert(WW[2], 42 )
+
+      WWW <- [ get_a_matrix(), delta[1],the_meaning_of_life]
+      assert(len(WWW), 3)
+      assert(arr_eq(WWW[0], get_a_matrix()),1 )
+      assert(arr_eq(WWW[1], delta[1]),1 )
+      assert(WWW[2], 42 )
+      say(WWW)
+
+      pos <- [1,2]
+      cost <- 99
+      W4 <- [ [get_a_matrix(), cost + 1, pos + delta[0]],
+              [get_a_matrix(), cost + 1, pos + delta[1]],
+              [get_a_matrix(), cost + 1, pos + delta[2]],
+              [get_a_matrix(), cost + 1, pos + delta[3]]  ]
+
+      say(len(W4))
+      say('W4', W4)
+
+
+      W3 <- [ [get_a_matrix(), cost + 1, pos + delta[k]] | 0 <= k < len(delta) ]
+      say(len(W3))
+      say(W3)
+
+      assert( len(W3[0]), 3)
+      assert( len(W3[1]), 3)
+      assert( len(W3[2]), 3)
+      assert( len(W3[3]), 3)
+
+      assert( arr_eq(W3[0], [get_a_matrix(), cost + 1, pos + delta[0]]),1 )
+      assert( arr_eq(W3[1], [get_a_matrix(), cost + 1, pos + delta[1]]),1 )
+      assert( arr_eq(W3[2], [get_a_matrix(), cost + 1, pos + delta[2]]),1 )
+      assert( arr_eq(W3[3], [get_a_matrix(), cost + 1, pos + delta[3]]),1 )
+
+      # say(len([ [1,2,3,4] , 666,42]))
+      # say([ [1,2,3,4] , 666,42])
+      # V <- [ [1,2,3,4] , 666,42]
+      # say(V)
+      # say(V[0])
+      # say(V[1])
+      # say(V[2])
 
       say('All tests passed ;)').
