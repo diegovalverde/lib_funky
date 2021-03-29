@@ -255,7 +255,7 @@ class CompileTimeExprList(List):
     def eval(self, result=None):
 
         dimensions = self.get_dimensions()
-        flattened_list = flatten(self.elements)
+        flattened_list = self.elements #flatten(self.elements)
 
         elements = []
         for element in flattened_list:
@@ -1185,6 +1185,7 @@ class FunctionCall(Expression):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return FunctionCall(self.funk, name=self.name, args=copy.deepcopy(self.args, memo))
+
 
 class FunctionClause:
     def __init__(self, funk, name, fn_body, preconditions, pattern_matches, tail_pairs=None, arguments=None):

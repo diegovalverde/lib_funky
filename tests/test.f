@@ -435,13 +435,16 @@ main():
       assert(len(one_element), 1)
 
       assert(len([ [1,2] ]), 1)
-      assert(len([ [one_element, 1,2] ]), 1)
+      #assert(len([]),0)
+      #assert(len([ [one_element, 1,2] ]), 1)
 
       delta <- [[-1,0], [1,0], [0,1], [0,-1]]
       the_meaning_of_life <- 42
       say([ get_an_array() , delta[0],the_meaning_of_life] )
       WW <- [ get_an_array(), delta[0],the_meaning_of_life]
+
       assert(len(WW), 3)
+
       assert(arr_eq(WW[0], get_an_array()),1 )
       assert(arr_eq(WW[1], delta[0]),1 )
       assert(WW[2], 42 )
