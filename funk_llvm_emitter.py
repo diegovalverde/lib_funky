@@ -749,8 +749,8 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         p = [x for x in range(self.index, self.index + 1)]
         self.index = p[-1] + 1
 
-        if len(dimensions) == 2:
-           raise  Exception('create_list_of_regs dimension {} not supported'.format(dimensions))
+        if False: #len(dimensions) == 2:
+            raise Exception('create_list_of_regs dimension {} not supported. {}'.format(dimensions,reg_list))
         else:
             self.code += """
             %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* %{A}, i64 0, i64 0
@@ -765,7 +765,15 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         if result is None:
             result = self.allocate_result()
 
+        if len(lit_list) == 0:
+            self.code += """
+            call void @funk_create_empty_list_element(i32 1, %struct.tnode* {result})
+            """.format(result=result)
+            
+            return result
+
         as_type = to_funk_type(lit_list[0])
+
         p = [x for x in range(self.index, self.index + 3)]
         self.index = p[-1] + 1
         A = p[0]
@@ -1203,10 +1211,6 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
     def set_array_element(self, array_address, index, data, tail=False):
         self.add_comment(';; >>>>> set_array_element  ')
 
-        if tail:
-            type_array = funk_types.empty_array
-        else:
-            type_array = funk_types.array
 
         p_node = self.alloc_tnode_pointer()
 

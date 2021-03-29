@@ -1,5 +1,5 @@
 
-use sort, bfs, not
+use sort, bfs, not, binary_search
 N <-> 20
 
 assert(actual, expected | actual != expected ):
@@ -396,6 +396,17 @@ main():
       # now test sort with custom comparator function
       assert( arr_eq( sort( [8,4,9,1,3,5,10,0,7,2,6], cmp_gt), [10,9,8,7,6,5,4,3,2,1,0]), 1  )
       assert(arr_eq(sort([2, 5, 4, 3, 1], cmp_gt), [5,4,3,2,1]), 1)
+
+      # binary_search
+      say('=== binary_search === ')
+      search_array <- [2, 5, 6, 7 ,10, 70, 99]
+      assert(binary_search(search_array, 7, 0, len(search_array)),3)
+      assert(binary_search(search_array, 2, 0, len(search_array)),0)
+      assert(binary_search(search_array, 5, 0, len(search_array)),1)
+      assert(binary_search(search_array, 6, 0, len(search_array)),2)
+      assert(binary_search(search_array, 10, 0, len(search_array)),4)
+      assert(binary_search(search_array, 70, 0, len(search_array)),5)
+      assert(binary_search(search_array, 99, 0, len(search_array)),6)
       say('=== BFS test tree ===')
       assert(arr_eq(tree(0), [1,2,3,4]), 1)
       assert(arr_eq(tree(1), [5,6]), 1)
@@ -435,13 +446,16 @@ main():
       assert(len(one_element), 1)
 
       assert(len([ [1,2] ]), 1)
-      assert(len([ [one_element, 1,2] ]), 1)
+      #assert(len([]),0)
+      #assert(len([ [one_element, 1,2] ]), 1)
 
       delta <- [[-1,0], [1,0], [0,1], [0,-1]]
       the_meaning_of_life <- 42
       say([ get_an_array() , delta[0],the_meaning_of_life] )
       WW <- [ get_an_array(), delta[0],the_meaning_of_life]
+
       assert(len(WW), 3)
+
       assert(arr_eq(WW[0], get_an_array()),1 )
       assert(arr_eq(WW[1], delta[0]),1 )
       assert(WW[2], 42 )
