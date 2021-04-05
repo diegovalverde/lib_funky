@@ -71,7 +71,7 @@ tree_is_goal(10) :
     1.
 
 tree_is_goal(n):
-    say(n)
+    say('tree_is_goal', n)
     0.
 
 get_arity(): 0.
@@ -107,6 +107,10 @@ add_two(x,y):
     x + y.
 
 idem(x): x.
+
+different(A,B | A = B): 0.
+different(_,_): 1.
+
 
 main():
       say('Running tests')
@@ -407,6 +411,7 @@ main():
       assert(binary_search(search_array, 10, 0, len(search_array)),4)
       assert(binary_search(search_array, 70, 0, len(search_array)),5)
       assert(binary_search(search_array, 99, 0, len(search_array)),6)
+
       say('=== BFS test tree ===')
       assert(arr_eq(tree(0), [1,2,3,4]), 1)
       assert(arr_eq(tree(1), [5,6]), 1)
@@ -491,6 +496,16 @@ main():
       assert( arr_eq(W3[1], [get_a_matrix(), cost + 1, pos + delta[1]]),1 )
       assert( arr_eq(W3[2], [get_a_matrix(), cost + 1, pos + delta[2]]),1 )
       assert( arr_eq(W3[3], [get_a_matrix(), cost + 1, pos + delta[3]]),1 )
+
+      say('=== Array equality ===')
+      assert(A , A)
+      assert(fib_nums, fib_nums)
+      assert(different(A,A),0)
+      assert(different(fib_nums,fib_nums),0)
+
+      assert(M1 , M1)
+      assert(different(M1,M1),0)
+      assert(different(M1,M2),1)
 
       # say(len([ [1,2,3,4] , 666,42]))
       # say([ [1,2,3,4] , 666,42])

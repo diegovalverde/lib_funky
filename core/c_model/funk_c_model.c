@@ -18,7 +18,9 @@ static char funk_types_str[][100]=
   "type_array",
   "type_empty_array",
   "type_scalar",
-  "type_function"
+  "type_function",
+  "type_pointer_to_pool_entry",
+  "type_pool_node_entry"
 };
 #define POOL_STR(pool) ((pool == &funk_global_memory_pool)?"gpool":"fpool")
 
@@ -148,7 +150,7 @@ struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int l
   TRACE("start");
 
   if (n == NULL){
-    printf("INTERNAL ERROR: %s NULL node pointer\n",__FUNCTION__);
+    printf("INTERNAL ERROR: get_node from %s +%d NULL node pointer\n",caller,line);
     exit(1);
   }
   if (VALIDATE_NODE(n) == NULL){
@@ -1002,7 +1004,7 @@ void funk_get_next_node(struct tnode *dst, struct tnode * n){
    //CHECK_TYPES(dst);
  }
 
-void funk_debug_function_entry_hook(const char * function_name, struct tnode * inputs, int arity){
+void funk_debug_function_entry_hook(char * function_name, struct tnode * inputs, int arity){
   TRACE("start");
   MEM_USAGE(function_name);
 
@@ -1246,6 +1248,48 @@ void funk_and(void *x, void *a, void *b, enum funk_types type){
 
 }
 
+void _print_arith_op(void (*f)(void *, void *, void *, enum funk_types)){
+  if (f == funk_mul) {
+    printf(" * ");
+  }
+  else if (f == funk_div){
+    printf(" / ");
+  }
+  else if (f == funk_add){
+    printf(" + ");
+  }
+  else if (f == funk_sub){
+    printf(" - ");
+  }
+  else if (f == funk_mod){
+    printf(" % ");
+  }
+  else if (f == funk_slt){
+    printf(" < ");
+  }
+  else if (f == funk_sgt){
+    printf(" > ");
+  }
+  else if (f == funk_sge){
+    printf(" >= ");
+  }
+  else if (f == funk_eq){
+    printf(" == ");
+  }
+  else if (f == funk_ne){
+    printf("!= ");
+  }
+  else if (f == funk_or){
+    printf(" or ");
+  } else if (f == funk_and){
+      printf(" and ");
+  } else {
+    printf("Unknown arith operation\n");
+  }
+
+
+}
+
 void _funk_arith_op_rr(struct tnode * node_r, uint32_t r_offset,
                  struct tnode * node_a, uint32_t a_offset,
                  struct tnode * node_b, uint32_t b_offset,
@@ -1297,44 +1341,12 @@ void _funk_arith_op_rr(struct tnode * node_r, uint32_t r_offset,
 
   } else {
     printf("-E- %s: invalid types: ", __FUNCTION__);
-    if (f == funk_mul) {
-      printf("-E- funk_mul\n");
-    }
-    else if (f == funk_div){
-      printf("-E- funk_div\n");
-    }
-    else if (f == funk_add){
-      printf("-E- funk_add\n");
-    }
-    else if (f == funk_sub){
-      printf("-E- funk_sub\n");
-    }
-    else if (f == funk_mod){
-      printf("-E- funk_mod\n");
-    }
-    else if (f == funk_slt){
-      printf("-E- funk_slt\n");
-    }
-    else if (f == funk_sgt){
-      printf("-E- funk_sgt\n");
-    }
-    else if (f == funk_sge){
-      printf("-E- funk_sge\n");
-    }
-    else if (f == funk_eq){
-      printf("-E- funk_eq\n");
-    }
-    else if (f == funk_ne){
-      printf("-E- funk_eq\n");
-    }
-    else if (f == funk_or){
-      printf("-E- funk_or\n");
-    }
-
+    _print_arith_op(f); printf("\n");
     funk_print_type(t1);
     printf(" , ");
     funk_print_type(t2);
     printf("\n");
+    exit(1);
 
     r->type = type_invalid;
   }
@@ -1448,8 +1460,13 @@ void funk_arith_op_rr(struct tnode * node_r, int32_t r_offset,
      if (dim1 != dim2){
         printf("\n-E- cannot perform arithmetic operation in operand A of dimension %d and operand B of dimension %d\n",
       dim1, dim2);
-      funk_print_node_info(node_a);
-      funk_print_node_info(node_b);
+
+      printf("A{");
+      funk_print_node(node_a);
+      printf("} "); _print_arith_op(f); printf(" B{");
+      funk_print_node(node_b);
+      printf("}\n");
+
       exit(1);
       }
 
@@ -2114,6 +2131,50 @@ void funk_create_empty_list_element(enum pool_types pool_type, struct tnode  * d
   TRACE("start");
   funk_create_node(dst, 1, pool_type, type_empty_array, 0, NULL);
 }
+
+/**
+  [A] <~ e
+**/
+
+
+void funk_append_element_to_list(struct tnode  * dst, struct tnode  * L, struct tnode  * R){
+  TRACE("start");
+
+
+  VALIDATE_NODE(L);
+  VALIDATE_NODE(R);
+
+
+  if (DATA(L, 0)->type == type_empty_array && DATA(R, 0)->type == type_empty_array){
+    funk_create_node(dst, 1, function_pool, type_empty_array, 0, NULL);
+    printf("funk_concatenate_lists [] , [] -> []\n");
+    return;
+  }
+
+
+  funk_create_node(dst,
+      ((DATA(L,0)->type == type_empty_array) ? 0 : LEN(L)) +
+      ((DATA(R,0)->type == type_empty_array) ? 0 : 1) ,
+      function_pool, type_array, 0,  NULL);
+
+  uint32_t k = 0;
+  for (uint32_t i = 0; i < LEN(L); i++){
+    if (DATA(L,i)->type == type_empty_array)
+      break;
+
+    DATA(dst, k)->type = DATA(L,i)->type;
+    DATA(dst, k)->data = DATA(L,i)->data;
+
+    k++;
+  }
+
+
+    DATA_NO_CHECK(dst,dst->len-1)->type = type_pointer_to_pool_entry;
+    DATA_NO_CHECK(dst,dst->len-1)->data.i = _copy_node_to_pool(R);
+
+
+}
+
 void funk_prepend_element_to_list(struct tnode  * dst, struct tnode  * L, struct tnode  * R){
   TRACE("start");
 

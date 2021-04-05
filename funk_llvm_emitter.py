@@ -555,14 +555,23 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         call void @funk_set_node_value_fn_ptr(%struct.tnode* {dst}, i32 0, void (%struct.tnode*, i32, %struct.tnode*)* {global_symbol} )
         """.format(dst=dst, global_symbol=global_symbol)
 
+    def append_element_to_list(self, left, right, result=None):
+        if result is None:
+            result = self.allocate_result()
+
+        self.code += """
+         call void @funk_append_element_to_list(%struct.tnode* {dst}, %struct.tnode* {L}, %struct.tnode* {R})
+        """.format(dst=result, L=left, R=right)
+
+        return result
+
     def prepend_element_to_list(self, left,right, result=None):
         if result is None:
             result = self.allocate_result()
 
         self.code += """
          call void @funk_prepend_element_to_list(%struct.tnode* {dst}, %struct.tnode* {L}, %struct.tnode* {R})
-        """.format( result=result, dst=result, L=left, R=right)
-
+        """.format(  dst=result, L=left, R=right)
 
         return result
 
@@ -769,7 +778,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             self.code += """
             call void @funk_create_empty_list_element(i32 1, %struct.tnode* {result})
             """.format(result=result)
-            
+
             return result
 
         as_type = to_funk_type(lit_list[0])

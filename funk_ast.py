@@ -30,11 +30,11 @@ def flatten(x):
     else:
         return [x]
 
+
 def list_concat_tail(funk, left, right, result=None):
     """
     This corresponds to:
-        [X] ~> [MyArray]
-
+        [MyArray] <~ x
     """
 
     funk.emitter.add_comment('Concatenating two arrays')
@@ -45,7 +45,10 @@ def list_concat_tail(funk, left, right, result=None):
 
     ptr_right = right.eval()
 
-    return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
+    #DIEGO
+    #return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
+    return funk.emitter.append_element_to_list (ptr_left, ptr_right, result=result)
+
 
 def list_concat_head(funk, left, right, result=None):
     """
@@ -378,7 +381,8 @@ class Identifier:
 
         pattern_matched_in_list = self.pattern_match_list_of_identifiers(result)
         if pattern_matched_in_list is not None:
-            return pattern_matched_in_list
+            return self.eval_node_index(pattern_matched_in_list, result)
+            #return pattern_matched_in_list
 
         for head_tail in self.funk.function_scope.tail_pairs:
             head, tail = head_tail
@@ -756,11 +760,40 @@ class ListConcat(BinaryOp):
         return ListConcat(self.funk, left=copy.deepcopy(self.left, memo),
                      right=copy.deepcopy(self.right, memo))
 
+
+class ListUnion(BinaryOp):
+    def __init__(self, funk, left=None, right=None):
+        BinaryOp.__init__(self, funk, left, right)
+        self.direction = ListConcat.head
+
+    def __repr__(self):
+        return 'ListUnion({} , {})'.format(self.left, self.right)
+
+    def eval(self, result=None):
+        """
+        This corresponds to:
+            [A] ++ [B]
+        """
+
+        self.funk.emitter.add_comment('List Union')
+        if isinstance(self.left, List):
+            ptr_left = CompileTimeExprList(self.funk, 'list concat', self.left.elements).eval()
+        else:
+            ptr_left = self.left.eval()
+
+        ptr_right = self.right.eval()
+
+        return self.funk.emitter.concat_list(ptr_left, ptr_right, result=result)
+
+    def __deepcopy__(self, memo):
+        # create a copy with self.linked_to *not copied*, just referenced.
+        return ListUnion(self.funk, left=copy.deepcopy(self.left, memo),
+                     right=copy.deepcopy(self.right, memo))
+
 class ListConcatTail(BinaryOp):
     def __init__(self, funk, left=None, right=None):
         BinaryOp.__init__(self, funk, left, right)
         self.direction = ListConcat.head
-        #self.name = ''
 
     def __repr__(self):
         return 'ListConcatTail({} , {})'.format(self.left, self.right)

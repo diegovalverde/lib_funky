@@ -214,6 +214,9 @@ class TreeToAst(Transformer):
     def action_push_at_tail(self, tokens):
         return funk_ast.ListConcatTail(self.funk, left=tokens[0], right=tokens[1])
 
+    def action_list_union(self, tokens):
+        return funk_ast.ListUnion(self.funk, left=tokens[0], right=tokens[1])
+
     def action_arith_sub(self, token):
         return self.bin_op(token, funk_ast.Sub)
 
