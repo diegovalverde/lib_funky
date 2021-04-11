@@ -778,7 +778,6 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
             self.code += """
             call void @funk_create_empty_list_element(i32 1, %struct.tnode* {result})
             """.format(result=result)
-
             return result
 
         as_type = to_funk_type(lit_list[0])
