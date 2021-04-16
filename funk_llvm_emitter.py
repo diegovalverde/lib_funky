@@ -304,7 +304,7 @@ class Emitter:
     def clone_node(self,node_src, node_dst):
         self.code += """
         ;;  dst src
-        call void @funk_clone_node(%struct.tnode* {dst}, %struct.tnode* {src})
+        call void @funk_deep_copy_node(%struct.tnode* {dst}, %struct.tnode* {src})
         """.format(dst=node_dst, src=node_src)
 
     def copy_node(self, node_src, node_dst):
@@ -313,7 +313,7 @@ class Emitter:
         call void @funk_copy_node(%struct.tnode* {dst}, %struct.tnode* {src} )
         """.format(dst=node_dst, src=node_src)
 
-    def call_fn_ptr(self, fn_node, arguments, result=None):
+    def call_fn_ptr(self, funk, name, fn_node, arguments, result=None):
         n = len(arguments)
 
         if result is None:
@@ -327,6 +327,10 @@ class Emitter:
             self.copy_node(arguments[i], p_element)
 
         head = self.get_array_element(array, 0, n)
+        name_str, format_len = self.get_function_name_str(funk, name)
+        self.code += """
+            call void @funk_debug_function_entry_hook(i8* getelementptr inbounds ({format_len}, {format_len}* {name_str}, i64 0, i64 0), %struct.tnode* {arguments}, i32 {arity})
+            """.format(name_str=name_str, format_len=format_len, arity=len(arguments), arguments=head)
 
         self.code += """
         ;; call Function Pointer
@@ -758,14 +762,11 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         p = [x for x in range(self.index, self.index + 1)]
         self.index = p[-1] + 1
 
-        if False: #len(dimensions) == 2:
-            raise Exception('create_list_of_regs dimension {} not supported. {}'.format(dimensions,reg_list))
-        else:
-            self.code += """
-            %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* %{A}, i64 0, i64 0
-            call void @funk_create_list_of_regs( %struct.tnode* {result}, %struct.tnode* %{0}, i32 {n})
+        self.code += """
+        %{0} = getelementptr inbounds [{n} x %struct.tnode], [{n} x %struct.tnode]* %{A}, i64 0, i64 0
+        call void @funk_create_list_of_regs( %struct.tnode* {result}, %struct.tnode* %{0}, i32 {n})
 
-            """.format(p[0], result=result, A=A, name=name,  pool=pool, n=n)
+        """.format(p[0], result=result, A=A, name=name,  pool=pool, n=n)
 
         return result
 
@@ -1021,6 +1022,17 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         self.code += """
 
                 call void @funk_get_len(%struct.tnode* {node}, %struct.tnode * {result})
+               """.format(node=node, result=result)
+        return result
+
+    def flatten(self,funk, args,result=None):
+        node = args[0].eval()
+        if result is None:
+            result = self.allocate_result()
+
+        self.code += """
+
+                call void @funk_flatten(%struct.tnode* {result}, %struct.tnode * {node})
                """.format(node=node, result=result)
         return result
 

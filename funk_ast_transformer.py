@@ -356,40 +356,12 @@ class TreeToAst(Transformer):
             return None
 
     def list(self, tokens):
-        if len(tokens) == 0:
-            #return [funk_ast.Identifier(self.funk, 'empty'), funk_ast.FixedSizeLiteralList(self.funk, 'anon-empty-list', [])]
-            return funk_ast.FixedSizeLiteralList(self.funk, 'anon-empty-list', [])
-
         elements = flatten(tokens)
-        # ranges like [i | 0 <= i < l] are a special case
 
-        if len(elements) == 1:
-            if isinstance(elements[0], funk_ast.Range) or isinstance(elements[0], funk_ast.FunctionCall):
-                return [elements]
-
-
-        is_fixed_size_lit_list = True
-        is_compile_time_size_expr_list = True
-        for i in elements:
-            if not isinstance(i, funk_ast.IntegerConstant) and not isinstance(i, funk_ast.DoubleConstant) and not isinstance(i, funk_ast.FixedSizeLiteralList):
-                is_fixed_size_lit_list = False
-                break
-
-        # for i in elements:
-        #     if isinstance(i, funk_ast.List):
-        #         is_compile_time_size_expr_list = False
-        #         break
-        #     if not isinstance(i, funk_ast.Identifier) and not isinstance(i, funk_ast.Expression):
-        #         is_compile_time_size_expr_list = False
-        #         break
-
-        if is_fixed_size_lit_list:
-            return [funk_ast.FixedSizeLiteralList(self.funk,'anon',elements)]
-        elif is_compile_time_size_expr_list:
-           return [funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
+        if len(tokens) == 0:
+            return funk_ast.FixedSizeLiteralList(self.funk, 'anon-empty-list', [])
         else:
-            return [elements]
-
+            return [funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
 
     @staticmethod
     def list_elements(token):

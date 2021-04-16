@@ -69,6 +69,7 @@ def list_concat_head(funk, left, right, result=None):
     #funk.emitter.debug_print_node_info(funk, [ptr_right])
     return funk.emitter.prepend_element_to_list(ptr_left, ptr_right, result=result)
 
+
 def create_ast_named_symbol(name, funk, right, pool):
     symbol_name = '{}_{}_{}'.format(funk.function_scope.name, funk.function_scope.clause_idx, name)
 
@@ -85,6 +86,7 @@ def create_ast_named_symbol(name, funk, right, pool):
 
     if isinstance(right, FunctionCall) or isinstance(right, List):
         funk.function_scope.lhs_symbols.append(funk.symbol_table[symbol_name])
+
 
 def create_ast_anon_symbol(funk, right, pool):
     if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant):
@@ -247,6 +249,7 @@ class VariableList(List):
                             end_inclusive = self.end_inclusive
                             )
 
+
 class CompileTimeExprList(List):
 
     def __init__(self, funk, name, elements):
@@ -275,7 +278,10 @@ class CompileTimeExprList(List):
             else:
                 elements.append(element.eval())
 #DIEGO
-        return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
+        if len(flattened_list) == 1 and isinstance(flattened_list[0],Range):
+            return elements[0]
+        else:
+            return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
 
     def __repr__(self):
         return 'CompileTimeExprList({})'.format(self.elements)
@@ -283,6 +289,7 @@ class CompileTimeExprList(List):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return CompileTimeExprList(self.funk, name=self.name, elements=copy.deepcopy(self.elements, memo))
+
 
 class FixedSizeLiteralList(List):
 
@@ -300,7 +307,6 @@ class FixedSizeLiteralList(List):
         literal_list = []
         for element in flattened_list:
             literal_list.append(element.eval())
-
 
         return self.funk.alloc_literal_list_symbol(literal_list, dimensions, self.pool, result=result)
 
@@ -1109,7 +1115,7 @@ class ExprRange(Range):
             self.funk.emitter.add_comment('END ============== ExprRange {}'.format(self.__repr__()))
 
             # try to flatten
-            head = self.funk.emitter.flatten_pointer_list_to_matrix(head, result=result)
+            #head = self.funk.emitter.flatten_pointer_list_to_matrix(head, result=result)
             return head
 
     def __deepcopy__(self, memo):
@@ -1150,6 +1156,7 @@ class FunctionCall(Expression):
             'say': Print,
             'info': DebugInfo,
             'len': Len,
+            'flatten': Flatten,
             'sum': FunkSum,
             'not': FunkNot,
             'roll': FunkRoll,
@@ -1206,7 +1213,7 @@ class FunctionCall(Expression):
         for arg in self.funk.function_scope.args:
             if arg == self.name:
                 fn = self.funk.emitter.get_function_argument_tnode(i)
-                return self.funk.emitter.call_fn_ptr(fn, [create_ast_anon_symbol(self.funk, a, funk_types.function_pool) for a in self.args],
+                return self.funk.emitter.call_fn_ptr(self.funk, 'ptr_fn({})'.format(self.name), fn, [create_ast_anon_symbol(self.funk, a, funk_types.function_pool) for a in self.args],
                                                      result=result)
             i += 1
 
@@ -1467,6 +1474,17 @@ class FunkSum(Expression):
 
     def eval(self, result=None):
         return self.funk.emitter.funk_summation_function(self.funk, self.arg_list, result=result, pool=self.pool)
+
+
+class Flatten(Expression):
+    def __init__(self, funk, arg_list):
+        super().__init__()
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+
+        return self.funk.emitter.flatten(self.funk, self.arg_list, result=result)
 
 
 class Len(Expression):
