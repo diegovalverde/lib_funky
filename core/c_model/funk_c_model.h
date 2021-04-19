@@ -97,6 +97,7 @@ struct tnode
 
 #define DIM_COUNT(n) _funk_get_node_dimension_count(n)
 #define SET_DIM_COUNT(n,i) _funk_set_node_dimension_count(n,i)
+#define INC_TAIL(pool) funk_increment_pool_tail(pool, __FUNCTION__, __LINE__)
 #define DIM(n,i) _funk_get_node_dimension(n,i)
 #define SET_DIM(n,i,d) _funk_set_node_dimension(n,i,d,__FUNCTION__,__LINE__)
 #define WRAP_CREATION(n,i)  _get_wrap_creation(n,i)

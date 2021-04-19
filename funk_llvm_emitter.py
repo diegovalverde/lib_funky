@@ -1139,6 +1139,15 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return result
 
+    def debug_print_pool(self, funk, args):
+        if len(args) != 3:
+            raise Exception('Error debug_print_pool takes 3 argument')
+
+        pool, start, end = args[0].eval(),args[1].eval(), args[2].eval()
+        self.code += """
+        call void @funk_print_pool(i32 {pool}, i32 {start}, i32 {end})
+        """.format(pool=pool, start=start, end=end)
+
     def debug_print_node_info(self, funk, args):
         if len(args) != 1:
             raise Exception('Error debug_print_node_info takes 1 argument')

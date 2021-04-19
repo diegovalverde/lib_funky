@@ -1155,6 +1155,7 @@ class FunctionCall(Expression):
             'rand_float': RandFloat,
             'say': Print,
             'info': DebugInfo,
+            'ppool': PrintPool,
             'len': Len,
             'flatten': Flatten,
             'sum': FunkSum,
@@ -1513,6 +1514,15 @@ class DebugInfo:
 
     def eval(self, result=None):
         self.funk.emitter.debug_print_node_info(self.funk, self.arg)
+
+class PrintPool:
+    def __init__(self, funk, arg):
+        self.funk = funk
+        self.arg = arg
+
+    def eval(self, result=None):
+        self.funk.emitter.debug_print_pool(self.funk, self.arg)
+
 
 class Print:
     def __init__(self, funk, arg):

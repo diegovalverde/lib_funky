@@ -1,14 +1,26 @@
 
 #include "funk_c_model.h"
 
-//#define FUNK_DEBUG_BUILD 0
+//#<define FUNK_DEBUG_BUILD 0
+
+
+#ifdef FUNK_DEBUG_BUILD
+uint32_t g_funk_debug_current_executed_line = 0;
+uint32_t g_funk_internal_function_tracing_enabled = 1;
+uint32_t g_debug_continue = 1;
+#endif
+#ifdef FUNK_DEBUG_BUILD
+  #define TRACE(msg) if (g_funk_internal_function_tracing_enabled) {printf("%s %s \n", msg, __FUNCTION__); printf("<T> %d\n", funk_global_memory_pool.data[0].wrap_creation);}
+#else
+  #define TRACE(msg)
+#endif
 
 
 #ifdef FUNK_DEBUG_BUILD
   #warning Compiling for DEBUG
 #endif
 struct tpool funk_global_memory_pool, funk_functions_memory_pool;
-static uint32_t g_debug_continue = 0;
+;
 
 static char funk_types_str[][100]=
 {
@@ -27,7 +39,7 @@ static char funk_types_str[][100]=
 void funk_flatten(struct tnode * dst, struct tnode * src);
 void funk_print_node_info(struct tnode * );
 void funk_print_node(struct tnode *);
-void funk_print_pool(struct tpool * , int , int );
+void funk_print_pool(enum pool_types , int , int );
 void funk_get_element_in_list_of_regs(struct tnode * ,struct tnode *, uint32_t);
 void funk_get_element_in_array(struct tnode * src, struct tnode * dst, int idx);
 void _dereference(struct tnode * dst, struct tpool * pool,uint32_t start,  int idx, int current_depth, const char * func, int line);
@@ -37,6 +49,7 @@ void _dereference(struct tnode * dst, struct tpool * pool,uint32_t start,  int i
 */
 
 enum pool_types get_pool_enum(struct tpool * pool){
+  TRACE("start");
   if (pool == &funk_global_memory_pool){
     return global_pool;
   } else if( pool == &funk_functions_memory_pool){
@@ -48,6 +61,7 @@ enum pool_types get_pool_enum(struct tpool * pool){
 }
 
 struct tpool * get_pool_ptr(enum pool_types pool){
+  TRACE("start");
   switch(pool){
     case global_pool: return &funk_global_memory_pool;
     case function_pool: return &funk_functions_memory_pool;
@@ -62,17 +76,8 @@ struct tpool * get_pool_ptr(enum pool_types pool){
 // the compiler updates the  g_funk_debug_current_executed_line for
 // every instruction executed, you can then use this set breakpoints
 // using the interactive debugger
-#ifdef FUNK_DEBUG_BUILD
-uint32_t g_funk_debug_current_executed_line = 0;
-uint32_t g_funk_internal_function_tracing_enabled = 0;
-#endif
 
 
-#ifdef FUNK_DEBUG_BUILD
-  #define TRACE(msg) if (g_funk_internal_function_tracing_enabled) printf("%s %s \n", msg, __FUNCTION__);
-#else
-  #define TRACE(msg)
-#endif
 #ifdef FUNK_DEBUG_BUILD
 #define MEM_USAGE(fn)  { \
   struct rusage r_usage; \
@@ -84,11 +89,13 @@ uint32_t g_funk_internal_function_tracing_enabled = 0;
   #define MEM_USAGE(fn) //optimized out
 #endif
 
-#define VALIDATE_NODE(n) validate_node(n, __FUNCTION__)
+#define VALIDATE_NODE(n) validate_node(n, __FUNCTION__,__LINE__)
 uint8_t _get_wrap_creation(struct tnode * n, uint32_t i);
 
-struct tnode * validate_node(struct tnode * n, const char * function){
-  TRACE("start");
+struct tnode * validate_node(struct tnode * n, const char * function, int line){
+  char str[80];
+   sprintf(str, "start: from %s:%d\n", function, line);
+  TRACE(str);
   if (n == NULL){
     printf("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
     printf("INTERNAL ERROR: '%s' NULL node\n",function);
@@ -108,10 +115,12 @@ struct tnode * validate_node(struct tnode * n, const char * function){
 }
 
 void _funk_set_node_dimension_count(struct tnode * n, uint32_t i){
+  TRACE("start");
   n->dimension.count = i;
 }
 
 uint32_t _funk_get_node_dimension_count(struct tnode * n){
+  TRACE("start");
       return n->dimension.count;
 
 
@@ -119,7 +128,7 @@ uint32_t _funk_get_node_dimension_count(struct tnode * n){
 
 uint32_t _funk_get_node_dimension(struct tnode * n,
   uint32_t idx ){
-
+  TRACE("start");
   uint32_t dim_idx = GET_DIM_POOL_IDX(n);
   uint32_t dimension = (dim_idx == 0) ? 1: n->pool->data[(dim_idx + idx) % FUNK_MAX_POOL_SIZE].data.i;
 
@@ -128,7 +137,7 @@ uint32_t _funk_get_node_dimension(struct tnode * n,
 
 void _funk_set_node_dimension(struct tnode * n, uint32_t idx,
    uint32_t val, const char * caller, int line){
-
+     TRACE("start");
   if (idx > DIM_COUNT(n)){
     printf("-E- %s Invalid dimension %d from %s +%d\n",__FUNCTION__,idx, caller,line);
     exit(1);
@@ -148,7 +157,9 @@ void _funk_set_node_dimension(struct tnode * n, uint32_t idx,
 }
 
 struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int line, int check ){
-  TRACE("start");
+  char str[80];
+   sprintf(str, "start: from %s:%d ", caller, line);
+  TRACE(str);
 
   if (n == NULL){
     printf("INTERNAL ERROR: get_node from %s +%d NULL node pointer\n",caller,line);
@@ -179,8 +190,27 @@ struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int l
     caller, line,
     idx, data->wrap_creation,
     POOL_STR(n->pool),n->pool->wrap_count);
-    printf("Trying to access %s[%d:%d], pool_tail = %d/%d\n", POOL_STR(n->pool),
-      n->start, n->len, n->pool->tail, FUNK_MAX_POOL_SIZE);
+    printf("%d : %d\n", funk_global_memory_pool.wrap_count, funk_functions_memory_pool.wrap_count);
+    printf("Trying to access %s[%d:%d] len:%d, pool_tail = %d/%d\n", POOL_STR(n->pool),
+      n->start, (n->start + n->len)%FUNK_MAX_POOL_SIZE, n->len, n->pool->tail, FUNK_MAX_POOL_SIZE);
+
+    printf("wrap_creation: ");
+    for (int i = 0; i < n->len; i++){
+      printf("%s %d ", POOL_STR(n->pool), n->pool->data[(n->start + i) % FUNK_MAX_POOL_SIZE].wrap_creation);
+    }
+
+    printf("wrap count: ");
+    for (int i = 0; i < n->len+40; i++){
+      printf("%s%d: %d \n",POOL_STR(n->pool), (n->start + i-20 ) % FUNK_MAX_POOL_SIZE, n->pool->data[(n->start + i-20 ) % FUNK_MAX_POOL_SIZE].wrap_creation);
+    }
+
+    printf("wrap count: ");
+    for (int i = 0; i < n->len+40; i++){
+      printf("%s%d: %d \n","fpool", (n->start + i-20 ) % FUNK_MAX_POOL_SIZE, funk_functions_memory_pool.data[(n->start + i-20 ) % FUNK_MAX_POOL_SIZE].wrap_creation);
+    }
+
+    funk_print_pool(global_pool,0,100);
+
     exit(1);
   }
 
@@ -190,16 +220,20 @@ struct tdata * get_node(struct tnode * n, uint32_t i, const char * caller, int l
 
 
 uint8_t _get_wrap_creation(struct tnode * n, uint32_t i){
-
+TRACE("start");
   return DATA(n,i)->wrap_creation;
   //return n->wrap_creation;
 }
 
 void _set_wrap_creation(struct tnode * n, uint32_t i, uint8_t d){
-
+TRACE("start");
   //dont do checks since we are overwritting
-  DATA_NO_CHECK(n,i)->wrap_creation = d;
+  //DATA_NO_CHECK(n,i)->wrap_creation = n->pool->wrap_count;
+
+  n->pool->data[(n->start + i) % FUNK_MAX_POOL_SIZE].wrap_creation = n->pool->wrap_count;
   //n->wrap_creation = d;
+
+
 }
 
 
@@ -235,15 +269,18 @@ void funk_sleep(int aSeconds){
   sleep(aSeconds);
 }
 
-void funk_increment_pool_tail(struct tpool * pool){
+void funk_increment_pool_tail(struct tpool * pool, const char * function, int line){
   TRACE("start");
 
-  if (pool == &funk_global_memory_pool && (pool->tail + 1 >= FUNK_MAX_POOL_SIZE) ){
+
+  if ((pool->tail + 1 >= FUNK_MAX_POOL_SIZE) ){
     pool->wrap_count++;
-    printf("%s -I- wrapping around pool %s. tail = %d, max = %d. Wrap Count %d\n", __FUNCTION__,
-    ((pool == &funk_global_memory_pool)?"gpool":"fpool"),
-     pool->tail, FUNK_MAX_POOL_SIZE, pool->wrap_count);
-    g_debug_continue = 0;
+    if (pool == &funk_global_memory_pool){
+        printf("%s -I- wrapping around pool %s. tail = %d, max = %d. Wrap Count %d\n", __FUNCTION__,
+        ((pool == &funk_global_memory_pool)?"gpool":"fpool"),
+         pool->tail, FUNK_MAX_POOL_SIZE, pool->wrap_count);
+        //g_debug_continue = 0;
+      }
 
   }
   pool->tail = (pool->tail + 1) % FUNK_MAX_POOL_SIZE;
@@ -267,11 +304,18 @@ void funk_print_node_info(struct tnode * n){
   printf("\n\n");
   printf("%p\n", n);
   printf("pool DIM idx: %d\n", GET_DIM_POOL_IDX(n));
-  printf("%s[%d :%d] %d-d\n", POOL_STR(n->pool), n->start, LEN(n), DIM_COUNT(n) );
+  printf("len %d\n", LEN(n));
+  printf("%s[%d :%d] %d-d\n", POOL_STR(n->pool), n->start, (n->start + LEN(n)) % FUNK_MAX_POOL_SIZE, DIM_COUNT(n) );
   printf("types: ");
   for (uint32_t i = 0; i < LEN(n); i++){
     printf("%d, ", DATA(n,i)->type);
   }
+
+  printf("wrap_creation: ");
+  for (uint32_t i = 0; i < LEN(n); i++){
+    printf("%d, ", DATA(n,i)->wrap_creation);
+  }
+
   printf("\n");
   printf("int: %d\n", DATA(n,0)->data.i);
   printf("double: %f\n", DATA(n,0)->data.f);
@@ -287,6 +331,7 @@ uint32_t _funk_alloc_raw_tdata(struct tpool * pool, uint32_t len, enum funk_type
 {
   TRACE("start");
 
+
   uint32_t start = pool->tail;
 
 
@@ -294,7 +339,9 @@ uint32_t _funk_alloc_raw_tdata(struct tpool * pool, uint32_t len, enum funk_type
 
     pool->data[pool->tail].type=type;
     pool->data[pool->tail].wrap_creation = pool->wrap_count;
-    funk_increment_pool_tail(pool);
+
+
+    INC_TAIL(pool);
   }
 
   TRACE("end");
@@ -334,8 +381,10 @@ void funk_create_node(struct tnode * dst,
 
   for (uint32_t i = 0; i < len; i++){
     DATA_NO_CHECK(dst,i)->type=type;
+
     SET_WRAP_CREATION(dst,i, pool->wrap_count);
-    funk_increment_pool_tail(pool);
+    INC_TAIL(pool);
+
 
       if (val == NULL)
         continue;
@@ -362,10 +411,12 @@ void funk_create_node(struct tnode * dst,
   if (dim_count >= 2){
     for (uint32_t i = 0; i < dim_count; i++){
         SET_WRAP_CREATION(dst,len+i, pool->wrap_count);
-        funk_increment_pool_tail(pool);
+        INC_TAIL(pool);
     }
   }
 
+
+TRACE("end");
 }
 
 void funk_deep_copy_node(struct tnode * dst, struct tnode * src){
@@ -382,11 +433,12 @@ void funk_deep_copy_node(struct tnode * dst, struct tnode * src){
   }
   uint32_t len = (IS_PTR(src,0)) ? LEN(psrc) : 1;
 
-  funk_create_node(dst, len, function_pool, type_int,
+  funk_create_node(dst, len, get_pool_enum(src->pool), type_int,
     DIM_COUNT(src) , NULL);
 
   for (uint32_t i = 0; i < len; i++){
-    *DATA(dst,i) = *DATA(psrc,i);
+    DATA(dst,i)->data = DATA(psrc,i)->data;
+    DATA(dst,i)->type = DATA(psrc,i)->type;
   }
 
 
@@ -430,6 +482,7 @@ void funk_exit(){
 }
 
 void funk_roll(struct tnode * dst, struct tnode * src, struct tnode * deltas, uint32_t delta_count ){
+  TRACE("start");
   if (delta_count != DIM_COUNT(src)){
     printf("-E- %s Invalid Dimension count: %d\n", __FUNCTION__, delta_count);
     exit(1);
@@ -746,6 +799,8 @@ void add_node_to_nodelist(struct tnode * list, struct tnode * node,
 
 void funk_regroup_list(enum pool_types pool_type, struct tnode * dst, struct tnode * list , uint32_t size ){
   TRACE("start");
+  printf("Diego\n");
+  exit(1);
 
   VALIDATE_NODE(list); //validate node[0]
   funk_create_node(dst, size, pool_type, DIM_COUNT(list), 0, NULL);
@@ -813,8 +868,11 @@ void funk_get_element_in_list_of_regs(struct tnode *dst, struct tnode * src, uin
 }
 
 uint32_t _copy_node_to_pool(struct tnode * src){
+    TRACE("start");
     uint32_t idx = _funk_alloc_raw_tdata(src->pool, POOL_ENTRY_LEN, type_pool_node_entry);
 
+    struct tnode tmp;
+    //funk_deep_copy_node(&tmp, src);
     src->pool->data[idx%FUNK_MAX_POOL_SIZE].data.i = src->start;
     src->pool->data[(idx + 1 )%FUNK_MAX_POOL_SIZE].data.i = src->len;
     src->pool->data[(idx + 2 )%FUNK_MAX_POOL_SIZE].data.i = src->dimension.count;
@@ -845,8 +903,9 @@ void funk_create_list_of_regs(struct tnode * dst, struct tnode * list , int32_t 
 
 
     } else {
-
-        *DATA_NO_CHECK(dst,i) = *DATA(&list[i],0);
+        // careful not to copy the pool_wrap count
+        DATA_NO_CHECK(dst,i)->type = DATA(&list[i],0)->type;
+        DATA_NO_CHECK(dst,i)->data = DATA(&list[i],0)->data;
 
   }
   }
@@ -979,12 +1038,13 @@ int32_t funk_get_node_value_int(struct tnode * node, uint32_t offset){
     return DATA(node, offset )->data.i;
 }
 
-void funk_print_pool(struct tpool * pool, int begin, int len){
+void funk_print_pool(enum pool_types pool_type, int begin, int len){
   TRACE("start");
+  struct tpool * pool = get_pool_ptr(pool_type);
   printf("tail @: %d\n", pool->tail);
    for (int i = begin; i < begin + len; i++){
 
-     printf("%d:", i); funk_print_scalar_element(pool->data[i]); printf("  ");
+     printf("%d(%d):", i, pool->data[i].wrap_creation); funk_print_scalar_element(pool->data[i]); printf("  ");
      if (i >0 && (i + 1) % 7 == 0)
        printf("\n" );
    }
@@ -1013,6 +1073,7 @@ void funk_debug_function_entry_hook(char * function_name, struct tnode * inputs,
   TRACE("start");
   MEM_USAGE(function_name);
 
+
   #ifdef FUNK_DEBUG_BUILD
 
   char str[8];
@@ -1039,9 +1100,9 @@ void funk_debug_function_entry_hook(char * function_name, struct tnode * inputs,
         printf("begin len:");
         scanf("%d %d", &begin, &len);
 
-        funk_print_pool(&funk_global_memory_pool, begin, len);
+        funk_print_pool(global_pool, begin, len);
       } else if (!strncmp(str,"fpool",5)){
-        funk_print_pool(&funk_functions_memory_pool,0,256);
+        funk_print_pool(function_pool ,0,256);
       } else if (!strncmp(str,"r",1)){
         g_debug_continue = 1;
       } else if (!strncmp(str,"q",1)){
@@ -1070,10 +1131,12 @@ void funk_debug_function_exit_hook(const char * function_name, struct tnode * re
   TRACE("start");
 
 
+
   #ifdef FUNK_DEBUG_BUILD
     printf("'%s' returned:", function_name);
     funk_print_node(retval);
-    getchar();
+    if (g_debug_continue != 1)
+      getchar();
     printf("\n==========================\n\n");
   #endif
 
@@ -1267,7 +1330,7 @@ void _print_arith_op(void (*f)(void *, void *, void *, enum funk_types)){
     printf(" - ");
   }
   else if (f == funk_mod){
-    printf(" % ");
+    printf(" mod ");
   }
   else if (f == funk_slt){
     printf(" < ");
@@ -1891,12 +1954,12 @@ void funk_print_node(struct tnode * n){
   }
   if (LEN(n) > 1) printf(" ]");
 
-  //funk_print_pool(n->pool, 0, 80);
+
 }
 
 void print_2d_array_element_reg_reg(struct tnode * n, struct tnode * i, struct tnode * j){
   TRACE("start");
-  //funk_print_node_info(n);
+
   if (DIM_COUNT(n) != 2){
     printf("%s Error cannot address as a matrix since node has %d dimensions", __FUNCTION__, DIM_COUNT(n));
   }
@@ -1950,11 +2013,12 @@ void funk_read_list_from_file(enum pool_types  pool_type, struct tnode * dst, ch
     DATA(dst, count)->data.i = value;
     DATA(dst, count)->type = type_int;
     SET_WRAP_CREATION(dst,count, pool->wrap_count);
-    funk_increment_pool_tail(pool);
+    INC_TAIL(pool);
 
 
     count++;
   }
+
 
   LEN(dst) = count;
   fclose(fp);
@@ -2094,7 +2158,7 @@ uint32_t _funk_set_node_dimensions(struct tnode * src, enum pool_types pool, uin
   uint32_t n = dimensions[dim];
   //printf("\nLEN %d offset %d, n = %d dim = %d\n\n", LEN(src), offset, n, dim);
   funk_create_node(&new_column, n , pool, type_pointer_to_pool_entry, 0, NULL);
-  for (int j = 0; j < n; j++){
+  for (uint32_t j = 0; j < n; j++){
 
     if (dim+1 < dim_count){
       DATA(&new_column, j)->type = type_pointer_to_pool_entry;
@@ -2138,7 +2202,7 @@ void _flatten(struct tnode  * dst, struct tnode  * src, uint32_t offset ){
       DATA_NO_CHECK(dst,offset+i)->data = DATA(src,i)->data;
     }
     SET_WRAP_CREATION(dst,offset+i, dst->pool->wrap_count);
-    funk_increment_pool_tail(dst->pool);
+    INC_TAIL(dst->pool);
     printf("XUXUXUXUXU %d\n", dst->pool->tail);
     dst->len++;
   }
@@ -2423,6 +2487,8 @@ void funk_alloc_tnode_array_from_range_regs(struct tnode  * dst,
   void funk_set_tnode_array_element(struct tnode  * tnode_list,
     struct tnode  * iterator_reg, struct tnode  * value_reg){
       TRACE("start");
+      printf("Diego %s", __FUNCTION__);
+      exit(1);
 
       uint32_t i = DATA(iterator_reg,0)->data.i;
 
