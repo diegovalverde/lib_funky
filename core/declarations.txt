@@ -68,7 +68,7 @@ declare void @funk_get_next_node(%struct.tnode*, %struct.tnode*) #0
 declare void @funk_debug_function_entry_hook(i8*, %struct.tnode*, i32) #0 
 declare void @funk_debug_function_exit_hook(i8*, %struct.tnode*) #0 
 declare void @funk_memcp_arr(%struct.tnode*, %struct.tnode*, i32) #0 
-declare void @debug_print_arith_operation(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @debug_print_arith_operation(%struct.tnode*, i32, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_mul(i8*, i8*, i8*, i32) #0 
 declare void @funk_div(i8*, i8*, i8*, i32) #0 
 declare void @funk_add(i8*, i8*, i8*, i32) #0 
@@ -82,11 +82,10 @@ declare void @funk_ne(i8*, i8*, i8*, i32) #0
 declare void @funk_or(i8*, i8*, i8*, i32) #0 
 declare void @funk_and(i8*, i8*, i8*, i32) #0 
 declare void @_print_arith_op(void (i8*, i8*, i8*, i32)*) #0 
-declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
+declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
 declare i32 @funk_can_flatten_node_pointer_list_to_matrix(%struct.tnode*) #0 
 declare void @_flatten_node_pointer_list_to_matrix(%struct.tnode*, %struct.tnode*) #0 
-declare void @funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32, void (i8*, i8*, i8*, i32)*) #0 
-declare void @funk_print_node(%struct.tnode*) #0 
+declare void @funk_arith_op_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
 declare void @funk_mul_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_add_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_sub_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
@@ -115,6 +114,7 @@ declare void @funk_sge_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnod
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
 declare void @_funk_print_node(%struct.tnode*) #0 
+declare void @funk_print_node(%struct.tnode*) #0 
 declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
 declare float @funk_ToFloat(%struct.tnode*) #0 
