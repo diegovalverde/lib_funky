@@ -24,7 +24,7 @@ _sum( x <~ [A]):
 
 
 idem_list([]) : [].
-idem_list(h <~ [T]) : h ~> [idem_list(T)].
+idem_list(h <~ [T]) : [h] ++ [idem_list(T)].
 
 triangular_series(n): (n*n + n)/2.
 
@@ -104,11 +104,14 @@ reverse_pm_reg([a,b,c,d]):
     [L,M,x+1,y+1].
 
 add_two(x,y):
+    say('???', x+y)
     x + y.
 
 idem(x): x.
 
-different(A,B | A = B): 0.
+different(A,B | A = B):
+    say(A, '=', B)
+    0.
 different(_,_): 1.
 
 
@@ -123,8 +126,12 @@ main():
       assert(arr_eq(add_two(1,1),2),1)
       u <-[4,3,2,1]
       v <- reverse_pm([9,8,7,6])
+
+      say('hello',[10,10,10,10],add_two(u,v))
       assert(arr_eq(add_two(u,v),[10,10,10,10]),1)
-      assert(arr_eq(add_two(u,v),idem_list([10,10,10,10])),1)
+      vvv <- idem_list([10,10,10,10])
+      say('xxxxx', vvv)
+      assert(arr_eq(add_two(u,v),vvv),1)
 
       assert(unidimension_list([3,2,5]),10)
       assert(unidimension_list([1,1,1]),3)
@@ -501,9 +508,12 @@ main():
       assert(A , A)
       assert(fib_nums, fib_nums)
       assert(different(A,A),0)
+
       assert(different(fib_nums,fib_nums),0)
 
+
       assert(M1 , M1)
+      say('M1',M1)
       assert(different(M1,M1),0)
       assert(different(M1,M2),1)
 

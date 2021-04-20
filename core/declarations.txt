@@ -86,6 +86,7 @@ declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, %struct.tno
 declare i32 @funk_can_flatten_node_pointer_list_to_matrix(%struct.tnode*) #0 
 declare void @_flatten_node_pointer_list_to_matrix(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_arith_op_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
+declare void @funk_print_node(%struct.tnode*) #0 
 declare void @funk_mul_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_add_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_sub_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
@@ -95,6 +96,7 @@ declare void @funk_or_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode
 declare void @funk_and_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_ne_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
 declare void @funk_eq_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
+declare void @funk_flatten(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_add_rf(%struct.tnode*, i32, %struct.tnode*, i32, double) #0 
 declare void @funk_ne_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_sub_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
@@ -114,7 +116,6 @@ declare void @funk_sge_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnod
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
 declare void @_funk_print_node(%struct.tnode*) #0 
-declare void @funk_print_node(%struct.tnode*) #0 
 declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
 declare float @funk_ToFloat(%struct.tnode*) #0 
@@ -127,7 +128,6 @@ declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnod
 declare i32 @_funk_set_node_dimensions(%struct.tnode*, i32, i32, i32*, i32, i32) #0 
 declare void @_extract_tnode_from_pool(%struct.tnode*, i32, %struct.tpool*) #0 
 declare void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_flatten(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
 declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @reshape(%struct.tnode*, i32*, i32) #0 

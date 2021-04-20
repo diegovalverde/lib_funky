@@ -271,7 +271,7 @@ class Emitter:
             return self.arith_lit_helper(a,b,operation)
 
         if result is None:
-            result = self.alloc_tnode('{} result'.format(operation), 0, funk_types.function_pool, funk_types.unknown)
+            result = self.alloc_tnode_raw()
 
         if isinstance(a, int):
             self.code += """

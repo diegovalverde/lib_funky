@@ -1495,7 +1495,9 @@ void funk_arith_op_rr(struct tnode * node_r,
       TRACE("start");
 
       if (LEN(node_a) != LEN(node_b)){
-        printf("CRAP!\n");
+        printf("1 CRAP!\n");
+        funk_print_node(node_a); printf("\n");
+        funk_print_node(node_b);
         exit(1);
       }
 
@@ -1524,7 +1526,6 @@ void funk_arith_op_rr(struct tnode * node_r,
           }
 
       }
-
 
 }
 
@@ -1599,7 +1600,21 @@ void funk_eq_rr(struct tnode * node_r, int32_t r_offset,
                 struct tnode * node_b, int32_t b_offset){
 
                   TRACE("start");
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_eq);
+                  struct tnode tmp1;
+                  funk_arith_op_rr(&tmp1,node_a,node_b,funk_eq);
+                  struct tnode tmp2;
+                  funk_flatten(&tmp2, &tmp1);
+
+                  funk_create_node(node_r, 1,  get_pool_enum(node_a->pool), type_int, 0, NULL);
+                  DATA(node_r,0)->data.i = 1;
+
+                  for (uint32_t i = 0; i < tmp2.len; i++){
+                      if (DATA(&tmp2,i)->data.i != 1){
+                        DATA(node_r,0)->data.i = 0;
+                        break;
+                      }
+                  }
+
                 }
 
 void funk_add_rf(struct tnode * node_r, int32_t r_offset,
@@ -2073,8 +2088,7 @@ void _extract_tnode_from_pool(struct tnode  * dst, uint32_t start, struct tpool 
 
 }
 void _flatten(struct tnode  * dst, struct tnode  * src, uint32_t offset ){
-  printf("WTF\n");
-  exit(1);
+
   for (uint32_t i = 0; i < LEN(src); i++){
     if (IS_PTR(src,i)){
       //funk_print_node(src);
