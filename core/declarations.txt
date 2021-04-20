@@ -44,9 +44,6 @@ declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, 
 declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_regroup_list(i32, %struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_regroup_list_r(i32, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @funk_create_2d_matrix(i32, %struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
@@ -67,7 +64,6 @@ declare i32 @funk_get_node_value_int(%struct.tnode*, i32) #0
 declare void @funk_get_next_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_debug_function_entry_hook(i8*, %struct.tnode*, i32) #0 
 declare void @funk_debug_function_exit_hook(i8*, %struct.tnode*) #0 
-declare void @funk_memcp_arr(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @debug_print_arith_operation(%struct.tnode*, i32, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_mul(i8*, i8*, i8*, i32) #0 
 declare void @funk_div(i8*, i8*, i8*, i32) #0 
@@ -83,8 +79,6 @@ declare void @funk_or(i8*, i8*, i8*, i32) #0
 declare void @funk_and(i8*, i8*, i8*, i32) #0 
 declare void @_print_arith_op(void (i8*, i8*, i8*, i32)*) #0 
 declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
-declare i32 @funk_can_flatten_node_pointer_list_to_matrix(%struct.tnode*) #0 
-declare void @_flatten_node_pointer_list_to_matrix(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_arith_op_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
 declare void @funk_print_node(%struct.tnode*) #0 
 declare void @funk_mul_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnode*, i32) #0 
@@ -116,8 +110,6 @@ declare void @funk_sge_rr(%struct.tnode*, i32, %struct.tnode*, i32, %struct.tnod
 declare void @funk_eq_ri(%struct.tnode*, i32, %struct.tnode*, i32, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
 declare void @_funk_print_node(%struct.tnode*) #0 
-declare void @print_2d_array_element_reg_reg(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @print_2d_array_element_int_int(%struct.tnode*, i32, i32) #0 
 declare float @funk_ToFloat(%struct.tnode*) #0 
 declare void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 
 declare void @funk_get_len(%struct.tnode*, %struct.tnode*) #0 
@@ -129,7 +121,6 @@ declare i32 @_funk_set_node_dimensions(%struct.tnode*, i32, i32, i32*, i32, i32)
 declare void @_extract_tnode_from_pool(%struct.tnode*, i32, %struct.tpool*) #0 
 declare void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
-declare void @funk_set_node_dimensions_2d(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @reshape(%struct.tnode*, i32*, i32) #0 
 declare double @rand_double(double, double) #0 
 declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
@@ -138,11 +129,7 @@ declare void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %stru
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare i32 @funk_get_node_start(%struct.tnode*) #0 
 declare i32 @funk_get_node_pool(%struct.tnode*) #0 
-declare void @funk_set_node_len(%struct.tnode*, i32) #0 
-declare void @funk_set_node_pool(%struct.tnode*, i32) #0 
 declare void @funk_set_node_start(%struct.tnode*, i32) #0 
-declare void @funk_alloc_tnode_array_from_range_regs(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
-declare void @funk_alloc_tnode_array_from_range_len(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_set_tnode_array_elementEX(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare %struct.tnode* @funk_alloc_list_of_tnodes(%struct.tnode*) #0 
