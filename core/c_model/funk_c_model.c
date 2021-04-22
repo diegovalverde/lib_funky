@@ -1095,7 +1095,7 @@ void funk_debug_function_exit_hook(const char * function_name, struct tnode * re
 
 }
 
-void debug_print_arith_operation( struct tnode * node_r, int32_t r_offset,
+void debug_print_arith_operation( struct tnode * node_r,
                  struct tnode * node_a,
                  struct tnode * node_b){
                    VALIDATE_NODE(node_r);
@@ -1110,7 +1110,7 @@ void debug_print_arith_operation( struct tnode * node_r, int32_t r_offset,
   funk_print_scalar_element(*DATA(node_b, 0 ));
 
   printf(" = %s[%d]",((node_r->pool == &funk_global_memory_pool)?"gpool":"fpool"),node_r->start );
-  funk_print_scalar_element(*DATA(node_r, r_offset ));
+  funk_print_scalar_element(*DATA(node_r, 0 ));
   printf(" )\n");
 
 }
@@ -1397,75 +1397,75 @@ void funk_arith_op_rr(struct tnode * node_r,
 
 }
 
-void funk_mul_rr(struct tnode * node_r, int32_t r_offset,
-                 struct tnode * node_a, int32_t a_offset,
-                 struct tnode * node_b, int32_t b_offset){
+void funk_mul_rr(struct tnode * node_r,
+                 struct tnode * node_a,
+                 struct tnode * node_b){
                   TRACE("start");
 
                    funk_arith_op_rr(node_r,node_a,node_b,funk_mul);
                  }
 
-void funk_add_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_add_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
 
                   funk_arith_op_rr(node_r,node_a,node_b,funk_add);
                 }
 
-void funk_sub_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_sub_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
 
                   funk_arith_op_rr(node_r,node_a,node_b,funk_sub);
                 }
 
-void funk_div_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_div_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
                 TRACE("start");
 
                   funk_arith_op_rr(node_r,node_a,node_b,funk_div);
                 }
 
-void funk_mod_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_mod_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
                   funk_arith_op_rr(node_r,node_a,node_b,funk_mod);
                 }
 
-void funk_or_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_or_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
                   funk_arith_op_rr(node_r,node_a,node_b,funk_or);
                 }
 
-void funk_and_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_and_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
                   funk_arith_op_rr(node_r,node_a,node_b,funk_and);
                 }
 
-void funk_ne_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_ne_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
                   funk_arith_op_rr(node_r,node_a,node_b,funk_ne);
                 }
 
-void funk_eq_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_eq_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
                   struct tnode tmp1;
@@ -1485,8 +1485,8 @@ void funk_eq_rr(struct tnode * node_r, int32_t r_offset,
 
                 }
 
-void funk_add_rf(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_add_rf(struct tnode * node_r,
+                struct tnode * node_a,
                 double value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1497,8 +1497,8 @@ void funk_add_rf(struct tnode * node_r, int32_t r_offset,
 
                 }
 
-void funk_ne_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_ne_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int32_t value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1508,8 +1508,8 @@ void funk_ne_ri(struct tnode * node_r, int32_t r_offset,
 
                 }
 
-void funk_sub_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_sub_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1518,8 +1518,8 @@ void funk_sub_ri(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_sub);
                 }
 
-void funk_mod_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_mod_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1528,8 +1528,8 @@ void funk_mod_ri(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_mod);
                 }
 
-void funk_add_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_add_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1538,8 +1538,8 @@ void funk_add_ri(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_add);
                 }
 
-void funk_div_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_div_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1548,8 +1548,8 @@ void funk_div_ri(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_div);
                 }
 
-void funk_mul_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_mul_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1558,8 +1558,8 @@ void funk_mul_ri(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_mul);
                 }
 
-void funk_sub_rf(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_sub_rf(struct tnode * node_r,
+                struct tnode * node_a,
                 double value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1568,8 +1568,8 @@ void funk_sub_rf(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_sub);
                 }
 
-void funk_mul_rf(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_mul_rf(struct tnode * node_r,
+                struct tnode * node_a,
                 double value){
                   TRACE("start");
                   struct tnode node_b;
@@ -1578,8 +1578,8 @@ void funk_mul_rf(struct tnode * node_r, int32_t r_offset,
                   funk_arith_op_rr(node_r,node_a,&node_b,funk_mul);
                 }
 
-void funk_slt_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_slt_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                 struct tnode node_b;
@@ -1588,24 +1588,24 @@ void funk_slt_ri(struct tnode * node_r, int32_t r_offset,
 
 }
 
-void funk_slt_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_slt_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
 
                   TRACE("start");
                   funk_arith_op_rr(node_r,node_a,node_b,funk_slt);
                 }
 
-      void funk_sgt_rr(struct tnode * node_r, int32_t r_offset,
-                      struct tnode * node_a, int32_t a_offset,
-                      struct tnode * node_b, int32_t b_offset){
+      void funk_sgt_rr(struct tnode * node_r,
+                      struct tnode * node_a,
+                      struct tnode * node_b){
 
                         TRACE("start");
                         funk_arith_op_rr(node_r,node_a,node_b,funk_sgt);
                       }
 
-void funk_flt_rf(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_flt_rf(struct tnode * node_r,
+                struct tnode * node_a,
                 double value){
                   TRACE("start");
                 struct tnode node_b;
@@ -1615,8 +1615,8 @@ void funk_flt_rf(struct tnode * node_r, int32_t r_offset,
 
 }
 
-void funk_sgt_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_sgt_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                 struct tnode node_b;
@@ -1625,8 +1625,8 @@ void funk_sgt_ri(struct tnode * node_r, int32_t r_offset,
 
 }
 
-void funk_sge_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_sge_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                   TRACE("start");
                 struct tnode node_b;
@@ -1635,16 +1635,16 @@ void funk_sge_ri(struct tnode * node_r, int32_t r_offset,
 
 }
 
-void funk_sge_rr(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
-                struct tnode * node_b, int32_t b_offset){
+void funk_sge_rr(struct tnode * node_r,
+                struct tnode * node_a,
+                struct tnode * node_b){
                 TRACE("start");
                 funk_arith_op_rr(node_r,node_a,node_b,funk_sge);
 
 }
 
-void funk_eq_ri(struct tnode * node_r, int32_t r_offset,
-                struct tnode * node_a, int32_t a_offset,
+void funk_eq_ri(struct tnode * node_r,
+                struct tnode * node_a,
                 int value){
                 TRACE("start");
                 struct tnode node_b;

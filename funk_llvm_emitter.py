@@ -275,23 +275,23 @@ class Emitter:
 
         if isinstance(a, int):
             self.code += """
-            call void @funk_{operartion}_ri(%struct.tnode* {p_result}, i32 {idx_r}, %struct.tnode* {pA}, i32 {idx_a}, i32 {pB} )
+            call void @funk_{operartion}_ri(%struct.tnode* {p_result},  %struct.tnode* {pA},  i32 {pB} )
             """.format(p_result=result, pA=b, pB=a, operartion=operation, idx_r=idx_r, idx_a=idx_a)
         elif isinstance(b, int):
             self.code += """
-            call void @funk_{operartion}_ri(%struct.tnode* {p_result}, i32 {idx_r}, %struct.tnode* {pA}, i32 {idx_a}, i32 {pB} )
+            call void @funk_{operartion}_ri(%struct.tnode* {p_result}, %struct.tnode* {pA}, i32 {pB} )
             """.format(p_result=result, pA=a, pB=b, operartion=operation, idx_r=idx_r, idx_a=idx_a)
         elif isinstance(a, float):
             self.code += """
-            call void @funk_{operartion}_rf(%struct.tnode* {p_result}, i32 {idx_r}, %struct.tnode* {pA}, i32 {idx_a}, double {pB} )
+            call void @funk_{operartion}_rf(%struct.tnode* {p_result},  %struct.tnode* {pA}, double {pB} )
             """.format(p_result=result, pA=b, pB=a, idx_r=idx_r, idx_a=idx_b, operartion=operation)
         elif isinstance(b, float):
             self.code += """
-            call void @funk_{operartion}_rf(%struct.tnode* {p_result}, i32 {idx_r}, %struct.tnode* {pA}, i32 {idx_a}, double {pB} )
+            call void @funk_{operartion}_rf(%struct.tnode* {p_result},  %struct.tnode* {pA}, double {pB} )
             """.format(p_result=result, pA=a, idx_r=idx_r, idx_a=idx_a, pB=b, operartion=operation)
         else:
             self.code += """
-            call void @funk_{operartion}_rr(%struct.tnode* {p_result}, i32 {idx_r}, %struct.tnode* {pA}, i32 {idx_a}, %struct.tnode* {pB}, i32 {idx_b} )
+            call void @funk_{operartion}_rr(%struct.tnode* {p_result}, %struct.tnode* {pA},  %struct.tnode* {pB} )
             """.format(p_result=result, pA=a, pB=b, operartion=operation, idx_r=idx_r, idx_a=idx_a, idx_b=idx_b)
 
         return result
