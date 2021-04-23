@@ -37,7 +37,6 @@ declare void @funk_not(%struct.tnode*, %struct.tnode*) #0
 declare i32 @_funk_sum_list(%struct.tnode*) #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
-declare i32 @is_list_consecutive_in_memory(%struct.tnode*, i32) #0 
 declare void @funk_get_element_in_matrix_ptr(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 

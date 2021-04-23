@@ -598,23 +598,6 @@ printf("                        |___/ \n");
 
 }
 
-int is_list_consecutive_in_memory(struct tnode * list, int32_t size){
-  TRACE("start");
-
-  if (size <= 1)
-    return 1;
-
-  int prev = list[0].start;
-
-  for (int i = 1; i < size; i++){
-    int current = list[i].start;
-
-    if (prev + 1 != current)
-      return 0;
-  }
-  return 0;
-}
-
 void funk_get_element_in_matrix_ptr(struct tnode * src, struct tnode * dst , int32_t idx_0, int32_t idx_1){
   TRACE("start");
 
@@ -1095,22 +1078,20 @@ void funk_debug_function_exit_hook(const char * function_name, struct tnode * re
 
 }
 
-void debug_print_arith_operation( struct tnode * node_r,
-                 struct tnode * node_a,
-                 struct tnode * node_b){
-                   VALIDATE_NODE(node_r);
-                   VALIDATE_NODE(node_a);
-                   VALIDATE_NODE(node_b);
+void debug_print_arith_operation( struct tnode* r, struct tnode* a, struct tnode* b ){
+  VALIDATE_NODE(r);
+  VALIDATE_NODE(a);
+  VALIDATE_NODE(b);
   TRACE("start");
 
-  printf("%s[%d]",((node_a->pool == &funk_global_memory_pool)?"gpool":"fpool"),node_a->start );
-  funk_print_scalar_element(*DATA(node_a, 0 ));
+  printf("%s[%d]",get_pool_ptr(a),a->start );
+  funk_print_scalar_element(*DATA(a, 0 ));
   printf(" , ");
-  printf("%s[%d]",((node_b->pool == &funk_global_memory_pool)?"gpool":"fpool"),node_b->start  );
-  funk_print_scalar_element(*DATA(node_b, 0 ));
+  printf("%s[%d]",get_pool_ptr(b) ,b->start  );
+  funk_print_scalar_element(*DATA(b, 0 ));
 
-  printf(" = %s[%d]",((node_r->pool == &funk_global_memory_pool)?"gpool":"fpool"),node_r->start );
-  funk_print_scalar_element(*DATA(node_r, 0 ));
+  printf(" = %s[%d]",get_pool_ptr(r),r->start );
+  funk_print_scalar_element(*DATA(r, 0 ));
   printf(" )\n");
 
 }
@@ -1349,34 +1330,32 @@ void _funk_arith_op_rr(struct tnode * node_r,
 
   #ifdef FUNK_DEBUG_BUILD
   if (g_funk_internal_function_tracing_enabled){
-      debug_print_arith_operation(node_r, r_offset, node_a, node_b);
+      debug_print_arith_operation(node_r, node_a, node_b);
     }
   #endif
 
 }
 
-void funk_arith_op_rr(struct tnode * node_r,
-                 struct tnode * node_a,
-                 struct tnode * node_b,
+void funk_arith_op_rr(struct tnode* r, struct tnode* a, struct tnode* b ,
                  void (*f)(void *, void *, void *, enum funk_types )){
 
       TRACE("start");
 
-      if (LEN(node_a) != LEN(node_b)){
-        printf("1 CRAP!\n");
-        funk_print_node(node_a); printf("\n");
-        funk_print_node(node_b);
+      if (LEN(a) != LEN(b)){
+        printf("'%s' length mismatch %d != %d !\n", __FUNCTION__, LEN(a), LEN(b));
+        funk_print_node(a); printf("\n");
+        funk_print_node(b);
         exit(1);
       }
 
-      funk_create_node(node_r, LEN(node_a),
-          get_pool_enum(node_a->pool), type_int, 0, NULL);
+      funk_create_node(r, LEN(a),
+          get_pool_enum(a->pool), type_int, 0, NULL);
 
 
-      for (uint32_t i = 0; i < LEN(node_a); i++){
+      for (uint32_t i = 0; i < LEN(a); i++){
           struct tnode tmp_a, tmp_b;
-          funk_get_element_in_array(node_a, &tmp_a, i);
-          funk_get_element_in_array(node_b, &tmp_b, i);
+          funk_get_element_in_array(a, &tmp_a, i);
+          funk_get_element_in_array(b, &tmp_b, i);
 
 
           if (tmp_a.len != tmp_b.len){
@@ -1384,101 +1363,83 @@ void funk_arith_op_rr(struct tnode * node_r,
             exit(1);
           } else if (tmp_a.len == 1) {
 
-            _funk_arith_op_rr(node_r, i, &tmp_a, &tmp_b, f);
+            _funk_arith_op_rr(r, i, &tmp_a, &tmp_b, f);
           } else {
             struct tnode tmp_dst;
             funk_create_node(&tmp_dst, tmp_a.len , get_pool_enum(tmp_a.pool), type_int,0,NULL);
             funk_arith_op_rr(&tmp_dst, &tmp_a, &tmp_b, f);
-            DATA(node_r,i)->type = type_pointer_to_pool_entry;
-            DATA(node_r,i)->data.i = _copy_node_to_pool(&tmp_dst);
+            DATA(r,i)->type = type_pointer_to_pool_entry;
+            DATA(r,i)->data.i = _copy_node_to_pool(&tmp_dst);
           }
 
       }
 
 }
 
-void funk_mul_rr(struct tnode * node_r,
-                 struct tnode * node_a,
-                 struct tnode * node_b){
+void funk_mul_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
                   TRACE("start");
 
-                   funk_arith_op_rr(node_r,node_a,node_b,funk_mul);
+                   funk_arith_op_rr(r,a,b,funk_mul);
                  }
 
-void funk_add_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_add_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
 
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_add);
+                  funk_arith_op_rr(r,a,b,funk_add);
                 }
 
-void funk_sub_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_sub_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
 
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_sub);
+                  funk_arith_op_rr(r,a,b,funk_sub);
                 }
 
-void funk_div_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_div_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
                 TRACE("start");
 
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_div);
+                  funk_arith_op_rr(r,a,b,funk_div);
                 }
 
-void funk_mod_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_mod_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_mod);
+                  funk_arith_op_rr(r,a,b,funk_mod);
                 }
 
-void funk_or_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_or_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_or);
+                  funk_arith_op_rr(r,a,b,funk_or);
                 }
 
-void funk_and_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_and_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_and);
+                  funk_arith_op_rr(r,a,b,funk_and);
                 }
 
-void funk_ne_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_ne_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_ne);
+                  funk_arith_op_rr(r,a,b,funk_ne);
                 }
 
-void funk_eq_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_eq_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
                   struct tnode tmp1;
-                  funk_arith_op_rr(&tmp1,node_a,node_b,funk_eq);
+                  funk_arith_op_rr(&tmp1,a,b,funk_eq);
                   struct tnode tmp2;
                   funk_flatten(&tmp2, &tmp1);
 
-                  funk_create_node(node_r, 1,  get_pool_enum(node_a->pool), type_int, 0, NULL);
-                  DATA(node_r,0)->data.i = 1;
+                  funk_create_node(r, 1,  get_pool_enum(a->pool), type_int, 0, NULL);
+                  DATA(r,0)->data.i = 1;
 
                   for (uint32_t i = 0; i < tmp2.len; i++){
                       if (DATA(&tmp2,i)->data.i != 1){
-                        DATA(node_r,0)->data.i = 0;
+                        DATA(r,0)->data.i = 0;
                         break;
                       }
                   }
@@ -1588,20 +1549,16 @@ void funk_slt_ri(struct tnode * node_r,
 
 }
 
-void funk_slt_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_slt_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                   TRACE("start");
-                  funk_arith_op_rr(node_r,node_a,node_b,funk_slt);
+                  funk_arith_op_rr(r,a,b,funk_slt);
                 }
 
-      void funk_sgt_rr(struct tnode * node_r,
-                      struct tnode * node_a,
-                      struct tnode * node_b){
+      void funk_sgt_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
 
                         TRACE("start");
-                        funk_arith_op_rr(node_r,node_a,node_b,funk_sgt);
+                        funk_arith_op_rr(r,a,b,funk_sgt);
                       }
 
 void funk_flt_rf(struct tnode * node_r,
@@ -1635,11 +1592,9 @@ void funk_sge_ri(struct tnode * node_r,
 
 }
 
-void funk_sge_rr(struct tnode * node_r,
-                struct tnode * node_a,
-                struct tnode * node_b){
+void funk_sge_rr(struct tnode* r, struct tnode* a, struct tnode* b ){
                 TRACE("start");
-                funk_arith_op_rr(node_r,node_a,node_b,funk_sge);
+                funk_arith_op_rr(r,a,b,funk_sge);
 
 }
 
