@@ -145,39 +145,39 @@ target triple = "x86_64-apple-macosx10.16.0"
 @__FUNCTION__._funk_print_node = private unnamed_addr constant [17 x i8] c"_funk_print_node\00", align 1
 @.str.78 = private unnamed_addr constant [2 x i8] c",\00", align 1
 @.str.79 = private unnamed_addr constant [2 x i8] c"]\00", align 1
-@.str.80 = private unnamed_addr constant [40 x i8] c" [...] %d-dimensional with %d elements\0A\00", align 1
-@.str.81 = private unnamed_addr constant [3 x i8] c"[ \00", align 1
-@.str.82 = private unnamed_addr constant [3 x i8] c" ]\00", align 1
+@.str.80 = private unnamed_addr constant [3 x i8] c"[ \00", align 1
+@.str.81 = private unnamed_addr constant [3 x i8] c" ]\00", align 1
 @__FUNCTION__.funk_ToFloat = private unnamed_addr constant [13 x i8] c"funk_ToFloat\00", align 1
-@.str.83 = private unnamed_addr constant [9 x i8] c"ERROR %s\00", align 1
-@.str.84 = private unnamed_addr constant [3 x i8] c"rt\00", align 1
-@.str.85 = private unnamed_addr constant [30 x i8] c"-E- File '%s' cannot be read\0A\00", align 1
-@.str.86 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@.str.82 = private unnamed_addr constant [9 x i8] c"ERROR %s\00", align 1
+@.str.83 = private unnamed_addr constant [3 x i8] c"rt\00", align 1
+@.str.84 = private unnamed_addr constant [30 x i8] c"-E- File '%s' cannot be read\0A\00", align 1
+@.str.85 = private unnamed_addr constant [3 x i8] c"%d\00", align 1
 @__FUNCTION__.funk_read_list_from_file = private unnamed_addr constant [25 x i8] c"funk_read_list_from_file\00", align 1
-@.str.87 = private unnamed_addr constant [28 x i8] c"%s Error r1 (%d) > r2 (%d)\0A\00", align 1
+@.str.86 = private unnamed_addr constant [28 x i8] c"%s Error r1 (%d) > r2 (%d)\0A\00", align 1
 @__FUNCTION__.funk_create_sub_matrix_lit_indexes = private unnamed_addr constant [35 x i8] c"funk_create_sub_matrix_lit_indexes\00", align 1
-@.str.88 = private unnamed_addr constant [28 x i8] c"%s Error c1 (%d) > c2 (%d)\0A\00", align 1
+@.str.87 = private unnamed_addr constant [28 x i8] c"%s Error c1 (%d) > c2 (%d)\0A\00", align 1
 @__FUNCTION__.funk_create_sub_matrix = private unnamed_addr constant [23 x i8] c"funk_create_sub_matrix\00", align 1
 @__FUNCTION__.funk_create_sub_array_lit_indexes = private unnamed_addr constant [34 x i8] c"funk_create_sub_array_lit_indexes\00", align 1
 @__FUNCTION__.funk_create_sub_array = private unnamed_addr constant [22 x i8] c"funk_create_sub_array\00", align 1
 @__FUNCTION__._funk_set_node_dimensions = private unnamed_addr constant [26 x i8] c"_funk_set_node_dimensions\00", align 1
 @__FUNCTION__._flatten = private unnamed_addr constant [9 x i8] c"_flatten\00", align 1
 @__FUNCTION__.reshape = private unnamed_addr constant [8 x i8] c"reshape\00", align 1
+@.str.88 = private unnamed_addr constant [29 x i8] c"funk_append_element_to_list\0A\00", align 1
 @__FUNCTION__.funk_append_element_to_list = private unnamed_addr constant [28 x i8] c"funk_append_element_to_list\00", align 1
 @.str.89 = private unnamed_addr constant [38 x i8] c"funk_concatenate_lists [] , [] -> []\0A\00", align 1
+@.str.90 = private unnamed_addr constant [3 x i8] c"L\0A\00", align 1
+@.str.91 = private unnamed_addr constant [3 x i8] c"R\0A\00", align 1
+@.str.92 = private unnamed_addr constant [12 x i8] c"\0A!!!!!! %d\0A\00", align 1
 @__FUNCTION__.funk_prepend_element_to_list = private unnamed_addr constant [29 x i8] c"funk_prepend_element_to_list\00", align 1
 @__FUNCTION__.funk_concatenate_lists = private unnamed_addr constant [23 x i8] c"funk_concatenate_lists\00", align 1
 @__FUNCTION__.funk_get_node_start = private unnamed_addr constant [20 x i8] c"funk_get_node_start\00", align 1
 @__FUNCTION__.funk_get_node_pool = private unnamed_addr constant [19 x i8] c"funk_get_node_pool\00", align 1
-@.str.90 = private unnamed_addr constant [21 x i8] c"-E- %s Invalid pool\0A\00", align 1
-@__FUNCTION__.funk_set_node_start = private unnamed_addr constant [20 x i8] c"funk_set_node_start\00", align 1
-@.str.91 = private unnamed_addr constant [9 x i8] c"Diego %s\00", align 1
-@__FUNCTION__.funk_set_tnode_array_element = private unnamed_addr constant [29 x i8] c"funk_set_tnode_array_element\00", align 1
+@.str.93 = private unnamed_addr constant [21 x i8] c"-E- %s Invalid pool\0A\00", align 1
 @__FUNCTION__.funk_set_tnode_array_elementEX = private unnamed_addr constant [31 x i8] c"funk_set_tnode_array_elementEX\00", align 1
-@.str.92 = private unnamed_addr constant [37 x i8] c"-E- %s Index %d out of range [0:%d]\0A\00", align 1
+@.str.94 = private unnamed_addr constant [37 x i8] c"-E- %s Index %d out of range [0:%d]\0A\00", align 1
 @__FUNCTION__.funk_alloc_list_of_tnodes = private unnamed_addr constant [26 x i8] c"funk_alloc_list_of_tnodes\00", align 1
 @__FUNCTION__.funk_call_fn_pointer = private unnamed_addr constant [21 x i8] c"funk_call_fn_pointer\00", align 1
-@.str.93 = private unnamed_addr constant [43 x i8] c"-E- calling node which is not a function!\0A\00", align 1
+@.str.95 = private unnamed_addr constant [43 x i8] c"-E- calling node which is not a function!\0A\00", align 1
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
 define i32 @get_pool_enum(%struct.tpool*) #0 {
@@ -495,7 +495,7 @@ define %struct.tdata* @get_node(%struct.tnode*, i32, i8*, i32, i32) #0 {
 
 27:                                               ; preds = %5
   %28 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %29 = call %struct.tnode* @validate_node(%struct.tnode* %28, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.get_node, i64 0, i64 0), i32 168)
+  %29 = call %struct.tnode* @validate_node(%struct.tnode* %28, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.get_node, i64 0, i64 0), i32 167)
   %30 = icmp eq %struct.tnode* %29, null
   br i1 %30, label %31, label %35
 
@@ -842,7 +842,7 @@ define zeroext i8 @_get_wrap_creation(%struct.tnode*, i32) #0 {
   store i32 %1, i32* %4, align 4
   %5 = load %struct.tnode*, %struct.tnode** %3, align 8
   %6 = load i32, i32* %4, align 4
-  %7 = call %struct.tdata* @get_node(%struct.tnode* %5, i32 %6, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__._get_wrap_creation, i64 0, i64 0), i32 224, i32 1)
+  %7 = call %struct.tdata* @get_node(%struct.tnode* %5, i32 %6, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__._get_wrap_creation, i64 0, i64 0), i32 234, i32 1)
   %8 = getelementptr inbounds %struct.tdata, %struct.tdata* %7, i32 0, i32 1
   %9 = load i8, i8* %8, align 4
   ret i8 %9
@@ -1042,7 +1042,7 @@ define void @funk_print_node_info(%struct.tnode*) #0 {
 44:                                               ; preds = %38
   %45 = load %struct.tnode*, %struct.tnode** %2, align 8
   %46 = load i32, i32* %3, align 4
-  %47 = call %struct.tdata* @get_node(%struct.tnode* %45, i32 %46, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 311, i32 1)
+  %47 = call %struct.tdata* @get_node(%struct.tnode* %45, i32 %46, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 316, i32 1)
   %48 = getelementptr inbounds %struct.tdata, %struct.tdata* %47, i32 0, i32 0
   %49 = load i32, i32* %48, align 8
   %50 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str.29, i64 0, i64 0), i32 %49)
@@ -1070,7 +1070,7 @@ define void @funk_print_node_info(%struct.tnode*) #0 {
 62:                                               ; preds = %56
   %63 = load %struct.tnode*, %struct.tnode** %2, align 8
   %64 = load i32, i32* %4, align 4
-  %65 = call %struct.tdata* @get_node(%struct.tnode* %63, i32 %64, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 316, i32 1)
+  %65 = call %struct.tdata* @get_node(%struct.tnode* %63, i32 %64, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 321, i32 1)
   %66 = getelementptr inbounds %struct.tdata, %struct.tdata* %65, i32 0, i32 1
   %67 = load i8, i8* %66, align 4
   %68 = zext i8 %67 to i32
@@ -1086,19 +1086,19 @@ define void @funk_print_node_info(%struct.tnode*) #0 {
 73:                                               ; preds = %56
   %74 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.30, i64 0, i64 0))
   %75 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %76 = call %struct.tdata* @get_node(%struct.tnode* %75, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 320, i32 1)
+  %76 = call %struct.tdata* @get_node(%struct.tnode* %75, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 325, i32 1)
   %77 = getelementptr inbounds %struct.tdata, %struct.tdata* %76, i32 0, i32 2
   %78 = bitcast %union.data_type* %77 to i32*
   %79 = load i32, i32* %78, align 8
   %80 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.31, i64 0, i64 0), i32 %79)
   %81 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %82 = call %struct.tdata* @get_node(%struct.tnode* %81, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 321, i32 1)
+  %82 = call %struct.tdata* @get_node(%struct.tnode* %81, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 326, i32 1)
   %83 = getelementptr inbounds %struct.tdata, %struct.tdata* %82, i32 0, i32 2
   %84 = bitcast %union.data_type* %83 to double*
   %85 = load double, double* %84, align 8
   %86 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.32, i64 0, i64 0), double %85)
   %87 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %88 = call %struct.tdata* @get_node(%struct.tnode* %87, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 322, i32 1)
+  %88 = call %struct.tdata* @get_node(%struct.tnode* %87, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_print_node_info, i64 0, i64 0), i32 327, i32 1)
   %89 = getelementptr inbounds %struct.tdata, %struct.tdata* %88, i32 0, i32 0
   %90 = load i32, i32* %89, align 8
   %91 = trunc i32 %90 to i8
@@ -1162,7 +1162,7 @@ define i32 @_funk_alloc_raw_tdata(%struct.tpool*, i32, i32) #0 {
   %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 1
   store i8 %28, i8* %36, align 4
   %37 = load %struct.tpool*, %struct.tpool** %4, align 8
-  call void @funk_increment_pool_tail(%struct.tpool* %37, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__FUNCTION__._funk_alloc_raw_tdata, i64 0, i64 0), i32 344)
+  call void @funk_increment_pool_tail(%struct.tpool* %37, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__FUNCTION__._funk_alloc_raw_tdata, i64 0, i64 0), i32 348)
   br label %38
 
 38:                                               ; preds = %16
@@ -1284,7 +1284,7 @@ define void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0
   %72 = load i32, i32* %10, align 4
   %73 = load %struct.tnode*, %struct.tnode** %7, align 8
   %74 = load i32, i32* %15, align 4
-  %75 = call %struct.tdata* @get_node(%struct.tnode* %73, i32 %74, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 383, i32 0)
+  %75 = call %struct.tdata* @get_node(%struct.tnode* %73, i32 %74, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 382, i32 0)
   %76 = getelementptr inbounds %struct.tdata, %struct.tdata* %75, i32 0, i32 0
   store i32 %72, i32* %76, align 8
   %77 = load %struct.tnode*, %struct.tnode** %7, align 8
@@ -1294,7 +1294,7 @@ define void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0
   %81 = load i8, i8* %80, align 4
   call void @_set_wrap_creation(%struct.tnode* %77, i32 %78, i8 zeroext %81)
   %82 = load %struct.tpool*, %struct.tpool** %14, align 8
-  call void @funk_increment_pool_tail(%struct.tpool* %82, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 386)
+  call void @funk_increment_pool_tail(%struct.tpool* %82, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 385)
   %83 = load i8*, i8** %12, align 8
   %84 = icmp eq i8* %83, null
   br i1 %84, label %85, label %86
@@ -1319,7 +1319,7 @@ define void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0
   %94 = load i32, i32* %93, align 4
   %95 = load %struct.tnode*, %struct.tnode** %7, align 8
   %96 = load i32, i32* %15, align 4
-  %97 = call %struct.tdata* @get_node(%struct.tnode* %95, i32 %96, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 394, i32 1)
+  %97 = call %struct.tdata* @get_node(%struct.tnode* %95, i32 %96, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 392, i32 1)
   %98 = getelementptr inbounds %struct.tdata, %struct.tdata* %97, i32 0, i32 2
   %99 = bitcast %union.data_type* %98 to i32*
   store i32 %94, i32* %99, align 8
@@ -1334,7 +1334,7 @@ define void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0
   %106 = load double, double* %105, align 8
   %107 = load %struct.tnode*, %struct.tnode** %7, align 8
   %108 = load i32, i32* %15, align 4
-  %109 = call %struct.tdata* @get_node(%struct.tnode* %107, i32 %108, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 398, i32 1)
+  %109 = call %struct.tdata* @get_node(%struct.tnode* %107, i32 %108, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 396, i32 1)
   %110 = getelementptr inbounds %struct.tdata, %struct.tdata* %109, i32 0, i32 2
   %111 = bitcast %union.data_type* %110 to double*
   store double %106, double* %111, align 8
@@ -1343,13 +1343,13 @@ define void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0
 112:                                              ; preds = %86
   %113 = load %struct.tnode*, %struct.tnode** %7, align 8
   %114 = load i32, i32* %15, align 4
-  %115 = call %struct.tdata* @get_node(%struct.tnode* %113, i32 %114, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 402, i32 1)
+  %115 = call %struct.tdata* @get_node(%struct.tnode* %113, i32 %114, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 400, i32 1)
   %116 = getelementptr inbounds %struct.tdata, %struct.tdata* %115, i32 0, i32 2
   %117 = bitcast %union.data_type* %116 to i32*
   store i32 0, i32* %117, align 8
   %118 = load %struct.tnode*, %struct.tnode** %7, align 8
   %119 = load i32, i32* %15, align 4
-  %120 = call %struct.tdata* @get_node(%struct.tnode* %118, i32 %119, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 403, i32 1)
+  %120 = call %struct.tdata* @get_node(%struct.tnode* %118, i32 %119, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 401, i32 1)
   %121 = getelementptr inbounds %struct.tdata, %struct.tdata* %120, i32 0, i32 2
   %122 = bitcast %union.data_type* %121 to double*
   store double 0.000000e+00, double* %122, align 8
@@ -1394,7 +1394,7 @@ define void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0
   %145 = load i8, i8* %144, align 4
   call void @_set_wrap_creation(%struct.tnode* %139, i32 %142, i8 zeroext %145)
   %146 = load %struct.tpool*, %struct.tpool** %14, align 8
-  call void @funk_increment_pool_tail(%struct.tpool* %146, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 414)
+  call void @funk_increment_pool_tail(%struct.tpool* %146, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_create_node, i64 0, i64 0), i32 412)
   br label %147
 
 147:                                              ; preds = %138
@@ -1424,7 +1424,7 @@ define void @funk_deep_copy_node(%struct.tnode*, %struct.tnode*) #0 {
   %10 = load %struct.tnode*, %struct.tnode** %4, align 8
   store %struct.tnode* %10, %struct.tnode** %5, align 8
   %11 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 427, i32 1)
+  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 423, i32 1)
   %13 = getelementptr inbounds %struct.tdata, %struct.tdata* %12, i32 0, i32 0
   %14 = load i32, i32* %13, align 8
   %15 = icmp eq i32 %14, 7
@@ -1437,13 +1437,13 @@ define void @funk_deep_copy_node(%struct.tnode*, %struct.tnode*) #0 {
   %20 = load %struct.tnode*, %struct.tnode** %4, align 8
   %21 = getelementptr inbounds %struct.tnode, %struct.tnode* %20, i32 0, i32 0
   %22 = load i32, i32* %21, align 8
-  call void @_dereference(%struct.tnode* %6, %struct.tpool* %19, i32 %22, i32 0, i32 10, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 429)
+  call void @_dereference(%struct.tnode* %6, %struct.tpool* %19, i32 %22, i32 0, i32 10, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 425)
   store %struct.tnode* %6, %struct.tnode** %5, align 8
   br label %23
 
 23:                                               ; preds = %16, %2
   %24 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %25 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 0, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 434, i32 1)
+  %25 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 0, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 428, i32 1)
   %26 = getelementptr inbounds %struct.tdata, %struct.tdata* %25, i32 0, i32 0
   %27 = load i32, i32* %26, align 8
   %28 = icmp eq i32 %27, 7
@@ -1483,23 +1483,23 @@ define void @funk_deep_copy_node(%struct.tnode*, %struct.tnode*) #0 {
 49:                                               ; preds = %45
   %50 = load %struct.tnode*, %struct.tnode** %3, align 8
   %51 = load i32, i32* %8, align 4
-  %52 = call %struct.tdata* @get_node(%struct.tnode* %50, i32 %51, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 440, i32 1)
+  %52 = call %struct.tdata* @get_node(%struct.tnode* %50, i32 %51, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 434, i32 1)
   %53 = getelementptr inbounds %struct.tdata, %struct.tdata* %52, i32 0, i32 2
   %54 = load %struct.tnode*, %struct.tnode** %5, align 8
   %55 = load i32, i32* %8, align 4
-  %56 = call %struct.tdata* @get_node(%struct.tnode* %54, i32 %55, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 440, i32 1)
+  %56 = call %struct.tdata* @get_node(%struct.tnode* %54, i32 %55, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 434, i32 1)
   %57 = getelementptr inbounds %struct.tdata, %struct.tdata* %56, i32 0, i32 2
   %58 = bitcast %union.data_type* %53 to i8*
   %59 = bitcast %union.data_type* %57 to i8*
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %58, i8* align 8 %59, i64 8, i1 false)
   %60 = load %struct.tnode*, %struct.tnode** %5, align 8
   %61 = load i32, i32* %8, align 4
-  %62 = call %struct.tdata* @get_node(%struct.tnode* %60, i32 %61, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 441, i32 1)
+  %62 = call %struct.tdata* @get_node(%struct.tnode* %60, i32 %61, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 435, i32 1)
   %63 = getelementptr inbounds %struct.tdata, %struct.tdata* %62, i32 0, i32 0
   %64 = load i32, i32* %63, align 8
   %65 = load %struct.tnode*, %struct.tnode** %3, align 8
   %66 = load i32, i32* %8, align 4
-  %67 = call %struct.tdata* @get_node(%struct.tnode* %65, i32 %66, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 441, i32 1)
+  %67 = call %struct.tdata* @get_node(%struct.tnode* %65, i32 %66, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 435, i32 1)
   %68 = getelementptr inbounds %struct.tdata, %struct.tdata* %67, i32 0, i32 0
   store i32 %64, i32* %68, align 8
   br label %69
@@ -1541,7 +1541,7 @@ define void @funk_deep_copy_node(%struct.tnode*, %struct.tnode*) #0 {
   %89 = load %struct.tnode*, %struct.tnode** %5, align 8
   %90 = load i32, i32* %9, align 4
   %91 = call i32 @_funk_get_node_dimension(%struct.tnode* %89, i32 %90)
-  call void @_funk_set_node_dimension(%struct.tnode* %87, i32 %88, i32 %91, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 451)
+  call void @_funk_set_node_dimension(%struct.tnode* %87, i32 %88, i32 %91, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_deep_copy_node, i64 0, i64 0), i32 444)
   br label %92
 
 92:                                               ; preds = %86
@@ -1796,14 +1796,14 @@ define void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 {
 
 26:                                               ; preds = %4
   %27 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %28 = call %struct.tdata* @get_node(%struct.tnode* %27, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 491, i32 1)
+  %28 = call %struct.tdata* @get_node(%struct.tnode* %27, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 481, i32 1)
   %29 = getelementptr inbounds %struct.tdata, %struct.tdata* %28, i32 0, i32 2
   %30 = bitcast %union.data_type* %29 to i32*
   %31 = load i32, i32* %30, align 8
   store i32 %31, i32* %9, align 4
   %32 = load %struct.tnode*, %struct.tnode** %7, align 8
   %33 = getelementptr inbounds %struct.tnode, %struct.tnode* %32, i64 1
-  %34 = call %struct.tdata* @get_node(%struct.tnode* %33, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 492, i32 1)
+  %34 = call %struct.tdata* @get_node(%struct.tnode* %33, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 482, i32 1)
   %35 = getelementptr inbounds %struct.tdata, %struct.tdata* %34, i32 0, i32 2
   %36 = bitcast %union.data_type* %35 to i32*
   %37 = load i32, i32* %36, align 8
@@ -1903,7 +1903,7 @@ define void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 {
   %99 = mul nsw i32 %97, %98
   %100 = load i32, i32* %15, align 4
   %101 = add nsw i32 %99, %100
-  %102 = call %struct.tdata* @get_node(%struct.tnode* %96, i32 %101, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 506, i32 1)
+  %102 = call %struct.tdata* @get_node(%struct.tnode* %96, i32 %101, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 495, i32 1)
   %103 = getelementptr inbounds %struct.tdata, %struct.tdata* %102, i32 0, i32 2
   %104 = bitcast %union.data_type* %103 to i32*
   %105 = load i32, i32* %104, align 8
@@ -1946,7 +1946,7 @@ define void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 {
   %131 = zext i1 %130 to i64
   %132 = select i1 %130, i32 1, i32 0
   %133 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %134 = call %struct.tdata* @get_node(%struct.tnode* %133, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 510, i32 1)
+  %134 = call %struct.tdata* @get_node(%struct.tnode* %133, i32 0, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 501, i32 1)
   %135 = getelementptr inbounds %struct.tdata, %struct.tdata* %134, i32 0, i32 0
   %136 = load i32, i32* %135, align 8
   %137 = load %struct.tnode*, %struct.tnode** %6, align 8
@@ -1981,7 +1981,7 @@ define void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 {
   %154 = load %struct.tnode*, %struct.tnode** %6, align 8
   %155 = load i32, i32* %18, align 4
   %156 = call i32 @_funk_get_node_dimension(%struct.tnode* %154, i32 %155)
-  call void @_funk_set_node_dimension(%struct.tnode* %152, i32 %153, i32 %156, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 518)
+  call void @_funk_set_node_dimension(%struct.tnode* %152, i32 %153, i32 %156, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @__FUNCTION__.funk_roll, i64 0, i64 0), i32 509)
   br label %157
 
 157:                                              ; preds = %151
@@ -2018,7 +2018,7 @@ define void @funk_not(%struct.tnode*, %struct.tnode*) #0 {
   %15 = zext i1 %14 to i64
   %16 = select i1 %14, i32 1, i32 0
   %17 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 525, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 518, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 0
   %20 = load i32, i32* %19, align 8
   %21 = load %struct.tnode*, %struct.tnode** %4, align 8
@@ -2041,7 +2041,7 @@ define void @funk_not(%struct.tnode*, %struct.tnode*) #0 {
   %32 = load %struct.tnode*, %struct.tnode** %4, align 8
   %33 = load i32, i32* %5, align 4
   %34 = call i32 @_funk_get_node_dimension(%struct.tnode* %32, i32 %33)
-  call void @_funk_set_node_dimension(%struct.tnode* %30, i32 %31, i32 %34, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 528)
+  call void @_funk_set_node_dimension(%struct.tnode* %30, i32 %31, i32 %34, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 521)
   br label %35
 
 35:                                               ; preds = %29
@@ -2065,7 +2065,7 @@ define void @funk_not(%struct.tnode*, %struct.tnode*) #0 {
 45:                                               ; preds = %39
   %46 = load %struct.tnode*, %struct.tnode** %4, align 8
   %47 = load i32, i32* %6, align 4
-  %48 = call %struct.tdata* @get_node(%struct.tnode* %46, i32 %47, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 532, i32 1)
+  %48 = call %struct.tdata* @get_node(%struct.tnode* %46, i32 %47, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 525, i32 1)
   %49 = getelementptr inbounds %struct.tdata, %struct.tdata* %48, i32 0, i32 2
   %50 = bitcast %union.data_type* %49 to i32*
   %51 = load i32, i32* %50, align 8
@@ -2075,7 +2075,7 @@ define void @funk_not(%struct.tnode*, %struct.tnode*) #0 {
 53:                                               ; preds = %45
   %54 = load %struct.tnode*, %struct.tnode** %3, align 8
   %55 = load i32, i32* %6, align 4
-  %56 = call %struct.tdata* @get_node(%struct.tnode* %54, i32 %55, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 533, i32 1)
+  %56 = call %struct.tdata* @get_node(%struct.tnode* %54, i32 %55, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 526, i32 1)
   %57 = getelementptr inbounds %struct.tdata, %struct.tdata* %56, i32 0, i32 2
   %58 = bitcast %union.data_type* %57 to i32*
   store i32 1, i32* %58, align 8
@@ -2084,7 +2084,7 @@ define void @funk_not(%struct.tnode*, %struct.tnode*) #0 {
 59:                                               ; preds = %45
   %60 = load %struct.tnode*, %struct.tnode** %3, align 8
   %61 = load i32, i32* %6, align 4
-  %62 = call %struct.tdata* @get_node(%struct.tnode* %60, i32 %61, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 535, i32 1)
+  %62 = call %struct.tdata* @get_node(%struct.tnode* %60, i32 %61, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__.funk_not, i64 0, i64 0), i32 528, i32 1)
   %63 = getelementptr inbounds %struct.tdata, %struct.tdata* %62, i32 0, i32 2
   %64 = bitcast %union.data_type* %63 to i32*
   store i32 0, i32* %64, align 8
@@ -2125,7 +2125,7 @@ define i32 @_funk_sum_list(%struct.tnode*) #0 {
 12:                                               ; preds = %6
   %13 = load %struct.tnode*, %struct.tnode** %2, align 8
   %14 = load i32, i32* %4, align 4
-  %15 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %14, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__FUNCTION__._funk_sum_list, i64 0, i64 0), i32 544, i32 1)
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %14, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__FUNCTION__._funk_sum_list, i64 0, i64 0), i32 537, i32 1)
   %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 0
   %17 = load i32, i32* %16, align 8
   %18 = icmp eq i32 %17, 7
@@ -2139,7 +2139,7 @@ define i32 @_funk_sum_list(%struct.tnode*) #0 {
   %24 = getelementptr inbounds %struct.tnode, %struct.tnode* %23, i32 0, i32 0
   %25 = load i32, i32* %24, align 8
   %26 = load i32, i32* %4, align 4
-  call void @_dereference(%struct.tnode* %5, %struct.tpool* %22, i32 %25, i32 %26, i32 10, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__FUNCTION__._funk_sum_list, i64 0, i64 0), i32 546)
+  call void @_dereference(%struct.tnode* %5, %struct.tpool* %22, i32 %25, i32 %26, i32 10, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__FUNCTION__._funk_sum_list, i64 0, i64 0), i32 539)
   %27 = call i32 @_funk_sum_list(%struct.tnode* %5)
   %28 = load i32, i32* %3, align 4
   %29 = add nsw i32 %28, %27
@@ -2149,7 +2149,7 @@ define i32 @_funk_sum_list(%struct.tnode*) #0 {
 30:                                               ; preds = %12
   %31 = load %struct.tnode*, %struct.tnode** %2, align 8
   %32 = load i32, i32* %4, align 4
-  %33 = call %struct.tdata* @get_node(%struct.tnode* %31, i32 %32, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__FUNCTION__._funk_sum_list, i64 0, i64 0), i32 550, i32 1)
+  %33 = call %struct.tdata* @get_node(%struct.tnode* %31, i32 %32, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @__FUNCTION__._funk_sum_list, i64 0, i64 0), i32 543, i32 1)
   %34 = getelementptr inbounds %struct.tdata, %struct.tdata* %33, i32 0, i32 2
   %35 = bitcast %union.data_type* %34 to i32*
   %36 = load i32, i32* %35, align 8
@@ -2259,7 +2259,7 @@ define void @funk_get_element_in_matrix_ptr(%struct.tnode*, %struct.tnode*, i32,
   %32 = getelementptr inbounds %struct.tnode, %struct.tnode* %31, i32 0, i32 0
   %33 = load i32, i32* %32, align 8
   %34 = load i32, i32* %7, align 4
-  call void @_dereference(%struct.tnode* %9, %struct.tpool* %30, i32 %33, i32 %34, i32 10, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_get_element_in_matrix_ptr, i64 0, i64 0), i32 608)
+  call void @_dereference(%struct.tnode* %9, %struct.tpool* %30, i32 %33, i32 %34, i32 10, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_get_element_in_matrix_ptr, i64 0, i64 0), i32 598)
   %35 = load i32, i32* %8, align 4
   %36 = icmp slt i32 %35, 0
   br i1 %36, label %37, label %42
@@ -2285,7 +2285,7 @@ define void @funk_get_element_in_matrix_ptr(%struct.tnode*, %struct.tnode*, i32,
   store i32 %49, i32* %8, align 4
   store %struct.tdata* null, %struct.tdata** %10, align 8
   %50 = load i32, i32* %8, align 4
-  %51 = call %struct.tdata* @get_node(%struct.tnode* %9, i32 %50, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_get_element_in_matrix_ptr, i64 0, i64 0), i32 616, i32 1)
+  %51 = call %struct.tdata* @get_node(%struct.tnode* %9, i32 %50, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_get_element_in_matrix_ptr, i64 0, i64 0), i32 605, i32 1)
   store %struct.tdata* %51, %struct.tdata** %10, align 8
   %52 = load %struct.tnode*, %struct.tnode** %6, align 8
   call void @funk_copy_node(%struct.tnode* %52, %struct.tnode* %9)
@@ -2314,7 +2314,7 @@ define void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i
   store i32 %2, i32* %7, align 4
   store i32 %3, i32* %8, align 4
   %11 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_lit, i64 0, i64 0), i32 626, i32 1)
+  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_lit, i64 0, i64 0), i32 613, i32 1)
   %13 = getelementptr inbounds %struct.tdata, %struct.tdata* %12, i32 0, i32 0
   %14 = load i32, i32* %13, align 8
   %15 = icmp eq i32 %14, 7
@@ -2431,7 +2431,7 @@ define void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %
   store %struct.tnode* %2, %struct.tnode** %7, align 8
   store %struct.tnode* %3, %struct.tnode** %8, align 8
   %11 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 664, i32 1)
+  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 650, i32 1)
   %13 = getelementptr inbounds %struct.tdata, %struct.tdata* %12, i32 0, i32 0
   %14 = load i32, i32* %13, align 8
   %15 = icmp ne i32 %14, 1
@@ -2439,7 +2439,7 @@ define void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %
 
 16:                                               ; preds = %4
   %17 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 666, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 652, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 0
   %20 = load i32, i32* %19, align 8
   %21 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([50 x i8], [50 x i8]* @.str.39, i64 0, i64 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 %20)
@@ -2447,7 +2447,7 @@ define void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %
 
 22:                                               ; preds = %16, %4
   %23 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %24 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 669, i32 1)
+  %24 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 655, i32 1)
   %25 = getelementptr inbounds %struct.tdata, %struct.tdata* %24, i32 0, i32 0
   %26 = load i32, i32* %25, align 8
   %27 = icmp ne i32 %26, 1
@@ -2455,7 +2455,7 @@ define void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %
 
 28:                                               ; preds = %22
   %29 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %30 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 671, i32 1)
+  %30 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 657, i32 1)
   %31 = getelementptr inbounds %struct.tdata, %struct.tdata* %30, i32 0, i32 0
   %32 = load i32, i32* %31, align 8
   %33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([50 x i8], [50 x i8]* @.str.39, i64 0, i64 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 %32)
@@ -2463,13 +2463,13 @@ define void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %
 
 34:                                               ; preds = %28, %22
   %35 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %36 = call %struct.tdata* @get_node(%struct.tnode* %35, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 674, i32 1)
+  %36 = call %struct.tdata* @get_node(%struct.tnode* %35, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 660, i32 1)
   %37 = getelementptr inbounds %struct.tdata, %struct.tdata* %36, i32 0, i32 2
   %38 = bitcast %union.data_type* %37 to i32*
   %39 = load i32, i32* %38, align 8
   store i32 %39, i32* %9, align 4
   %40 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %41 = call %struct.tdata* @get_node(%struct.tnode* %40, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 675, i32 1)
+  %41 = call %struct.tdata* @get_node(%struct.tnode* %40, i32 0, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_get_element_in_matrix_2d_var, i64 0, i64 0), i32 661, i32 1)
   %42 = getelementptr inbounds %struct.tdata, %struct.tdata* %41, i32 0, i32 2
   %43 = bitcast %union.data_type* %42 to i32*
   %44 = load i32, i32* %43, align 8
@@ -2491,7 +2491,7 @@ define void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 {
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store i32 %2, i32* %6, align 4
   %7 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %8 = call %struct.tnode* @validate_node(%struct.tnode* %7, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 710)
+  %8 = call %struct.tnode* @validate_node(%struct.tnode* %7, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 699)
   %9 = load i32, i32* %6, align 4
   %10 = icmp slt i32 %9, 0
   br i1 %10, label %11, label %17
@@ -2519,7 +2519,7 @@ define void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 {
   store i32 %25, i32* %6, align 4
   %26 = load %struct.tnode*, %struct.tnode** %4, align 8
   %27 = load i32, i32* %6, align 4
-  %28 = call %struct.tdata* @get_node(%struct.tnode* %26, i32 %27, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 716, i32 1)
+  %28 = call %struct.tdata* @get_node(%struct.tnode* %26, i32 %27, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 705, i32 1)
   %29 = getelementptr inbounds %struct.tdata, %struct.tdata* %28, i32 0, i32 0
   %30 = load i32, i32* %29, align 8
   %31 = icmp eq i32 %30, 7
@@ -2528,7 +2528,7 @@ define void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 {
 32:                                               ; preds = %19
   %33 = load %struct.tnode*, %struct.tnode** %4, align 8
   %34 = load i32, i32* %6, align 4
-  %35 = call %struct.tdata* @get_node(%struct.tnode* %33, i32 %34, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 716, i32 1)
+  %35 = call %struct.tdata* @get_node(%struct.tnode* %33, i32 %34, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 705, i32 1)
   %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 0
   %37 = load i32, i32* %36, align 8
   %38 = icmp eq i32 %37, 8
@@ -2543,7 +2543,7 @@ define void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 {
   %45 = getelementptr inbounds %struct.tnode, %struct.tnode* %44, i32 0, i32 0
   %46 = load i32, i32* %45, align 8
   %47 = load i32, i32* %6, align 4
-  call void @_dereference(%struct.tnode* %40, %struct.tpool* %43, i32 %46, i32 %47, i32 10, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 719)
+  call void @_dereference(%struct.tnode* %40, %struct.tpool* %43, i32 %46, i32 %47, i32 10, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_get_element_in_array, i64 0, i64 0), i32 708)
   br label %86
 
 48:                                               ; preds = %32
@@ -2613,7 +2613,7 @@ define void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %stru
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store %struct.tnode* %2, %struct.tnode** %6, align 8
   %8 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 742, i32 1)
+  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 730, i32 1)
   %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 0
   %11 = load i32, i32* %10, align 8
   %12 = icmp ne i32 %11, 1
@@ -2621,7 +2621,7 @@ define void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %stru
 
 13:                                               ; preds = %3
   %14 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 744, i32 1)
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 732, i32 1)
   %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 0
   %17 = load i32, i32* %16, align 8
   %18 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([50 x i8], [50 x i8]* @.str.39, i64 0, i64 0), i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 %17)
@@ -2629,7 +2629,7 @@ define void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %stru
 
 19:                                               ; preds = %13, %3
   %20 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 747, i32 1)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_get_element_in_array_var, i64 0, i64 0), i32 735, i32 1)
   %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 2
   %23 = bitcast %union.data_type* %22 to i32*
   %24 = load i32, i32* %23, align 8
@@ -2656,11 +2656,11 @@ define void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*
   store %struct.tnode* %2, %struct.tnode** %7, align 8
   store i32 %3, i32* %8, align 4
   %13 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %14 = call %struct.tnode* @validate_node(%struct.tnode* %13, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 758)
+  %14 = call %struct.tnode* @validate_node(%struct.tnode* %13, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 744)
   %15 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %16 = call %struct.tnode* @validate_node(%struct.tnode* %15, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 759)
+  %16 = call %struct.tnode* @validate_node(%struct.tnode* %15, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 745)
   %17 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 761, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 747, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 2
   %20 = bitcast %union.data_type* %19 to i32*
   %21 = load i32, i32* %20, align 8
@@ -2722,7 +2722,7 @@ define void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*
   %61 = getelementptr inbounds %struct.tdimensions, %struct.tdimensions* %60, i32 0, i32 1
   store i32 %58, i32* %61, align 4
   %62 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %63 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 777, i32 1)
+  %63 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.add_node_to_nodelist, i64 0, i64 0), i32 761, i32 1)
   %64 = getelementptr inbounds %struct.tdata, %struct.tdata* %63, i32 0, i32 2
   %65 = bitcast %union.data_type* %64 to i32*
   %66 = load i32, i32* %65, align 8
@@ -2756,7 +2756,7 @@ define void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 {
   %9 = bitcast double* %6 to i8*
   call void @funk_create_node(%struct.tnode* %7, i32 1, i32 %8, i32 2, i8 zeroext 0, i8* %9)
   %10 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_create_double_scalar, i64 0, i64 0), i32 786)
+  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_create_double_scalar, i64 0, i64 0), i32 770)
   ret void
 }
 
@@ -2773,7 +2773,7 @@ define void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 {
   %9 = bitcast i32* %6 to i8*
   call void @funk_create_node(%struct.tnode* %7, i32 1, i32 %8, i32 1, i8 zeroext 0, i8* %9)
   %10 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_int_scalar, i64 0, i64 0), i32 794)
+  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_int_scalar, i64 0, i64 0), i32 778)
   ret void
 }
 
@@ -2909,7 +2909,7 @@ define void @funk_create_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 {
 28:                                               ; preds = %20
   %29 = load %struct.tnode*, %struct.tnode** %4, align 8
   %30 = load i32, i32* %8, align 4
-  %31 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 %30, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 836, i32 0)
+  %31 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 %30, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 821, i32 0)
   %32 = getelementptr inbounds %struct.tdata, %struct.tdata* %31, i32 0, i32 0
   store i32 7, i32* %32, align 8
   %33 = load %struct.tnode*, %struct.tnode** %5, align 8
@@ -2919,7 +2919,7 @@ define void @funk_create_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 {
   %37 = call i32 @_copy_node_to_pool(%struct.tnode* %36)
   %38 = load %struct.tnode*, %struct.tnode** %4, align 8
   %39 = load i32, i32* %8, align 4
-  %40 = call %struct.tdata* @get_node(%struct.tnode* %38, i32 %39, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 837, i32 0)
+  %40 = call %struct.tdata* @get_node(%struct.tnode* %38, i32 %39, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 822, i32 0)
   %41 = getelementptr inbounds %struct.tdata, %struct.tdata* %40, i32 0, i32 2
   %42 = bitcast %union.data_type* %41 to i32*
   store i32 %37, i32* %42, align 8
@@ -2930,23 +2930,23 @@ define void @funk_create_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 {
   %45 = load i32, i32* %8, align 4
   %46 = sext i32 %45 to i64
   %47 = getelementptr inbounds %struct.tnode, %struct.tnode* %44, i64 %46
-  %48 = call %struct.tdata* @get_node(%struct.tnode* %47, i32 0, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 843, i32 1)
+  %48 = call %struct.tdata* @get_node(%struct.tnode* %47, i32 0, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 826, i32 1)
   %49 = getelementptr inbounds %struct.tdata, %struct.tdata* %48, i32 0, i32 0
   %50 = load i32, i32* %49, align 8
   %51 = load %struct.tnode*, %struct.tnode** %4, align 8
   %52 = load i32, i32* %8, align 4
-  %53 = call %struct.tdata* @get_node(%struct.tnode* %51, i32 %52, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 843, i32 0)
+  %53 = call %struct.tdata* @get_node(%struct.tnode* %51, i32 %52, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 826, i32 0)
   %54 = getelementptr inbounds %struct.tdata, %struct.tdata* %53, i32 0, i32 0
   store i32 %50, i32* %54, align 8
   %55 = load %struct.tnode*, %struct.tnode** %4, align 8
   %56 = load i32, i32* %8, align 4
-  %57 = call %struct.tdata* @get_node(%struct.tnode* %55, i32 %56, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 844, i32 0)
+  %57 = call %struct.tdata* @get_node(%struct.tnode* %55, i32 %56, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 827, i32 0)
   %58 = getelementptr inbounds %struct.tdata, %struct.tdata* %57, i32 0, i32 2
   %59 = load %struct.tnode*, %struct.tnode** %5, align 8
   %60 = load i32, i32* %8, align 4
   %61 = sext i32 %60 to i64
   %62 = getelementptr inbounds %struct.tnode, %struct.tnode* %59, i64 %61
-  %63 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 0, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 844, i32 1)
+  %63 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 0, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_create_list_of_regs, i64 0, i64 0), i32 827, i32 1)
   %64 = getelementptr inbounds %struct.tdata, %struct.tdata* %63, i32 0, i32 2
   %65 = bitcast %union.data_type* %58 to i8*
   %66 = bitcast %union.data_type* %64 to i8*
@@ -3026,10 +3026,10 @@ define void @funk_create_2d_matrix_int_literal(i32, %struct.tnode*, i32*, i32, i
   call void @funk_create_node(%struct.tnode* %11, i32 %14, i32 %15, i32 1, i8 zeroext 2, i8* %17)
   %18 = load %struct.tnode*, %struct.tnode** %7, align 8
   %19 = load i32, i32* %9, align 4
-  call void @_funk_set_node_dimension(%struct.tnode* %18, i32 0, i32 %19, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_create_2d_matrix_int_literal, i64 0, i64 0), i32 867)
+  call void @_funk_set_node_dimension(%struct.tnode* %18, i32 0, i32 %19, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_create_2d_matrix_int_literal, i64 0, i64 0), i32 851)
   %20 = load %struct.tnode*, %struct.tnode** %7, align 8
   %21 = load i32, i32* %10, align 4
-  call void @_funk_set_node_dimension(%struct.tnode* %20, i32 1, i32 %21, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_create_2d_matrix_int_literal, i64 0, i64 0), i32 868)
+  call void @_funk_set_node_dimension(%struct.tnode* %20, i32 1, i32 %21, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_create_2d_matrix_int_literal, i64 0, i64 0), i32 852)
   ret void
 }
 
@@ -3132,7 +3132,7 @@ define void @funk_get_node_type(%struct.tnode*, i32, i8*) #0 {
 23:                                               ; preds = %17, %11, %3
   %24 = load %struct.tnode*, %struct.tnode** %4, align 8
   %25 = load i32, i32* %5, align 4
-  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_node_type, i64 0, i64 0), i32 907, i32 1)
+  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_node_type, i64 0, i64 0), i32 891, i32 1)
   %27 = getelementptr inbounds %struct.tdata, %struct.tdata* %26, i32 0, i32 0
   %28 = load i32, i32* %27, align 8
   %29 = trunc i32 %28 to i8
@@ -3168,7 +3168,7 @@ define void @funk_set_node_type(%struct.tnode*, i32, i32) #0 {
   %19 = load i32, i32* %6, align 4
   %20 = load %struct.tnode*, %struct.tnode** %4, align 8
   %21 = load i32, i32* %5, align 4
-  %22 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 %21, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_set_node_type, i64 0, i64 0), i32 918, i32 1)
+  %22 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 %21, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_set_node_type, i64 0, i64 0), i32 904, i32 1)
   %23 = getelementptr inbounds %struct.tdata, %struct.tdata* %22, i32 0, i32 0
   store i32 %19, i32* %23, align 8
   ret void
@@ -3179,7 +3179,7 @@ define void @funk_increment_node_data_int(%struct.tnode*) #0 {
   %2 = alloca %struct.tnode*, align 8
   store %struct.tnode* %0, %struct.tnode** %2, align 8
   %3 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %4 = call %struct.tdata* @get_node(%struct.tnode* %3, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_increment_node_data_int, i64 0, i64 0), i32 923, i32 1)
+  %4 = call %struct.tdata* @get_node(%struct.tnode* %3, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_increment_node_data_int, i64 0, i64 0), i32 909, i32 1)
   %5 = getelementptr inbounds %struct.tdata, %struct.tdata* %4, i32 0, i32 2
   %6 = bitcast %union.data_type* %5 to i32*
   %7 = load i32, i32* %6, align 8
@@ -3198,7 +3198,7 @@ define void @funk_copy_node_into_node_list(%struct.tnode*, %struct.tnode*, %stru
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store %struct.tnode* %2, %struct.tnode** %6, align 8
   %8 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_copy_node_into_node_list, i64 0, i64 0), i32 930, i32 1)
+  %9 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([30 x i8], [30 x i8]* @__FUNCTION__.funk_copy_node_into_node_list, i64 0, i64 0), i32 916, i32 1)
   %10 = getelementptr inbounds %struct.tdata, %struct.tdata* %9, i32 0, i32 2
   %11 = bitcast %union.data_type* %10 to i32*
   %12 = load i32, i32* %11, align 8
@@ -3238,13 +3238,13 @@ define void @funk_set_node_value_int(%struct.tnode*, i32, i32) #0 {
 18:                                               ; preds = %12, %3
   %19 = load %struct.tnode*, %struct.tnode** %4, align 8
   %20 = load i32, i32* %5, align 4
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__FUNCTION__.funk_set_node_value_int, i64 0, i64 0), i32 943, i32 1)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__FUNCTION__.funk_set_node_value_int, i64 0, i64 0), i32 929, i32 1)
   %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 0
   store i32 1, i32* %22, align 8
   %23 = load i32, i32* %6, align 4
   %24 = load %struct.tnode*, %struct.tnode** %4, align 8
   %25 = load i32, i32* %5, align 4
-  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__FUNCTION__.funk_set_node_value_int, i64 0, i64 0), i32 944, i32 1)
+  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__FUNCTION__.funk_set_node_value_int, i64 0, i64 0), i32 930, i32 1)
   %27 = getelementptr inbounds %struct.tdata, %struct.tdata* %26, i32 0, i32 2
   %28 = bitcast %union.data_type* %27 to i32*
   store i32 %23, i32* %28, align 8
@@ -3277,13 +3277,13 @@ define void @funk_set_node_value_fn_ptr(%struct.tnode*, i32, void (%struct.tnode
 18:                                               ; preds = %12, %3
   %19 = load %struct.tnode*, %struct.tnode** %4, align 8
   %20 = load i32, i32* %5, align 4
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_fn_ptr, i64 0, i64 0), i32 955, i32 1)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_fn_ptr, i64 0, i64 0), i32 944, i32 1)
   %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 0
   store i32 6, i32* %22, align 8
   %23 = load void (%struct.tnode*, i32, %struct.tnode*)*, void (%struct.tnode*, i32, %struct.tnode*)** %6, align 8
   %24 = load %struct.tnode*, %struct.tnode** %4, align 8
   %25 = load i32, i32* %5, align 4
-  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_fn_ptr, i64 0, i64 0), i32 956, i32 1)
+  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_fn_ptr, i64 0, i64 0), i32 945, i32 1)
   %27 = getelementptr inbounds %struct.tdata, %struct.tdata* %26, i32 0, i32 2
   %28 = bitcast %union.data_type* %27 to void (%struct.tnode*, i32, %struct.tnode*)**
   store void (%struct.tnode*, i32, %struct.tnode*)* %23, void (%struct.tnode*, i32, %struct.tnode*)** %28, align 8
@@ -3316,13 +3316,13 @@ define void @funk_set_node_value_double(%struct.tnode*, i32, double) #0 {
 18:                                               ; preds = %12, %3
   %19 = load %struct.tnode*, %struct.tnode** %4, align 8
   %20 = load i32, i32* %5, align 4
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_double, i64 0, i64 0), i32 965, i32 1)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_double, i64 0, i64 0), i32 956, i32 1)
   %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 0
   store i32 2, i32* %22, align 8
   %23 = load double, double* %6, align 8
   %24 = load %struct.tnode*, %struct.tnode** %4, align 8
   %25 = load i32, i32* %5, align 4
-  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_double, i64 0, i64 0), i32 966, i32 1)
+  %26 = call %struct.tdata* @get_node(%struct.tnode* %24, i32 %25, i8* getelementptr inbounds ([27 x i8], [27 x i8]* @__FUNCTION__.funk_set_node_value_double, i64 0, i64 0), i32 957, i32 1)
   %27 = getelementptr inbounds %struct.tdata, %struct.tdata* %26, i32 0, i32 2
   %28 = bitcast %union.data_type* %27 to double*
   store double %23, double* %28, align 8
@@ -3353,7 +3353,7 @@ define i32 @funk_get_node_value_int(%struct.tnode*, i32) #0 {
 16:                                               ; preds = %10, %2
   %17 = load %struct.tnode*, %struct.tnode** %3, align 8
   %18 = load i32, i32* %4, align 4
-  %19 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 %18, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__FUNCTION__.funk_get_node_value_int, i64 0, i64 0), i32 974, i32 1)
+  %19 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 %18, i8* getelementptr inbounds ([24 x i8], [24 x i8]* @__FUNCTION__.funk_get_node_value_int, i64 0, i64 0), i32 966, i32 1)
   %20 = getelementptr inbounds %struct.tdata, %struct.tdata* %19, i32 0, i32 2
   %21 = bitcast %union.data_type* %20 to i32*
   %22 = load i32, i32* %21, align 8
@@ -3367,7 +3367,7 @@ define void @funk_get_next_node(%struct.tnode*, %struct.tnode*) #0 {
   store %struct.tnode* %0, %struct.tnode** %3, align 8
   store %struct.tnode* %1, %struct.tnode** %4, align 8
   %5 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %6 = call %struct.tnode* @validate_node(%struct.tnode* %5, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_next_node, i64 0, i64 0), i32 992)
+  %6 = call %struct.tnode* @validate_node(%struct.tnode* %5, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_next_node, i64 0, i64 0), i32 986)
   %7 = load %struct.tnode*, %struct.tnode** %3, align 8
   %8 = load %struct.tnode*, %struct.tnode** %4, align 8
   call void @funk_copy_node(%struct.tnode* %7, %struct.tnode* %8)
@@ -3432,11 +3432,11 @@ define void @debug_print_arith_operation(%struct.tnode*, %struct.tnode*, %struct
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store %struct.tnode* %2, %struct.tnode** %6, align 8
   %7 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %8 = call %struct.tnode* @validate_node(%struct.tnode* %7, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1082)
+  %8 = call %struct.tnode* @validate_node(%struct.tnode* %7, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1074)
   %9 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %10 = call %struct.tnode* @validate_node(%struct.tnode* %9, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1083)
+  %10 = call %struct.tnode* @validate_node(%struct.tnode* %9, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1075)
   %11 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %12 = call %struct.tnode* @validate_node(%struct.tnode* %11, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1084)
+  %12 = call %struct.tnode* @validate_node(%struct.tnode* %11, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1076)
   %13 = load %struct.tnode*, %struct.tnode** %5, align 8
   %14 = ptrtoint %struct.tnode* %13 to i32
   %15 = call %struct.tpool* @get_pool_ptr(i32 %14)
@@ -3445,7 +3445,7 @@ define void @debug_print_arith_operation(%struct.tnode*, %struct.tnode*, %struct
   %18 = load i32, i32* %17, align 8
   %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str.54, i64 0, i64 0), %struct.tpool* %15, i32 %18)
   %20 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1088, i32 1)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1080, i32 1)
   %22 = bitcast %struct.tdata* %21 to { i64, i64 }*
   %23 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %22, i32 0, i32 0
   %24 = load i64, i64* %23, align 8
@@ -3461,7 +3461,7 @@ define void @debug_print_arith_operation(%struct.tnode*, %struct.tnode*, %struct
   %33 = load i32, i32* %32, align 8
   %34 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str.54, i64 0, i64 0), %struct.tpool* %30, i32 %33)
   %35 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %36 = call %struct.tdata* @get_node(%struct.tnode* %35, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1091, i32 1)
+  %36 = call %struct.tdata* @get_node(%struct.tnode* %35, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1083, i32 1)
   %37 = bitcast %struct.tdata* %36 to { i64, i64 }*
   %38 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %37, i32 0, i32 0
   %39 = load i64, i64* %38, align 8
@@ -3476,7 +3476,7 @@ define void @debug_print_arith_operation(%struct.tnode*, %struct.tnode*, %struct
   %47 = load i32, i32* %46, align 8
   %48 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.56, i64 0, i64 0), %struct.tpool* %44, i32 %47)
   %49 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %50 = call %struct.tdata* @get_node(%struct.tnode* %49, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1094, i32 1)
+  %50 = call %struct.tdata* @get_node(%struct.tnode* %49, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.debug_print_arith_operation, i64 0, i64 0), i32 1086, i32 1)
   %51 = bitcast %struct.tdata* %50 to { i64, i64 }*
   %52 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %51, i32 0, i32 0
   %53 = load i64, i64* %52, align 8
@@ -4356,24 +4356,24 @@ define void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, %struct.tnod
   store %struct.tnode* %3, %struct.tnode** %9, align 8
   store void (i8*, i8*, i8*, i32)* %4, void (i8*, i8*, i8*, i32)** %10, align 8
   %16 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %17 = call %struct.tnode* @validate_node(%struct.tnode* %16, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1287)
+  %17 = call %struct.tnode* @validate_node(%struct.tnode* %16, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1262)
   %18 = load %struct.tnode*, %struct.tnode** %9, align 8
-  %19 = call %struct.tnode* @validate_node(%struct.tnode* %18, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1288)
+  %19 = call %struct.tnode* @validate_node(%struct.tnode* %18, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1263)
   %20 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %21 = call %struct.tnode* @validate_node(%struct.tnode* %20, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1289)
+  %21 = call %struct.tnode* @validate_node(%struct.tnode* %20, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1264)
   %22 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1291, i32 1)
+  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1266, i32 1)
   %24 = bitcast %struct.tdata* %11 to i8*
   %25 = bitcast %struct.tdata* %23 to i8*
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %24, i8* align 8 %25, i64 16, i1 false)
   %26 = load %struct.tnode*, %struct.tnode** %9, align 8
-  %27 = call %struct.tdata* @get_node(%struct.tnode* %26, i32 0, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1292, i32 1)
+  %27 = call %struct.tdata* @get_node(%struct.tnode* %26, i32 0, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1267, i32 1)
   %28 = bitcast %struct.tdata* %12 to i8*
   %29 = bitcast %struct.tdata* %27 to i8*
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %28, i8* align 8 %29, i64 16, i1 false)
   %30 = load %struct.tnode*, %struct.tnode** %6, align 8
   %31 = load i32, i32* %7, align 4
-  %32 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 %31, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1293, i32 1)
+  %32 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 %31, i8* getelementptr inbounds ([18 x i8], [18 x i8]* @__FUNCTION__._funk_arith_op_rr, i64 0, i64 0), i32 1268, i32 1)
   store %struct.tdata* %32, %struct.tdata** %13, align 8
   %33 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 0
   %34 = load i32, i32* %33, align 8
@@ -4652,13 +4652,13 @@ define void @funk_arith_op_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*, vo
   call void @funk_arith_op_rr(%struct.tnode* %12, %struct.tnode* %10, %struct.tnode* %11, void (i8*, i8*, i8*, i32)* %72)
   %73 = load %struct.tnode*, %struct.tnode** %5, align 8
   %74 = load i32, i32* %9, align 4
-  %75 = call %struct.tdata* @get_node(%struct.tnode* %73, i32 %74, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_arith_op_rr, i64 0, i64 0), i32 1371, i32 1)
+  %75 = call %struct.tdata* @get_node(%struct.tnode* %73, i32 %74, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_arith_op_rr, i64 0, i64 0), i32 1346, i32 1)
   %76 = getelementptr inbounds %struct.tdata, %struct.tdata* %75, i32 0, i32 0
   store i32 7, i32* %76, align 8
   %77 = call i32 @_copy_node_to_pool(%struct.tnode* %12)
   %78 = load %struct.tnode*, %struct.tnode** %5, align 8
   %79 = load i32, i32* %9, align 4
-  %80 = call %struct.tdata* @get_node(%struct.tnode* %78, i32 %79, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_arith_op_rr, i64 0, i64 0), i32 1372, i32 1)
+  %80 = call %struct.tdata* @get_node(%struct.tnode* %78, i32 %79, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__.funk_arith_op_rr, i64 0, i64 0), i32 1347, i32 1)
   %81 = getelementptr inbounds %struct.tdata, %struct.tdata* %80, i32 0, i32 2
   %82 = bitcast %union.data_type* %81 to i32*
   store i32 %77, i32* %82, align 8
@@ -4688,83 +4688,68 @@ define void @funk_print_node(%struct.tnode*) #0 {
   %5 = alloca i32, align 4
   store %struct.tnode* %0, %struct.tnode** %2, align 8
   %6 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %7 = call i32 @_funk_get_node_dimension_count(%struct.tnode* %6)
-  %8 = icmp eq i32 %7, 2
-  br i1 %8, label %9, label %12
+  %7 = getelementptr inbounds %struct.tnode, %struct.tnode* %6, i32 0, i32 1
+  %8 = load i32, i32* %7, align 4
+  store i32 %8, i32* %3, align 4
+  %9 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %10 = getelementptr inbounds %struct.tnode, %struct.tnode* %9, i32 0, i32 1
+  %11 = load i32, i32* %10, align 4
+  %12 = icmp ugt i32 %11, 1
+  br i1 %12, label %13, label %15
 
-9:                                                ; preds = %1
-  %10 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %11 = call i32 @_funk_get_node_dimension(%struct.tnode* %10, i32 0)
-  br label %16
+13:                                               ; preds = %1
+  %14 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.80, i64 0, i64 0))
+  br label %15
 
-12:                                               ; preds = %1
-  %13 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %14 = getelementptr inbounds %struct.tnode, %struct.tnode* %13, i32 0, i32 1
-  %15 = load i32, i32* %14, align 4
-  br label %16
-
-16:                                               ; preds = %12, %9
-  %17 = phi i32 [ %11, %9 ], [ %15, %12 ]
-  store i32 %17, i32* %3, align 4
-  %18 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %19 = getelementptr inbounds %struct.tnode, %struct.tnode* %18, i32 0, i32 1
-  %20 = load i32, i32* %19, align 4
-  %21 = icmp ugt i32 %20, 1
-  br i1 %21, label %22, label %24
-
-22:                                               ; preds = %16
-  %23 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.81, i64 0, i64 0))
-  br label %24
-
-24:                                               ; preds = %22, %16
+15:                                               ; preds = %13, %1
   call void @funk_create_node(%struct.tnode* %4, i32 1, i32 1, i32 1, i8 zeroext 0, i8* null)
   store i32 0, i32* %5, align 4
-  br label %25
+  br label %16
 
-25:                                               ; preds = %41, %24
-  %26 = load i32, i32* %5, align 4
-  %27 = load i32, i32* %3, align 4
-  %28 = icmp ult i32 %26, %27
-  br i1 %28, label %29, label %44
+16:                                               ; preds = %32, %15
+  %17 = load i32, i32* %5, align 4
+  %18 = load i32, i32* %3, align 4
+  %19 = icmp ult i32 %17, %18
+  br i1 %19, label %20, label %35
 
-29:                                               ; preds = %25
-  %30 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %31 = load i32, i32* %5, align 4
-  call void @funk_get_element_in_array(%struct.tnode* %30, %struct.tnode* %4, i32 %31)
+20:                                               ; preds = %16
+  %21 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %22 = load i32, i32* %5, align 4
+  call void @funk_get_element_in_array(%struct.tnode* %21, %struct.tnode* %4, i32 %22)
   call void @_funk_print_node(%struct.tnode* %4)
-  %32 = load i32, i32* %5, align 4
-  %33 = add i32 %32, 1
-  %34 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %35 = getelementptr inbounds %struct.tnode, %struct.tnode* %34, i32 0, i32 1
-  %36 = load i32, i32* %35, align 4
-  %37 = icmp ne i32 %33, %36
-  br i1 %37, label %38, label %40
+  %23 = load i32, i32* %5, align 4
+  %24 = add i32 %23, 1
+  %25 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %26 = getelementptr inbounds %struct.tnode, %struct.tnode* %25, i32 0, i32 1
+  %27 = load i32, i32* %26, align 4
+  %28 = icmp ne i32 %24, %27
+  br i1 %28, label %29, label %31
 
-38:                                               ; preds = %29
-  %39 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.55, i64 0, i64 0))
-  br label %40
+29:                                               ; preds = %20
+  %30 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str.55, i64 0, i64 0))
+  br label %31
 
-40:                                               ; preds = %38, %29
-  br label %41
+31:                                               ; preds = %29, %20
+  br label %32
 
-41:                                               ; preds = %40
-  %42 = load i32, i32* %5, align 4
-  %43 = add i32 %42, 1
-  store i32 %43, i32* %5, align 4
-  br label %25
+32:                                               ; preds = %31
+  %33 = load i32, i32* %5, align 4
+  %34 = add i32 %33, 1
+  store i32 %34, i32* %5, align 4
+  br label %16
 
-44:                                               ; preds = %25
-  %45 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %46 = getelementptr inbounds %struct.tnode, %struct.tnode* %45, i32 0, i32 1
-  %47 = load i32, i32* %46, align 4
-  %48 = icmp ugt i32 %47, 1
-  br i1 %48, label %49, label %51
+35:                                               ; preds = %16
+  %36 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %37 = getelementptr inbounds %struct.tnode, %struct.tnode* %36, i32 0, i32 1
+  %38 = load i32, i32* %37, align 4
+  %39 = icmp ugt i32 %38, 1
+  br i1 %39, label %40, label %42
 
-49:                                               ; preds = %44
-  %50 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.82, i64 0, i64 0))
-  br label %51
+40:                                               ; preds = %35
+  %41 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.81, i64 0, i64 0))
+  br label %42
 
-51:                                               ; preds = %49, %44
+42:                                               ; preds = %40, %35
   ret void
 }
 
@@ -4910,7 +4895,7 @@ define void @funk_eq_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
   %16 = call i32 @get_pool_enum(%struct.tpool* %15)
   call void @funk_create_node(%struct.tnode* %12, i32 1, i32 %16, i32 1, i8 zeroext 0, i8* null)
   %17 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__FUNCTION__.funk_eq_rr, i64 0, i64 0), i32 1438, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__FUNCTION__.funk_eq_rr, i64 0, i64 0), i32 1411, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 2
   %20 = bitcast %union.data_type* %19 to i32*
   store i32 1, i32* %20, align 8
@@ -4926,7 +4911,7 @@ define void @funk_eq_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
 
 26:                                               ; preds = %21
   %27 = load i32, i32* %9, align 4
-  %28 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 %27, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__FUNCTION__.funk_eq_rr, i64 0, i64 0), i32 1441, i32 1)
+  %28 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 %27, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__FUNCTION__.funk_eq_rr, i64 0, i64 0), i32 1414, i32 1)
   %29 = getelementptr inbounds %struct.tdata, %struct.tdata* %28, i32 0, i32 2
   %30 = bitcast %union.data_type* %29 to i32*
   %31 = load i32, i32* %30, align 8
@@ -4935,7 +4920,7 @@ define void @funk_eq_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
 
 33:                                               ; preds = %26
   %34 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %35 = call %struct.tdata* @get_node(%struct.tnode* %34, i32 0, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__FUNCTION__.funk_eq_rr, i64 0, i64 0), i32 1442, i32 1)
+  %35 = call %struct.tdata* @get_node(%struct.tnode* %34, i32 0, i8* getelementptr inbounds ([11 x i8], [11 x i8]* @__FUNCTION__.funk_eq_rr, i64 0, i64 0), i32 1415, i32 1)
   %36 = getelementptr inbounds %struct.tdata, %struct.tdata* %35, i32 0, i32 2
   %37 = bitcast %union.data_type* %36 to i32*
   store i32 0, i32* %37, align 8
@@ -5326,199 +5311,97 @@ define void @_funk_print_node(%struct.tnode*) #0 {
   %2 = alloca %struct.tnode*, align 8
   %3 = alloca i32, align 4
   %4 = alloca %struct.tnode, align 8
-  %5 = alloca i32, align 4
-  %6 = alloca i32, align 4
   store %struct.tnode* %0, %struct.tnode** %2, align 8
-  %7 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %8 = call i32 @_funk_get_node_dimension_count(%struct.tnode* %7)
-  %9 = icmp ule i32 %8, 1
-  br i1 %9, label %10, label %70
+  %5 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %6 = getelementptr inbounds %struct.tnode, %struct.tnode* %5, i32 0, i32 1
+  %7 = load i32, i32* %6, align 4
+  %8 = icmp ugt i32 %7, 1
+  br i1 %8, label %9, label %11
 
-10:                                               ; preds = %1
-  %11 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %12 = getelementptr inbounds %struct.tnode, %struct.tnode* %11, i32 0, i32 1
-  %13 = load i32, i32* %12, align 4
-  %14 = icmp ugt i32 %13, 1
-  br i1 %14, label %15, label %17
+9:                                                ; preds = %1
+  %10 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.77, i64 0, i64 0))
+  br label %11
 
-15:                                               ; preds = %10
-  %16 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.77, i64 0, i64 0))
-  br label %17
-
-17:                                               ; preds = %15, %10
+11:                                               ; preds = %9, %1
   store i32 0, i32* %3, align 4
-  br label %18
+  br label %12
 
-18:                                               ; preds = %59, %17
-  %19 = load i32, i32* %3, align 4
-  %20 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %21 = getelementptr inbounds %struct.tnode, %struct.tnode* %20, i32 0, i32 1
-  %22 = load i32, i32* %21, align 4
-  %23 = icmp ult i32 %19, %22
-  br i1 %23, label %24, label %62
+12:                                               ; preds = %53, %11
+  %13 = load i32, i32* %3, align 4
+  %14 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %15 = getelementptr inbounds %struct.tnode, %struct.tnode* %14, i32 0, i32 1
+  %16 = load i32, i32* %15, align 4
+  %17 = icmp ult i32 %13, %16
+  br i1 %17, label %18, label %56
 
-24:                                               ; preds = %18
-  %25 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %26 = load i32, i32* %3, align 4
-  %27 = call %struct.tdata* @get_node(%struct.tnode* %25, i32 %26, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1629, i32 1)
-  %28 = getelementptr inbounds %struct.tdata, %struct.tdata* %27, i32 0, i32 0
-  %29 = load i32, i32* %28, align 8
-  %30 = icmp eq i32 %29, 7
-  br i1 %30, label %31, label %40
+18:                                               ; preds = %12
+  %19 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %20 = load i32, i32* %3, align 4
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 %20, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1561, i32 1)
+  %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 0
+  %23 = load i32, i32* %22, align 8
+  %24 = icmp eq i32 %23, 7
+  br i1 %24, label %25, label %34
 
-31:                                               ; preds = %24
-  %32 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %33 = getelementptr inbounds %struct.tnode, %struct.tnode* %32, i32 0, i32 2
-  %34 = load %struct.tpool*, %struct.tpool** %33, align 8
-  %35 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %36 = getelementptr inbounds %struct.tnode, %struct.tnode* %35, i32 0, i32 0
-  %37 = load i32, i32* %36, align 8
-  %38 = load i32, i32* %3, align 4
-  call void @_dereference(%struct.tnode* %4, %struct.tpool* %34, i32 %37, i32 %38, i32 10, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1631)
+25:                                               ; preds = %18
+  %26 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %27 = getelementptr inbounds %struct.tnode, %struct.tnode* %26, i32 0, i32 2
+  %28 = load %struct.tpool*, %struct.tpool** %27, align 8
+  %29 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %30 = getelementptr inbounds %struct.tnode, %struct.tnode* %29, i32 0, i32 0
+  %31 = load i32, i32* %30, align 8
+  %32 = load i32, i32* %3, align 4
+  call void @_dereference(%struct.tnode* %4, %struct.tpool* %28, i32 %31, i32 %32, i32 10, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1563)
   call void @funk_print_node(%struct.tnode* %4)
-  %39 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.30, i64 0, i64 0))
-  br label %49
+  %33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.30, i64 0, i64 0))
+  br label %43
 
-40:                                               ; preds = %24
-  %41 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %42 = load i32, i32* %3, align 4
-  %43 = call %struct.tdata* @get_node(%struct.tnode* %41, i32 %42, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1636, i32 1)
-  %44 = bitcast %struct.tdata* %43 to { i64, i64 }*
-  %45 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %44, i32 0, i32 0
-  %46 = load i64, i64* %45, align 8
-  %47 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %44, i32 0, i32 1
-  %48 = load i64, i64* %47, align 8
-  call void @funk_print_scalar_element(i64 %46, i64 %48)
-  br label %49
+34:                                               ; preds = %18
+  %35 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %36 = load i32, i32* %3, align 4
+  %37 = call %struct.tdata* @get_node(%struct.tnode* %35, i32 %36, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1568, i32 1)
+  %38 = bitcast %struct.tdata* %37 to { i64, i64 }*
+  %39 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %38, i32 0, i32 0
+  %40 = load i64, i64* %39, align 8
+  %41 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %38, i32 0, i32 1
+  %42 = load i64, i64* %41, align 8
+  call void @funk_print_scalar_element(i64 %40, i64 %42)
+  br label %43
 
-49:                                               ; preds = %40, %31
-  %50 = load i32, i32* %3, align 4
-  %51 = add i32 %50, 1
-  %52 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %53 = getelementptr inbounds %struct.tnode, %struct.tnode* %52, i32 0, i32 1
-  %54 = load i32, i32* %53, align 4
-  %55 = icmp ult i32 %51, %54
-  br i1 %55, label %56, label %58
+43:                                               ; preds = %34, %25
+  %44 = load i32, i32* %3, align 4
+  %45 = add i32 %44, 1
+  %46 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %47 = getelementptr inbounds %struct.tnode, %struct.tnode* %46, i32 0, i32 1
+  %48 = load i32, i32* %47, align 4
+  %49 = icmp ult i32 %45, %48
+  br i1 %49, label %50, label %52
 
-56:                                               ; preds = %49
-  %57 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.78, i64 0, i64 0))
-  br label %58
+50:                                               ; preds = %43
+  %51 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.78, i64 0, i64 0))
+  br label %52
 
-58:                                               ; preds = %56, %49
-  br label %59
+52:                                               ; preds = %50, %43
+  br label %53
 
-59:                                               ; preds = %58
-  %60 = load i32, i32* %3, align 4
-  %61 = add i32 %60, 1
-  store i32 %61, i32* %3, align 4
-  br label %18
+53:                                               ; preds = %52
+  %54 = load i32, i32* %3, align 4
+  %55 = add i32 %54, 1
+  store i32 %55, i32* %3, align 4
+  br label %12
 
-62:                                               ; preds = %18
-  %63 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %64 = getelementptr inbounds %struct.tnode, %struct.tnode* %63, i32 0, i32 1
-  %65 = load i32, i32* %64, align 4
-  %66 = icmp ugt i32 %65, 1
-  br i1 %66, label %67, label %69
+56:                                               ; preds = %12
+  %57 = load %struct.tnode*, %struct.tnode** %2, align 8
+  %58 = getelementptr inbounds %struct.tnode, %struct.tnode* %57, i32 0, i32 1
+  %59 = load i32, i32* %58, align 4
+  %60 = icmp ugt i32 %59, 1
+  br i1 %60, label %61, label %63
 
-67:                                               ; preds = %62
-  %68 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.79, i64 0, i64 0))
-  br label %69
+61:                                               ; preds = %56
+  %62 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.79, i64 0, i64 0))
+  br label %63
 
-69:                                               ; preds = %67, %62
-  br label %128
-
-70:                                               ; preds = %1
-  %71 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %72 = call i32 @_funk_get_node_dimension_count(%struct.tnode* %71)
-  %73 = icmp eq i32 %72, 2
-  br i1 %73, label %74, label %120
-
-74:                                               ; preds = %70
-  %75 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.77, i64 0, i64 0))
-  store i32 0, i32* %5, align 4
-  br label %76
-
-76:                                               ; preds = %115, %74
-  %77 = load i32, i32* %5, align 4
-  %78 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %79 = call i32 @_funk_get_node_dimension(%struct.tnode* %78, i32 1)
-  %80 = icmp ult i32 %77, %79
-  br i1 %80, label %81, label %118
-
-81:                                               ; preds = %76
-  %82 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.77, i64 0, i64 0))
-  store i32 0, i32* %6, align 4
-  br label %83
-
-83:                                               ; preds = %110, %81
-  %84 = load i32, i32* %6, align 4
-  %85 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %86 = call i32 @_funk_get_node_dimension(%struct.tnode* %85, i32 0)
-  %87 = icmp ult i32 %84, %86
-  br i1 %87, label %88, label %113
-
-88:                                               ; preds = %83
-  %89 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %90 = load i32, i32* %5, align 4
-  %91 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %92 = call i32 @_funk_get_node_dimension(%struct.tnode* %91, i32 0)
-  %93 = mul i32 %90, %92
-  %94 = load i32, i32* %6, align 4
-  %95 = add i32 %93, %94
-  %96 = call %struct.tdata* @get_node(%struct.tnode* %89, i32 %95, i8* getelementptr inbounds ([17 x i8], [17 x i8]* @__FUNCTION__._funk_print_node, i64 0, i64 0), i32 1649, i32 1)
-  %97 = bitcast %struct.tdata* %96 to { i64, i64 }*
-  %98 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %97, i32 0, i32 0
-  %99 = load i64, i64* %98, align 8
-  %100 = getelementptr inbounds { i64, i64 }, { i64, i64 }* %97, i32 0, i32 1
-  %101 = load i64, i64* %100, align 8
-  call void @funk_print_scalar_element(i64 %99, i64 %101)
-  %102 = load i32, i32* %6, align 4
-  %103 = add i32 %102, 1
-  %104 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %105 = call i32 @_funk_get_node_dimension(%struct.tnode* %104, i32 0)
-  %106 = icmp ult i32 %103, %105
-  br i1 %106, label %107, label %109
-
-107:                                              ; preds = %88
-  %108 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.78, i64 0, i64 0))
-  br label %109
-
-109:                                              ; preds = %107, %88
-  br label %110
-
-110:                                              ; preds = %109
-  %111 = load i32, i32* %6, align 4
-  %112 = add i32 %111, 1
-  store i32 %112, i32* %6, align 4
-  br label %83
-
-113:                                              ; preds = %83
-  %114 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.79, i64 0, i64 0))
-  br label %115
-
-115:                                              ; preds = %113
-  %116 = load i32, i32* %5, align 4
-  %117 = add i32 %116, 1
-  store i32 %117, i32* %5, align 4
-  br label %76
-
-118:                                              ; preds = %76
-  %119 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.79, i64 0, i64 0))
-  br label %127
-
-120:                                              ; preds = %70
-  %121 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %122 = call i32 @_funk_get_node_dimension_count(%struct.tnode* %121)
-  %123 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %124 = getelementptr inbounds %struct.tnode, %struct.tnode* %123, i32 0, i32 1
-  %125 = load i32, i32* %124, align 4
-  %126 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([40 x i8], [40 x i8]* @.str.80, i64 0, i64 0), i32 %122, i32 %125)
-  br label %127
-
-127:                                              ; preds = %120, %118
-  br label %128
-
-128:                                              ; preds = %127, %69
+63:                                               ; preds = %61, %56
   ret void
 }
 
@@ -5528,7 +5411,7 @@ define float @funk_ToFloat(%struct.tnode*) #0 {
   %3 = alloca %struct.tnode*, align 8
   store %struct.tnode* %0, %struct.tnode** %3, align 8
   %4 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %5 = call %struct.tdata* @get_node(%struct.tnode* %4, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1685, i32 1)
+  %5 = call %struct.tdata* @get_node(%struct.tnode* %4, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1600, i32 1)
   %6 = getelementptr inbounds %struct.tdata, %struct.tdata* %5, i32 0, i32 0
   %7 = load i32, i32* %6, align 8
   %8 = icmp eq i32 %7, 1
@@ -5536,7 +5419,7 @@ define float @funk_ToFloat(%struct.tnode*) #0 {
 
 9:                                                ; preds = %1
   %10 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1686, i32 1)
+  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1601, i32 1)
   %12 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 2
   %13 = bitcast %union.data_type* %12 to i32*
   %14 = load i32, i32* %13, align 8
@@ -5546,7 +5429,7 @@ define float @funk_ToFloat(%struct.tnode*) #0 {
 
 16:                                               ; preds = %1
   %17 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1687, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1602, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 0
   %20 = load i32, i32* %19, align 8
   %21 = icmp eq i32 %20, 2
@@ -5554,7 +5437,7 @@ define float @funk_ToFloat(%struct.tnode*) #0 {
 
 22:                                               ; preds = %16
   %23 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %24 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1688, i32 1)
+  %24 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1603, i32 1)
   %25 = getelementptr inbounds %struct.tdata, %struct.tdata* %24, i32 0, i32 2
   %26 = bitcast %union.data_type* %25 to double*
   %27 = load double, double* %26, align 8
@@ -5564,10 +5447,10 @@ define float @funk_ToFloat(%struct.tnode*) #0 {
 
 29:                                               ; preds = %16
   %30 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %31 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1690, i32 1)
+  %31 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 0, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0), i32 1605, i32 1)
   %32 = getelementptr inbounds %struct.tdata, %struct.tdata* %31, i32 0, i32 0
   store i32 0, i32* %32, align 8
-  %33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.83, i64 0, i64 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0))
+  %33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.82, i64 0, i64 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @__FUNCTION__.funk_ToFloat, i64 0, i64 0))
   call void @exit(i32 1) #6
   unreachable
 
@@ -5592,7 +5475,7 @@ define void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 {
   %12 = call %struct.tpool* @get_pool_ptr(i32 %11)
   store %struct.tpool* %12, %struct.tpool** %7, align 8
   %13 = load i8*, i8** %6, align 8
-  %14 = call %struct.__sFILE* @"\01_fopen"(i8* %13, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.84, i64 0, i64 0))
+  %14 = call %struct.__sFILE* @"\01_fopen"(i8* %13, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.83, i64 0, i64 0))
   store %struct.__sFILE* %14, %struct.__sFILE** %8, align 8
   %15 = load %struct.__sFILE*, %struct.__sFILE** %8, align 8
   %16 = icmp eq %struct.__sFILE* %15, null
@@ -5600,7 +5483,7 @@ define void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 {
 
 17:                                               ; preds = %3
   %18 = load i8*, i8** %6, align 8
-  %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([30 x i8], [30 x i8]* @.str.85, i64 0, i64 0), i8* %18)
+  %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([30 x i8], [30 x i8]* @.str.84, i64 0, i64 0), i8* %18)
   call void @exit(i32 1) #6
   unreachable
 
@@ -5614,7 +5497,7 @@ define void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 {
 
 23:                                               ; preds = %27, %20
   %24 = load %struct.__sFILE*, %struct.__sFILE** %8, align 8
-  %25 = call i32 (%struct.__sFILE*, i8*, ...) @fscanf(%struct.__sFILE* %24, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.86, i64 0, i64 0), i32* %9)
+  %25 = call i32 (%struct.__sFILE*, i8*, ...) @fscanf(%struct.__sFILE* %24, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.85, i64 0, i64 0), i32* %9)
   %26 = icmp eq i32 %25, 1
   br i1 %26, label %27, label %46
 
@@ -5622,13 +5505,13 @@ define void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 {
   %28 = load i32, i32* %9, align 4
   %29 = load %struct.tnode*, %struct.tnode** %5, align 8
   %30 = load i32, i32* %10, align 4
-  %31 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 %30, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_read_list_from_file, i64 0, i64 0), i32 1719, i32 1)
+  %31 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 %30, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_read_list_from_file, i64 0, i64 0), i32 1629, i32 1)
   %32 = getelementptr inbounds %struct.tdata, %struct.tdata* %31, i32 0, i32 2
   %33 = bitcast %union.data_type* %32 to i32*
   store i32 %28, i32* %33, align 8
   %34 = load %struct.tnode*, %struct.tnode** %5, align 8
   %35 = load i32, i32* %10, align 4
-  %36 = call %struct.tdata* @get_node(%struct.tnode* %34, i32 %35, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_read_list_from_file, i64 0, i64 0), i32 1720, i32 1)
+  %36 = call %struct.tdata* @get_node(%struct.tnode* %34, i32 %35, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_read_list_from_file, i64 0, i64 0), i32 1630, i32 1)
   %37 = getelementptr inbounds %struct.tdata, %struct.tdata* %36, i32 0, i32 0
   store i32 1, i32* %37, align 8
   %38 = load %struct.tnode*, %struct.tnode** %5, align 8
@@ -5638,7 +5521,7 @@ define void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 {
   %42 = load i8, i8* %41, align 4
   call void @_set_wrap_creation(%struct.tnode* %38, i32 %39, i8 zeroext %42)
   %43 = load %struct.tpool*, %struct.tpool** %7, align 8
-  call void @funk_increment_pool_tail(%struct.tpool* %43, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_read_list_from_file, i64 0, i64 0), i32 1722)
+  call void @funk_increment_pool_tail(%struct.tpool* %43, i8* getelementptr inbounds ([25 x i8], [25 x i8]* @__FUNCTION__.funk_read_list_from_file, i64 0, i64 0), i32 1632)
   %44 = load i32, i32* %10, align 4
   %45 = add nsw i32 %44, 1
   store i32 %45, i32* %10, align 4
@@ -5713,7 +5596,7 @@ define void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, 
 32:                                               ; preds = %6
   %33 = load i32, i32* %9, align 4
   %34 = load i32, i32* %10, align 4
-  %35 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.87, i64 0, i64 0), i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 %33, i32 %34)
+  %35 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.86, i64 0, i64 0), i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 %33, i32 %34)
   call void @exit(i32 1) #6
   unreachable
 
@@ -5726,7 +5609,7 @@ define void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, 
 40:                                               ; preds = %36
   %41 = load i32, i32* %11, align 4
   %42 = load i32, i32* %12, align 4
-  %43 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.88, i64 0, i64 0), i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 %41, i32 %42)
+  %43 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.87, i64 0, i64 0), i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 %41, i32 %42)
   call void @exit(i32 1) #6
   unreachable
 
@@ -5839,18 +5722,18 @@ define void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, 
   %110 = load i32, i32* %24, align 4
   call void @funk_get_element_in_array(%struct.tnode* %19, %struct.tnode* %23, i32 %110)
   %111 = load i32, i32* %22, align 4
-  %112 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 %111, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1780, i32 1)
+  %112 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 %111, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1684, i32 1)
   %113 = getelementptr inbounds %struct.tdata, %struct.tdata* %112, i32 0, i32 2
-  %114 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1780, i32 1)
+  %114 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1684, i32 1)
   %115 = getelementptr inbounds %struct.tdata, %struct.tdata* %114, i32 0, i32 2
   %116 = bitcast %union.data_type* %113 to i8*
   %117 = bitcast %union.data_type* %115 to i8*
   call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %116, i8* align 8 %117, i64 8, i1 false)
-  %118 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1781, i32 1)
+  %118 = call %struct.tdata* @get_node(%struct.tnode* %23, i32 0, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1685, i32 1)
   %119 = getelementptr inbounds %struct.tdata, %struct.tdata* %118, i32 0, i32 0
   %120 = load i32, i32* %119, align 8
   %121 = load i32, i32* %22, align 4
-  %122 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 %121, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1781, i32 1)
+  %122 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 %121, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1685, i32 1)
   %123 = getelementptr inbounds %struct.tdata, %struct.tdata* %122, i32 0, i32 0
   store i32 %120, i32* %123, align 8
   br label %124
@@ -5867,13 +5750,13 @@ define void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, 
 129:                                              ; preds = %92
   %130 = load %struct.tnode*, %struct.tnode** %8, align 8
   %131 = load i32, i32* %17, align 4
-  %132 = call %struct.tdata* @get_node(%struct.tnode* %130, i32 %131, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1784, i32 0)
+  %132 = call %struct.tdata* @get_node(%struct.tnode* %130, i32 %131, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1687, i32 0)
   %133 = getelementptr inbounds %struct.tdata, %struct.tdata* %132, i32 0, i32 0
   store i32 7, i32* %133, align 8
   %134 = call i32 @_copy_node_to_pool(%struct.tnode* %20)
   %135 = load %struct.tnode*, %struct.tnode** %8, align 8
   %136 = load i32, i32* %17, align 4
-  %137 = call %struct.tdata* @get_node(%struct.tnode* %135, i32 %136, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1785, i32 0)
+  %137 = call %struct.tdata* @get_node(%struct.tnode* %135, i32 %136, i8* getelementptr inbounds ([35 x i8], [35 x i8]* @__FUNCTION__.funk_create_sub_matrix_lit_indexes, i64 0, i64 0), i32 1688, i32 0)
   %138 = getelementptr inbounds %struct.tdata, %struct.tdata* %137, i32 0, i32 2
   %139 = bitcast %union.data_type* %138 to i32*
   store i32 %134, i32* %139, align 8
@@ -5914,25 +5797,25 @@ define void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnod
   store %struct.tnode* %4, %struct.tnode** %11, align 8
   store %struct.tnode* %5, %struct.tnode** %12, align 8
   %17 = load %struct.tnode*, %struct.tnode** %9, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1797, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1697, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 2
   %20 = bitcast %union.data_type* %19 to i32*
   %21 = load i32, i32* %20, align 8
   store i32 %21, i32* %13, align 4
   %22 = load %struct.tnode*, %struct.tnode** %10, align 8
-  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1798, i32 1)
+  %23 = call %struct.tdata* @get_node(%struct.tnode* %22, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1698, i32 1)
   %24 = getelementptr inbounds %struct.tdata, %struct.tdata* %23, i32 0, i32 2
   %25 = bitcast %union.data_type* %24 to i32*
   %26 = load i32, i32* %25, align 8
   store i32 %26, i32* %14, align 4
   %27 = load %struct.tnode*, %struct.tnode** %11, align 8
-  %28 = call %struct.tdata* @get_node(%struct.tnode* %27, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1799, i32 1)
+  %28 = call %struct.tdata* @get_node(%struct.tnode* %27, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1699, i32 1)
   %29 = getelementptr inbounds %struct.tdata, %struct.tdata* %28, i32 0, i32 2
   %30 = bitcast %union.data_type* %29 to i32*
   %31 = load i32, i32* %30, align 8
   store i32 %31, i32* %15, align 4
   %32 = load %struct.tnode*, %struct.tnode** %12, align 8
-  %33 = call %struct.tdata* @get_node(%struct.tnode* %32, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1800, i32 1)
+  %33 = call %struct.tdata* @get_node(%struct.tnode* %32, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_create_sub_matrix, i64 0, i64 0), i32 1700, i32 1)
   %34 = getelementptr inbounds %struct.tdata, %struct.tdata* %33, i32 0, i32 2
   %35 = bitcast %union.data_type* %34 to i32*
   %36 = load i32, i32* %35, align 8
@@ -6008,7 +5891,7 @@ define void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, i
 41:                                               ; preds = %36
   %42 = load i32, i32* %7, align 4
   %43 = load i32, i32* %8, align 4
-  %44 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.88, i64 0, i64 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_create_sub_array_lit_indexes, i64 0, i64 0), i32 %42, i32 %43)
+  %44 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.87, i64 0, i64 0), i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__FUNCTION__.funk_create_sub_array_lit_indexes, i64 0, i64 0), i32 %42, i32 %43)
   call void @exit(i32 1) #6
   unreachable
 
@@ -6085,13 +5968,13 @@ define void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode
   store %struct.tnode* %2, %struct.tnode** %7, align 8
   store %struct.tnode* %3, %struct.tnode** %8, align 8
   %11 = load %struct.tnode*, %struct.tnode** %7, align 8
-  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__FUNCTION__.funk_create_sub_array, i64 0, i64 0), i32 1849, i32 1)
+  %12 = call %struct.tdata* @get_node(%struct.tnode* %11, i32 0, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__FUNCTION__.funk_create_sub_array, i64 0, i64 0), i32 1745, i32 1)
   %13 = getelementptr inbounds %struct.tdata, %struct.tdata* %12, i32 0, i32 2
   %14 = bitcast %union.data_type* %13 to i32*
   %15 = load i32, i32* %14, align 8
   store i32 %15, i32* %9, align 4
   %16 = load %struct.tnode*, %struct.tnode** %8, align 8
-  %17 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 0, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__FUNCTION__.funk_create_sub_array, i64 0, i64 0), i32 1850, i32 1)
+  %17 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 0, i8* getelementptr inbounds ([22 x i8], [22 x i8]* @__FUNCTION__.funk_create_sub_array, i64 0, i64 0), i32 1746, i32 1)
   %18 = getelementptr inbounds %struct.tdata, %struct.tdata* %17, i32 0, i32 2
   %19 = bitcast %union.data_type* %18 to i32*
   %20 = load i32, i32* %19, align 8
@@ -6148,7 +6031,7 @@ define i32 @_funk_set_node_dimensions(%struct.tnode*, i32, i32, i32*, i32, i32) 
 
 32:                                               ; preds = %27
   %33 = load i32, i32* %15, align 4
-  %34 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %33, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1870, i32 1)
+  %34 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %33, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1766, i32 1)
   %35 = getelementptr inbounds %struct.tdata, %struct.tdata* %34, i32 0, i32 0
   store i32 7, i32* %35, align 8
   %36 = load %struct.tnode*, %struct.tnode** %7, align 8
@@ -6169,7 +6052,7 @@ define i32 @_funk_set_node_dimensions(%struct.tnode*, i32, i32, i32*, i32, i32) 
   %51 = add i32 %42, %50
   %52 = call i32 @_funk_set_node_dimensions(%struct.tnode* %36, i32 %37, i32 %39, i32* %40, i32 %41, i32 %51)
   %53 = load i32, i32* %15, align 4
-  %54 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %53, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1871, i32 1)
+  %54 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %53, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1767, i32 1)
   %55 = getelementptr inbounds %struct.tdata, %struct.tdata* %54, i32 0, i32 2
   %56 = bitcast %union.data_type* %55 to i32*
   store i32 %52, i32* %56, align 8
@@ -6180,23 +6063,23 @@ define i32 @_funk_set_node_dimensions(%struct.tnode*, i32, i32, i32*, i32, i32) 
   %59 = load i32, i32* %12, align 4
   %60 = load i32, i32* %15, align 4
   %61 = add i32 %59, %60
-  %62 = call %struct.tdata* @get_node(%struct.tnode* %58, i32 %61, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1875, i32 1)
+  %62 = call %struct.tdata* @get_node(%struct.tnode* %58, i32 %61, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1772, i32 1)
   %63 = getelementptr inbounds %struct.tdata, %struct.tdata* %62, i32 0, i32 0
   %64 = load i32, i32* %63, align 8
   %65 = load i32, i32* %15, align 4
-  %66 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %65, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1875, i32 1)
+  %66 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %65, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1772, i32 1)
   %67 = getelementptr inbounds %struct.tdata, %struct.tdata* %66, i32 0, i32 0
   store i32 %64, i32* %67, align 8
   %68 = load %struct.tnode*, %struct.tnode** %7, align 8
   %69 = load i32, i32* %12, align 4
   %70 = load i32, i32* %15, align 4
   %71 = add i32 %69, %70
-  %72 = call %struct.tdata* @get_node(%struct.tnode* %68, i32 %71, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1876, i32 1)
+  %72 = call %struct.tdata* @get_node(%struct.tnode* %68, i32 %71, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1773, i32 1)
   %73 = getelementptr inbounds %struct.tdata, %struct.tdata* %72, i32 0, i32 2
   %74 = bitcast %union.data_type* %73 to i32*
   %75 = load i32, i32* %74, align 8
   %76 = load i32, i32* %15, align 4
-  %77 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %76, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1876, i32 1)
+  %77 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 %76, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__._funk_set_node_dimensions, i64 0, i64 0), i32 1773, i32 1)
   %78 = getelementptr inbounds %struct.tdata, %struct.tdata* %77, i32 0, i32 2
   %79 = bitcast %union.data_type* %78 to i32*
   store i32 %75, i32* %79, align 8
@@ -6309,7 +6192,7 @@ define void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 {
 15:                                               ; preds = %9
   %16 = load %struct.tnode*, %struct.tnode** %5, align 8
   %17 = load i32, i32* %7, align 4
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 %17, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1899, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %16, i32 %17, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1795, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 0
   %20 = load i32, i32* %19, align 8
   %21 = icmp eq i32 %20, 7
@@ -6323,24 +6206,24 @@ define void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 {
   %27 = getelementptr inbounds %struct.tnode, %struct.tnode* %26, i32 0, i32 0
   %28 = load i32, i32* %27, align 8
   %29 = load i32, i32* %7, align 4
-  call void @_dereference(%struct.tnode* %8, %struct.tpool* %25, i32 %28, i32 %29, i32 10, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1902)
-  %30 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1903, i32 1)
+  call void @_dereference(%struct.tnode* %8, %struct.tpool* %25, i32 %28, i32 %29, i32 10, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1798)
+  %30 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1799, i32 1)
   %31 = getelementptr inbounds %struct.tdata, %struct.tdata* %30, i32 0, i32 0
   %32 = load i32, i32* %31, align 8
   %33 = load %struct.tnode*, %struct.tnode** %4, align 8
   %34 = load i32, i32* %6, align 4
   %35 = load i32, i32* %7, align 4
   %36 = add i32 %34, %35
-  %37 = call %struct.tdata* @get_node(%struct.tnode* %33, i32 %36, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1903, i32 0)
+  %37 = call %struct.tdata* @get_node(%struct.tnode* %33, i32 %36, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1799, i32 0)
   %38 = getelementptr inbounds %struct.tdata, %struct.tdata* %37, i32 0, i32 0
   store i32 %32, i32* %38, align 8
   %39 = load %struct.tnode*, %struct.tnode** %4, align 8
   %40 = load i32, i32* %6, align 4
   %41 = load i32, i32* %7, align 4
   %42 = add i32 %40, %41
-  %43 = call %struct.tdata* @get_node(%struct.tnode* %39, i32 %42, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1904, i32 0)
+  %43 = call %struct.tdata* @get_node(%struct.tnode* %39, i32 %42, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1800, i32 0)
   %44 = getelementptr inbounds %struct.tdata, %struct.tdata* %43, i32 0, i32 2
-  %45 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1904, i32 1)
+  %45 = call %struct.tdata* @get_node(%struct.tnode* %8, i32 0, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1800, i32 1)
   %46 = getelementptr inbounds %struct.tdata, %struct.tdata* %45, i32 0, i32 2
   %47 = bitcast %union.data_type* %44 to i8*
   %48 = bitcast %union.data_type* %46 to i8*
@@ -6350,25 +6233,25 @@ define void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 {
 49:                                               ; preds = %15
   %50 = load %struct.tnode*, %struct.tnode** %5, align 8
   %51 = load i32, i32* %7, align 4
-  %52 = call %struct.tdata* @get_node(%struct.tnode* %50, i32 %51, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1906, i32 1)
+  %52 = call %struct.tdata* @get_node(%struct.tnode* %50, i32 %51, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1802, i32 1)
   %53 = getelementptr inbounds %struct.tdata, %struct.tdata* %52, i32 0, i32 0
   %54 = load i32, i32* %53, align 8
   %55 = load %struct.tnode*, %struct.tnode** %4, align 8
   %56 = load i32, i32* %6, align 4
   %57 = load i32, i32* %7, align 4
   %58 = add i32 %56, %57
-  %59 = call %struct.tdata* @get_node(%struct.tnode* %55, i32 %58, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1906, i32 0)
+  %59 = call %struct.tdata* @get_node(%struct.tnode* %55, i32 %58, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1802, i32 0)
   %60 = getelementptr inbounds %struct.tdata, %struct.tdata* %59, i32 0, i32 0
   store i32 %54, i32* %60, align 8
   %61 = load %struct.tnode*, %struct.tnode** %4, align 8
   %62 = load i32, i32* %6, align 4
   %63 = load i32, i32* %7, align 4
   %64 = add i32 %62, %63
-  %65 = call %struct.tdata* @get_node(%struct.tnode* %61, i32 %64, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1907, i32 0)
+  %65 = call %struct.tdata* @get_node(%struct.tnode* %61, i32 %64, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1803, i32 0)
   %66 = getelementptr inbounds %struct.tdata, %struct.tdata* %65, i32 0, i32 2
   %67 = load %struct.tnode*, %struct.tnode** %5, align 8
   %68 = load i32, i32* %7, align 4
-  %69 = call %struct.tdata* @get_node(%struct.tnode* %67, i32 %68, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1907, i32 1)
+  %69 = call %struct.tdata* @get_node(%struct.tnode* %67, i32 %68, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1803, i32 1)
   %70 = getelementptr inbounds %struct.tdata, %struct.tdata* %69, i32 0, i32 2
   %71 = bitcast %union.data_type* %66 to i8*
   %72 = bitcast %union.data_type* %70 to i8*
@@ -6389,7 +6272,7 @@ define void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 {
   %83 = load %struct.tnode*, %struct.tnode** %4, align 8
   %84 = getelementptr inbounds %struct.tnode, %struct.tnode* %83, i32 0, i32 2
   %85 = load %struct.tpool*, %struct.tpool** %84, align 8
-  call void @funk_increment_pool_tail(%struct.tpool* %85, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1910)
+  call void @funk_increment_pool_tail(%struct.tpool* %85, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @__FUNCTION__._flatten, i64 0, i64 0), i32 1806)
   %86 = load %struct.tnode*, %struct.tnode** %4, align 8
   %87 = getelementptr inbounds %struct.tnode, %struct.tnode* %86, i32 0, i32 1
   %88 = load i32, i32* %87, align 4
@@ -6454,7 +6337,7 @@ define void @reshape(%struct.tnode*, i32*, i32) #0 {
   store i32* %1, i32** %5, align 8
   store i32 %2, i32* %6, align 4
   %7 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %8 = call %struct.tdata* @get_node(%struct.tnode* %7, i32 0, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__FUNCTION__.reshape, i64 0, i64 0), i32 1951, i32 1)
+  %8 = call %struct.tdata* @get_node(%struct.tnode* %7, i32 0, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @__FUNCTION__.reshape, i64 0, i64 0), i32 1845, i32 1)
   %9 = getelementptr inbounds %struct.tdata, %struct.tdata* %8, i32 0, i32 0
   %10 = load i32, i32* %9, align 8
   %11 = icmp eq i32 %10, 4
@@ -6516,148 +6399,164 @@ define void @funk_append_element_to_list(%struct.tnode*, %struct.tnode*, %struct
   store %struct.tnode* %0, %struct.tnode** %4, align 8
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store %struct.tnode* %2, %struct.tnode** %6, align 8
-  %9 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %10 = call %struct.tnode* @validate_node(%struct.tnode* %9, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1980)
-  %11 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %12 = call %struct.tnode* @validate_node(%struct.tnode* %11, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1981)
-  %13 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %14 = call %struct.tdata* @get_node(%struct.tnode* %13, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1984, i32 1)
-  %15 = getelementptr inbounds %struct.tdata, %struct.tdata* %14, i32 0, i32 0
-  %16 = load i32, i32* %15, align 8
-  %17 = icmp eq i32 %16, 4
-  br i1 %17, label %18, label %27
+  %9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([29 x i8], [29 x i8]* @.str.88, i64 0, i64 0))
+  %10 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1871)
+  %12 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %13 = call %struct.tnode* @validate_node(%struct.tnode* %12, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1872)
+  %14 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1874, i32 1)
+  %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 0
+  %17 = load i32, i32* %16, align 8
+  %18 = icmp eq i32 %17, 4
+  br i1 %18, label %19, label %28
 
-18:                                               ; preds = %3
-  %19 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %20 = call %struct.tdata* @get_node(%struct.tnode* %19, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1984, i32 1)
-  %21 = getelementptr inbounds %struct.tdata, %struct.tdata* %20, i32 0, i32 0
-  %22 = load i32, i32* %21, align 8
-  %23 = icmp eq i32 %22, 4
-  br i1 %23, label %24, label %27
+19:                                               ; preds = %3
+  %20 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1875, i32 1)
+  %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 0
+  %23 = load i32, i32* %22, align 8
+  %24 = icmp eq i32 %23, 4
+  br i1 %24, label %25, label %28
 
-24:                                               ; preds = %18
-  %25 = load %struct.tnode*, %struct.tnode** %4, align 8
-  call void @funk_create_node(%struct.tnode* %25, i32 1, i32 1, i32 4, i8 zeroext 0, i8* null)
-  %26 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([38 x i8], [38 x i8]* @.str.89, i64 0, i64 0))
-  br label %112
+25:                                               ; preds = %19
+  %26 = load %struct.tnode*, %struct.tnode** %4, align 8
+  call void @funk_create_node(%struct.tnode* %26, i32 1, i32 1, i32 4, i8 zeroext 0, i8* null)
+  %27 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([38 x i8], [38 x i8]* @.str.89, i64 0, i64 0))
+  br label %123
 
-27:                                               ; preds = %18, %3
-  %28 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %29 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %30 = call %struct.tdata* @get_node(%struct.tnode* %29, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1992, i32 1)
-  %31 = getelementptr inbounds %struct.tdata, %struct.tdata* %30, i32 0, i32 0
-  %32 = load i32, i32* %31, align 8
-  %33 = icmp eq i32 %32, 4
-  br i1 %33, label %34, label %35
+28:                                               ; preds = %19, %3
+  %29 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %30 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %31 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1882, i32 1)
+  %32 = getelementptr inbounds %struct.tdata, %struct.tdata* %31, i32 0, i32 0
+  %33 = load i32, i32* %32, align 8
+  %34 = icmp eq i32 %33, 4
+  br i1 %34, label %35, label %36
 
-34:                                               ; preds = %27
-  br label %39
+35:                                               ; preds = %28
+  br label %40
 
-35:                                               ; preds = %27
-  %36 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %37 = getelementptr inbounds %struct.tnode, %struct.tnode* %36, i32 0, i32 1
-  %38 = load i32, i32* %37, align 4
-  br label %39
+36:                                               ; preds = %28
+  %37 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %38 = getelementptr inbounds %struct.tnode, %struct.tnode* %37, i32 0, i32 1
+  %39 = load i32, i32* %38, align 4
+  br label %40
 
-39:                                               ; preds = %35, %34
-  %40 = phi i32 [ 0, %34 ], [ %38, %35 ]
-  %41 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %42 = call %struct.tdata* @get_node(%struct.tnode* %41, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1993, i32 1)
-  %43 = getelementptr inbounds %struct.tdata, %struct.tdata* %42, i32 0, i32 0
-  %44 = load i32, i32* %43, align 8
-  %45 = icmp eq i32 %44, 4
-  %46 = zext i1 %45 to i64
-  %47 = select i1 %45, i32 0, i32 1
-  %48 = add i32 %40, %47
-  call void @funk_create_node(%struct.tnode* %28, i32 %48, i32 1, i32 3, i8 zeroext 0, i8* null)
+40:                                               ; preds = %36, %35
+  %41 = phi i32 [ 0, %35 ], [ %39, %36 ]
+  %42 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %43 = call %struct.tdata* @get_node(%struct.tnode* %42, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1883, i32 1)
+  %44 = getelementptr inbounds %struct.tdata, %struct.tdata* %43, i32 0, i32 0
+  %45 = load i32, i32* %44, align 8
+  %46 = icmp eq i32 %45, 4
+  %47 = zext i1 %46 to i64
+  %48 = select i1 %46, i32 0, i32 1
+  %49 = add i32 %41, %48
+  call void @funk_create_node(%struct.tnode* %29, i32 %49, i32 1, i32 3, i8 zeroext 0, i8* null)
   store i32 0, i32* %7, align 4
   store i32 0, i32* %8, align 4
-  br label %49
+  br label %50
 
-49:                                               ; preds = %85, %39
-  %50 = load i32, i32* %8, align 4
-  %51 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %52 = getelementptr inbounds %struct.tnode, %struct.tnode* %51, i32 0, i32 1
-  %53 = load i32, i32* %52, align 4
-  %54 = icmp ult i32 %50, %53
-  br i1 %54, label %55, label %88
+50:                                               ; preds = %86, %40
+  %51 = load i32, i32* %8, align 4
+  %52 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %53 = getelementptr inbounds %struct.tnode, %struct.tnode* %52, i32 0, i32 1
+  %54 = load i32, i32* %53, align 4
+  %55 = icmp ult i32 %51, %54
+  br i1 %55, label %56, label %89
 
-55:                                               ; preds = %49
-  %56 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %57 = load i32, i32* %8, align 4
-  %58 = call %struct.tdata* @get_node(%struct.tnode* %56, i32 %57, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1998, i32 1)
-  %59 = getelementptr inbounds %struct.tdata, %struct.tdata* %58, i32 0, i32 0
-  %60 = load i32, i32* %59, align 8
-  %61 = icmp eq i32 %60, 4
-  br i1 %61, label %62, label %63
+56:                                               ; preds = %50
+  %57 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %58 = load i32, i32* %8, align 4
+  %59 = call %struct.tdata* @get_node(%struct.tnode* %57, i32 %58, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1888, i32 1)
+  %60 = getelementptr inbounds %struct.tdata, %struct.tdata* %59, i32 0, i32 0
+  %61 = load i32, i32* %60, align 8
+  %62 = icmp eq i32 %61, 4
+  br i1 %62, label %63, label %64
 
-62:                                               ; preds = %55
-  br label %88
+63:                                               ; preds = %56
+  br label %89
 
-63:                                               ; preds = %55
-  %64 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %65 = load i32, i32* %8, align 4
-  %66 = call %struct.tdata* @get_node(%struct.tnode* %64, i32 %65, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2001, i32 1)
-  %67 = getelementptr inbounds %struct.tdata, %struct.tdata* %66, i32 0, i32 0
-  %68 = load i32, i32* %67, align 8
-  %69 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %70 = load i32, i32* %7, align 4
-  %71 = call %struct.tdata* @get_node(%struct.tnode* %69, i32 %70, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2001, i32 1)
-  %72 = getelementptr inbounds %struct.tdata, %struct.tdata* %71, i32 0, i32 0
-  store i32 %68, i32* %72, align 8
-  %73 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %74 = load i32, i32* %7, align 4
-  %75 = call %struct.tdata* @get_node(%struct.tnode* %73, i32 %74, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2002, i32 1)
-  %76 = getelementptr inbounds %struct.tdata, %struct.tdata* %75, i32 0, i32 2
-  %77 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %78 = load i32, i32* %8, align 4
-  %79 = call %struct.tdata* @get_node(%struct.tnode* %77, i32 %78, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2002, i32 1)
-  %80 = getelementptr inbounds %struct.tdata, %struct.tdata* %79, i32 0, i32 2
-  %81 = bitcast %union.data_type* %76 to i8*
-  %82 = bitcast %union.data_type* %80 to i8*
-  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %81, i8* align 8 %82, i64 8, i1 false)
-  %83 = load i32, i32* %7, align 4
-  %84 = add i32 %83, 1
-  store i32 %84, i32* %7, align 4
-  br label %85
+64:                                               ; preds = %56
+  %65 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %66 = load i32, i32* %8, align 4
+  %67 = call %struct.tdata* @get_node(%struct.tnode* %65, i32 %66, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1891, i32 1)
+  %68 = getelementptr inbounds %struct.tdata, %struct.tdata* %67, i32 0, i32 0
+  %69 = load i32, i32* %68, align 8
+  %70 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %71 = load i32, i32* %7, align 4
+  %72 = call %struct.tdata* @get_node(%struct.tnode* %70, i32 %71, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1891, i32 1)
+  %73 = getelementptr inbounds %struct.tdata, %struct.tdata* %72, i32 0, i32 0
+  store i32 %69, i32* %73, align 8
+  %74 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %75 = load i32, i32* %7, align 4
+  %76 = call %struct.tdata* @get_node(%struct.tnode* %74, i32 %75, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1892, i32 1)
+  %77 = getelementptr inbounds %struct.tdata, %struct.tdata* %76, i32 0, i32 2
+  %78 = load %struct.tnode*, %struct.tnode** %5, align 8
+  %79 = load i32, i32* %8, align 4
+  %80 = call %struct.tdata* @get_node(%struct.tnode* %78, i32 %79, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1892, i32 1)
+  %81 = getelementptr inbounds %struct.tdata, %struct.tdata* %80, i32 0, i32 2
+  %82 = bitcast %union.data_type* %77 to i8*
+  %83 = bitcast %union.data_type* %81 to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i64(i8* align 8 %82, i8* align 8 %83, i64 8, i1 false)
+  %84 = load i32, i32* %7, align 4
+  %85 = add i32 %84, 1
+  store i32 %85, i32* %7, align 4
+  br label %86
 
-85:                                               ; preds = %63
-  %86 = load i32, i32* %8, align 4
-  %87 = add i32 %86, 1
-  store i32 %87, i32* %8, align 4
-  br label %49
+86:                                               ; preds = %64
+  %87 = load i32, i32* %8, align 4
+  %88 = add i32 %87, 1
+  store i32 %88, i32* %8, align 4
+  br label %50
 
-88:                                               ; preds = %62, %49
-  %89 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %90 = call %struct.tdata* @get_node(%struct.tnode* %89, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2007, i32 1)
-  %91 = getelementptr inbounds %struct.tdata, %struct.tdata* %90, i32 0, i32 0
-  %92 = load i32, i32* %91, align 8
-  %93 = icmp ne i32 %92, 4
-  br i1 %93, label %94, label %112
+89:                                               ; preds = %63, %50
+  %90 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %91 = call %struct.tdata* @get_node(%struct.tnode* %90, i32 0, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1897, i32 1)
+  %92 = getelementptr inbounds %struct.tdata, %struct.tdata* %91, i32 0, i32 0
+  %93 = load i32, i32* %92, align 8
+  %94 = icmp ne i32 %93, 4
+  br i1 %94, label %95, label %113
 
-94:                                               ; preds = %88
-  %95 = load %struct.tnode*, %struct.tnode** %4, align 8
+95:                                               ; preds = %89
   %96 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %97 = getelementptr inbounds %struct.tnode, %struct.tnode* %96, i32 0, i32 1
-  %98 = load i32, i32* %97, align 4
-  %99 = sub i32 %98, 1
-  %100 = call %struct.tdata* @get_node(%struct.tnode* %95, i32 %99, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2008, i32 0)
-  %101 = getelementptr inbounds %struct.tdata, %struct.tdata* %100, i32 0, i32 0
-  store i32 7, i32* %101, align 8
-  %102 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %103 = call i32 @_copy_node_to_pool(%struct.tnode* %102)
-  %104 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %97 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %98 = getelementptr inbounds %struct.tnode, %struct.tnode* %97, i32 0, i32 1
+  %99 = load i32, i32* %98, align 4
+  %100 = sub i32 %99, 1
+  %101 = call %struct.tdata* @get_node(%struct.tnode* %96, i32 %100, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1898, i32 0)
+  %102 = getelementptr inbounds %struct.tdata, %struct.tdata* %101, i32 0, i32 0
+  store i32 7, i32* %102, align 8
+  %103 = load %struct.tnode*, %struct.tnode** %6, align 8
+  %104 = call i32 @_copy_node_to_pool(%struct.tnode* %103)
   %105 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %106 = getelementptr inbounds %struct.tnode, %struct.tnode* %105, i32 0, i32 1
-  %107 = load i32, i32* %106, align 4
-  %108 = sub i32 %107, 1
-  %109 = call %struct.tdata* @get_node(%struct.tnode* %104, i32 %108, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 2009, i32 0)
-  %110 = getelementptr inbounds %struct.tdata, %struct.tdata* %109, i32 0, i32 2
-  %111 = bitcast %union.data_type* %110 to i32*
-  store i32 %103, i32* %111, align 8
-  br label %112
+  %106 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %107 = getelementptr inbounds %struct.tnode, %struct.tnode* %106, i32 0, i32 1
+  %108 = load i32, i32* %107, align 4
+  %109 = sub i32 %108, 1
+  %110 = call %struct.tdata* @get_node(%struct.tnode* %105, i32 %109, i8* getelementptr inbounds ([28 x i8], [28 x i8]* @__FUNCTION__.funk_append_element_to_list, i64 0, i64 0), i32 1899, i32 0)
+  %111 = getelementptr inbounds %struct.tdata, %struct.tdata* %110, i32 0, i32 2
+  %112 = bitcast %union.data_type* %111 to i32*
+  store i32 %104, i32* %112, align 8
+  br label %113
 
-112:                                              ; preds = %24, %94, %88
+113:                                              ; preds = %95, %89
+  %114 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.90, i64 0, i64 0))
+  %115 = load %struct.tnode*, %struct.tnode** %5, align 8
+  call void @funk_print_node(%struct.tnode* %115)
+  %116 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.91, i64 0, i64 0))
+  %117 = load %struct.tnode*, %struct.tnode** %6, align 8
+  call void @funk_print_node(%struct.tnode* %117)
+  %118 = load %struct.tnode*, %struct.tnode** %4, align 8
+  %119 = getelementptr inbounds %struct.tnode, %struct.tnode* %118, i32 0, i32 1
+  %120 = load i32, i32* %119, align 4
+  %121 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.92, i64 0, i64 0), i32 %120)
+  %122 = load %struct.tnode*, %struct.tnode** %4, align 8
+  call void @funk_print_node(%struct.tnode* %122)
+  br label %123
+
+123:                                              ; preds = %113, %25
   ret void
 }
 
@@ -6672,19 +6571,19 @@ define void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struc
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store %struct.tnode* %2, %struct.tnode** %6, align 8
   %9 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %10 = call %struct.tnode* @validate_node(%struct.tnode* %9, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2017)
+  %10 = call %struct.tnode* @validate_node(%struct.tnode* %9, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1913)
   %11 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %12 = call %struct.tnode* @validate_node(%struct.tnode* %11, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2018)
+  %12 = call %struct.tnode* @validate_node(%struct.tnode* %11, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1914)
   %13 = load %struct.tnode*, %struct.tnode** %4, align 8
   %14 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2021, i32 1)
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1917, i32 1)
   %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 0
   %17 = load i32, i32* %16, align 8
   %18 = icmp eq i32 %17, 4
   %19 = zext i1 %18 to i64
   %20 = select i1 %18, i32 0, i32 1
   %21 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %22 = call %struct.tdata* @get_node(%struct.tnode* %21, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2022, i32 1)
+  %22 = call %struct.tdata* @get_node(%struct.tnode* %21, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1918, i32 1)
   %23 = getelementptr inbounds %struct.tdata, %struct.tdata* %22, i32 0, i32 0
   %24 = load i32, i32* %23, align 8
   %25 = icmp eq i32 %24, 4
@@ -6711,13 +6610,13 @@ define void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struc
 
 38:                                               ; preds = %31
   %39 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %40 = call %struct.tdata* @get_node(%struct.tnode* %39, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2027, i32 0)
+  %40 = call %struct.tdata* @get_node(%struct.tnode* %39, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1923, i32 0)
   %41 = getelementptr inbounds %struct.tdata, %struct.tdata* %40, i32 0, i32 0
   store i32 7, i32* %41, align 8
   %42 = load %struct.tnode*, %struct.tnode** %5, align 8
   %43 = call i32 @_copy_node_to_pool(%struct.tnode* %42)
   %44 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %45 = call %struct.tdata* @get_node(%struct.tnode* %44, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2028, i32 0)
+  %45 = call %struct.tdata* @get_node(%struct.tnode* %44, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1924, i32 0)
   %46 = getelementptr inbounds %struct.tdata, %struct.tdata* %45, i32 0, i32 2
   %47 = bitcast %union.data_type* %46 to i32*
   store i32 %43, i32* %47, align 8
@@ -6725,7 +6624,7 @@ define void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struc
 
 48:                                               ; preds = %31
   %49 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %50 = call %struct.tdata* @get_node(%struct.tnode* %49, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2029, i32 1)
+  %50 = call %struct.tdata* @get_node(%struct.tnode* %49, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1925, i32 1)
   %51 = getelementptr inbounds %struct.tdata, %struct.tdata* %50, i32 0, i32 0
   %52 = load i32, i32* %51, align 8
   %53 = icmp ne i32 %52, 4
@@ -6733,18 +6632,18 @@ define void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struc
 
 54:                                               ; preds = %48
   %55 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %56 = call %struct.tdata* @get_node(%struct.tnode* %55, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2030, i32 1)
+  %56 = call %struct.tdata* @get_node(%struct.tnode* %55, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1926, i32 1)
   %57 = getelementptr inbounds %struct.tdata, %struct.tdata* %56, i32 0, i32 0
   %58 = load i32, i32* %57, align 8
   %59 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %60 = call %struct.tdata* @get_node(%struct.tnode* %59, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2030, i32 1)
+  %60 = call %struct.tdata* @get_node(%struct.tnode* %59, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1926, i32 1)
   %61 = getelementptr inbounds %struct.tdata, %struct.tdata* %60, i32 0, i32 0
   store i32 %58, i32* %61, align 8
   %62 = load %struct.tnode*, %struct.tnode** %4, align 8
-  %63 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2031, i32 1)
+  %63 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1927, i32 1)
   %64 = getelementptr inbounds %struct.tdata, %struct.tdata* %63, i32 0, i32 2
   %65 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %66 = call %struct.tdata* @get_node(%struct.tnode* %65, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2031, i32 1)
+  %66 = call %struct.tdata* @get_node(%struct.tnode* %65, i32 0, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1927, i32 1)
   %67 = getelementptr inbounds %struct.tdata, %struct.tdata* %66, i32 0, i32 2
   %68 = bitcast %union.data_type* %64 to i8*
   %69 = bitcast %union.data_type* %67 to i8*
@@ -6770,7 +6669,7 @@ define void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struc
 78:                                               ; preds = %72
   %79 = load %struct.tnode*, %struct.tnode** %6, align 8
   %80 = load i32, i32* %8, align 4
-  %81 = call %struct.tdata* @get_node(%struct.tnode* %79, i32 %80, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2036, i32 1)
+  %81 = call %struct.tdata* @get_node(%struct.tnode* %79, i32 %80, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1932, i32 1)
   %82 = getelementptr inbounds %struct.tdata, %struct.tdata* %81, i32 0, i32 0
   %83 = load i32, i32* %82, align 8
   %84 = icmp eq i32 %83, 4
@@ -6782,21 +6681,21 @@ define void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struc
 86:                                               ; preds = %78
   %87 = load %struct.tnode*, %struct.tnode** %6, align 8
   %88 = load i32, i32* %8, align 4
-  %89 = call %struct.tdata* @get_node(%struct.tnode* %87, i32 %88, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2039, i32 1)
+  %89 = call %struct.tdata* @get_node(%struct.tnode* %87, i32 %88, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1935, i32 1)
   %90 = getelementptr inbounds %struct.tdata, %struct.tdata* %89, i32 0, i32 0
   %91 = load i32, i32* %90, align 8
   %92 = load %struct.tnode*, %struct.tnode** %4, align 8
   %93 = load i32, i32* %7, align 4
-  %94 = call %struct.tdata* @get_node(%struct.tnode* %92, i32 %93, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2039, i32 1)
+  %94 = call %struct.tdata* @get_node(%struct.tnode* %92, i32 %93, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1935, i32 1)
   %95 = getelementptr inbounds %struct.tdata, %struct.tdata* %94, i32 0, i32 0
   store i32 %91, i32* %95, align 8
   %96 = load %struct.tnode*, %struct.tnode** %4, align 8
   %97 = load i32, i32* %7, align 4
-  %98 = call %struct.tdata* @get_node(%struct.tnode* %96, i32 %97, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2040, i32 1)
+  %98 = call %struct.tdata* @get_node(%struct.tnode* %96, i32 %97, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1936, i32 1)
   %99 = getelementptr inbounds %struct.tdata, %struct.tdata* %98, i32 0, i32 2
   %100 = load %struct.tnode*, %struct.tnode** %6, align 8
   %101 = load i32, i32* %8, align 4
-  %102 = call %struct.tdata* @get_node(%struct.tnode* %100, i32 %101, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 2040, i32 1)
+  %102 = call %struct.tdata* @get_node(%struct.tnode* %100, i32 %101, i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_prepend_element_to_list, i64 0, i64 0), i32 1936, i32 1)
   %103 = getelementptr inbounds %struct.tdata, %struct.tdata* %102, i32 0, i32 2
   %104 = bitcast %union.data_type* %99 to i8*
   %105 = bitcast %union.data_type* %103 to i8*
@@ -6828,11 +6727,11 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
   store %struct.tnode* %1, %struct.tnode** %5, align 8
   store %struct.tnode* %2, %struct.tnode** %6, align 8
   %10 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2051)
+  %11 = call %struct.tnode* @validate_node(%struct.tnode* %10, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1946)
   %12 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %13 = call %struct.tnode* @validate_node(%struct.tnode* %12, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2052)
+  %13 = call %struct.tnode* @validate_node(%struct.tnode* %12, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1947)
   %14 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2055, i32 1)
+  %15 = call %struct.tdata* @get_node(%struct.tnode* %14, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1949, i32 1)
   %16 = getelementptr inbounds %struct.tdata, %struct.tdata* %15, i32 0, i32 0
   %17 = load i32, i32* %16, align 8
   %18 = icmp eq i32 %17, 4
@@ -6840,7 +6739,7 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 
 19:                                               ; preds = %3
   %20 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2055, i32 1)
+  %21 = call %struct.tdata* @get_node(%struct.tnode* %20, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1950, i32 1)
   %22 = getelementptr inbounds %struct.tdata, %struct.tdata* %21, i32 0, i32 0
   %23 = load i32, i32* %22, align 8
   %24 = icmp eq i32 %23, 4
@@ -6855,7 +6754,7 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 28:                                               ; preds = %19, %3
   %29 = load %struct.tnode*, %struct.tnode** %4, align 8
   %30 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %31 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2063, i32 1)
+  %31 = call %struct.tdata* @get_node(%struct.tnode* %30, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1957, i32 1)
   %32 = getelementptr inbounds %struct.tdata, %struct.tdata* %31, i32 0, i32 0
   %33 = load i32, i32* %32, align 8
   %34 = icmp eq i32 %33, 4
@@ -6873,7 +6772,7 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 40:                                               ; preds = %36, %35
   %41 = phi i32 [ 0, %35 ], [ %39, %36 ]
   %42 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %43 = call %struct.tdata* @get_node(%struct.tnode* %42, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2064, i32 1)
+  %43 = call %struct.tdata* @get_node(%struct.tnode* %42, i32 0, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1958, i32 1)
   %44 = getelementptr inbounds %struct.tdata, %struct.tdata* %43, i32 0, i32 0
   %45 = load i32, i32* %44, align 8
   %46 = icmp eq i32 %45, 4
@@ -6907,7 +6806,7 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 61:                                               ; preds = %55
   %62 = load %struct.tnode*, %struct.tnode** %5, align 8
   %63 = load i32, i32* %8, align 4
-  %64 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 %63, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2069, i32 1)
+  %64 = call %struct.tdata* @get_node(%struct.tnode* %62, i32 %63, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1963, i32 1)
   %65 = getelementptr inbounds %struct.tdata, %struct.tdata* %64, i32 0, i32 0
   %66 = load i32, i32* %65, align 8
   %67 = icmp eq i32 %66, 4
@@ -6919,21 +6818,21 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 69:                                               ; preds = %61
   %70 = load %struct.tnode*, %struct.tnode** %5, align 8
   %71 = load i32, i32* %8, align 4
-  %72 = call %struct.tdata* @get_node(%struct.tnode* %70, i32 %71, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2072, i32 1)
+  %72 = call %struct.tdata* @get_node(%struct.tnode* %70, i32 %71, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1966, i32 1)
   %73 = getelementptr inbounds %struct.tdata, %struct.tdata* %72, i32 0, i32 0
   %74 = load i32, i32* %73, align 8
   %75 = load %struct.tnode*, %struct.tnode** %4, align 8
   %76 = load i32, i32* %7, align 4
-  %77 = call %struct.tdata* @get_node(%struct.tnode* %75, i32 %76, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2072, i32 1)
+  %77 = call %struct.tdata* @get_node(%struct.tnode* %75, i32 %76, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1966, i32 1)
   %78 = getelementptr inbounds %struct.tdata, %struct.tdata* %77, i32 0, i32 0
   store i32 %74, i32* %78, align 8
   %79 = load %struct.tnode*, %struct.tnode** %4, align 8
   %80 = load i32, i32* %7, align 4
-  %81 = call %struct.tdata* @get_node(%struct.tnode* %79, i32 %80, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2073, i32 1)
+  %81 = call %struct.tdata* @get_node(%struct.tnode* %79, i32 %80, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1967, i32 1)
   %82 = getelementptr inbounds %struct.tdata, %struct.tdata* %81, i32 0, i32 2
   %83 = load %struct.tnode*, %struct.tnode** %5, align 8
   %84 = load i32, i32* %8, align 4
-  %85 = call %struct.tdata* @get_node(%struct.tnode* %83, i32 %84, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2073, i32 1)
+  %85 = call %struct.tdata* @get_node(%struct.tnode* %83, i32 %84, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1967, i32 1)
   %86 = getelementptr inbounds %struct.tdata, %struct.tdata* %85, i32 0, i32 2
   %87 = bitcast %union.data_type* %82 to i8*
   %88 = bitcast %union.data_type* %86 to i8*
@@ -6964,7 +6863,7 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 101:                                              ; preds = %95
   %102 = load %struct.tnode*, %struct.tnode** %6, align 8
   %103 = load i32, i32* %9, align 4
-  %104 = call %struct.tdata* @get_node(%struct.tnode* %102, i32 %103, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2079, i32 1)
+  %104 = call %struct.tdata* @get_node(%struct.tnode* %102, i32 %103, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1973, i32 1)
   %105 = getelementptr inbounds %struct.tdata, %struct.tdata* %104, i32 0, i32 0
   %106 = load i32, i32* %105, align 8
   %107 = icmp eq i32 %106, 4
@@ -6976,21 +6875,21 @@ define void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnod
 109:                                              ; preds = %101
   %110 = load %struct.tnode*, %struct.tnode** %6, align 8
   %111 = load i32, i32* %9, align 4
-  %112 = call %struct.tdata* @get_node(%struct.tnode* %110, i32 %111, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2082, i32 1)
+  %112 = call %struct.tdata* @get_node(%struct.tnode* %110, i32 %111, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1976, i32 1)
   %113 = getelementptr inbounds %struct.tdata, %struct.tdata* %112, i32 0, i32 0
   %114 = load i32, i32* %113, align 8
   %115 = load %struct.tnode*, %struct.tnode** %4, align 8
   %116 = load i32, i32* %7, align 4
-  %117 = call %struct.tdata* @get_node(%struct.tnode* %115, i32 %116, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2082, i32 1)
+  %117 = call %struct.tdata* @get_node(%struct.tnode* %115, i32 %116, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1976, i32 1)
   %118 = getelementptr inbounds %struct.tdata, %struct.tdata* %117, i32 0, i32 0
   store i32 %114, i32* %118, align 8
   %119 = load %struct.tnode*, %struct.tnode** %4, align 8
   %120 = load i32, i32* %7, align 4
-  %121 = call %struct.tdata* @get_node(%struct.tnode* %119, i32 %120, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2083, i32 1)
+  %121 = call %struct.tdata* @get_node(%struct.tnode* %119, i32 %120, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1977, i32 1)
   %122 = getelementptr inbounds %struct.tdata, %struct.tdata* %121, i32 0, i32 2
   %123 = load %struct.tnode*, %struct.tnode** %6, align 8
   %124 = load i32, i32* %9, align 4
-  %125 = call %struct.tdata* @get_node(%struct.tnode* %123, i32 %124, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 2083, i32 1)
+  %125 = call %struct.tdata* @get_node(%struct.tnode* %123, i32 %124, i8* getelementptr inbounds ([23 x i8], [23 x i8]* @__FUNCTION__.funk_concatenate_lists, i64 0, i64 0), i32 1977, i32 1)
   %126 = getelementptr inbounds %struct.tdata, %struct.tdata* %125, i32 0, i32 2
   %127 = bitcast %union.data_type* %122 to i8*
   %128 = bitcast %union.data_type* %126 to i8*
@@ -7015,7 +6914,7 @@ define i32 @funk_get_node_start(%struct.tnode*) #0 {
   %2 = alloca %struct.tnode*, align 8
   store %struct.tnode* %0, %struct.tnode** %2, align 8
   %3 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %4 = call %struct.tnode* @validate_node(%struct.tnode* %3, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_get_node_start, i64 0, i64 0), i32 2098)
+  %4 = call %struct.tnode* @validate_node(%struct.tnode* %3, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_get_node_start, i64 0, i64 0), i32 1985)
   %5 = load %struct.tnode*, %struct.tnode** %2, align 8
   %6 = getelementptr inbounds %struct.tnode, %struct.tnode* %5, i32 0, i32 0
   %7 = load i32, i32* %6, align 8
@@ -7029,7 +6928,7 @@ define i32 @funk_get_node_pool(%struct.tnode*) #0 {
   %4 = alloca i32, align 4
   store %struct.tnode* %0, %struct.tnode** %3, align 8
   %5 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %6 = call %struct.tnode* @validate_node(%struct.tnode* %5, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_node_pool, i64 0, i64 0), i32 2104)
+  %6 = call %struct.tnode* @validate_node(%struct.tnode* %5, i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_node_pool, i64 0, i64 0), i32 1991)
   %7 = load %struct.tnode*, %struct.tnode** %3, align 8
   %8 = getelementptr inbounds %struct.tnode, %struct.tnode* %7, i32 0, i32 2
   %9 = load %struct.tpool*, %struct.tpool** %8, align 8
@@ -7052,42 +6951,13 @@ define i32 @funk_get_node_pool(%struct.tnode*) #0 {
   br label %20
 
 18:                                               ; preds = %12
-  %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str.90, i64 0, i64 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_node_pool, i64 0, i64 0))
+  %19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str.93, i64 0, i64 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @__FUNCTION__.funk_get_node_pool, i64 0, i64 0))
   call void @exit(i32 1) #6
   unreachable
 
 20:                                               ; preds = %17, %11
   %21 = load i32, i32* %2, align 4
   ret i32 %21
-}
-
-; Function Attrs: noinline nounwind optnone ssp uwtable
-define void @funk_set_node_start(%struct.tnode*, i32) #0 {
-  %3 = alloca %struct.tnode*, align 8
-  %4 = alloca i32, align 4
-  store %struct.tnode* %0, %struct.tnode** %3, align 8
-  store i32 %1, i32* %4, align 4
-  %5 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %6 = call %struct.tnode* @validate_node(%struct.tnode* %5, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @__FUNCTION__.funk_set_node_start, i64 0, i64 0), i32 2124)
-  %7 = load i32, i32* %4, align 4
-  %8 = load %struct.tnode*, %struct.tnode** %3, align 8
-  %9 = getelementptr inbounds %struct.tnode, %struct.tnode* %8, i32 0, i32 0
-  store i32 %7, i32* %9, align 8
-  ret void
-}
-
-; Function Attrs: noinline nounwind optnone ssp uwtable
-define void @funk_set_tnode_array_element(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 {
-  %4 = alloca %struct.tnode*, align 8
-  %5 = alloca %struct.tnode*, align 8
-  %6 = alloca %struct.tnode*, align 8
-  %7 = alloca i32, align 4
-  store %struct.tnode* %0, %struct.tnode** %4, align 8
-  store %struct.tnode* %1, %struct.tnode** %5, align 8
-  store %struct.tnode* %2, %struct.tnode** %6, align 8
-  %8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.91, i64 0, i64 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @__FUNCTION__.funk_set_tnode_array_element, i64 0, i64 0))
-  call void @exit(i32 1) #6
-  unreachable
 }
 
 ; Function Attrs: noinline nounwind optnone ssp uwtable
@@ -7102,7 +6972,7 @@ define void @funk_set_tnode_array_elementEX(%struct.tnode*, %struct.tnode*, %str
   store %struct.tnode* %2, %struct.tnode** %7, align 8
   store i32 %3, i32* %8, align 4
   %10 = load %struct.tnode*, %struct.tnode** %6, align 8
-  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_set_tnode_array_elementEX, i64 0, i64 0), i32 2149, i32 1)
+  %11 = call %struct.tdata* @get_node(%struct.tnode* %10, i32 0, i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_set_tnode_array_elementEX, i64 0, i64 0), i32 2011, i32 1)
   %12 = getelementptr inbounds %struct.tdata, %struct.tdata* %11, i32 0, i32 2
   %13 = bitcast %union.data_type* %12 to i32*
   %14 = load i32, i32* %13, align 8
@@ -7115,7 +6985,7 @@ define void @funk_set_tnode_array_elementEX(%struct.tnode*, %struct.tnode*, %str
 18:                                               ; preds = %4
   %19 = load i32, i32* %9, align 4
   %20 = load i32, i32* %8, align 4
-  %21 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.92, i64 0, i64 0), i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_set_tnode_array_elementEX, i64 0, i64 0), i32 %19, i32 %20)
+  %21 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([37 x i8], [37 x i8]* @.str.94, i64 0, i64 0), i8* getelementptr inbounds ([31 x i8], [31 x i8]* @__FUNCTION__.funk_set_tnode_array_elementEX, i64 0, i64 0), i32 %19, i32 %20)
   br label %22
 
 22:                                               ; preds = %18, %4
@@ -7136,7 +7006,7 @@ define %struct.tnode* @funk_alloc_list_of_tnodes(%struct.tnode*) #0 {
   %3 = alloca i32, align 4
   store %struct.tnode* %0, %struct.tnode** %2, align 8
   %4 = load %struct.tnode*, %struct.tnode** %2, align 8
-  %5 = call %struct.tdata* @get_node(%struct.tnode* %4, i32 0, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_alloc_list_of_tnodes, i64 0, i64 0), i32 2160, i32 1)
+  %5 = call %struct.tdata* @get_node(%struct.tnode* %4, i32 0, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @__FUNCTION__.funk_alloc_list_of_tnodes, i64 0, i64 0), i32 2021, i32 1)
   %6 = getelementptr inbounds %struct.tdata, %struct.tdata* %5, i32 0, i32 2
   %7 = bitcast %union.data_type* %6 to i32*
   %8 = load i32, i32* %7, align 8
@@ -7160,20 +7030,20 @@ define void @funk_call_fn_pointer(%struct.tnode*, %struct.tnode*, i32, %struct.t
   store i32 %2, i32* %7, align 4
   store %struct.tnode* %3, %struct.tnode** %8, align 8
   %9 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %10 = call %struct.tdata* @get_node(%struct.tnode* %9, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_call_fn_pointer, i64 0, i64 0), i32 2181, i32 1)
+  %10 = call %struct.tdata* @get_node(%struct.tnode* %9, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_call_fn_pointer, i64 0, i64 0), i32 2031, i32 1)
   %11 = getelementptr inbounds %struct.tdata, %struct.tdata* %10, i32 0, i32 0
   %12 = load i32, i32* %11, align 8
   %13 = icmp ne i32 %12, 6
   br i1 %13, label %14, label %16
 
 14:                                               ; preds = %4
-  %15 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([43 x i8], [43 x i8]* @.str.93, i64 0, i64 0))
+  %15 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([43 x i8], [43 x i8]* @.str.95, i64 0, i64 0))
   call void @exit(i32 1) #6
   unreachable
 
 16:                                               ; preds = %4
   %17 = load %struct.tnode*, %struct.tnode** %5, align 8
-  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_call_fn_pointer, i64 0, i64 0), i32 2186, i32 1)
+  %18 = call %struct.tdata* @get_node(%struct.tnode* %17, i32 0, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @__FUNCTION__.funk_call_fn_pointer, i64 0, i64 0), i32 2036, i32 1)
   %19 = getelementptr inbounds %struct.tdata, %struct.tdata* %18, i32 0, i32 2
   %20 = bitcast %union.data_type* %19 to void (%struct.tnode*, i32, %struct.tnode*)**
   %21 = load void (%struct.tnode*, i32, %struct.tnode*)*, void (%struct.tnode*, i32, %struct.tnode*)** %20, align 8

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2020 Diego Valverde
+# Copyright (C) 2021 Diego Valverde
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -261,7 +261,7 @@ class CompileTimeExprList(List):
     def eval(self, result=None):
 
         dimensions = self.get_dimensions()
-        flattened_list = self.elements #flatten(self.elements)
+        flattened_list = self.elements
 
         elements = []
         for element in flattened_list:
@@ -920,130 +920,6 @@ class ExprRange(Range):
 
         self.range_register_calculation_emitted = True
 
-    def eval2(self, result=None, parent_tnode_list=None, parent_offset=None):
-        self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
-
-        self.calculate_ranges()
-
-        #self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'>>>') , StringConstant(self.funk,self.reg_start),  StringConstant(self.funk,self.reg_end)])
-
-        reg_start = self.reg_start
-
-        loop_reg = self.funk.emitter.alloc_tnode('loop reg', 0,  funk_types.function_pool, funk_types.int)
-
-        list_len_reg = self.get_range_len()
-
-        iterator_reg= self.funk.emitter.alloc_tnode('iterator_reg', self.funk.emitter.get_node_data_value(reg_start),
-                                                    funk_types.function_pool, funk_types.int)
-
-        expr = copy.deepcopy(self.expr)
-
-
-        if expr.__repr__() == self.iterator_symbol.__repr__():
-            first_element_reg = self.funk.emitter.alloc_tnode(self.expr.__repr__(),
-                                                              self.funk.emitter.get_node_data_value(iterator_reg),
-                                                              funk_types.function_pool, funk_types.int)
-        else:
-            expr.replace_symbol(self.iterator_symbol, StringConstant(self.funk, iterator_reg))
-            first_element_reg = expr.eval()
-
-        if isinstance(first_element_reg, int):
-            first_element_reg = self.funk.emitter.alloc_tnode(self.expr.__repr__(), first_element_reg, funk_types.function_pool,
-                                                        funk_types.int)
-
-        first_element_len_reg = self.funk.emitter.get_tnode_length(first_element_reg)
-
-        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'first_element_len_reg'),
-        #                                          StringConstant(self.funk,first_element_len_reg)])
-
-        total_len_reg = self.funk.emitter.arith_helper(first_element_len_reg, list_len_reg, operation='mul')
-        total_len_reg_int = self.funk.emitter.get_node_data_value(total_len_reg)
-        list_of_nodes = self.funk.emitter.alloc_list_of_tnodes(total_len_reg)
-
-        list_len_int = self.funk.emitter.get_node_data_value(list_len_reg)
-        list_index_reg = self.funk.emitter.alloc_tnode('array iterator', 0, funk_types.function_pool, funk_types.int)
-
-
-        #self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'list len'), StringConstant(self.funk,total_len_reg)])
-
-        # Make sure the length of the list is greater than zero
-
-        self.funk.emitter.add_node_to_nodelist(first_element_reg, list_of_nodes, list_index_reg, total_len_reg_int)
-
-        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'added FIRST element'),
-        #                                          StringConstant(self.funk, first_element_reg)])
-        self.funk.emitter.increment_node_value_int(iterator_reg)
-        self.funk.emitter.increment_node_value_int(loop_reg)
-
-
-
-
-        scope_name = self.funk.function_scope.name.replace('@', '')
-        # loop
-        label_loop_start = '{}_clause_{}_loop_entry__{}'.format(scope_name,
-                                                                self.funk.function_scope.clause_idx,
-                                                                self.funk.function_scope.label_count)
-        self.funk.function_scope.label_count += 1
-
-
-
-        label_exit = '{}_clause_{}_loop_exit__{}'.format(scope_name,
-                                                         self.funk.function_scope.clause_idx,
-                                                         self.funk.function_scope.label_count)
-        self.funk.function_scope.label_count += 1
-
-
-        self.funk.emitter.br(label_loop_start)
-
-        self.funk.emitter.add_label(label_loop_start)
-
-        #self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'eval element '), StringConstant(self.funk, loop_reg)])
-        if expr.__repr__() == self.iterator_symbol.__repr__():
-            element_reg = self.funk.emitter.alloc_tnode(self.expr.__repr__(),
-                                                              self.funk.emitter.get_node_data_value(iterator_reg),
-                                                              funk_types.function_pool, funk_types.int)
-        else:
-            expr.replace_symbol(self.iterator_symbol, StringConstant(self.funk, iterator_reg))
-            element_reg = expr.eval()
-
-        if isinstance(element_reg, int):
-            element_reg = self.funk.emitter.alloc_tnode(expr.__repr__(), element_reg, funk_types.function_pool,
-                                                        funk_types.int)
-
-
-
-        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'adding element at index '),
-        #                                          StringConstant(self.funk, list_index_reg)])
-
-        self.funk.emitter.add_node_to_nodelist(element_reg, list_of_nodes, list_index_reg, total_len_reg_int)
-
-        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'added element'),
-        #                                          StringConstant(self.funk, element_reg)])
-
-        self.funk.emitter.increment_node_value_int(iterator_reg)
-        self.funk.emitter.increment_node_value_int(loop_reg)
-
-        # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'loop'),
-        #                                          StringConstant(self.funk, loop_reg)])
-
-        self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(loop_reg, as_type=funk_types.int),
-                                  list_len_int, label_exit, label_loop_start)
-
-        self.funk.emitter.add_label(label_exit)
-        # self.funk.emitter.print_trace()
-        head = self.funk.emitter.regroup_list(list_of_nodes,
-                                              n=total_len_reg,
-                                              pool=funk_types.function_pool,
-                                              result=result)
-
-        self.funk.emitter.free_tnode_pointer(list_of_nodes)
-
-        # todo: dimensions from regs
-        self.funk.emitter.set_node_dimensions_2d(head, first_element_len_reg, list_len_reg)
-        self.funk.emitter.add_comment('END ============== ExprRange {}'.format(self.__repr__()))
-
-        return head
-
     def eval(self, result=None, parent_tnode_list=None, parent_offset=None):
 
             self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
@@ -1127,6 +1003,7 @@ class ExprRange(Range):
                      rhs_type=self.rhs_type,
                      lhs_type=self.lhs_type)
 
+
 class ExternalFunction:
     def __init__(self, funk, name):
         self.funk = funk
@@ -1139,6 +1016,7 @@ class ExternalFunction:
         return """
 declare void {name}(%struct.tnode*, i32,  %struct.tnode*)
                 """.format(name=self.name)
+
 
 class FunctionCall(Expression):
     def __init__(self, funk, name, args):
@@ -1242,7 +1120,79 @@ class FunctionClause:
         self.tail_pairs = tail_pairs
         self.funk = funk
 
-    def emit(self, clause_idx, arity):
+    def emit_pattern_matches(self, clause_idx, name, clause_pm_label, clause_precondition_label, clause_entry_label, clause_exit_label):
+        # check for clause pattern matches
+        if self.pattern_matches is not None and len(self.pattern_matches) != 0:
+            self.funk.emitter.add_label(clause_pm_label)
+            self.funk.emitter.add_comment('{}'.format(self.pattern_matches))
+
+            pm_count = 0
+            for pattern in self.pattern_matches:
+                self.funk.emitter.add_comment('{}'.format(self.arguments))
+                arg = self.funk.emitter.get_function_argument_tnode(pattern.position)
+                last = pm_count + 1 == len(self.pattern_matches)
+
+                if last:
+                    label_next = clause_precondition_label if self.preconditions is not None else clause_entry_label  # BUG, shall be preconditions if there are any
+                else:
+                    label_next = '{}_clause_{}_pattern_match_{}'.format(name, clause_idx, pm_count)
+
+                if isinstance(pattern, PatternMatchEmptyList):
+                    node_type = self.funk.emitter.get_node_type(arg)
+                    self.funk.emitter.br_cond('ne', node_type, funk_types.empty_array, clause_exit_label,
+                                              label_next)
+
+                elif isinstance(pattern, PatternMatchLiteral):
+                    label_match_literal_check_value = '{}_clause_{}_pattern_match_literal_check_value_{}'.format(
+                        name, clause_idx, pm_count)
+                    data_type = self.funk.emitter.get_node_data_type(arg)
+                    self.funk.emitter.br_cond('ne', data_type, pattern.type, clause_exit_label,
+                                              label_match_literal_check_value)
+
+                    self.funk.emitter.add_label(label_match_literal_check_value)
+                    value = self.funk.emitter.get_node_data_value(arg)
+                    self.funk.emitter.br_cond('ne', value, pattern.value, clause_exit_label, label_next)
+                elif isinstance(pattern, PatternMatchListOfIdentifiers):
+                    self.funk.emitter.add_comment(
+                        'Pattern match element against a list of {} elements '.format(len(pattern.elements)))
+                    node_len = self.funk.emitter.get_tnode_length(arg)
+                    # self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
+                    #      StringConstant(self.funk, node_len)])
+                    val = self.funk.emitter.get_node_data_value(node_len)
+                    self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label, label_next)
+                else:
+                    raise Exception('Unsupported Pattern Match type')
+                if not last:
+                    self.funk.emitter.add_label(label_next)
+                pm_count += 1
+
+    def emit_preconditions(self,clause_idx, clause_precondition_label,clause_entry_label,clause_exit_label ):
+
+        if self.preconditions is not None:
+            self.funk.emitter.add_label(clause_precondition_label)
+            self.funk.emitter.add_comment('{}'.format(self.preconditions))
+            result = self.preconditions.eval()
+            self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(result), 1, clause_entry_label,
+                                      clause_exit_label)
+        else:
+            self.funk.emitter.add_comment('clause {} has no preconditions'.format(clause_idx))
+
+    def emit_arity_check(self,label_next, clause_exit_label):
+        # The first function arguments is always the pointer to the
+        # return value and the second (#1) is the arity (passed as a constant)
+        self.funk.emitter.add_comment('Check clause arity or exit. Arity = {}'.format(self.arguments))
+        # foo(x,y,z):  # number_of_arguments = arity = 3
+        # foo( [x,y,z]): # even if the arity is 1 (only one input variable in the fuction firm)
+        # the number_of_arguments is also 3
+        number_of_arguments = len(self.arguments)
+        if self.pattern_matches is not None:
+            for pm in self.pattern_matches:
+                if isinstance(pm, PatternMatchListOfIdentifiers):
+                    number_of_arguments += 1
+        # self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'Checking arity')])
+        self.funk.emitter.br_cond('eq', '%1', number_of_arguments, label_next, clause_exit_label)
+
+    def emit(self, clause_idx):
         # TODO: refactor
 
         if self.name in ['main','sdl_render']:
@@ -1253,11 +1203,10 @@ class FunctionClause:
         else:
             start_label = 'start_{}'.format(self.name[1:])
 
-            # print('-I- Emitting clause ', self.arguments, self.name, self.pattern_matches, self.pattern_matches)
+            #print('-I- Emitting clause ', self.arguments, self.name, self.pattern_matches, self.pattern_matches)
             # I need some kind of clause_exit_label here...
             # check for clause arity
             name = self.name[1:]
-
 
             clause_entry_label = '{}_{}_clause_entry'.format(name, clause_idx)
             clause_exit_label = '{}_{}_clause_exit'.format(name, clause_idx)
@@ -1267,7 +1216,6 @@ class FunctionClause:
             self.funk.function_scope.tail_pairs = self.tail_pairs
             self.funk.function_scope.pattern_matches = self.pattern_matches
 
-            # check for arity
             if self.pattern_matches is not None and len(self.pattern_matches) != 0:
                 label_next = clause_pm_label
             elif self.preconditions is not None:
@@ -1275,73 +1223,19 @@ class FunctionClause:
             else:
                 label_next = clause_entry_label
 
-            # The first function arguments is always the pointer to the
-            # return value and the second (#1) is the arity (passed as a constant)
-            self.funk.emitter.add_comment('Check clause arity or exit. Arity = {}'.format(self.arguments))
-            # foo(x,y,z):  # number_of_arguments = arity = 3
-            # foo( [x,y,z]): # even if the arity is 1 (only one input variable in the fuction firm)
-            # the number_of_arguments is also 3
-            number_of_arguments = len(self.arguments)
-            if self.pattern_matches is not None:
-                for pm in self.pattern_matches:
-                    if isinstance(pm,PatternMatchListOfIdentifiers):
-                        number_of_arguments += 1
-            #self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'Checking arity')])
-            self.funk.emitter.br_cond('eq', '%1', number_of_arguments, label_next, clause_exit_label)
-
-            # check for clause pattern matches
-            if self.pattern_matches is not None and len(self.pattern_matches) != 0:
-                self.funk.emitter.add_label(clause_pm_label)
-                self.funk.emitter.add_comment('{}'.format(self.pattern_matches))
-
-                pm_count = 0
-                for pattern in self.pattern_matches:
-                    self.funk.emitter.add_comment('{}'.format(self.arguments))
-                    arg = self.funk.emitter.get_function_argument_tnode(pattern.position)
-                    last = pm_count + 1 == len(self.pattern_matches)
-
-                    if last:
-                        label_next = clause_precondition_label if self.preconditions is not None else clause_entry_label # BUG, shall be preconditions if there are any
-                    else:
-                        label_next = '{}_clause_{}_pattern_match_{}'.format(name, clause_idx, pm_count)
-
-                    if isinstance(pattern, PatternMatchEmptyList):
-                        node_type = self.funk.emitter.get_node_type(arg)
-                        self.funk.emitter.br_cond('ne', node_type, funk_types.empty_array, clause_exit_label,
-                                                  label_next)
-
-                    elif isinstance(pattern, PatternMatchLiteral):
-                        label_match_literal_check_value = '{}_clause_{}_pattern_match_literal_check_value_{}'.format(
-                            name, clause_idx, pm_count)
-                        data_type = self.funk.emitter.get_node_data_type(arg)
-                        self.funk.emitter.br_cond('ne', data_type, pattern.type, clause_exit_label,
-                                                  label_match_literal_check_value)
-
-                        self.funk.emitter.add_label(label_match_literal_check_value)
-                        value = self.funk.emitter.get_node_data_value(arg)
-                        self.funk.emitter.br_cond('ne', value, pattern.value, clause_exit_label, label_next)
-                    elif isinstance(pattern, PatternMatchListOfIdentifiers):
-                        self.funk.emitter.add_comment('Pattern match element against a list of {} elements '.format(len(pattern.elements)))
-                        node_len = self.funk.emitter.get_tnode_length(arg)
-                        # self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
-                        #      StringConstant(self.funk, node_len)])
-                        val = self.funk.emitter.get_node_data_value(node_len)
-                        self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label,label_next)
-                    else:
-                        raise Exception('Unsupported Pattern Match type')
-                    if not last:
-                        self.funk.emitter.add_label(label_next)
-                    pm_count += 1
-
-            # check for clause preconditions
-
-            if self.preconditions is not None:
-                self.funk.emitter.add_label(clause_precondition_label)
-                self.funk.emitter.add_comment('{}'.format(self.preconditions))
-                result = self.preconditions.eval()
-                self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(result), 1, clause_entry_label, clause_exit_label)
+            matches_all = self.pattern_matches is not None and len(self.pattern_matches) == 1 and self.pattern_matches[0] == '*'
+            if matches_all:
+                self.funk.emitter.br(clause_entry_label)
             else:
-                self.funk.emitter.add_comment('clause {} has no preconditions'.format(clause_idx))
+                # emit the function arity check
+                self.emit_arity_check(label_next, clause_exit_label)
+
+                # check pattern matches
+                self.emit_pattern_matches(clause_idx, name, clause_pm_label, clause_precondition_label, clause_entry_label,
+                                          clause_exit_label)
+
+                # check for clause preconditions
+                self.emit_preconditions(clause_idx, clause_precondition_label, clause_entry_label, clause_exit_label)
 
             self.funk.emitter.add_comment('========= Emitting clause {} ========'.format(clause_idx))
             self.funk.emitter.add_label(clause_entry_label)
@@ -1391,6 +1285,7 @@ class FunctionClause:
         arr = [StringConstant(self.funk, str) for str in strings]
         self.funk.emitter.print_funk(self.funk, arr)
 
+
 class FunctionMap:
     def __init__(self, funk, name, arguments=None, tail_pairs=None, pattern_matches=None):
         if arguments is None:
@@ -1416,13 +1311,21 @@ class FunctionMap:
         # Now implement the function
         arity = self.funk.emitter.open_function(self.funk, self.name, len(self.arguments))
 
-
         index = 0
         for clause in self.clauses:
             self.funk.function_scope.clause_idx = index
-            clause.emit(index, arity)
+            clause.emit(index)
             index += 1
 
+        if self.name not in ['main', 'sdl_render']:
+            # emit the default clause
+            # this is the clause that gets executed if nothing else matches
+            error_message = '\'ERROR could not match function {} with arity {}\''.format(self.name, arity)
+            default_clause = FunctionClause(self.funk, name=self.clauses[0].name, preconditions=None, pattern_matches='*',
+                                            fn_body=[FunctionCall(self.funk, 'say', [String(self.funk, error_message)]),
+                                                     FunctionCall(self.funk,'exit', [])])
+            default_clause.emit(index)
+        #
         self.funk.function_scope.clause_idx = 0
 
         self.funk.emitter.close_function(self.funk.function_scope.name)
@@ -1514,6 +1417,7 @@ class DebugInfo:
 
     def eval(self, result=None):
         self.funk.emitter.debug_print_node_info(self.funk, self.arg)
+
 
 class PrintPool:
     def __init__(self, funk, arg):
