@@ -66,8 +66,19 @@ def list_concat_head(funk, left, right, result=None):
     if isinstance(ptr_left, int):
         ptr_left = funk.emitter.alloc_tnode('', ptr_left, funk_types.function_pool, funk_types.int)
     ptr_right = right.eval()
-    #funk.emitter.debug_print_node_info(funk, [ptr_right])
-    return funk.emitter.prepend_element_to_list(ptr_left, ptr_right, result=result)
+
+    # arr = [StringConstant(funk, str) for str in ['------- x ~> [A] ---------------------']]
+    # funk.emitter.print_funk(funk, arr)
+
+    funk.emitter.prepend_element_to_list(ptr_left, ptr_right, result=result)
+    #
+    # arr = [StringConstant(funk, str) for str in ['result is', result ]]
+    # funk.emitter.print_funk(funk, arr)
+    # funk.emitter.debug_print_node_info(funk, [StringConstant(funk, result)] )
+    # arr = [StringConstant(funk, str) for str in ['-----------------------------']]
+    # funk.emitter.print_funk(funk, arr)
+
+    return result
 
 
 def create_ast_named_symbol(name, funk, right, pool):
@@ -316,6 +327,7 @@ class FixedSizeLiteralList(List):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return FixedSizeLiteralList(self.funk, name=self.name, elements=copy.deepcopy(self.elements, memo))
+
 
 class Identifier:
     def __init__(self, funk, name, indexes=None):
@@ -812,6 +824,7 @@ class ListConcatTail(BinaryOp):
         return ListConcatTail(self.funk, left=copy.deepcopy(self.left, memo),
                      right=copy.deepcopy(self.right, memo))
 
+
 class Assignment(BinaryOp):
     def __repr__(self):
         return 'Assignment({} , {})'.format(self.left, self.right)
@@ -819,6 +832,7 @@ class Assignment(BinaryOp):
     def eval(self, result=None):
         name = self.left.name
         create_ast_named_symbol(name, self.funk, self.right, self.pool)
+
 
 class Range(BinaryOp):
     def __init__(self, funk,  lhs=None, rhs=None, identifier=None, expr=None, rhs_type='<', lhs_type='<'):
@@ -1024,8 +1038,6 @@ class FunctionCall(Expression):
         self.funk = funk
         self.name = name
         self.args = args
-
-
         self.system_functions = {
             'funk_set_config': SetConfigParam,
             'sleep': Sleep,
@@ -1092,7 +1104,10 @@ class FunctionCall(Expression):
         for arg in self.funk.function_scope.args:
             if arg == self.name:
                 fn = self.funk.emitter.get_function_argument_tnode(i)
-                return self.funk.emitter.call_fn_ptr(self.funk, 'ptr_fn({})'.format(self.name), fn, [create_ast_anon_symbol(self.funk, a, funk_types.function_pool) for a in self.args],
+                return self.funk.emitter.call_fn_ptr(self.funk, 'ptr_fn({})'.format(self.name),
+                                                     fn,
+                                                     [create_ast_anon_symbol(self.funk, a,
+                                                                        funk_types.function_pool) for a in self.args],
                                                      result=result)
             i += 1
 
@@ -1320,7 +1335,7 @@ class FunctionMap:
         if self.name not in ['main', 'sdl_render']:
             # emit the default clause
             # this is the clause that gets executed if nothing else matches
-            error_message = '\'ERROR could not match function {} with arity {}\''.format(self.name, arity)
+            error_message = '\'ERROR could not find suitable pattern match for function {}/{}\''.format(self.name, len(self.arguments))
             default_clause = FunctionClause(self.funk, name=self.clauses[0].name, preconditions=None, pattern_matches='*',
                                             fn_body=[FunctionCall(self.funk, 'say', [String(self.funk, error_message)]),
                                                      FunctionCall(self.funk,'exit', [])])

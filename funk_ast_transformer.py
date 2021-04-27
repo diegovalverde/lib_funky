@@ -250,6 +250,9 @@ class TreeToAst(Transformer):
         return tokens[0]
 
     def action_lhs_assignment(self, children):
+        """
+        lhs <- expr
+        """
         rhs = children[0]
         return funk_ast.Assignment(self.funk, None, rhs)
 
@@ -262,12 +265,10 @@ class TreeToAst(Transformer):
         return funk_ast.List(self.funk,'[]' ,lhs)
 
     def action_list_concat_rhs(self, children):
-        if len(children) != 1:
+        if len(children) != 2:
             raise Exception('Malformed list concatenation statement')
 
-        rhs = flatten(children)[0]
-
-        return funk_ast.ListConcat(self.funk, left=None, right=rhs)
+        return funk_ast.ListConcat(self.funk, left=children[0], right=children[1])
 
     def action_bool_and(self, tokens):
         if len(tokens) > 1:

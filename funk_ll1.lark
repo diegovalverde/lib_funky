@@ -29,6 +29,7 @@
              | expr
 
     expr:  "[" term "]" "<~" term  -> action_push_at_tail
+           | term "~>" "[" term "]"       -> action_list_concat_rhs
            | "[" term "]" "++" "[" term "]" -> action_list_union
            | term [expr_]
 
@@ -40,7 +41,7 @@
 
     assignment_rhs:   "<-?" boolean_expr ":" expr "," expr
                     | "<-" expr       -> action_lhs_assignment
-                    | "~>" list       -> action_list_concat_rhs
+
 
 
     ///////////////////////////////////////////
@@ -48,7 +49,7 @@
     ///////////////////////////////////////////
     expr_:    "+" term [expr_]  -> action_arith_add
             | "-" term [expr_]  -> action_arith_sub
-           // | "<~" term [expr_]  -> action_push_at_tail
+
 
 
     term: factor [term_]
