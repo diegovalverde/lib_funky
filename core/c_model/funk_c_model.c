@@ -1881,7 +1881,7 @@ void funk_append_element_to_list(struct tnode *dst, struct tnode *L,
   funk_create_node(dst,
                    ((DATA(L, 0)->type == type_empty_array) ? 0 : LEN(L)) +
                        ((DATA(R, 0)->type == type_empty_array) ? 0 : 1),
-                   function_pool, type_array, 0, NULL);
+                   get_pool_enum(R->pool), type_array, 0, NULL);
 
   uint32_t k = 0;
   for (uint32_t i = 0; i < LEN(L); i++) {
@@ -1898,25 +1898,33 @@ void funk_append_element_to_list(struct tnode *dst, struct tnode *L,
     DATA_NO_CHECK(dst, dst->len - 1)->type = type_pointer_to_pool_entry;
     DATA_NO_CHECK(dst, dst->len - 1)->data.i = _copy_node_to_pool(R);
   }
-  printf("L\n");
-  funk_print_node(L);
-  printf("R\n");
-  funk_print_node(R);
-  printf("\n!!!!!! %d\n", LEN(dst));
-  funk_print_node(dst);
-}
 
+}
+/*
+  x ~> [A]
+*/
 void funk_prepend_element_to_list(struct tnode *dst, struct tnode *L,
                                   struct tnode *R) {
   TRACE("start");
 
   VALIDATE_NODE(L);
   VALIDATE_NODE(R);
+  if (DATA(L, 0)->type == type_empty_array){
+    funk_copy_node(dst,R);
+    return;
+  }
+
+  if (DATA(L, 0)->type == type_empty_array &&
+      DATA(R, 0)->type == type_empty_array) {
+    funk_create_node(dst, 1, function_pool, type_empty_array, 0, NULL);
+    printf("funk_prepend_element_to_list [] , [] -> []\n");
+    return;
+  }
 
   funk_create_node(dst,
                    ((DATA(L, 0)->type == type_empty_array) ? 0 : 1) +
                        ((DATA(R, 0)->type == type_empty_array) ? 0 : LEN(R)),
-                   function_pool, type_array, 0, NULL);
+                   get_pool_enum(L->pool), type_array, 0, NULL);
 
   if (LEN(L) > 1) {
     // if is another list, then prepend as one element
