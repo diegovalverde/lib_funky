@@ -86,6 +86,11 @@ struct tnode
 };
 
 
+
+#define FATAL_ERROR_IF(EXP, MSG) \
+  if (EXP) { \
+      printf("\nINTERNAL ERROR:  %s +%d '" #EXP "':\n" #MSG "\n", __FUNCTION__, __LINE__); exit(1);}
+
 #define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__,1)
 #define IS_PTR(n,idx)  (DATA(n,idx)->type ==  type_pointer_to_pool_entry)
 #define IS_NODE_IN_POOL(n,idx)  (DATA(n,idx)->type ==  type_pool_node_entry)

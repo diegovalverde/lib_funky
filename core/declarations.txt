@@ -33,24 +33,23 @@ declare void @_dereference(%struct.tnode*, %struct.tpool*, i32, i32, i32, i8*, i
 declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_exit() #0 
 declare void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
+declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
+declare i32 @_copy_node_to_pool(%struct.tnode*) #0 
 declare void @funk_not(%struct.tnode*, %struct.tnode*) #0 
 declare i32 @_funk_sum_list(%struct.tnode*) #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
 declare void @funk_get_element_in_matrix_ptr(%struct.tnode*, %struct.tnode*, i32, i32) #0 
-declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
-declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
 declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
-declare i32 @_copy_node_to_pool(%struct.tnode*) #0 
 declare void @funk_create_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
 declare void @funk_create_list_double_literal(i32, %struct.tnode*, double*, i32) #0 
-declare void @funk_create_2d_matrix_int_literal(i32, %struct.tnode*, i32*, i32, i32) #0 
 declare void @funk_print_scalar_element(i64, i64) #0 
 declare void @funk_get_node_type(%struct.tnode*, i32, i8*) #0 
 declare void @funk_set_node_type(%struct.tnode*, i32, i32) #0 

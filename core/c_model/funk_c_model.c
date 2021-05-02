@@ -35,11 +35,15 @@ static char funk_types_str[][100] = {
 void funk_flatten(struct tnode *dst, struct tnode *src);
 void funk_print_node_info(struct tnode *);
 void funk_print_node(struct tnode *);
+uint32_t _copy_node_to_pool(struct tnode *);
 void funk_print_pool(enum pool_types, int, int);
 void funk_get_element_in_list_of_regs(struct tnode *, struct tnode *, uint32_t);
 void funk_get_element_in_array(struct tnode *src, struct tnode *dst, int idx);
 void _dereference(struct tnode *dst, struct tpool *pool, uint32_t start,
                   int idx, int current_depth, const char *func, int line);
+                  void funk_get_element_in_matrix_2d_lit(struct tnode *src, struct tnode *dst,
+                                                         int32_t idx_0, int32_t idx_1);
+
 /*
   Exporting globals does not work very well with web-assembly
   this is why we use these enums instead
@@ -473,61 +477,87 @@ void funk_exit() {
 void funk_roll(struct tnode *dst, struct tnode *src, struct tnode *deltas,
                uint32_t delta_count) {
   TRACE("start");
-  if (delta_count != DIM_COUNT(src)) {
-    printf("-E- %s Invalid Dimension count: %d\n", __FUNCTION__, delta_count);
-    exit(1);
-  }
+  FATAL_ERROR_IF( !src , "");
+  FATAL_ERROR_IF( !deltas, "" );
+  FATAL_ERROR_IF( !IS_PTR(src,0), "" );
+  FATAL_ERROR_IF( delta_count != 2, "Only 2 dimensions supported" );
 
   int di_ = DATA(deltas, 0)->data.i;
   int dj_ = DATA((deltas + 1), 0)->data.i;
 
-  if (delta_count == 2) {
-    int r = DIM(src, 0);
-    int c = DIM(src, 1);
-    int *arr = (int *)malloc(r * c * sizeof(int));
+int r = LEN(src);
 
-    for (int i = 0; i < r; i++) {
-      for (int j = 0; j < c; j++) {
-        int di = (i + di_) % DIM(src, 0);
-        int dj = (j + dj_) % DIM(src, 1);
-        di = (di < 0) ? DIM(src, 0) + di : di;
-        dj = (dj < 0) ? DIM(src, 1) + dj : dj;
-        *(arr + di * c + dj) = DATA(src, i * c + j)->data.i;
-      }
+struct tnode tmp;
+DEREF(&tmp, src, 0);
+
+int c = tmp.len;
+int *arr = (int *)malloc(r * c * sizeof(int));
+for (int i = 0; i < r; i++) {
+  struct tnode src_row;
+  funk_get_element_in_array(src, &src_row,i);
+
+  for (int j = 0; j < c; j++) {
+    struct tnode col_dst;
+    funk_create_node(&col_dst, LEN(src),
+                     get_pool_enum(src->pool),
+                     type_pointer_to_pool_entry, 0, NULL);
+
+    int di = (i + di_) % r;
+    int dj = (j + dj_) % c;
+    di = (di < 0) ? r + di : di;
+    dj = (dj < 0) ? c + dj : dj;
+    struct tnode tmp;
+    funk_get_element_in_matrix_2d_lit(src, &tmp, i,j);
+    *(arr + di * c + dj) =  DATA(&tmp,0)->data.i;//DATA(src, i * c + j)->data.i;
+  }
+}
+
+ funk_create_node(dst, r,
+                 get_pool_enum(src->pool),
+                 type_pointer_to_pool_entry, 0, NULL);
+
+  for (int i = 0; i < r; i++) {
+    struct tnode dst_row;
+    funk_create_node(&dst_row, c,
+                     get_pool_enum(src->pool),
+                     type_int, 0, NULL);
+
+    for (int j = 0; j < c; j++) {
+      DATA(&dst_row,j)->data.i = *(arr +i*c +j);
     }
-    funk_create_node(dst, LEN(src),
-                     (src->pool == &funk_global_memory_pool) ? function_pool
-                                                             : global_pool,
-                     DATA(src, 0)->type, DIM_COUNT(src), arr);
-    free(arr);
+    DATA_NO_CHECK(dst, i)->type = type_pointer_to_pool_entry;
+    DATA_NO_CHECK(dst, i)->data.i = _copy_node_to_pool(&dst_row);
+  }
 
-  } else {
-    printf("-E- %s Unsupported\n", __FUNCTION__);
-    exit(1);
-  }
-  for (uint32_t i = 0; i < delta_count; i++) {
-    SET_DIM(dst, i, DIM(src, i));
-  }
+  free(arr);
 }
 
 void funk_not(struct tnode *dst, struct tnode *src) {
   TRACE("start");
+
   funk_create_node(dst, LEN(src),
-                   (src->pool == &funk_global_memory_pool) ? function_pool
-                                                           : global_pool,
+                  get_pool_enum (src->pool),
                    DATA(src, 0)->type, DIM_COUNT(src), NULL);
 
-  for (uint32_t i = 0; i < DIM_COUNT(src); i++) {
-    SET_DIM(dst, i, DIM(src, i));
-  }
 
   for (uint32_t i = 0; i < LEN(src); i++) {
-    if (DATA(src, i)->data.i == 0) {
-      DATA(dst, i)->data.i = 1;
+    struct tnode element;
+    funk_get_element_in_array(src, &element, i);
+
+    if (element.len > 1){
+      struct tnode row;
+      funk_not(&row,&element);
+
+      DATA(dst, i)->type = type_pointer_to_pool_entry;
+      DATA(dst, i)->data.i = _copy_node_to_pool(&row);
     } else {
-      DATA(dst, i)->data.i = 0;
+
+      DATA(dst, i)->data.i =
+        (DATA(&element, 0)->data.i == 0) ? 1 : 0;
     }
   }
+
+
 }
 
 int _funk_sum_list(struct tnode *src) {
@@ -840,16 +870,6 @@ void funk_create_list_double_literal(enum pool_types pool_type,
                                      int32_t size) {
   TRACE("start");
   funk_create_node(dst, size, pool_type, type_double, 0, (void *)list);
-}
-
-void funk_create_2d_matrix_int_literal(enum pool_types pool_type,
-                                       struct tnode *dst, int32_t *list,
-                                       int32_t n, int32_t m) {
-  TRACE("start");
-
-  funk_create_node(dst, n * m, pool_type, type_int, 2, (void *)list);
-  SET_DIM(dst, 0, n);
-  SET_DIM(dst, 1, m);
 }
 
 void funk_print_scalar_element(struct tdata n) {
