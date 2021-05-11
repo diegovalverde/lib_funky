@@ -366,7 +366,7 @@ class TreeToAst(Transformer):
 
     @staticmethod
     def list_elements(token):
-        return token
+        return flatten(token)
 
     @staticmethod
     def list_initialization(token):

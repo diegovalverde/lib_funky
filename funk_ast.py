@@ -22,6 +22,11 @@ import copy
 from functools import reduce
 
 
+def debug_print(funk, strings):
+    arr = [StringConstant(funk, str) for str in strings]
+    funk.emitter.print_funk(funk, arr)
+
+
 def flatten(x):
     if isinstance(x, collections.Iterable):
         return [a for i in x for a in flatten(i)]
@@ -354,13 +359,13 @@ class Identifier:
     def eval_node_index(self,node,result=None):
         if self.indexes is not None:
             # M[i..j, i+1 .. j+1]
-            if len(self.indexes) == 2 and isinstance(self.indexes[0], Range)  and isinstance(self.indexes[1], Range):
+            if len(self.indexes) == 2 and isinstance(self.indexes[0], Range) and isinstance(self.indexes[1], Range):
                 return self.funk.emitter.create_submatrix(node, self.indexes, result=result)
-                #M[1,2]
+                # M[1,2]
             elif  len(self.indexes) == 2 and isinstance(self.indexes[0], IntegerConstant) and isinstance(self.indexes[1], IntegerConstant):
                 return self.funk.emitter.get_element_in_array_2d_lit(node, self.indexes, result=result)
             elif len(self.indexes) == 1 and isinstance(self.indexes[0], Range):
-                #L[1..2]
+                # L[1..2]
                 return self.funk.emitter.create_sub_array(node, c1=self.indexes[0].left, c2=self.indexes[0].right, result=result)
             else:
                 return self.funk.emitter.get_element_in_matrix(node, self.indexes, result=result)
@@ -386,7 +391,8 @@ class Identifier:
                                                                      data_type=funk_types.int)
 
 
-                        self.funk.emitter.get_element_in_list_of_regs(dst=element_node,src=list_node,i=i)
+                        self.funk.emitter.get_element_in_list_of_regs(dst=element_node, src=list_node, i=i)
+                        # if len(element_node) != len(pm.elements) ...
 
                         if result is not None:
                             self.funk.emitter.copy_node(element_node, result)
@@ -417,10 +423,18 @@ class Identifier:
             if self.name == head:
                 idx = self.funk.function_scope.args.index(head)
                 head_node = self.funk.emitter.get_function_argument_tnode(idx)
-                self.funk.emitter.add_comment('h <~ [T]. Create a tnode with len 1 pointing to the first element of the head')
+                self.funk.emitter.add_comment('h <~ [T].')
 
-                detached_head_node = self.funk.emitter.alloc_tnode_raw()
-                self.funk.emitter.clone_node(head_node,detached_head_node)
+                # detached_head_node = self.funk.emitter.alloc_tnode('head',0,)
+                l1 = self.funk.emitter.get_node_length(self.funk,[ StringConstant(self.funk, head_node)])
+
+                #debug_print(self.funk, ['!!!!![{} '.format(head),head_node, '(1) !!!!!! The len is', l1,'}'])
+                #self.funk.emitter.clone_node(head_node, detached_head_node)
+
+                detached_head_node = self.funk.emitter.copy_first_element_from_list(head_node)
+
+                l2 = self.funk.emitter.get_node_length(self.funk, [StringConstant(self.funk, detached_head_node)])
+                #debug_print(self.funk, ['{', detached_head_node,'!!!!!! The len is', l2, '}'])
                 #self.funk.emitter.copy_node(head_node, detached_head_node)
                 #pool = self.funk.emitter.get_node_pool(head_node)
                 #start = self.funk.emitter.get_node_start(head_node)
@@ -486,6 +500,7 @@ class Identifier:
         # create a copy with self.linked_to *not copied*, just referenced.
         return Identifier(self.funk, name=self.name, indexes=copy.deepcopy(self.indexes, memo))
 
+
 class HeadTail:
     def __init__(self, funk, head=None, tail=None):
         self.funk = funk
@@ -503,6 +518,7 @@ class HeadTail:
         # create a copy with self.linked_to *not copied*, just referenced.
         return HeadTail(self.funk, head=copy.deepcopy(self.head, memo), tail=copy.deepcopy(self.tail, memo))
 
+
 class PatternMatch:
     def __init__(self, funk):
         self.funk = funk
@@ -516,6 +532,7 @@ class PatternMatch:
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return PatternMatch(self.funk)
+
 
 class PatternMatchEmptyList(PatternMatch):
     def __init__(self, funk):
@@ -532,6 +549,7 @@ class PatternMatchEmptyList(PatternMatch):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return PatternMatchEmptyList(self.funk)
+
 
 class PatternMatchLiteral(PatternMatch):
     def __init__(self, funk, value):
@@ -1138,6 +1156,7 @@ class FunctionClause:
     def emit_pattern_matches(self, clause_idx, name, clause_pm_label, clause_precondition_label, clause_entry_label, clause_exit_label):
         # check for clause pattern matches
         if self.pattern_matches is not None and len(self.pattern_matches) != 0:
+            #self.debug_print(['emitting pattern matches'])
             self.funk.emitter.add_label(clause_pm_label)
             self.funk.emitter.add_comment('{}'.format(self.pattern_matches))
 
@@ -1170,11 +1189,12 @@ class FunctionClause:
                 elif isinstance(pattern, PatternMatchListOfIdentifiers):
                     self.funk.emitter.add_comment(
                         'Pattern match element against a list of {} elements '.format(len(pattern.elements)))
-                    node_len = self.funk.emitter.get_tnode_length(arg)
-                    # self.funk.emitter.print_funk(self.funk,[ StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
-                    #      StringConstant(self.funk, node_len)])
+                    node_len = self.funk.emitter.get_extended_len(arg)
+                    self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
+                         StringConstant(self.funk, node_len)])
                     val = self.funk.emitter.get_node_data_value(node_len)
                     self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label, label_next)
+
                 else:
                     raise Exception('Unsupported Pattern Match type')
                 if not last:
@@ -1197,7 +1217,7 @@ class FunctionClause:
         # return value and the second (#1) is the arity (passed as a constant)
         self.funk.emitter.add_comment('Check clause arity or exit. Arity = {}'.format(self.arguments))
         # foo(x,y,z):  # number_of_arguments = arity = 3
-        # foo( [x,y,z]): # even if the arity is 1 (only one input variable in the fuction firm)
+        # foo( [x,y,z]): # even if the arity is 1 (only one input variable in the function firm)
         # the number_of_arguments is also 3
         number_of_arguments = len(self.arguments)
         if self.pattern_matches is not None:
@@ -1287,18 +1307,14 @@ class FunctionClause:
                 self.funk.emitter.br(start_label)
             else:
                 last_insn.eval(p_result)
-                self.funk.emitter.debug_function_exit_hook(self.funk, self.name, p_result)
+                self.funk.emitter.debug_function_exit_hook(self.funk, '{}:{}'.format(self.name, clause_idx), p_result)
                 self.funk.emitter.ret()
                 self.funk.emitter.br('l_{}_end'.format(name))
 
-            self.funk.emitter.debug_function_exit_hook(self.funk, self.name, p_result)
+            self.funk.emitter.debug_function_exit_hook(self.funk, '{}:{}'.format(self.name, clause_idx), p_result)
             self.funk.emitter.ret()
 
             self.funk.emitter.add_label(clause_exit_label)
-
-    def debug_print(self, strings):
-        arr = [StringConstant(self.funk, str) for str in strings]
-        self.funk.emitter.print_funk(self.funk, arr)
 
 
 class FunctionMap:

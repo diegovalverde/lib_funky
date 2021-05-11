@@ -30,12 +30,12 @@ declare i32 @_funk_alloc_raw_tdata(%struct.tpool*, i32, i32) #0
 declare void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0 
 declare void @funk_deep_copy_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @_dereference(%struct.tnode*, %struct.tpool*, i32, i32, i32, i8*, i32) #0 
+declare i32 @_copy_node_to_pool(%struct.tnode*) #0 
 declare void @funk_copy_node(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_exit() #0 
 declare void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
-declare i32 @_copy_node_to_pool(%struct.tnode*) #0 
 declare void @funk_not(%struct.tnode*, %struct.tnode*) #0 
 declare i32 @_funk_sum_list(%struct.tnode*) #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
@@ -111,6 +111,7 @@ declare void @_funk_print_node(%struct.tnode*) #0
 declare float @funk_ToFloat(%struct.tnode*) #0 
 declare void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 
 declare void @funk_get_len(%struct.tnode*, %struct.tnode*) #0 
+declare void @funk_get_extended_len(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_sub_matrix_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32, i32, i32) #0 
 declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32) #0 
@@ -124,6 +125,7 @@ declare double @rand_double(double, double) #0
 declare void @funk_create_empty_list_element(i32, %struct.tnode*) #0 
 declare void @funk_append_element_to_list(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_prepend_element_to_list(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
+declare void @funk_copy_first_element_from_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_concatenate_lists(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare i32 @funk_get_node_start(%struct.tnode*) #0 
 declare i32 @funk_get_node_pool(%struct.tnode*) #0 
@@ -149,6 +151,7 @@ declare void @free(i8*) #1
 declare i64 @time(i64*) #1
 declare void @srand(i32) #1
 declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) #3
+declare i32 @__snprintf_chk(i8*, i64, i32, i64, i8*, ...) #1
 declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) #1
 declare i32 @fscanf(%struct.__sFILE*, i8*, ...) #1
 declare i32 @fclose(%struct.__sFILE*) #1

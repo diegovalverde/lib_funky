@@ -440,7 +440,6 @@ class Emitter:
             call void @funk_get_element_in_list_of_regs(%struct.tnode * {dst}, %struct.tnode * {src}, i32 {i})
             """.format(dst=dst, src=src, i=i)
 
-
     def get_function_argument_tnode(self, idx):
         p = [x for x in range(self.index, self.index + 2)]
 
@@ -842,7 +841,9 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         return result
 
-    def get_element_in_array_1d_lit(self, node, indexes, result=None):
+    def get_element_in_array(self, node, indexes, result=None):
+        if result is None:
+            result = self.allocate_result()
 
         if len(indexes) == 1:
             i = indexes[0].eval()
@@ -924,20 +925,6 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
                """.format(p[0], node=node, result=result, pdeltas=pdeltas, n=n)
         return result
 
-    def get_node_lenght_as_int(self,node):
-        p = [x for x in range(self.index, self.index + 3)]
-        self.index = p[-1] + 1
-
-        self.code += """
-        ;; get lenght of node as integer
-        %{0} = alloca i32, align 4
-        %{1} = getelementptr inbounds %struct.tnode, %struct.tnode* {node}, i32 0, i32 1
-        %{2} = load i32, i32* %{1}, align 4
-        store i32 %{2}, i32* %{0}, align 4
-        """.format(p[0], p[1], p[2],node=node)
-
-        return '%{}'.format(p[0])
-
     def add_node_to_nodelist(self, node, node_list, idx_node, n):
 
         self.code += """
@@ -1004,14 +991,34 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
         store i32 %{3}, i32* %{1}, align 4
         """.format(p[0],p[1],p[2],p[3],delta_len=delta_len,node=node)
 
+    def get_extended_len(self,node, result=None):
+        if result is None:
+            result = self.allocate_result()
+
+            self.code += """
+                   call void @funk_get_extended_len(%struct.tnode* {result}, %struct.tnode * {node})
+                  """.format(node=node, result=result)
+
+        return result
+
     def get_tnode_length(self, node,result=None):
         if result is None:
             result = self.allocate_result()
 
             self.code += """
-            call void @funk_get_len(%struct.tnode* {node}, %struct.tnode * {result})
+            call void @funk_get_len(%struct.tnode* {result}, %struct.tnode * {node})
            """.format(node=node, result=result)
 
+        return result
+
+    def copy_first_element_from_list(self, node, result=None):
+        if result is None:
+            result = self.allocate_result()
+
+        self.code += """
+
+                call void @funk_copy_first_element_from_list(%struct.tnode* {dst}, %struct.tnode * {src})
+               """.format(src=node, dst=result)
         return result
 
     def get_node_length(self,funk, args,result=None):
@@ -1021,7 +1028,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         self.code += """
 
-                call void @funk_get_len(%struct.tnode* {node}, %struct.tnode * {result})
+                call void @funk_get_len(%struct.tnode* {result}, %struct.tnode * {node})
                """.format(node=node, result=result)
         return result
 
@@ -1108,7 +1115,7 @@ define {ret_type} {fn_name}(%struct.tnode*, i32, %struct.tnode*) #0 {{
 
         if all_indexes_are_int:
             if len(indexes) == 1:
-                self.get_element_in_array_1d_lit(node, indexes, result)
+                self.get_element_in_array(node, indexes, result)
                 return result
             elif len(indexes) == 2:
                 self.funk_get_element_in_matrix_2d_lit(node, indexes, result)

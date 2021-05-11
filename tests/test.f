@@ -1,5 +1,5 @@
 
-use sort, bfs, not, binary_search
+use sort, bfs, not, binary_search, count, sem_matrix
 N <-> 20
 
 assert(actual, expected | actual != expected ):
@@ -130,6 +130,9 @@ main():
       say('hello',[10,10,10,10],add_two(u,v))
       assert(arr_eq(add_two(u,v),[10,10,10,10]),1)
       vvv <- idem_list([10,10,10,10])
+
+      assert(count(vvv,10),4)
+      assert(count(vvv,11),0)
       say('xxxxx', vvv)
       assert(arr_eq(add_two(u,v),vvv),1)
 
@@ -183,7 +186,9 @@ main():
       assert(len( [0] ), 1)
       assert(len( [0] ), len( [1] ))
       A <- [1,2,3,4,5,6,7]
-
+      assert(count(A,1),1)
+      assert(count(A,7),1)
+      assert(count(A,8),0)
 
 
       assert(A[0], 1)
@@ -243,6 +248,8 @@ main():
             [0,1,0,0],
             [0,0,1,0],
             [0,0,0,1]]
+
+      assert(count(M1,1),4)
 
       say(M1)
       assert(len(M1[0 .. 1]),2)
@@ -516,6 +523,32 @@ main():
       say('M1',M1)
       assert(different(M1,M1),0)
       assert(different(M1,M2),1)
+
+
+      say('===== list concat =====')
+      assert([pos] ++ [pos], [1,2,1,2])
+      assert([pos] <~ pos, [1,2, [1,2] ])
+      empty <- []
+      assert([empty] <~ pos, [[1,2]])
+      fi <- [[1,2]]
+      assert([fi] <~ pos, [[1,2],[1,2]])
+      fo <- [[[1,2],[1,2]]]
+      assert([fo] <~ pos, [[[1,2],[1,2]], [1,2]])
+
+
+      assert(sem_matrix(3,3,0,0),[[1,0,0],[0,0,0],[0,0,0]])
+      assert(sem_matrix(3,3,0,1),[[0,1,0],[0,0,0],[0,0,0]])
+      assert(sem_matrix(3,3,0,2),[[0,0,1],[0,0,0],[0,0,0]])
+
+
+      assert(sem_matrix(3,3,1,0),[[0,0,0],[1,0,0],[0,0,0]])
+      assert(sem_matrix(3,3,1,1),[[0,0,0],[0,1,0],[0,0,0]])
+      assert(sem_matrix(3,3,1,2),[[0,0,0],[0,0,1],[0,0,0]])
+
+
+      assert(sem_matrix(3,3,2,0),[[0,0,0],[0,0,0],[1,0,0]])
+      assert(sem_matrix(3,3,2,1),[[0,0,0],[0,0,0],[0,1,0]])
+      assert(sem_matrix(3,3,2,2),[[0,0,0],[0,0,0],[0,0,1]])
 
       # say(len([ [1,2,3,4] , 666,42]))
       # say([ [1,2,3,4] , 666,42])
