@@ -96,64 +96,26 @@ class Funk:
             print('-E- File not found \'{}\''.format(ll1_path))
             exit()
 
-        try:
-            if declarations_path is None:
-                declarations_path = '{}/core/declarations.txt'.format(os.path.dirname(os.path.abspath(__file__)))
-            with open(declarations_path, 'r') as file:
-                function_declarations = file.read()
-        except IOError:
-            print('-E- File not found \'{}\''.format(declarations_path))
-            exit()
-
-
         self.window = None
         self.grammar = Lark(funk_grammar)
         self.strings_count = 0  # used to declare constant strings as unique globals
-        self.triple = 'x86_64-apple-macosx10.15.0' #binding.get_default_triple()
         self.symbol_table = {}  # the symbol table
         self.function_scope = None  # The function scope that we are currently building
         self.functions = []
         self.empty_arg_count = 0  # essentially all of the '_' shall be uniquely identifiable
         self.preamble = \
             """
-;; =============================================================== ;;
-;;
-;; *** F U N K ! *** Runtime embedded environment
-;;
-;;
-;; https://llvm.org/docs/LangRef.html
-;; =============================================================== ;;
+#include <funk_c_model.h>
+// =============================================================== ;;
+//
+// *** F U N K Y ! *** Runtime embedded environment
+//
+//
+// https://llvm.org/docs/LangRef.html
+// =============================================================== ;;
 
 
-target triple = "{triple}"
-target datalayout = ""
-
-
-;; =============================================================== ;;
-;; Main data type representation
-
-;; Since Funk supports runtime types, then a union is used
-;; to store the types. Recall that there are really no unions
-;; in LLVM, rather the size of the biggest data type is used and
-;; then the appropiate bitcast is used to inform the compiler about
-;; the corresponding data type for a given symbol
-
-
-;; =============================================================== ;;
-
-;; ===  Global Funk definitions ===
-
-@.str_DISP_INT = private unnamed_addr constant [3 x i8] c"%i\0", align 1
-@.str_DISP_FLOAT = private unnamed_addr constant [3 x i8] c"%f\0", align 1
-@.str_DISP_EOL = private unnamed_addr constant [2 x i8] c"\\0A\\00", align 1
-
-@.str_ERR_ARITH_TYPE = private unnamed_addr constant [36 x i8] c"-E- Unsupported Arithmetic Type %i\\0A\\00", align 1
-@.str_ERR_PRINT_TYPE = private unnamed_addr constant [33 x i8] c"-E- Unsupported Print Type   %i\\0A\\00", align 1
-
-
-
-{function_declarations}
-            """.format(function_declarations=function_declarations, triple=self.triple, funk_type_int=funk_types.int, funk_type_float=funk_types.double)
+"""
 
         self.post_amble = \
             """
@@ -192,7 +154,7 @@ target datalayout = ""
 
         return code
 
-    def save_ir(self, path):
+    def save_c(self, path):
         f = open(path, 'w')
         f.write(self.emit())
         f.close()
@@ -260,7 +222,7 @@ target datalayout = ""
        return self.emitter.alloc_literal_list(name='list[]', lit_list=elements, dimensions=dimensions, pool=pool, result=result)
 
     def alloc_compile_time_expr_list(self, elements, dimensions, pool, result=None):
-        return self.emitter.create_list_of_regs(name='list[]', dimensions=dimensions, reg_list=elements, pool=pool,
+        return self.emitter.create_list_of_regs(name='anon', dimensions=dimensions, reg_list=elements, pool=pool,
                                                result=result)
 
     def create_variable_symbol(self, symbol, symbol_name):

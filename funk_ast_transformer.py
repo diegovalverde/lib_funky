@@ -106,7 +106,7 @@ class TreeToAst(Transformer):
             self.function_map[function_key].clauses.append(clause)
 
         else:
-            function_key = '@{}'.format(fn_name)
+            function_key = '{}'.format(fn_name)
 
             clause = funk_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
                                              arguments=fn_arguments, tail_pairs=tail_pairs)
@@ -356,13 +356,19 @@ class TreeToAst(Transformer):
         else:
             return None
 
-    def list(self, tokens):
-        elements = flatten(tokens)
+    def create_list(self, elements):
+        if isinstance(elements, collections.Iterable) and len(elements) == 1 and isinstance(elements[0], collections.Iterable):
+            return [funk_ast.CompileTimeExprList(self.funk, 'anon', self.create_list(elements[0]))]
+        else:
+            return [funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
 
+    def list(self, tokens):
         if len(tokens) == 0:
             return funk_ast.FixedSizeLiteralList(self.funk, 'anon-empty-list', [])
         else:
-            return [funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
+            elements = tokens[0]  # flatten(tokens)
+            x = self.create_list(elements) #[funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
+            return x
 
     @staticmethod
     def list_elements(token):
@@ -370,7 +376,7 @@ class TreeToAst(Transformer):
 
     @staticmethod
     def list_initialization(token):
-        return token
+        return token[0]
 
     @staticmethod
     def fn_firm_args(token):
@@ -506,5 +512,4 @@ class TreeToAst(Transformer):
             return tokens[1:]
         else:
             return tokens
-
 

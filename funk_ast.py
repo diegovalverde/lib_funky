@@ -19,6 +19,7 @@
 from . import funk_types
 import collections
 import copy
+import types
 from functools import reduce
 
 
@@ -106,7 +107,7 @@ def create_ast_named_symbol(name, funk, right, pool):
 
 def create_ast_anon_symbol(funk, right, pool):
     if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant):
-        return funk.alloc_literal_symbol(right, pool, 'anon_list')
+        return funk.alloc_literal_symbol(right, pool, 'anon')
     else:
         return right.eval()
 
@@ -119,10 +120,10 @@ class Expression:
         pass
 
 class IntegerConstant:
-    def __init__(self, funk, value):
+    def __init__(self, funk, value, sign=1):
         self.value = value
         self.funk = funk
-        self.sign = 1
+        self.sign = sign
         self.name = ''
 
     def replace_symbol(self, symbol, value):
@@ -132,23 +133,29 @@ class IntegerConstant:
         return funk_types.int
 
     def __repr__(self):
-        return 'Integer({})'.format(self.value)
+        sign = '-' if self.sign == -1 else ''
+        return 'Integer({}{})'.format(sign,self.value)
 
     def eval(self, result=None):
-        val = self.sign * int(self.value)
+
+        value = self.sign * int(self.value)
         if result is not None:
-            self.funk.emitter.set_node_data_value('result element', result, val, as_type=funk_types.int)
-        return val
+            self.funk.emitter.alloc_tnode(name=result, value=value, pool=funk_types.function_pool, data_type=funk_types.int)
+        # else:
+        #     self.funk.emitter.alloc_tnode(name='anon', value=value, pool=funk_types.function_pool,
+        #                                   data_type=funk_types.int)
+            #self.funk.emitter.set_node_data_value(result, val, as_type=funk_types.int)
+        return value
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return IntegerConstant(self.funk, value=copy.deepcopy(self.value, memo))
+        return IntegerConstant(self.funk, value=copy.deepcopy(self.value, memo), sign=self.sign)
 
 class DoubleConstant:
-    def __init__(self, funk, value):
+    def __init__(self, funk, value, sign=1):
         self.value = value
         self.funk = funk
-        self.sign = 1
+        self.sign = sign
 
     def replace_symbol(self, symbol, value):
         pass
@@ -160,16 +167,20 @@ class DoubleConstant:
         return 'DoubleConstant({})'.format(self.value)
 
     def eval(self, result=None):
-        val = self.sign * float(self.value)
+        value = self.sign * float(self.value)
         if result is not None:
-            self.funk.emitter.set_node_data_value('result element', result, val, as_type=funk_types.double)
-            self.funk.emitter.set_node_data_type('result element', result, funk_types.double)
+            self.funk.emitter.alloc_tnode(name=result, value=value, pool=funk_types.function_pool,
+                                          data_type=funk_types.double)
+        else:
+            self.funk.emitter.alloc_tnode(name='anon', value=value, pool=funk_types.function_pool,
+                                          data_type=funk_types.double)
 
-        return val
+
+        return value
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return DoubleConstant(self.funk, value=copy.deepcopy(self.value, memo))
+        return DoubleConstant(self.funk, value=copy.deepcopy(self.value, memo), sign=self.sign)
 
 class StringConstant:
     def __init__(self, funk, value):
@@ -195,12 +206,16 @@ class StringConstant:
         # create a copy with self.linked_to *not copied*, just referenced.
         return StringConstant(self.funk, value=copy.deepcopy(self.value, memo))
 
+
 class List(Expression):
     def __init__(self, funk, name, elements):
         super().__init__()
         self.funk = funk
         self.name = name
         self.elements = elements
+
+    def __len__(self):
+        return len(self.elements)
 
     def replace_symbol(self, symbol, value):
         for element in self.elements:
@@ -213,8 +228,9 @@ class List(Expression):
             elif isinstance(x, List): elements = x.elements
             dimensions.append(len(elements))
 
-            if len(elements) >0 and isinstance(elements[0],List) or isinstance(elements[0], collections.Iterable):
-                return traverse(elements[0], dimensions)
+            if len(elements) >0:
+                if isinstance(elements[0],List) or isinstance(elements[0], collections.Iterable):
+                    return traverse(elements[0], dimensions)
             return list(reversed(dimensions))
 
         if len(self.elements) == 0:
@@ -229,8 +245,8 @@ class List(Expression):
         # create a copy with self.linked_to *not copied*, just referenced.
         return List(self.funk, name=self.name, value=copy.deepcopy(self.value, memo))
 
-class VariableList(List):
 
+class VariableList(List):
     def __init__(self, funk, iterator, start, end, start_inclusive, end_inclusive, expr):
         self.funk = funk
         self.iterator = iterator
@@ -272,15 +288,20 @@ class CompileTimeExprList(List):
         super().__init__(funk, name, elements)
         self.funk = funk
         self.name = name
-        self.elements = elements
+        if isinstance(elements, collections.Iterable):
+            self.elements = elements
+        else:
+            self.elements = [elements]
 
     def eval(self, result=None):
 
-        dimensions = self.get_dimensions()
+        if len(self.elements) == 1 and isinstance(self.elements[0], Range):
+            return self.elements[0].eval(result=result)
+
         flattened_list = self.elements
 
         elements = []
-        for element in flattened_list:
+        for element in self.elements:
             if isinstance(element, IntegerConstant):
                 reg = self.funk.emitter.alloc_tnode('anon', element.eval(),
                                                               funk_types.function_pool, funk_types.int )
@@ -292,12 +313,13 @@ class CompileTimeExprList(List):
 
                 elements.append(reg)
             else:
-                elements.append(element.eval())
+                ### HERE !!!!!!!
+                elements.append(element.eval())#result=result))
 #DIEGO
-        if len(flattened_list) == 1 and isinstance(flattened_list[0],Range):
+        if len(flattened_list) == 1 and isinstance(flattened_list[0], Range):
             return elements[0]
         else:
-            return self.funk.alloc_compile_time_expr_list(elements, dimensions, self.pool, result=result)
+            return self.funk.alloc_compile_time_expr_list(elements, self.get_dimensions(), self.pool, result=result)
 
     def __repr__(self):
         return 'CompileTimeExprList({})'.format(self.elements)
@@ -356,17 +378,33 @@ class Identifier:
 
         return string
 
+    def index_emit_helper(self, node, indexes, result):
+        idx = indexes.pop()
+        if len(indexes) == 0:
+            return self.funk.emitter.get_element_in_array(node, idx)
+        else:
+            return self.funk.emitter.get_element_in_array( self.index_emit_helper(node, indexes, result), idx, result)
+
+
+
+
     def eval_node_index(self,node,result=None):
         if self.indexes is not None:
+            # L[1..2]
+            if len(self.indexes) == 1 and isinstance(self.indexes[0], Range):
+                return self.funk.emitter.create_sub_array(node, c1=self.indexes[0].left, c2=self.indexes[0].right,
+                                                      result=result)
             # M[i..j, i+1 .. j+1]
             if len(self.indexes) == 2 and isinstance(self.indexes[0], Range) and isinstance(self.indexes[1], Range):
                 return self.funk.emitter.create_submatrix(node, self.indexes, result=result)
-                # M[1,2]
+            elif len(self.indexes) > 0:
+                return self.index_emit_helper(node, copy.deepcopy(self.indexes), result)
+            # M[1,2]
             elif  len(self.indexes) == 2 and isinstance(self.indexes[0], IntegerConstant) and isinstance(self.indexes[1], IntegerConstant):
                 return self.funk.emitter.get_element_in_array_2d_lit(node, self.indexes, result=result)
-            elif len(self.indexes) == 1 and isinstance(self.indexes[0], Range):
-                # L[1..2]
-                return self.funk.emitter.create_sub_array(node, c1=self.indexes[0].left, c2=self.indexes[0].right, result=result)
+            elif len(self.indexes) == 1 and isinstance(self.indexes[0], IntegerConstant):
+                # L[1]
+                return self.funk.emitter.get_element_in_array(node, self.indexes, result)
             else:
                 return self.funk.emitter.get_element_in_matrix(node, self.indexes, result=result)
         else:
@@ -402,87 +440,17 @@ class Identifier:
     def eval(self, result=None):
         # Check the current function that we are building
         # To see if the identifier is a function argument
-
-        pattern_matched_in_list = self.pattern_match_list_of_identifiers(result)
-        if pattern_matched_in_list is not None:
-            return self.eval_node_index(pattern_matched_in_list, result)
-            #return pattern_matched_in_list
-
-        for head_tail in self.funk.function_scope.tail_pairs:
-            head, tail = head_tail
-            if self.name == tail:
-                idx = self.funk.function_scope.args.index(head)
-                head_node = self.funk.emitter.get_function_argument_tnode(idx)
-                # TODO: dim_idx no initialized
-                tail_node = self.funk.emitter.get_next_node(head_node)
-                if result is not None:
-                    #dst, src
-                    self.funk.emitter.copy_node(tail_node, result)
-                return tail_node
-
-            if self.name == head:
-                idx = self.funk.function_scope.args.index(head)
-                head_node = self.funk.emitter.get_function_argument_tnode(idx)
-                self.funk.emitter.add_comment('h <~ [T].')
-
-                # detached_head_node = self.funk.emitter.alloc_tnode('head',0,)
-                l1 = self.funk.emitter.get_node_length(self.funk,[ StringConstant(self.funk, head_node)])
-
-                #debug_print(self.funk, ['!!!!![{} '.format(head),head_node, '(1) !!!!!! The len is', l1,'}'])
-                #self.funk.emitter.clone_node(head_node, detached_head_node)
-
-                detached_head_node = self.funk.emitter.copy_first_element_from_list(head_node)
-
-                l2 = self.funk.emitter.get_node_length(self.funk, [StringConstant(self.funk, detached_head_node)])
-                #debug_print(self.funk, ['{', detached_head_node,'!!!!!! The len is', l2, '}'])
-                #self.funk.emitter.copy_node(head_node, detached_head_node)
-                #pool = self.funk.emitter.get_node_pool(head_node)
-                #start = self.funk.emitter.get_node_start(head_node)
-                #self.funk.emitter.set_node_pool(detached_head_node, pool )
-                #self.funk.emitter.set_node_start(detached_head_node, start)
-                #self.funk.emitter.set_node_len(detached_head_node,  1)
-
-                if result is not None:
-                    self.funk.emitter.copy_node(detached_head_node, result)
-
-                return detached_head_node
-
-        for arg in self.funk.function_scope.args:
-            if arg == self.name:
-                idx = self.funk.function_scope.args.index(arg)
-                node = self.funk.emitter.get_function_argument_tnode(idx)
-                if result is not None:
-                    self.funk.emitter.copy_node(node, result)
-                return self.eval_node_index(node, result)
-
-        global_symbol_name = '@{}'.format(self.name)
-        local_symbol_name = '{}_{}_{}'.format(self.funk.function_scope.name, self.funk.function_scope.clause_idx,
-                                              self.name)
-
-        # Now check to see if it is a local (function scope) variable
-        if local_symbol_name in self.funk.symbol_table:
-            node = self.funk.symbol_table[local_symbol_name]
-            if result is not None:
-                self.funk.emitter.copy_node(node, result)
-            return self.eval_node_index(node, result)
-
-        if global_symbol_name in self.funk.symbol_table:
-            self.funk.emitter.add_comment('creating reference to global function {}'.format(global_symbol_name))
-            node = self.funk.emitter.alloc_tnode('global_symbol_ref', value=0, pool=funk_types.function_pool, data_type=funk_types.int)
-            self.funk.emitter.set_node_value_fn_ptr(node, global_symbol_name)
-            if result is not None:
-                self.funk.emitter.copy_node(node, result)
-            return self.eval_node_index(node, result)
-
-        if len(self.funk.function_scope.args) == 1 and 'sd2_render_user_state' in self.funk.function_scope.args[0]:
-            _,name = self.funk.function_scope.args[0].split('@')
-            if name == self.name:
-                node = self.funk.emitter.alloc_tnode('tmp_sd2_render_user_state', value=0,pool=funk_types.global_pool, data_type=funk_types.int)
-                if result is not None:
-                    self.funk.emitter.copy_node(node, result)
-                return self.eval_node_index(node, result)
-
-        return global_symbol_name
+        if self.name in self.funk.symbol_table:
+            anon = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+        struct tnode {anon};
+        funk_create_node(&{anon}, 1,
+                  function_pool, type_function,
+                  0, (void *) {name});
+        """.format(anon=anon, name=self.name)
+            return anon
+        else:
+            return self.eval_node_index(self.name, result)
 
     def replace_symbol(self, symbol, value):
 
@@ -641,12 +609,13 @@ class BinaryOp(Expression):
         # create a copy with self.linked_to *not copied*, just referenced.
         return BinaryOp(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
 
+
 class Sum(BinaryOp):
     def __repr__(self):
         return 'Sum({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.funk.emitter.add(self.left.eval(), self.right.eval(), result=result)
+        return self.funk.emitter.arith_helper(self.left.eval(), self.right.eval(),'add', result)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -657,18 +626,19 @@ class Mul(BinaryOp):
         return 'Mul({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.funk.emitter.mul(self.left.eval(), self.right.eval(), result=result)
+        return self.funk.emitter.arith_helper(self.left.eval(), self.right.eval(), 'mul' ,result=result)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return Mul(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
+
 
 class Sub(BinaryOp):
     def __repr__(self):
         return 'Sub({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        i = self.funk.emitter.sub(self.left.eval(), self.right.eval(), result=result)
+        i = self.funk.emitter.arith_helper(self.left.eval(), self.right.eval(), 'sub',result=result)
         return i
 
     def __deepcopy__(self, memo):
@@ -680,7 +650,7 @@ class Div(BinaryOp):
         return 'Div({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.funk.emitter.sdiv(self.left.eval(), self.right.eval(), result)
+        return self.funk.emitter.arith_helper(self.left.eval(), self.right.eval(), 'div', result)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -848,8 +818,8 @@ class Assignment(BinaryOp):
         return 'Assignment({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        name = self.left.name
-        create_ast_named_symbol(name, self.funk, self.right, self.pool)
+        self.right.eval(result=self.left.name)
+        #create_ast_named_symbol(name, self.funk, self.right, self.pool)
 
 
 class Range(BinaryOp):
@@ -900,6 +870,7 @@ class Range(BinaryOp):
                      expr=copy.deepcopy(self.expr, memo),
                      rhs_type=self.rhs_type,
                      lhs_type=self.lhs_type)
+
 
 class ExprRange(Range):
     def __init__(self, funk, lhs=None, rhs=None, identifier=None, expr=None, rhs_type='<', lhs_type='<'):
@@ -953,6 +924,71 @@ class ExprRange(Range):
         self.range_register_calculation_emitted = True
 
     def eval(self, result=None, parent_tnode_list=None, parent_offset=None):
+        if result is None or result == 'anon':
+            result = self.funk.emitter.create_anon()
+
+        start = self.left.eval()
+        end = self.right.eval()
+
+        if self.lhs_type == '<':
+            start += 1
+
+        if self.rhs_type == '<=':
+            end += 1
+
+        self.funk.emitter.code += """
+        struct tnode {result};
+        {{ //start anonymous scope
+            uint32_t len = {end} - {start};
+            funk_create_node(&{result}, 1, function_pool, type_array, 0, NULL);
+            {result}.len = len;
+            struct tnode hdr, tmp;
+            funk_create_node(&hdr, 2, function_pool, type_pool_node_entry, 0, NULL);
+            funk_create_node(&tmp, len, function_pool, type_i32, 0, NULL);
+            DATA(&{result},0)->data.i32 = hdr.start;
+            DATA(&hdr,0)->data.i32 = tmp.start;
+            DATA(&hdr,1)->data.i32 = len;
+
+            for (int {i} = 0; {i} < len; {i}++)
+            {{
+        """.format(start=start, end=end,result=result, i=self.iterator_symbol.eval())
+
+        if isinstance(self.expr, IntegerConstant):
+            val = self.expr
+            self.funk.emitter.code += """
+                DATA(&tmp,i)->data.i32 = {val};
+                DATA(&tmp,i)->type = type_i32;
+            """.format(val=val.value*val.sign)
+        elif isinstance(self.expr, DoubleConstant):
+            val = self.expr
+            self.funk.emitter.code += """
+                DATA(&tmp,i)->data.d64 = {val};
+                DATA(&tmp,i)->type = type_d64;
+            """.format(val=val.value*val.sign, result=result)
+        else:
+            self.funk.emitter.code += """
+                struct tnode __iterator__;
+                funk_create_i32_scalar(function_pool,&__iterator__, i);
+            """
+            self.expr.replace_symbol(Identifier(self.funk,'i'), Identifier(self.funk,'__iterator__'))
+            val = self.expr.eval()
+            self.funk.emitter.code += """
+                if (DATA(&tmp,i)->type == type_array){{
+                    DATA(&tmp,i)->data.i32 = _copy_node_to_pool(&{val});
+                    DATA(&tmp,i)->type = type_pool_node_entry;
+                }} else {{
+                    DATA(&tmp,i)->data = DATA(&{val},0)->data;
+                    DATA(&tmp,i)->type = DATA(&{val},0)->type;
+                }}
+            """.format(val=val, result=result)
+        self.funk.emitter.code += """
+            }}
+        }} // end anonymous scope
+        """.format(val=val, result=result)
+
+        return result
+
+    def eval2(self, result=None, parent_tnode_list=None, parent_offset=None):
 
             self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
 
@@ -1103,7 +1139,7 @@ class FunctionCall(Expression):
 
     def eval(self, result=None):
         found = False
-        name = '@{}'.format(self.name)
+        name = self.name
 
         if self.name in self.system_functions:
             p = self.system_functions[self.name](self.funk, self.args)
@@ -1116,18 +1152,34 @@ class FunctionCall(Expression):
                 arguments=[create_ast_anon_symbol(self.funk, a, self.pool) for a in self.args]
 
             return self.funk.emitter.call_function(self.funk, name, arguments, result=result)
+        elif name in self.funk.function_scope.args:
+            arguments = []
+            if self.args is not None:
+                arguments = [create_ast_anon_symbol(self.funk, a, self.pool) for a in self.args]
+            self.funk.emitter.code += """
+        if (DATA(&{name},0)->type != type_function){{
+            printf("Error: {name} is not a function\\n");
+            exit(1);
+        }}
 
-        # Now check if this is an input argument containing a function pointer
-        i = 0
-        for arg in self.funk.function_scope.args:
-            if arg == self.name:
-                fn = self.funk.emitter.get_function_argument_tnode(i)
-                return self.funk.emitter.call_fn_ptr(self.funk, 'ptr_fn({})'.format(self.name),
-                                                     fn,
-                                                     [create_ast_anon_symbol(self.funk, a,
-                                                                        funk_types.function_pool) for a in self.args],
-                                                     result=result)
-            i += 1
+        if (DATA(&{name},0)->data.fn == NULL){{
+            printf("Error: {name} function is NULL\\n");
+            exit(1);
+        }}
+            """.format(name=name)
+            return self.funk.emitter.call_function(self.funk, 'DATA(&{},0)->data.fn'.format(name), arguments, result=result)
+
+        # # Now check if this is an input argument containing a function pointer
+        # i = 0
+        # for arg in self.funk.function_scope.args:
+        #     if arg == self.name:
+        #         fn = self.funk.emitter.get_function_argument_tnode(i)
+        #         return self.funk.emitter.call_fn_ptr(self.funk, 'ptr_fn({})'.format(self.name),
+        #                                              fn,
+        #                                              [create_ast_anon_symbol(self.funk, a,
+        #                                                                 funk_types.function_pool) for a in self.args],
+        #                                              result=result)
+        #     i += 1
 
         if not found:
             raise Exception('Undeclared function \'{}\' '.format(self.name))
@@ -1212,110 +1264,6 @@ class FunctionClause:
         else:
             self.funk.emitter.add_comment('clause {} has no preconditions'.format(clause_idx))
 
-    def emit_arity_check(self,label_next, clause_exit_label):
-        # The first function arguments is always the pointer to the
-        # return value and the second (#1) is the arity (passed as a constant)
-        self.funk.emitter.add_comment('Check clause arity or exit. Arity = {}'.format(self.arguments))
-        # foo(x,y,z):  # number_of_arguments = arity = 3
-        # foo( [x,y,z]): # even if the arity is 1 (only one input variable in the function firm)
-        # the number_of_arguments is also 3
-        number_of_arguments = len(self.arguments)
-        if self.pattern_matches is not None:
-            for pm in self.pattern_matches:
-                if isinstance(pm, PatternMatchListOfIdentifiers):
-                    number_of_arguments += 1
-        # self.funk.emitter.print_funk(self.funk,[StringConstant(self.funk,'Checking arity')])
-        self.funk.emitter.br_cond('eq', '%1', number_of_arguments, label_next, clause_exit_label)
-
-    def emit(self, clause_idx):
-        # TODO: refactor
-
-        if self.name in ['main','sdl_render']:
-
-            for stmt in self.body:
-                stmt.eval()
-
-        else:
-            start_label = 'start_{}'.format(self.name[1:])
-
-            #print('-I- Emitting clause ', self.arguments, self.name, self.pattern_matches, self.pattern_matches)
-            # I need some kind of clause_exit_label here...
-            # check for clause arity
-            name = self.name[1:]
-
-            clause_entry_label = '{}_{}_clause_entry'.format(name, clause_idx)
-            clause_exit_label = '{}_{}_clause_exit'.format(name, clause_idx)
-            clause_pm_label = '{}_{}_pattern_match'.format(name, clause_idx)
-            clause_precondition_label = '{}_{}_clause_precondition'.format(name, clause_idx)
-            self.funk.function_scope.args = self.arguments
-            self.funk.function_scope.tail_pairs = self.tail_pairs
-            self.funk.function_scope.pattern_matches = self.pattern_matches
-
-            if self.pattern_matches is not None and len(self.pattern_matches) != 0:
-                label_next = clause_pm_label
-            elif self.preconditions is not None:
-                label_next = clause_precondition_label
-            else:
-                label_next = clause_entry_label
-
-            matches_all = self.pattern_matches is not None and len(self.pattern_matches) == 1 and self.pattern_matches[0] == '*'
-            if matches_all:
-                self.funk.emitter.br(clause_entry_label)
-            else:
-                # emit the function arity check
-                self.emit_arity_check(label_next, clause_exit_label)
-
-                # check pattern matches
-                self.emit_pattern_matches(clause_idx, name, clause_pm_label, clause_precondition_label, clause_entry_label,
-                                          clause_exit_label)
-
-                # check for clause preconditions
-                self.emit_preconditions(clause_idx, clause_precondition_label, clause_entry_label, clause_exit_label)
-
-            self.funk.emitter.add_comment('========= Emitting clause {} ========'.format(clause_idx))
-            self.funk.emitter.add_label(clause_entry_label)
-
-            for stmt in self.body[:-1]:
-                self.funk.emitter.add_comment(stmt)
-                stmt.eval()
-
-            self.funk.emitter.add_comment('This is the last instruction in the function')
-            self.funk.emitter.add_comment('The outcome of this instruction becomes the result')
-
-            p_result = self.funk.emitter.get_result_data_pointer()
-
-            last_insn = self.body[-1]
-            if isinstance(last_insn, FixedSizeLiteralList) and len(last_insn.elements) == 0:
-                # set result to null
-                self.funk.emitter.set_null_result()
-                self.funk.emitter.br('l_{}_end'.format(name))
-            # TODO: if hasinstance_of( FucntionCall, self.name) print('Warning tail recursion could not be done here')
-            elif isinstance(last_insn, FunctionCall) and last_insn.name == self.name[1:]:
-                self.funk.emitter.add_comment('========== Applying TAIL RECURSION =========')
-                self.funk.emitter.add_comment(last_insn)
-                # Essentially
-                # 1- leave the result pointer alone
-                # 2- Store your vals in the pointer to argument list
-                # goto <function>_start
-
-                for i in range(len(last_insn.args)):
-                    arg_tnode = self.funk.emitter.get_function_argument_tnode(i)
-                    val = last_insn.args[i].eval()
-                    self.funk.emitter.copy_node(val, arg_tnode)
-
-
-                self.funk.emitter.br(start_label)
-            else:
-                last_insn.eval(p_result)
-                self.funk.emitter.debug_function_exit_hook(self.funk, '{}:{}'.format(self.name, clause_idx), p_result)
-                self.funk.emitter.ret()
-                self.funk.emitter.br('l_{}_end'.format(name))
-
-            self.funk.emitter.debug_function_exit_hook(self.funk, '{}:{}'.format(self.name, clause_idx), p_result)
-            self.funk.emitter.ret()
-
-            self.funk.emitter.add_label(clause_exit_label)
-
 
 class FunctionMap:
     def __init__(self, funk, name, arguments=None, tail_pairs=None, pattern_matches=None):
@@ -1333,17 +1281,119 @@ class FunctionMap:
         self.tail_pairs = tail_pairs
         self.pattern_matches = pattern_matches
 
+    def emit_main(self):
+
+        for clause in self.clauses:
+            clause.funk.emitter.code += """
+    int main(void) {
+                    """
+            for stmt in clause.body:
+                stmt.eval()
+        clause.funk.emitter.code += """
+            return 0;
+        }"""
+
+    def emit_function(self):
+        self.clauses[0].funk.emitter.code += """
+    struct tnode {fn_name}(int arity,  struct tnode * argument_list) {{
+        struct tnode retval;
+        funk_create_i32_scalar((arity > 0) ? get_pool_enum(argument_list[0].pool) : function_pool, &retval, -255);
+        """.format(fn_name=self.name)
+
+        for clause in self.clauses:
+
+            clause.funk.emitter.code += """
+        if (arity == {clause_arity}) {{
+            """.format(clause_arity=len(clause.arguments))
+            for i, argument in enumerate(clause.arguments):
+                clause.funk.emitter.code += """
+        struct tnode {argument} = argument_list[{i}];   """.format(argument=argument, i=i)
+
+            if clause.preconditions is not None:
+                preconditions_result = clause.preconditions.eval()
+                clause.funk.emitter.code += """
+            if (DATA(&{preconditions},0)->data.i32 == 1) {{
+                    """.format(preconditions=preconditions_result)
+
+            for stmt in clause.body[:-1]:
+                self.funk.emitter.add_comment(stmt)
+                stmt.eval()
+
+            clause.body[-1].eval(result='retval')
+
+            if clause.preconditions is not None:
+                clause.funk.emitter.code += """
+            return retval;
+            } //preconditions check
+            """
+            else:
+                clause.funk.emitter.code += """
+            return retval;
+            """
+
+            clause.funk.emitter.code += """
+
+        } //arity check
+        """
+
+        self.funk.emitter.code += """
+        // No clause was hit
+        printf(\"Error: {fn_name} could not function resolve overload\\n\");
+        return retval;
+        exit(1);
+
+        }}
+            """.format(fn_name=self.name)
+
     def eval(self, result=None):
         scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs,
                                                      empty=True)
 
         self.funk.set_function_scope(scope_name)
 
+        if self.name == 'main':
+            self.emit_main()
+        else:
+            self.emit_function()
+        return
+
+        scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs,
+                                                     empty=True)
+
+        self.funk.set_function_scope(scope_name)
+
         # Now implement the function
-        arity = self.funk.emitter.open_function(self.funk, self.name, len(self.arguments))
+        self.funk.emitter.open_function(self.funk, self.name, len(self.arguments))
 
         index = 0
         for clause in self.clauses:
+
+            clause.funk.emitter.code += """
+        if (arity == {clause_arity}) {{
+            """.format(clause_arity=len(clause.arguments))
+            for i, argument in enumerate(clause.arguments):
+                clause.funk.emitter.code += """
+        struct tnode {argument} = argument_list[{i}];   """.format(argument=argument, i=i)
+
+            if clause.preconditions is not None:
+                preconditions_result = clause.preconditions.eval()
+                clause.funk.emitter.code += """
+            if (DATA(&{preconditions},0)->data.i32 == 1) {{
+                    """.format(preconditions=preconditions_result)
+
+            for stmt in clause.body:
+                stmt.eval()
+
+            if clause.preconditions is not None:
+                clause.funk.emitter.code += """
+            } //preconditions check
+                """
+
+            clause.funk.emitter.code += """
+          return; //exit the function from this clause
+        } //arity check
+                        """
+
             self.funk.function_scope.clause_idx = index
             clause.emit(index)
             index += 1
@@ -1363,9 +1413,6 @@ class FunctionMap:
 
         return scope_name
 
-    def emit_main(self):
-        for stmt in self.body:
-            stmt.eval()
 
 class String(Expression):
     def __init__(self, funk, fmt_str):

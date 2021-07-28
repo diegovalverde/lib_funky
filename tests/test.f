@@ -1,5 +1,6 @@
 
-use sort, bfs, not, binary_search, count, sem_matrix
+use sort, bfs, not, binary_search, count
+#, sem_matrix
 N <-> 20
 
 assert(actual, expected | actual != expected ):
@@ -117,445 +118,477 @@ different(_,_): 1.
 
 main():
       say('Running tests')
-      say(not([3]))
-      say(not([1,0,1]))
-      assert(arr_eq(not([1,0,1]),[0,1,0]),1)
 
 
+
+      say('===== nested arrays ===== ')
+      a0 <- []
+      assert(len(a0), 0)
+      b0 <- [[],[]]
+      assert(len(b0), 2)
+      assert(len(b0[0]),0)
+      assert(len(b0[1]),0)
+      b1 <- [1,2,[],4]
+      assert(len(b1), 4)
+      say(b1)
+      say('!!!!', b1[0])
+      say('!!!!', b1[1])
+      say('!!!!', b1[2])
+      say('!!!!', b1[3])
+      assert(len(b1[2]), 0)
+
+      a1 <- [1,2,3]
+      a2 <- [1, 2, [3]]
+      a3 <- [1, 2, [3], [4,5, [6,7]] ]
+      a4 <- [1, 2, [3,4]  ]
+      a5 <- [1, 2, [[3,4]] , 7 ]
+      a6 <- [0]
+
+      say(a0, a1, a2, a3, a4, a5, a6)
+
+      assert(len(a1), 3)
+      assert(len(a2), 3)
+      assert(len(a2[2]), 1)
+      assert(len(a2[3]), 3)
+      assert(len(a4), 3)
+      assert(len(a4[2]), 2)
+      assert(len(a5), 4)
+      assert(len(a5[2]), 1)
+      exit()
+
+      mm <- [[0, 1, 3],[6, 5, 2],[4, 7, 8]]
+      say('mm',mm)
+      a7 <- [ [[0, 1, 3],[6, 5, 2],[4, 7, 8]],  0, [0,0] ]
+      say(a7)
+      say(a7[0])
+      assert(len(a7), 4)
+      assert(len(a7[0]), 3)
+      #assert(len(a7[1]), 0)
+      assert(a7[2], 0)
+      assert(len(a7[3]), 2)
+
+      #say(not([3]))
+      #say(not([1,0,1]))
+      #assert(arr_eq(not([1,0,1]),[0,1,0]),1)
+      #
+      #
       assert(add_two(1,1),2)
       assert(arr_eq(add_two(1,1),2),1)
       u <-[4,3,2,1]
       v <- reverse_pm([9,8,7,6])
 
-      say('hello',[10,10,10,10],add_two(u,v))
+      #say('hello',[10,10,10,10],add_two(u,v))
       assert(arr_eq(add_two(u,v),[10,10,10,10]),1)
-      vvv <- idem_list([10,10,10,10])
-
-      assert(count(vvv,10),4)
-      assert(count(vvv,11),0)
-      say('xxxxx', vvv)
-      assert(arr_eq(add_two(u,v),vvv),1)
-
-      assert(unidimension_list([3,2,5]),10)
-      assert(unidimension_list([1,1,1]),3)
-
-
-
-      assert(arr_eq(u+v,[10,10,10,10]),1)
-
-      assert(arr_eq(u+reverse_pm([9,8,7,6]),[10,10,10,10]),1)
-      assert(arr_eq([4,3,2,1]+reverse_pm([9,8,7,6]),[10,10,10,10]),1)
-
-
-      assert(arr_eq(u+reverse_pm_reg([9,8,7,6]),[10,10,10,10]),1)
-      assert(arr_eq([4,3,2,1]+reverse_pm_reg([9,8,7,6]),[10,10,10,10]),1)
-
-      assert(arr_eq(reverse_pm([77,7,30,666]) ,[666,30,7,77]),1 )
-
-      say('=== test functions arity === ')
-
-      assert(get_arity(),0)
-      assert(get_arity(1),1)
-      assert(get_arity([1]),1)
-      assert(get_arity([1,2]),1)
-      assert(get_arity(1,1),2)
-      assert(get_arity(1,[6,6,6]),2)
-      assert(get_arity(1,1,1),3)
-      assert(get_arity(1,1,1,1),4)
-
-
-      #say('Test strings')
-      #assert('hello',echo('hello'))
-      say('==== floating point ===')
-      epsilon <- 0.001
-      float_test(0.23408, 6.28606, 85.0, 0.45041, 1.5475 )
-
-      #assert(coeffs(0.5),[0., 0., 0., 0.16, 0.]
-      # assert((91.017126 < 1.000000),  0)
-      # assert(91.017126 < 86.000000, 0)
-      # assert(91.017126 < 93.000000, 1)
-      # assert(71.836580 < 1.00000, 0)
-
-      # prev_x 0.13734 prev_y 4.89916 r 95.48303
-      # prev_x <- 0.13734
-      # prev_y <- 4.89916
-      # # assert(0.28* prev_y - 0.15 * prev_x,  1.35116)
-      # assert((0.26 * prev_x + 0.24 * prev_y) + 0.44,  1.65151)
-
-      say('==== Test Arrays === ')
-      assert(len( [0] ), 1)
-      assert(len( [0] ), len( [1] ))
-      A <- [1,2,3,4,5,6,7]
-      assert(count(A,1),1)
-      assert(count(A,7),1)
-      assert(count(A,8),0)
-
-
-      assert(A[0], 1)
-      assert(A[1], 2)
-      assert(A[-1], 7) # last element
-      assert(A[-2], 6)
-      assert(A[7], 1)  # wraps around
-      assert(A[8], 2)  # wraps around
-      assert(len(A), 7)
-      assert(sum([0 | 1 <= i <= 10]),0)
-      assert(sum([1 | 1 <= i <= 10]),10)
-      assert(sum([1 | 10 <= i <= 20]),11)
-      assert(sum([1 | 100 <= i < 200]),100)
-      assert(sum([1 | 100 <= i <= 200]),101)
-      assert(sum([1 | 1000 <= i < 2000]),1000)
-      say([1 | 10 <= i < 20])
-      assert(len([1 | 100 <= i < 200]),100)
-
-      assert(len([1 | 57 <= i <= 59]),3)
-      assert(len([1 | 1997 <= i < 2000]),3)
-      assert(len(A),7)
-      assert(len(A),len(A))
-
-      assert(len([ k | 0 <= k < len(A)]), len(A))
-      assert( sum([ 2 | 0 <= k < len(A)]), 14)
-      assert( sum([ 2 | 0 <= k < 2*len(A)]), 28)
-      assert( sum([ 5, 5, 5]), 15)
-      assert( sum([ 5, -5, 5]), 5)
-
-
-      # test the array slicing
-      say('Test array slicing')
-      say(A[0 .. len(A)/2])
-      assert(len(A[0 .. len(A)/2]),4)
-      assert(sum(A[0 .. len(A)/2]),10)
-      assert(len(A[len(A)/2 + 1 .. -1]),3)
-      say(A[len(A)/2 + 1 .. -1])
-      assert(sum(A[len(A)/2 + 1 .. -1]),18)
-      assert(len(A[2 .. 3]),2)
-      assert(sum(A[2 .. 3]),7)
-      assert(len(A[0 .. -1]),len(A))
-      #assert(sum(A[0 .. -1]),sum(A))
-
-
-
-
-      say('====== Test Matrix =====')
-
-      B <- [1, 2, 3, 4]
-      say( [B | 0 <= k < len(B)])
-      assert(sum([ B | 0 <= k < len(B)]), 4*sum(B))
-      assert(sum([ get_an_array() | 0 <= k < len(B)]), 4*sum(B))
-      assert(sum([ [1,2,3,4] | 0 <= k < len(B)]), 4*sum(B))
-
-
-      M1 <- [[1,0,0,0],
-            [0,1,0,0],
-            [0,0,1,0],
-            [0,0,0,1]]
-
-      assert(count(M1,1),4)
-
-      say(M1)
-      assert(len(M1[0 .. 1]),2)
-
-      assert(len(M1)*len(M1[0]),16)
-      assert(sum(M1),4)
-
-      #assert(sum(reshape(M,[1])), 4)
-      M2 <- [[j | 0<= j <= 3] | 0 <= i <= 3]
-      say('M2',M2)
-      say([j | 0<= j <= 3])
-      assert(len(M2)*len(M2[0]),16)
-      x <- 0
-      assert(M2[x,x],0)
-      assert(M2[x,x+1],1)
-      assert(M2[x,x+2],2)
-      assert(M2[x,x+3],3)
-      #[[assert(M2[i,j],j) | 0 <= j <= 3] | 0 <= i <= 3]
-
-      say('M1',M1)
-      say('M2',M2)
-
-      M3 <- M1 + M2
-      say('M3',M3)
-      assert(arr_eq([M3[i,i] | 0 <= i <= 3], [1,2,3,4]),1)
-      assert(sum(M1-M1),0)
-      assert(sum(M1+M1),8)
-      assert(sum(M1*M1),4)
-
-
-      a <- 0
-      b <- 2
-      say(M2[a..b , a..b])
-      sub_matrix <- M2[a..b , a..b]
-      assert(sum(M2[a..b , a..b]),9)
-      assert(sum(M2[a..b , a..b]),sum(sub_matrix))
-      assert(sum(M2[a..b , a..b]),sum([[j | 0<= j <= 2] | 0 <= i <= 2]))
-      assert(sum(sub_matrix),9)
-      assert(sum(sub_matrix), M2[a,a] + M2[a+1,a] + M2[a+2,a] +
-                               M2[a,a+1] + M2[a+1,a+1] + M2[a+2,a+1] +
-                               M2[a,a+2] + M2[a+1,a+2] + M2[a+2,a+2])
-
-      assert(sum([0 | 1<= j <= 10]),0)
-      assert(sum([1 | 1<= j <= 10]),10)
-
-      say('====== more test matrix ====== ')
-      a1 <- [[-1,1],[1,1]]
-      assert(len(a1[0]),2)
-      assert(len(a1[1]),2)
-
-      assert(arr_eq(a1[0], [-1,1]),1)
-      assert(arr_eq(a1[1], [1,1]),1)
-      assert(arr_eq(idem(a1[0]), a1[0]),1)
-      assert(arr_eq(idem(a1[0]), [-1,1]),1)
-      assert(sum(a1[0]), 0)
-      assert(sum(a1[1]), 2)
-
-
-      a2 <- [[-1,1],[-1,-1],[7,3]]
-      assert(len(a2[0]),2)
-      assert(len(a2[1]),2)
-      assert(len(a2[2]),2)
-
-      assert(arr_eq(a2[0], [-1,1]),1)
-      say(a2[0])
-      say(a2[1])
-      say(a2[2])
-      assert(arr_eq(a2[1], [-1,-1]),1)
-      assert(arr_eq(a2[2], [7,3]),1)
-      assert(arr_eq(idem(a2[0]), a2[0]),1)
-      assert(arr_eq(idem(a2[0]), [-1,1]),1)
-      assert(sum(a2[0]), 0)
-      assert(sum(a2[1]), -2)
-      assert(sum(a2[2]), 10)
-
-
-      a3 <- [[-1,1,-1],[-1,-1,-1],[10,7,3]]
-      assert(sum(a3[0]), -1)
-      assert(sum(a3[1]), -3)
-      assert(sum(a3[2]), 20)
-      assert(arr_eq(idem(a3[2]), [10,7,3]),1)
-      #assert(arr_eq(sort(a3[2]), [3,7,10]),1)
-
-
-      say('==== Test triangular series === ')
-      assert(triangular_series(7), _sum(A))  # Something fails if you do sum instead of _sum
-      assert(triangular_series(len(A)), _sum(A))
-      assert(triangular_series(10), _sum([1,2,3,4,5,6,7,8,9,10]))
-      assert(triangular_series(N), _sum([i | 0 <= i <= N]))
-      assert(triangular_series(29), _sum([i | 0 < i < 30]))
-
-
-      #n <- rand_range(1,100)
-      #say('Test: triangular sum for n=',n)
-      #assert(triangular_series(n), sum([i | 0 <= i <= n])+0)
-      #say('ok')
-      #t1 <- [assert(triangular_series(k), sum([i | 0 <= i <= k])) | 0 <= k <= rand_range(1,100)]
-
-
-      say('==== Test fibonachi ====')
-      assert(fibo(15), 610)
-
-      fib_nums <- [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987]
-      t2 <- [assert(fibo(i), fib_nums[i]) | 0 <= i < 16]
-
-      #mapped_fibo <- map(fibo,[i | 0 <= i < 16])
-      #t3 <- [assert(mapped_fibo[i], fib_nums[i]) | 0 <= i < 16]
-
-      # cnt1 <- sum(M[i-1: i+1, j-1: j+1]) - M[i,j])
-      # cnt2 <- M[i-1, j]  + M[i+1,  j] + M[i, j-1]  +
-      #        M[i, j+1]  + M[i-1,j-1] + M[i-1,j+1] +
-      #        M[i+1,j-1] + M[i+1,j+1]
-      # assert(cnt1, 100)
-      # assert(cnt2, 100)
-
-      say('====== test sum =======')
-      assert(sum([1,1,1]),_sum([1,1,1]))
-      assert(sum(A),_sum(A))
-      assert(sum([0,1]),1)
-      assert(sum([0,0]),0)
-      assert(sum([1,0]),1)
-      assert(sum([5,5,5]),15)
-      assert(sum([5,5,5]),_sum([5,5,5]))
-      assert(sum([0]),0)
-      assert(triangular_series(7), sum(A))
-
-      zero <- 0
-      one <- 1
-      two <- 2
-      three <- 3
-      numbers <- [one, two, three]
-      say('numbers = ', numbers)
-
-      assert(len(numbers),3)
-      assert(numbers[0],1)
-      assert(numbers[1],2)
-      assert(numbers[2],3)
-
-      assert(numbers[0],one)
-      assert(numbers[1],two)
-      assert(numbers[2],three)
-      assert(sum(numbers),6)
-
-      assert(sum([one+1, two+1, three+1]),9)
-      assert(sum([one+1, two+1, three+1]), sum(numbers)+3)
-
-      #test sort
-      say('Sorting tests')
-      assert(arr_eq(A, idem_list(A)),1)
-      assert(arr_eq([7,7,8,7], idem_list([7,7,8,7])),1)
-      assert(arr_eq([1,2,3], [1,2,3]), 1)
-      assert(arr_eq([1,2,3,4], [1,2,3,4]), 1)
-      assert(arr_eq([1,2,3], [1,2,3,4]), 0)
-      assert(arr_eq([1,2,3], [5,2,3]), 0)
-      assert(arr_eq([10,100], sort([100,10]) ), 1)
-      assert(arr_eq(sort([3,2,1]), [1,2,3]), 1)
-      assert(arr_eq(sort([2, 5, 4, 3, 1]), [1,2,3,4,5]), 1)
-
-      assert(arr_eq(sort([12,8,2,9,15,4,13,0,6,11,7,1,14,5,3,10]), [i | 0 <= i <= 15]), 1)
-      assert(arr_eq(sort([98,95,92,90,93,96,91,99,94,97]), [i | 90 <= i <= 99]), 1)
-
-      # now test sort with custom comparator function
-      assert( arr_eq( sort( [8,4,9,1,3,5,10,0,7,2,6], cmp_gt), [10,9,8,7,6,5,4,3,2,1,0]), 1  )
-      assert(arr_eq(sort([2, 5, 4, 3, 1], cmp_gt), [5,4,3,2,1]), 1)
-
-      # binary_search
-      say('=== binary_search === ')
-      search_array <- [2, 5, 6, 7 ,10, 70, 99]
-      assert(binary_search(search_array, 7, 0, len(search_array)),3)
-      assert(binary_search(search_array, 2, 0, len(search_array)),0)
-      assert(binary_search(search_array, 5, 0, len(search_array)),1)
-      assert(binary_search(search_array, 6, 0, len(search_array)),2)
-      assert(binary_search(search_array, 10, 0, len(search_array)),4)
-      assert(binary_search(search_array, 70, 0, len(search_array)),5)
-      assert(binary_search(search_array, 99, 0, len(search_array)),6)
-
-      say('=== BFS test tree ===')
-      assert(arr_eq(tree(0), [1,2,3,4]), 1)
-      assert(arr_eq(tree(1), [5,6]), 1)
-      assert(arr_eq(tree(4), [7,8]), 1)
-      assert(arr_eq(tree(7), [9,10]), 1)
-
-      assert(bfs(tree_is_goal,tree,[0]), 10)
-
-      say('=== boolean test ===')
-
-      assert(or(zero, zero),0)
-      assert(or(zero, one),1)
-      assert(or(one, zero),1)
-      assert(or(one, one),1)
-
-      assert(and(zero, zero),0)
-      assert(and(zero, one),0)
-      assert(and(one, zero),0)
-      assert(and(one, one),1)
-
-
-      say('=== multidim test ===')
-      R <- multidimension_list([ M1, fib_nums, one, two])
-      say(R)
-
-      say(R[0])
-      say(R[1])
-      say(R[2])
-      say(R[3])
-      assert(arr_eq(R[0], fib_nums), 1)
-      assert(arr_eq(R[1], M1), 1)
-      assert(R[2], 2)
-      assert(R[3], 3)
-
-      one_element <- [ R ]
-      say('one_element', one_element[0])
-      assert(len(one_element), 1)
-
-      assert(len([ [1,2] ]), 1)
-      #assert(len([]),0)
-      #assert(len([ [one_element, 1,2] ]), 1)
-
-      delta <- [[-1,0], [1,0], [0,1], [0,-1]]
-      the_meaning_of_life <- 42
-      say([ get_an_array() , delta[0],the_meaning_of_life] )
-      WW <- [ get_an_array(), delta[0],the_meaning_of_life]
-
-      assert(len(WW), 3)
-
-      assert(arr_eq(WW[0], get_an_array()),1 )
-      assert(arr_eq(WW[1], delta[0]),1 )
-      assert(WW[2], 42 )
-
-      WWW <- [ get_a_matrix(), delta[1],the_meaning_of_life]
-      assert(len(WWW), 3)
-      assert(arr_eq(WWW[0], get_a_matrix()),1 )
-      assert(arr_eq(WWW[1], delta[1]),1 )
-      assert(WWW[2], 42 )
-      say(WWW)
-
-      pos <- [1,2]
-      cost <- 99
-      W4 <- [ [get_a_matrix(), cost + 1, pos + delta[0]],
-              [get_a_matrix(), cost + 1, pos + delta[1]],
-              [get_a_matrix(), cost + 1, pos + delta[2]],
-              [get_a_matrix(), cost + 1, pos + delta[3]]  ]
-
-      say(len(W4))
-      say('W4', W4)
-
-
-      W3 <- [ [get_a_matrix(), cost + 1, pos + delta[k]] | 0 <= k < len(delta) ]
-      say(len(W3))
-      say(W3)
-
-      assert( len(W3[0]), 3)
-      assert( len(W3[1]), 3)
-      assert( len(W3[2]), 3)
-      assert( len(W3[3]), 3)
-
-      assert( arr_eq(W3[0], [get_a_matrix(), cost + 1, pos + delta[0]]),1 )
-      assert( arr_eq(W3[1], [get_a_matrix(), cost + 1, pos + delta[1]]),1 )
-      assert( arr_eq(W3[2], [get_a_matrix(), cost + 1, pos + delta[2]]),1 )
-      assert( arr_eq(W3[3], [get_a_matrix(), cost + 1, pos + delta[3]]),1 )
-
-      say('=== Array equality ===')
-      assert(A , A)
-      assert(fib_nums, fib_nums)
-      assert(different(A,A),0)
-
-      assert(different(fib_nums,fib_nums),0)
-
-
-      assert(M1 , M1)
-      say('M1',M1)
-      assert(different(M1,M1),0)
-      assert(different(M1,M2),1)
-
-
-      say('===== list concat =====')
-      assert([pos] ++ [pos], [1,2,1,2])
-      assert([pos] <~ pos, [1,2, [1,2] ])
-      empty <- []
-      assert([empty] <~ pos, [[1,2]])
-      fi <- [[1,2]]
-      assert([fi] <~ pos, [[1,2],[1,2]])
-      fo <- [[[1,2],[1,2]]]
-      assert([fo] <~ pos, [[[1,2],[1,2]], [1,2]])
-
-
-      assert(sem_matrix(3,3,0,0),[[1,0,0],[0,0,0],[0,0,0]])
-      assert(sem_matrix(3,3,0,1),[[0,1,0],[0,0,0],[0,0,0]])
-      assert(sem_matrix(3,3,0,2),[[0,0,1],[0,0,0],[0,0,0]])
-
-
-      assert(sem_matrix(3,3,1,0),[[0,0,0],[1,0,0],[0,0,0]])
-      assert(sem_matrix(3,3,1,1),[[0,0,0],[0,1,0],[0,0,0]])
-      assert(sem_matrix(3,3,1,2),[[0,0,0],[0,0,1],[0,0,0]])
-
-
-      assert(sem_matrix(3,3,2,0),[[0,0,0],[0,0,0],[1,0,0]])
-      assert(sem_matrix(3,3,2,1),[[0,0,0],[0,0,0],[0,1,0]])
-      assert(sem_matrix(3,3,2,2),[[0,0,0],[0,0,0],[0,0,1]])
-
-      # say(len([ [1,2,3,4] , 666,42]))
-      # say([ [1,2,3,4] , 666,42])
-      # V <- [ [1,2,3,4] , 666,42]
-      # say(V)
-      # say(V[0])
-      # say(V[1])
-      # say(V[2])
+      #vvv <- idem_list([10,10,10,10])
+      #
+      # assert(count(vvv,10),4)
+      # assert(count(vvv,11),0)
+      # say('xxxxx', vvv)
+      # assert(arr_eq(add_two(u,v),vvv),1)
+      #
+      # assert(unidimension_list([3,2,5]),10)
+      # assert(unidimension_list([1,1,1]),3)
+      #
+      #
+      #
+      # assert(arr_eq(u+v,[10,10,10,10]),1)
+      #
+      # assert(arr_eq(u+reverse_pm([9,8,7,6]),[10,10,10,10]),1)
+      # assert(arr_eq([4,3,2,1]+reverse_pm([9,8,7,6]),[10,10,10,10]),1)
+      #
+      #
+      # assert(arr_eq(u+reverse_pm_reg([9,8,7,6]),[10,10,10,10]),1)
+      # assert(arr_eq([4,3,2,1]+reverse_pm_reg([9,8,7,6]),[10,10,10,10]),1)
+      #
+      # assert(arr_eq(reverse_pm([77,7,30,666]) ,[666,30,7,77]),1 )
+      #
+      # say('=== test functions arity === ')
+      #
+      # assert(get_arity(),0)
+      # assert(get_arity(1),1)
+      # assert(get_arity([1]),1)
+      # assert(get_arity([1,2]),1)
+      # assert(get_arity(1,1),2)
+      # assert(get_arity(1,[6,6,6]),2)
+      # assert(get_arity(1,1,1),3)
+      # assert(get_arity(1,1,1,1),4)
+      #
+      #
+      # #say('Test strings')
+      # #assert('hello',echo('hello'))
+      # say('==== floating point ===')
+      # epsilon <- 0.001
+      # float_test(0.23408, 6.28606, 85.0, 0.45041, 1.5475 )
+      #
+      #
+      # say('==== Test Arrays === ')
+      # assert(len( [0] ), 1)
+      # assert(len( [0] ), len( [1] ))
+      # A <- [1,2,3,4,5,6,7]
+      # assert(count(A,1),1)
+      # assert(count(A,7),1)
+      # assert(count(A,8),0)
+      #
+      #
+      # assert(A[0], 1)
+      # assert(A[1], 2)
+      # assert(A[-1], 7) # last element
+      # assert(A[-2], 6)
+      # assert(A[7], 1)  # wraps around
+      # assert(A[8], 2)  # wraps around
+      # assert(len(A), 7)
+      # assert(sum([0 | 1 <= i <= 10]),0)
+      # assert(sum([1 | 1 <= i <= 10]),10)
+      # assert(sum([1 | 10 <= i <= 20]),11)
+      # assert(sum([1 | 100 <= i < 200]),100)
+      # assert(sum([1 | 100 <= i <= 200]),101)
+      # assert(sum([1 | 1000 <= i < 2000]),1000)
+      # say([1 | 10 <= i < 20])
+      # assert(len([1 | 100 <= i < 200]),100)
+      #
+      # assert(len([1 | 57 <= i <= 59]),3)
+      # assert(len([1 | 1997 <= i < 2000]),3)
+      # assert(len(A),7)
+      # assert(len(A),len(A))
+      #
+      # assert(len([ k | 0 <= k < len(A)]), len(A))
+      # assert( sum([ 2 | 0 <= k < len(A)]), 14)
+      # assert( sum([ 2 | 0 <= k < 2*len(A)]), 28)
+      # assert( sum([ 5, 5, 5]), 15)
+      # assert( sum([ 5, -5, 5]), 5)
+      #
+      #
+      # # test the array slicing
+      # say('Test array slicing')
+      # say(A[0 .. len(A)/2])
+      # assert(len(A[0 .. len(A)/2]),4)
+      # assert(sum(A[0 .. len(A)/2]),10)
+      # assert(len(A[len(A)/2 + 1 .. -1]),3)
+      # say(A[len(A)/2 + 1 .. -1])
+      # assert(sum(A[len(A)/2 + 1 .. -1]),18)
+      # assert(len(A[2 .. 3]),2)
+      # assert(sum(A[2 .. 3]),7)
+      # assert(len(A[0 .. -1]),len(A))
+      # #assert(sum(A[0 .. -1]),sum(A))
+      #
+      #
+      #
+      #
+      # say('====== Test Matrix =====')
+      #
+      # B <- [1, 2, 3, 4]
+      # say( [B | 0 <= k < len(B)])
+      # assert(sum([ B | 0 <= k < len(B)]), 4*sum(B))
+      # assert(sum([ get_an_array() | 0 <= k < len(B)]), 4*sum(B))
+      # assert(sum([ [1,2,3,4] | 0 <= k < len(B)]), 4*sum(B))
+      #
+      #
+      # M1 <- [[1,0,0,0],
+      #       [0,1,0,0],
+      #       [0,0,1,0],
+      #       [0,0,0,1]]
+      #
+      # assert(count(M1,1),4)
+      #
+      # say(M1)
+      # assert(len(M1[0 .. 1]),2)
+      #
+      # assert(len(M1)*len(M1[0]),16)
+      # assert(sum(M1),4)
+      #
+      # #assert(sum(reshape(M,[1])), 4)
+      # M2 <- [[j | 0<= j <= 3] | 0 <= i <= 3]
+      # say('M2',M2)
+      # say([j | 0<= j <= 3])
+      # assert(len(M2)*len(M2[0]),16)
+      # x <- 0
+      # assert(M2[x,x],0)
+      # assert(M2[x,x+1],1)
+      # assert(M2[x,x+2],2)
+      # assert(M2[x,x+3],3)
+      # #[[assert(M2[i,j],j) | 0 <= j <= 3] | 0 <= i <= 3]
+      #
+      # say('M1',M1)
+      # say('M2',M2)
+      #
+      # M3 <- M1 + M2
+      # say('M3',M3)
+      # assert(arr_eq([M3[i,i] | 0 <= i <= 3], [1,2,3,4]),1)
+      # assert(sum(M1-M1),0)
+      # assert(sum(M1+M1),8)
+      # assert(sum(M1*M1),4)
+      #
+      #
+      # a <- 0
+      # b <- 2
+      # say(M2[a..b , a..b])
+      # sub_matrix <- M2[a..b , a..b]
+      # assert(sum(M2[a..b , a..b]),9)
+      # assert(sum(M2[a..b , a..b]),sum(sub_matrix))
+      # assert(sum(M2[a..b , a..b]),sum([[j | 0<= j <= 2] | 0 <= i <= 2]))
+      # assert(sum(sub_matrix),9)
+      # assert(sum(sub_matrix), M2[a,a] + M2[a+1,a] + M2[a+2,a] +
+      #                          M2[a,a+1] + M2[a+1,a+1] + M2[a+2,a+1] +
+      #                          M2[a,a+2] + M2[a+1,a+2] + M2[a+2,a+2])
+      #
+      # assert(sum([0 | 1<= j <= 10]),0)
+      # assert(sum([1 | 1<= j <= 10]),10)
+      #
+      # say('====== more test matrix ====== ')
+      # a1 <- [[-1,1],[1,1]]
+      # assert(len(a1[0]),2)
+      # assert(len(a1[1]),2)
+      #
+      # assert(arr_eq(a1[0], [-1,1]),1)
+      # assert(arr_eq(a1[1], [1,1]),1)
+      # assert(arr_eq(idem(a1[0]), a1[0]),1)
+      # assert(arr_eq(idem(a1[0]), [-1,1]),1)
+      # assert(sum(a1[0]), 0)
+      # assert(sum(a1[1]), 2)
+      #
+      #
+      # a2 <- [[-1,1],[-1,-1],[7,3]]
+      # assert(len(a2[0]),2)
+      # assert(len(a2[1]),2)
+      # assert(len(a2[2]),2)
+      #
+      # assert(arr_eq(a2[0], [-1,1]),1)
+      # say(a2[0])
+      # say(a2[1])
+      # say(a2[2])
+      # assert(arr_eq(a2[1], [-1,-1]),1)
+      # assert(arr_eq(a2[2], [7,3]),1)
+      # assert(arr_eq(idem(a2[0]), a2[0]),1)
+      # assert(arr_eq(idem(a2[0]), [-1,1]),1)
+      # assert(sum(a2[0]), 0)
+      # assert(sum(a2[1]), -2)
+      # assert(sum(a2[2]), 10)
+      #
+      #
+      # a3 <- [[-1,1,-1],[-1,-1,-1],[10,7,3]]
+      # assert(sum(a3[0]), -1)
+      # assert(sum(a3[1]), -3)
+      # assert(sum(a3[2]), 20)
+      # assert(arr_eq(idem(a3[2]), [10,7,3]),1)
+      # #assert(arr_eq(sort(a3[2]), [3,7,10]),1)
+      #
+      #
+      # say('==== Test triangular series === ')
+      # assert(triangular_series(7), _sum(A))  # Something fails if you do sum instead of _sum
+      # assert(triangular_series(len(A)), _sum(A))
+      # assert(triangular_series(10), _sum([1,2,3,4,5,6,7,8,9,10]))
+      # assert(triangular_series(N), _sum([i | 0 <= i <= N]))
+      # assert(triangular_series(29), _sum([i | 0 < i < 30]))
+      #
+      #
+      # #n <- rand_range(1,100)
+      # #say('Test: triangular sum for n=',n)
+      # #assert(triangular_series(n), sum([i | 0 <= i <= n])+0)
+      # #say('ok')
+      # #t1 <- [assert(triangular_series(k), sum([i | 0 <= i <= k])) | 0 <= k <= rand_range(1,100)]
+      #
+      #
+      # say('==== Test fibonachi ====')
+      # assert(fibo(15), 610)
+      #
+      # fib_nums <- [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987]
+      # t2 <- [assert(fibo(i), fib_nums[i]) | 0 <= i < 16]
+      #
+      # #mapped_fibo <- map(fibo,[i | 0 <= i < 16])
+      # #t3 <- [assert(mapped_fibo[i], fib_nums[i]) | 0 <= i < 16]
+      #
+      # # cnt1 <- sum(M[i-1: i+1, j-1: j+1]) - M[i,j])
+      # # cnt2 <- M[i-1, j]  + M[i+1,  j] + M[i, j-1]  +
+      # #        M[i, j+1]  + M[i-1,j-1] + M[i-1,j+1] +
+      # #        M[i+1,j-1] + M[i+1,j+1]
+      # # assert(cnt1, 100)
+      # # assert(cnt2, 100)
+      #
+      # say('====== test sum =======')
+      # assert(sum([1,1,1]),_sum([1,1,1]))
+      # assert(sum(A),_sum(A))
+      # assert(sum([0,1]),1)
+      # assert(sum([0,0]),0)
+      # assert(sum([1,0]),1)
+      # assert(sum([5,5,5]),15)
+      # assert(sum([5,5,5]),_sum([5,5,5]))
+      # assert(sum([0]),0)
+      # assert(triangular_series(7), sum(A))
+      #
+      # zero <- 0
+      # one <- 1
+      # two <- 2
+      # three <- 3
+      # numbers <- [one, two, three]
+      # say('numbers = ', numbers)
+      #
+      # assert(len(numbers),3)
+      # assert(numbers[0],1)
+      # assert(numbers[1],2)
+      # assert(numbers[2],3)
+      #
+      # assert(numbers[0],one)
+      # assert(numbers[1],two)
+      # assert(numbers[2],three)
+      # assert(sum(numbers),6)
+      #
+      # assert(sum([one+1, two+1, three+1]),9)
+      # assert(sum([one+1, two+1, three+1]), sum(numbers)+3)
+      #
+      # #test sort
+      # say('Sorting tests')
+      # assert(arr_eq(A, idem_list(A)),1)
+      # assert(arr_eq([7,7,8,7], idem_list([7,7,8,7])),1)
+      # assert(arr_eq([1,2,3], [1,2,3]), 1)
+      # assert(arr_eq([1,2,3,4], [1,2,3,4]), 1)
+      # assert(arr_eq([1,2,3], [1,2,3,4]), 0)
+      # assert(arr_eq([1,2,3], [5,2,3]), 0)
+      # assert(arr_eq([10,100], sort([100,10]) ), 1)
+      # assert(arr_eq(sort([3,2,1]), [1,2,3]), 1)
+      # assert(arr_eq(sort([2, 5, 4, 3, 1]), [1,2,3,4,5]), 1)
+      #
+      # assert(arr_eq(sort([12,8,2,9,15,4,13,0,6,11,7,1,14,5,3,10]), [i | 0 <= i <= 15]), 1)
+      # assert(arr_eq(sort([98,95,92,90,93,96,91,99,94,97]), [i | 90 <= i <= 99]), 1)
+      #
+      # # now test sort with custom comparator function
+      # assert( arr_eq( sort( [8,4,9,1,3,5,10,0,7,2,6], cmp_gt), [10,9,8,7,6,5,4,3,2,1,0]), 1  )
+      # assert(arr_eq(sort([2, 5, 4, 3, 1], cmp_gt), [5,4,3,2,1]), 1)
+      #
+      # # binary_search
+      # say('=== binary_search === ')
+      # search_array <- [2, 5, 6, 7 ,10, 70, 99]
+      # assert(binary_search(search_array, 7, 0, len(search_array)),3)
+      # assert(binary_search(search_array, 2, 0, len(search_array)),0)
+      # assert(binary_search(search_array, 5, 0, len(search_array)),1)
+      # assert(binary_search(search_array, 6, 0, len(search_array)),2)
+      # assert(binary_search(search_array, 10, 0, len(search_array)),4)
+      # assert(binary_search(search_array, 70, 0, len(search_array)),5)
+      # assert(binary_search(search_array, 99, 0, len(search_array)),6)
+      #
+      # say('=== BFS test tree ===')
+      # assert(arr_eq(tree(0), [1,2,3,4]), 1)
+      # assert(arr_eq(tree(1), [5,6]), 1)
+      # assert(arr_eq(tree(4), [7,8]), 1)
+      # assert(arr_eq(tree(7), [9,10]), 1)
+      #
+      # assert(bfs(tree_is_goal,tree,[0]), 10)
+      #
+      # say('=== boolean test ===')
+      #
+      # assert(or(zero, zero),0)
+      # assert(or(zero, one),1)
+      # assert(or(one, zero),1)
+      # assert(or(one, one),1)
+      #
+      # assert(and(zero, zero),0)
+      # assert(and(zero, one),0)
+      # assert(and(one, zero),0)
+      # assert(and(one, one),1)
+      #
+      #
+      # say('=== multidim test ===')
+      # R <- multidimension_list([ M1, fib_nums, one, two])
+      # say(R)
+      #
+      # say(R[0])
+      # say(R[1])
+      # say(R[2])
+      # say(R[3])
+      # assert(arr_eq(R[0], fib_nums), 1)
+      # assert(arr_eq(R[1], M1), 1)
+      # assert(R[2], 2)
+      # assert(R[3], 3)
+      #
+      # one_element <- [ R ]
+      # say('one_element', one_element[0])
+      # assert(len(one_element), 1)
+      #
+      # assert(len([ [1,2] ]), 1)
+      # #assert(len([]),0)
+      # #assert(len([ [one_element, 1,2] ]), 1)
+      #
+      # delta <- [[-1,0], [1,0], [0,1], [0,-1]]
+      # the_meaning_of_life <- 42
+      # say([ get_an_array() , delta[0],the_meaning_of_life] )
+      # WW <- [ get_an_array(), delta[0],the_meaning_of_life]
+      #
+      # assert(len(WW), 3)
+      #
+      # assert(arr_eq(WW[0], get_an_array()),1 )
+      # assert(arr_eq(WW[1], delta[0]),1 )
+      # assert(WW[2], 42 )
+      #
+      # WWW <- [ get_a_matrix(), delta[1],the_meaning_of_life]
+      # assert(len(WWW), 3)
+      # assert(arr_eq(WWW[0], get_a_matrix()),1 )
+      # assert(arr_eq(WWW[1], delta[1]),1 )
+      # assert(WWW[2], 42 )
+      # say(WWW)
+      #
+      # pos <- [1,2]
+      # cost <- 99
+      # W4 <- [ [get_a_matrix(), cost + 1, pos + delta[0]],
+      #         [get_a_matrix(), cost + 1, pos + delta[1]],
+      #         [get_a_matrix(), cost + 1, pos + delta[2]],
+      #         [get_a_matrix(), cost + 1, pos + delta[3]]  ]
+      #
+      # say(len(W4))
+      # say('W4', W4)
+      #
+      #
+      # W3 <- [ [get_a_matrix(), cost + 1, pos + delta[k]] | 0 <= k < len(delta) ]
+      # say(len(W3))
+      # say(W3)
+      #
+      # assert( len(W3[0]), 3)
+      # assert( len(W3[1]), 3)
+      # assert( len(W3[2]), 3)
+      # assert( len(W3[3]), 3)
+      #
+      # assert( arr_eq(W3[0], [get_a_matrix(), cost + 1, pos + delta[0]]),1 )
+      # assert( arr_eq(W3[1], [get_a_matrix(), cost + 1, pos + delta[1]]),1 )
+      # assert( arr_eq(W3[2], [get_a_matrix(), cost + 1, pos + delta[2]]),1 )
+      # assert( arr_eq(W3[3], [get_a_matrix(), cost + 1, pos + delta[3]]),1 )
+      #
+      # say('=== Array equality ===')
+      # assert(A , A)
+      # assert(fib_nums, fib_nums)
+      # assert(different(A,A),0)
+      #
+      # assert(different(fib_nums,fib_nums),0)
+      #
+      #
+      # assert(M1 , M1)
+      # say('M1',M1)
+      # assert(different(M1,M1),0)
+      # assert(different(M1,M2),1)
+      #
+      #
+      # say('===== list concat =====')
+      # assert([pos] ++ [pos], [1,2,1,2])
+      # assert([pos] <~ pos, [1,2, [1,2] ])
+      # empty <- []
+      # assert([empty] <~ pos, [[1,2]])
+      # fi <- [[1,2]]
+      # assert([fi] <~ pos, [[1,2],[1,2]])
+      # fo <- [[[1,2],[1,2]]]
+      # assert([fo] <~ pos, [[[1,2],[1,2]], [1,2]])
+      #
+      #
+      # assert(sem_matrix(3,3,0,0),[[1,0,0],[0,0,0],[0,0,0]])
+      # assert(sem_matrix(3,3,0,1),[[0,1,0],[0,0,0],[0,0,0]])
+      # assert(sem_matrix(3,3,0,2),[[0,0,1],[0,0,0],[0,0,0]])
+      #
+      #
+      # assert(sem_matrix(3,3,1,0),[[0,0,0],[1,0,0],[0,0,0]])
+      # assert(sem_matrix(3,3,1,1),[[0,0,0],[0,1,0],[0,0,0]])
+      # assert(sem_matrix(3,3,1,2),[[0,0,0],[0,0,1],[0,0,0]])
+      #
+      #
+      # assert(sem_matrix(3,3,2,0),[[0,0,0],[0,0,0],[1,0,0]])
+      # assert(sem_matrix(3,3,2,1),[[0,0,0],[0,0,0],[0,1,0]])
+      # assert(sem_matrix(3,3,2,2),[[0,0,0],[0,0,0],[0,0,1]])
+      #
+      #
 
       say('All tests passed ;)').

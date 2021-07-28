@@ -3,11 +3,11 @@
 %struct.tpool = type { [250000 x %struct.tdata], i32, i8 }
 %struct.tdata = type { i32, i8, %union.data_type }
 %union.data_type = type { double }
-%struct.tnode = type { i32, i32, %struct.tpool*, %struct.tdimensions }
-%struct.tdimensions = type { i32, i32 }
 %struct.__sFILE = type { i8*, i32, i32, i16, i16, %struct.__sbuf, i32, i8*, i32 (i8*)*, i32 (i8*, i8*, i32)*, i64 (i8*, i64, i32)*, i32 (i8*, i8*, i32)*, %struct.__sbuf, %struct.__sFILEX*, i32, [3 x i8], [1 x i8], %struct.__sbuf, i32, i64 }
 %struct.__sFILEX = type opaque
 %struct.__sbuf = type { i8*, i32 }
+%struct.tnode = type { i32, i32, %struct.tpool*, %struct.tdimensions }
+%struct.tdimensions = type { i32, i32 }
 ;;;
 ;;; ==== Declarations ==== 
 ;;;
@@ -25,6 +25,9 @@ declare void @_set_wrap_creation(%struct.tnode*, i32, i8 zeroext) #0
 declare void @funk_sleep(i32) #0 
 declare void @funk_increment_pool_tail(%struct.tpool*, i8*, i32) #0 
 declare void @funk_print_type(i8 zeroext) #0 
+declare void @_print_array_info(%struct.tnode*, i32) #0 
+declare void @_extract_tnode_from_pool(%struct.tnode*, i32, %struct.tpool*) #0 
+declare void @_funk_print_node_info(%struct.tnode* byval(%struct.tnode) align 8) #0 
 declare void @funk_print_node_info(%struct.tnode*) #0 
 declare i32 @_funk_alloc_raw_tdata(%struct.tpool*, i32, i32) #0 
 declare void @funk_create_node(%struct.tnode*, i32, i32, i32, i8 zeroext, i8*) #0 
@@ -37,6 +40,7 @@ declare void @funk_roll(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0
 declare void @funk_get_element_in_array(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_matrix_2d_lit(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_not(%struct.tnode*, %struct.tnode*) #0 
+declare void @funk_print_node(%struct.tnode*) #0 
 declare i32 @_funk_sum_list(%struct.tnode*) #0 
 declare void @funk_sum_list(%struct.tnode*, %struct.tnode*) #0 
 declare void @funk_init() #0 
@@ -45,7 +49,7 @@ declare void @funk_get_element_in_matrix_2d_var(%struct.tnode*, %struct.tnode*, 
 declare void @funk_get_element_in_array_var(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @add_node_to_nodelist(%struct.tnode*, %struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_double_scalar(i32, %struct.tnode*, double) #0 
-declare void @funk_create_int_scalar(i32, %struct.tnode*, i32) #0 
+declare void @funk_create_i32_scalar(i32, %struct.tnode*, i32) #0 
 declare void @funk_get_element_in_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_of_regs(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_create_list_i32_literal(i32, %struct.tnode*, i32*, i32) #0 
@@ -78,7 +82,6 @@ declare void @funk_and(i8*, i8*, i8*, i32) #0
 declare void @_print_arith_op(void (i8*, i8*, i8*, i32)*) #0 
 declare void @_funk_arith_op_rr(%struct.tnode*, i32, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
 declare void @funk_arith_op_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*, void (i8*, i8*, i8*, i32)*) #0 
-declare void @funk_print_node(%struct.tnode*) #0 
 declare void @funk_mul_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_add_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare void @funk_sub_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
@@ -108,6 +111,7 @@ declare void @funk_sge_rr(%struct.tnode*, %struct.tnode*, %struct.tnode*) #0
 declare void @funk_eq_ri(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_print_dimension(%struct.tnode*) #0 
 declare void @_funk_print_node(%struct.tnode*) #0 
+declare void @__funk_print_node(%struct.tnode* byval(%struct.tnode) align 8) #0 
 declare float @funk_ToFloat(%struct.tnode*) #0 
 declare void @funk_read_list_from_file(i32, %struct.tnode*, i8*) #0 
 declare void @funk_get_len(%struct.tnode*, %struct.tnode*) #0 
@@ -117,7 +121,6 @@ declare void @funk_create_sub_matrix(%struct.tnode*, %struct.tnode*, %struct.tno
 declare void @funk_create_sub_array_lit_indexes(%struct.tnode*, %struct.tnode*, i32, i32) #0 
 declare void @funk_create_sub_array(%struct.tnode*, %struct.tnode*, %struct.tnode*, %struct.tnode*) #0 
 declare i32 @_funk_set_node_dimensions(%struct.tnode*, i32, i32, i32*, i32, i32) #0 
-declare void @_extract_tnode_from_pool(%struct.tnode*, i32, %struct.tpool*) #0 
 declare void @_flatten(%struct.tnode*, %struct.tnode*, i32) #0 
 declare void @funk_set_node_dimensions(%struct.tnode*, i32*, i32) #0 
 declare void @reshape(%struct.tnode*, i32*, i32) #0 
@@ -141,6 +144,7 @@ declare void @sdl_render_loop(i8*) #0
 declare void @funk_sdl_create_window(i32, i32, %struct.tnode*) #0 
 ;;;
 ;; ==== external declarations ====
+@__stdoutp = external global %struct.__sFILE*, align 8
 declare i32 @printf(i8*, ...) #1
 declare void @exit(i32) #2
 declare i32 @__sprintf_chk(i8*, i32, i64, i8*, ...) #1
@@ -152,6 +156,7 @@ declare i64 @time(i64*) #1
 declare void @srand(i32) #1
 declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) #3
 declare i32 @__snprintf_chk(i8*, i64, i32, i64, i8*, ...) #1
+declare i32 @fflush(%struct.__sFILE*) #1
 declare %struct.__sFILE* @"\01_fopen"(i8*, i8*) #1
 declare i32 @fscanf(%struct.__sFILE*, i8*, ...) #1
 declare i32 @fclose(%struct.__sFILE*) #1

@@ -17,8 +17,8 @@ enum pool_types{
 
 enum funk_types{
 type_invalid,
-type_int,
-type_double,
+type_i32,
+type_d64,
 type_array ,
 type_empty_array ,
 type_scalar ,
@@ -53,9 +53,9 @@ struct tdata
   enum funk_types type;
   uint8_t wrap_creation;
   union data_type{
-    double f;
-    int32_t i;
-    void (*fn)(struct tnode *, int, struct tnode *);
+    double d64;
+    int32_t i32;
+    struct tnode  (*fn)(int, struct tnode *);
   } data;
 
 };
@@ -92,7 +92,7 @@ struct tnode
       printf("\nINTERNAL ERROR:  %s +%d '" #EXP "':\n" #MSG "\n", __FUNCTION__, __LINE__); exit(1);}
 
 #define DATA(n,i) get_node(n,i,__FUNCTION__, __LINE__,1)
-#define IS_PTR(n,idx)  (DATA(n,idx)->type ==  type_pointer_to_pool_entry)
+#define IS_PTR(n,idx)  (DATA(n,idx)->type ==  type_pointer_to_pool_entry || DATA(n,idx)->type == type_array)
 #define IS_NODE_IN_POOL(n,idx)  (DATA(n,idx)->type ==  type_pool_node_entry)
 #define PTR(n,idx) (DATA(n,idx)->data.i)
 #define DATA_NO_CHECK(n,i) get_node(n,i,__FUNCTION__, __LINE__,0)
@@ -113,4 +113,42 @@ struct tdata * get_node(struct tnode * , uint32_t , const char * , int, int  );
 void funk_create_int_scalar(enum pool_types  , struct tnode * , int32_t );
 void funk_copy_node(struct tnode * , struct tnode * );
 
+void funk_ne_rr(struct tnode *r, struct tnode *a, struct tnode *b);
+void funk_add_rr(struct tnode *r, struct tnode *a, struct tnode *b);
+void funk_mul_ri(struct tnode *node_r, struct tnode *node_a, int value);
+//Public functions
+
+ void funk_init();
+ void funk_create_i32_scalar(enum pool_types pool, struct tnode *dst, int32_t val);
+ void funk_create_list_of_regs(struct tnode *dst, struct tnode *list, int32_t size);
+ void funk_create_empty_list_element(enum pool_types pool_type, struct tnode *dst);
+ void funk_print_node(struct tnode *);
+ void funk_get_element_in_array(struct tnode *src, struct tnode *dst, int idx);
+ void funk_exit();
+ void funk_get_len(struct tnode *dst, struct tnode *src);
+ void funk_create_d64_scalar(enum pool_types pool, struct tnode *dst,
+                                double val);
+
+void funk_flt_rf(struct tnode *node_r, struct tnode *node_a, double value);
+void funk_slt_rr(struct tnode *r, struct tnode *a, struct tnode *b);
+void funk_mul_rr(struct tnode *r, struct tnode *a, struct tnode *b);
+void funk_sub_rr(struct tnode *r, struct tnode *a, struct tnode *b);
+enum pool_types get_pool_enum(struct tpool *pool) ;
+void funk_add_ri(struct tnode *node_r, struct tnode *node_a, int value);
+void funk_div_ri(struct tnode *node_r, struct tnode *node_a, int value) ;
+
+typedef struct tnode (*FunkyFunctionPointer)(int, struct tnode *);
+
+void funk_create_node(struct tnode *dst, uint32_t data_len,
+                      enum pool_types pool_type, enum funk_types type,
+                      uint8_t dim_count, void *val);
+
+uint32_t _copy_node_to_pool(struct tnode *src);
+int _funk_sum_list(struct tnode *src);
+
+void funk_create_sub_array_lit_indexes(struct tnode *src, struct tnode *dst,
+                                       int32_t c1, int32_t c2);
+
+void funk_create_sub_array(struct tnode *src, struct tnode *dst,
+                           struct tnode *i, struct tnode *j);
 #endif

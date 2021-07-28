@@ -27,8 +27,8 @@ string =8
 
 global_pool=0
 function_pool=1
-
-to_str = {0: 'invalid', 1: 'i32', 2: 'double', 3: 'array',
+pool_str={0:'global_pool', 1:'function_pool'}
+to_str = {0: 'invalid', 1: 'i32', 2: 'd64', 3: 'array',
           4: 'empty_array', 5: 'scalar', 6: 'function'}
 
 llvm = {int: 'i32', float: 'float'}

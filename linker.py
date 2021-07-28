@@ -48,10 +48,10 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
     return dependencies
 
 
-def get_ll_path(src_path):
+def get_c_path(src_path):
     ath, file_name = os.path.split(src_path)
     file_base_name, file_extension = os.path.splitext(file_name)
-    return '{}.ll'.format(file_base_name), '{}.f'.format(file_base_name)
+    return '{}.c'.format(file_base_name), '{}.f'.format(file_base_name)
 
 
 def compile_source(src_path, build_path, include_paths, debug=False):
@@ -67,16 +67,16 @@ def compile_source(src_path, build_path, include_paths, debug=False):
 
         funk.compile(src_text)
 
-        ll_name, f_name = get_ll_path(src_path)
+        c_name, f_name = get_c_path(src_path)
 
-        funk.save_ir(os.path.join(build_path, ll_name))
-        print('{} -> {}/{}'.format(f_name, build_path,ll_name))
+        funk.save_c(os.path.join(build_path, c_name))
+        print('{} -> {}/{}'.format(f_name, build_path,c_name))
         dependency_satisfied.add(src_path)
-        link_targets.add(os.path.join(build_path,ll_name))
+        link_targets.add(os.path.join(build_path,c_name))
 
         for dependency in get_dependencies(src_text, include_paths=include_paths):
-            ll_name, _ = get_ll_path(dependency)
-            ll_path = os.path.join(build_path, ll_name)
+            c_name, _ = get_c_path(dependency)
+            ll_path = os.path.join(build_path, c_name)
             link_targets.add(ll_path)
             if not os.path.isfile(ll_path) or os.path.getmtime(ll_path) < os.path.getmtime(dependency):
                 dependencies.append(dependency)
