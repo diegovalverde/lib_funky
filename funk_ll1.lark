@@ -115,7 +115,7 @@
     list_elements: expr [more_list_elements]
 
 
-    more_list_elements:  "," expr [more_list_elements] -> action_foo
+    more_list_elements:  "," expr [more_list_elements] -> action_comma_separated_list_element
                         | ".." expr [more_list_elements] -> action_range
 
     ///////////////////////////////////////////

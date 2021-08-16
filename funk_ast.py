@@ -43,17 +43,26 @@ def list_concat_tail(funk, left, right, result=None):
         [MyArray] <~ x
     """
 
+    if result is None:
+        result = funk.emitter.create_anon()
+        funk.emitter.code += """
+    struct tnode {result};
+        """.format(result=result)
+
     funk.emitter.add_comment('Concatenating two arrays')
     if isinstance(left,List):
-        ptr_left = CompileTimeExprList(funk,'list concat',left.elements).eval()
+        L = CompileTimeExprList(funk,'list concat',left.elements).eval()
     else:
-        ptr_left = left.eval()
+        L = left.eval()
 
-    ptr_right = right.eval()
+    R = right.eval()
 
-    #DIEGO
-    #return funk.emitter.concat_list(ptr_left, ptr_right, result=result)
-    return funk.emitter.append_element_to_list (ptr_left, ptr_right, result=result)
+    funk.emitter.code += """
+
+    {result} = funk_append_element_to_list(&{L},&{R});
+    """.format(result=result, L=L, R=R)
+
+    return result
 
 
 def list_concat_head(funk, left, right, result=None):
@@ -66,6 +75,9 @@ def list_concat_head(funk, left, right, result=None):
 
     """
 
+    if result is None:
+        result = funk.emitter.create_anon()
+
     funk.emitter.add_comment('Concatenating head to array')
     ptr_left = left.eval()
 
@@ -73,17 +85,9 @@ def list_concat_head(funk, left, right, result=None):
         ptr_left = funk.emitter.alloc_tnode('', ptr_left, funk_types.function_pool, funk_types.int)
     ptr_right = right.eval()
 
-    # arr = [StringConstant(funk, str) for str in ['------- x ~> [A] ---------------------']]
-    # funk.emitter.print_funk(funk, arr)
-
-    funk.emitter.prepend_element_to_list(ptr_left, ptr_right, result=result)
-    #
-    # arr = [StringConstant(funk, str) for str in ['result is', result ]]
-    # funk.emitter.print_funk(funk, arr)
-    # funk.emitter.debug_print_node_info(funk, [StringConstant(funk, result)] )
-    # arr = [StringConstant(funk, str) for str in ['-----------------------------']]
-    # funk.emitter.print_funk(funk, arr)
-
+    funk.emitter.code += """
+    funk_prepend_element_to_list(&{dst},&{L},&{R});
+    """.format(dst=result, L=ptr_left, R=ptr_right )
     return result
 
 
@@ -140,16 +144,16 @@ class IntegerConstant:
 
         value = self.sign * int(self.value)
         if result is not None:
-            self.funk.emitter.alloc_tnode(name=result, value=value, pool=funk_types.function_pool, data_type=funk_types.int)
-        # else:
-        #     self.funk.emitter.alloc_tnode(name='anon', value=value, pool=funk_types.function_pool,
-        #                                   data_type=funk_types.int)
-            #self.funk.emitter.set_node_data_value(result, val, as_type=funk_types.int)
+            self.funk.emitter.code += """
+            funk_create_i32_scalar(function_pool, &{result}, {val});
+            """.format(result=result, val=value)
+
         return value
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return IntegerConstant(self.funk, value=copy.deepcopy(self.value, memo), sign=self.sign)
+
 
 class DoubleConstant:
     def __init__(self, funk, value, sign=1):
@@ -169,8 +173,11 @@ class DoubleConstant:
     def eval(self, result=None):
         value = self.sign * float(self.value)
         if result is not None:
-            self.funk.emitter.alloc_tnode(name=result, value=value, pool=funk_types.function_pool,
-                                          data_type=funk_types.double)
+            self.funk.emitter.code += """
+            funk_create_d64_scalar(function_pool, &{result}, {val});
+            """.format(result=result, val=value)
+        #     self.funk.emitter.alloc_tnode(name=result, value=value, pool=funk_types.function_pool,
+        #                                   data_type=funk_types.double)
         else:
             self.funk.emitter.alloc_tnode(name='anon', value=value, pool=funk_types.function_pool,
                                           data_type=funk_types.double)
@@ -181,6 +188,7 @@ class DoubleConstant:
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return DoubleConstant(self.funk, value=copy.deepcopy(self.value, memo), sign=self.sign)
+
 
 class StringConstant:
     def __init__(self, funk, value):
@@ -329,6 +337,18 @@ class CompileTimeExprList(List):
         return CompileTimeExprList(self.funk, name=self.name, elements=copy.deepcopy(self.elements, memo))
 
 
+class Include():
+    def __init__(self, funk, elements):
+        self.funk = funk
+        self.elements = elements
+
+    def eval(self, result=None):
+        for include in self.elements:
+            self.funk.emitter.code += """
+          #include "{filename}.h"
+          """.format(filename=include)
+
+
 class FixedSizeLiteralList(List):
 
     def __init__(self, funk, name, elements):
@@ -378,36 +398,154 @@ class Identifier:
 
         return string
 
+    def emit_indexed_range_helper(self, node_array, idx, result):
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+            struct tnode {anon};
+            """.format(anon=result)
+
+        right = idx.right.eval()
+        left = idx.left.eval()
+
+        if not isinstance(idx.left, IntegerConstant):
+            left = 'DATA(&{},0)->data.i32'.format(left)
+
+        if not isinstance(idx.right, IntegerConstant):
+            right = 'DATA(&{},0)->data.i32'.format(right)
+
+        """
+        struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end){
+         struct tnode result;
+
+            if (level == 0){
+                funk_create_sub_array_lit_indexes(node, &result, start, end);
+                return result;
+            }
+
+            int len = *end - *start;
+            struct tnode new_array[len];
+            for (int i = start; i < end; i++){
+                struct tnode element;
+                funk_get_element_in_array(&element, &node, i);
+                new_array[i] = funky_get_element_range( level - 1, &element, start+1, end+1);
+            }
+
+            funk_create_list_of_regs(&result, new_array, len);
+            return result;
+        }
+        """
+        self.funk.emitter.code += """
+            {{ //anonymous scope
+                int start = {idx_left};
+                int end = {idx_right};
+
+                struct tnode new_array[{node_array}.len];
+                for (int i = 0; i < {node_array}.len; i++)
+                {{
+                    struct tnode original_element;
+                    funk_get_element_in_array(&{node_array}, &original_element, i);
+
+                    funk_create_sub_array_lit_indexes(&original_element, &(new_array[i]), start, end);
+                }}
+                struct tnode result;
+                funk_create_list_of_regs(&{result}, new_array, {node_array}.len);
+            }} //anonymous scope
+            """.format(node_array=node_array, result=result, idx_left=left, idx_right=right)
+
+        return result
+
     def index_emit_helper(self, node, indexes, result):
-        idx = indexes.pop()
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+                  struct tnode {result};
+                  """.format(result=result)
+
+        list_start = []
+        list_end = []
+        for idx in indexes:
+            if isinstance(idx, Range):
+                if isinstance(idx.left, IntegerConstant):
+                    list_start.append(idx.left.eval())
+                else:
+                    list_start.append('DATA(&{},0)->data.i32'.format(idx.left.eval()))
+
+                if isinstance(idx.right, IntegerConstant):
+                    list_end.append(idx.right.eval())
+                else:
+                    list_end.append('DATA(&{},0)->data.i32'.format(idx.right.eval()))
+            elif isinstance(idx, IntegerConstant):
+                list_start.append(idx.eval())
+                list_end.append(idx.eval())
+            else:
+                list_start.append('DATA(&{},0)->data.i32'.format(idx.eval()))
+                list_end.append('DATA(&{},0)->data.i32'.format(idx.eval()))
+
+
+        self.funk.emitter.code += """
+        {{
+            int start[] = {{ {list_start} }};
+            int end[] = {{ {list_end} }};
+
+             {result} = funky_get_element_range({depth}, &{node}, start, end);
+        }}
+        """.format(list_start=', '.join(str(e) for e in list_start),
+                   list_end=', '.join(str(e) for e in list_end),
+                   depth=len(indexes), node=node, result=result)
+
+        return result;
+
+
         if len(indexes) == 0:
-            return self.funk.emitter.get_element_in_array(node, idx)
+            return node
+
+        idx = indexes.pop()
+        if isinstance(idx, Range):
+
+            self.funk.emitter.code += """
+            funky_get_element_range({depth}, &{node}, start, end)
+            """.format(depth=len(indexes)+1, node=node)
+
+            node_list = self.index_emit_helper(node, indexes, result)
+            anon_next = self.funk.emitter.create_anon()
+            anon=self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+            struct tnode {result};
+            if (DATA(&{node},0)->type == type_array){{
+                struct tnode new_array[{node}.len];
+                for (int i = 0; i < {node}.len; i++)
+                {{
+                    struct tnode original_element;
+                    funk_get_element_in_array(&{node}, &original_element, i);
+
+                    funk_create_sub_array_lit_indexes(&original_element, &(new_array[i]), {start}, {end});
+                }}
+                funk_create_list_of_regs(&{result}, new_array, {node}.len);
+            }} else {{
+                funk_create_sub_array_lit_indexes(&{node}, &{result}, {start}, {end});
+            }}
+            """.format(node=node_list,result=anon_next, anon=anon, start=idx.right.eval(), end=idx.left.eval() )
+
+            #return self.emit_indexed_range_helper(anon_next, idx, result=result)
+            return self.index_emit_helper(anon_next, indexes, result=result)
+            # L[i .. j]
+            return self.funk.emitter.create_sub_array(self.index_emit_helper(node, idx, result), c1=idx.left,
+                                                      c2=idx.right, result=result)
         else:
-            return self.funk.emitter.get_element_in_array( self.index_emit_helper(node, indexes, result), idx, result)
-
-
-
+            # L[i]
+            return self.funk.emitter.get_element_in_array(self.index_emit_helper(node, indexes, result), idx,
+                                                          result=result)
 
     def eval_node_index(self,node,result=None):
+
         if self.indexes is not None:
-            # L[1..2]
-            if len(self.indexes) == 1 and isinstance(self.indexes[0], Range):
-                return self.funk.emitter.create_sub_array(node, c1=self.indexes[0].left, c2=self.indexes[0].right,
-                                                      result=result)
-            # M[i..j, i+1 .. j+1]
-            if len(self.indexes) == 2 and isinstance(self.indexes[0], Range) and isinstance(self.indexes[1], Range):
-                return self.funk.emitter.create_submatrix(node, self.indexes, result=result)
-            elif len(self.indexes) > 0:
-                return self.index_emit_helper(node, copy.deepcopy(self.indexes), result)
-            # M[1,2]
-            elif  len(self.indexes) == 2 and isinstance(self.indexes[0], IntegerConstant) and isinstance(self.indexes[1], IntegerConstant):
-                return self.funk.emitter.get_element_in_array_2d_lit(node, self.indexes, result=result)
-            elif len(self.indexes) == 1 and isinstance(self.indexes[0], IntegerConstant):
-                # L[1]
-                return self.funk.emitter.get_element_in_array(node, self.indexes, result)
-            else:
-                return self.funk.emitter.get_element_in_matrix(node, self.indexes, result=result)
+            return self.index_emit_helper(node, copy.deepcopy(self.indexes), result)
         else:
+            if result is not None:
+                self.funk.emitter.code += """
+        {result} = {node};
+                """.format(result=result,node=node)
             return node
 
     def pattern_match_list_of_identifiers(self, result):
@@ -480,7 +618,14 @@ class HeadTail:
         return 'HeadTail({},{})'.format(self.head, self.tail)
 
     def eval(self, result=None):
-        pass
+
+
+        self.funk.emitter.code += """
+        funk_copy_first_element_from_list(&{head},&{tail});
+        funky_pop_first(&{tail});
+        """.format(head=self.head, tail=self.tail)
+
+        return result
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -782,14 +927,20 @@ class ListUnion(BinaryOp):
         """
 
         self.funk.emitter.add_comment('List Union')
-        if isinstance(self.left, List):
-            ptr_left = CompileTimeExprList(self.funk, 'list concat', self.left.elements).eval()
-        else:
-            ptr_left = self.left.eval()
 
-        ptr_right = self.right.eval()
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+        struct tnode {result};
+            """.format(result=result)
 
-        return self.funk.emitter.concat_list(ptr_left, ptr_right, result=result)
+        L=self.left.eval()
+        R=self.right.eval()
+        self.funk.emitter.code += """
+            {result} = funk_concatenate_lists(&{L},&{R});
+        """.format(result=result, L=L, R=R )
+
+        return result
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -818,6 +969,10 @@ class Assignment(BinaryOp):
         return 'Assignment({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
+        self.funk.emitter.code += """
+        struct tnode {};
+        """.format(self.left.name);
+        print(self.right)
         self.right.eval(result=self.left.name)
         #create_ast_named_symbol(name, self.funk, self.right, self.pool)
 
@@ -926,9 +1081,21 @@ class ExprRange(Range):
     def eval(self, result=None, parent_tnode_list=None, parent_offset=None):
         if result is None or result == 'anon':
             result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+            struct tnode {result};
+            """.format(result=result)
 
-        start = self.left.eval()
-        end = self.right.eval()
+        if isinstance(self.left, IntegerConstant):
+            start = self.left.eval()
+        else:
+            start = 'DATA(&{},0)->data.i32'.format(self.left.eval())
+
+        if isinstance(self.right, IntegerConstant):
+            end = self.right.eval()
+        else:
+            end = 'DATA(&{},0)->data.i32'.format(self.right.eval())
+
+
 
         if self.lhs_type == '<':
             start += 1
@@ -936,131 +1103,65 @@ class ExprRange(Range):
         if self.rhs_type == '<=':
             end += 1
 
+        i = self.iterator_symbol.eval()
+
         self.funk.emitter.code += """
-        struct tnode {result};
+
         {{ //start anonymous scope
-            uint32_t len = {end} - {start};
+            uint32_t __len__ = {end} - {start};
             funk_create_node(&{result}, 1, function_pool, type_array, 0, NULL);
-            {result}.len = len;
+            {result}.len = __len__;
             struct tnode hdr, tmp;
             funk_create_node(&hdr, 2, function_pool, type_pool_node_entry, 0, NULL);
-            funk_create_node(&tmp, len, function_pool, type_i32, 0, NULL);
+            funk_create_node(&tmp, __len__, function_pool, type_i32, 0, NULL);
             DATA(&{result},0)->data.i32 = hdr.start;
             DATA(&hdr,0)->data.i32 = tmp.start;
-            DATA(&hdr,1)->data.i32 = len;
+            DATA(&hdr,1)->data.i32 = __len__;
 
-            for (int {i} = 0; {i} < len; {i}++)
+            for (int {i} = 0; {i} < __len__; {i}++)
             {{
-        """.format(start=start, end=end,result=result, i=self.iterator_symbol.eval())
+        """.format(start=start, end=end,result=result, i=i)
 
         if isinstance(self.expr, IntegerConstant):
             val = self.expr
             self.funk.emitter.code += """
-                DATA(&tmp,i)->data.i32 = {val};
-                DATA(&tmp,i)->type = type_i32;
-            """.format(val=val.value*val.sign)
+                DATA(&tmp,{i})->data.i32 = {val};
+                DATA(&tmp,{i})->type = type_i32;
+            """.format(val=val.value*val.sign, i=i)
         elif isinstance(self.expr, DoubleConstant):
             val = self.expr
             self.funk.emitter.code += """
-                DATA(&tmp,i)->data.d64 = {val};
-                DATA(&tmp,i)->type = type_d64;
-            """.format(val=val.value*val.sign, result=result)
+                DATA(&tmp,{i})->data.d64 = {val};
+                DATA(&tmp,{i})->type = type_d64;
+            """.format(val=val.value*val.sign, result=result, i=i)
         else:
+            iterator = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
-                struct tnode __iterator__;
-                funk_create_i32_scalar(function_pool,&__iterator__, i);
-            """
-            self.expr.replace_symbol(Identifier(self.funk,'i'), Identifier(self.funk,'__iterator__'))
+                struct tnode {iterator};
+                funk_create_i32_scalar(function_pool,&{iterator}, {start}+{i});
+            """.format(i=i, start=start,iterator=iterator)
+
+            self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk,iterator))
             val = self.expr.eval()
+            if val == i:
+                val = iterator
+
             self.funk.emitter.code += """
-                if (DATA(&tmp,i)->type == type_array){{
-                    DATA(&tmp,i)->data.i32 = _copy_node_to_pool(&{val});
-                    DATA(&tmp,i)->type = type_pool_node_entry;
+                if (DATA(&tmp,{i})->type == type_array){{
+                    DATA(&tmp,{i})->data.i32 = _copy_node_to_pool(&{val});
+                    DATA(&tmp,{i})->type = type_pool_node_entry;
                 }} else {{
-                    DATA(&tmp,i)->data = DATA(&{val},0)->data;
-                    DATA(&tmp,i)->type = DATA(&{val},0)->type;
+                    //??
+                    DATA(&tmp,{i})->data = DATA(&{val},0)->data;
+                    DATA(&tmp,{i})->type = DATA(&{val},0)->type;
                 }}
-            """.format(val=val, result=result)
+            """.format(val=val, result=result, i=i)
         self.funk.emitter.code += """
             }}
         }} // end anonymous scope
         """.format(val=val, result=result)
 
         return result
-
-    def eval2(self, result=None, parent_tnode_list=None, parent_offset=None):
-
-            self.funk.emitter.add_comment('START ============== ExprRange {}'.format(self.__repr__()))
-
-            self.calculate_ranges()
-
-            reg_start = self.reg_start
-
-            loop_reg = self.funk.emitter.alloc_tnode('loop reg', 0, funk_types.function_pool, funk_types.int)
-
-            list_len_reg = self.get_range_len()
-            list_len_int = self.funk.emitter.get_node_data_value(list_len_reg)
-
-            iterator_reg = self.funk.emitter.alloc_tnode('iterator_reg',
-                                                         self.funk.emitter.get_node_data_value(reg_start),
-                                                         funk_types.function_pool, funk_types.int)
-
-            expr = copy.deepcopy(self.expr)
-            # create a node pointer for each element in the range
-
-            elements = self.funk.emitter.alloc_list_of_tnodes(list_len_reg)
-
-
-            scope_name = self.funk.function_scope.name.replace('@', '')
-            # loop
-            label_loop_start = '{}_clause_{}_loop_entry__{}'.format(scope_name,
-                                                                    self.funk.function_scope.clause_idx,
-                                                                    self.funk.function_scope.label_count)
-            self.funk.function_scope.label_count += 1
-
-            label_exit = '{}_clause_{}_loop_exit__{}'.format(scope_name,
-                                                             self.funk.function_scope.clause_idx,
-                                                             self.funk.function_scope.label_count)
-            self.funk.function_scope.label_count += 1
-
-            self.funk.emitter.br(label_loop_start)
-
-            self.funk.emitter.add_label(label_loop_start)
-            #### Loop =====
-
-            # self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk, 'eval element '), StringConstant(self.funk, loop_reg)])
-            if expr.__repr__() == self.iterator_symbol.__repr__():
-                element_reg = self.funk.emitter.alloc_tnode(self.expr.__repr__(),
-                                                            self.funk.emitter.get_node_data_value(iterator_reg),
-                                                            funk_types.function_pool, funk_types.int)
-            else:
-                expr.replace_symbol(self.iterator_symbol, StringConstant(self.funk, iterator_reg))
-                element_reg = expr.eval()
-
-            if isinstance(element_reg, int):
-                element_reg = self.funk.emitter.alloc_tnode(expr.__repr__(), element_reg, funk_types.function_pool,
-                                                            funk_types.int)
-
-            self.funk.emitter.set_tnode_array_element(tnode_list=elements, value_reg=element_reg,
-                                                      iterator_reg=loop_reg,
-                                                      len=list_len_int)
-
-            self.funk.emitter.increment_node_value_int(loop_reg)
-            self.funk.emitter.increment_node_value_int(iterator_reg)
-            self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(loop_reg, as_type=funk_types.int),
-                                      list_len_int, label_exit, label_loop_start)
-
-            self.funk.emitter.add_label(label_exit)
-
-            # finally add the element pointers to the list
-            #head = self.funk.alloc_compile_time_expr_list(elements, [1], self.pool, result=result)
-            head = self.funk.emitter.create_list_of_tnodes(result=result, pool=funk_types.function_pool, n=list_len_int, reg_list=elements)
-            self.funk.emitter.free_tnode_pointer(elements)
-            self.funk.emitter.add_comment('END ============== ExprRange {}'.format(self.__repr__()))
-
-            # try to flatten
-            #head = self.funk.emitter.flatten_pointer_list_to_matrix(head, result=result)
-            return head
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -1082,8 +1183,8 @@ class ExternalFunction:
 
     def emit(self):
         return """
-declare void {name}(%struct.tnode*, i32,  %struct.tnode*)
-                """.format(name=self.name)
+ struct tnode  {name}(int,  struct tnode*);
+                """.format(name=self.name[1:])
 
 
 class FunctionCall(Expression):
@@ -1146,7 +1247,7 @@ class FunctionCall(Expression):
             return p.eval(result=result)
 
         # First check if this is globally defined function
-        if name in self.funk.functions:
+        if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             arguments=[]
             if self.args is not None:
                 arguments=[create_ast_anon_symbol(self.funk, a, self.pool) for a in self.args]
@@ -1168,18 +1269,6 @@ class FunctionCall(Expression):
         }}
             """.format(name=name)
             return self.funk.emitter.call_function(self.funk, 'DATA(&{},0)->data.fn'.format(name), arguments, result=result)
-
-        # # Now check if this is an input argument containing a function pointer
-        # i = 0
-        # for arg in self.funk.function_scope.args:
-        #     if arg == self.name:
-        #         fn = self.funk.emitter.get_function_argument_tnode(i)
-        #         return self.funk.emitter.call_fn_ptr(self.funk, 'ptr_fn({})'.format(self.name),
-        #                                              fn,
-        #                                              [create_ast_anon_symbol(self.funk, a,
-        #                                                                 funk_types.function_pool) for a in self.args],
-        #                                              result=result)
-        #     i += 1
 
         if not found:
             raise Exception('Undeclared function \'{}\' '.format(self.name))
@@ -1205,74 +1294,15 @@ class FunctionClause:
         self.tail_pairs = tail_pairs
         self.funk = funk
 
-    def emit_pattern_matches(self, clause_idx, name, clause_pm_label, clause_precondition_label, clause_entry_label, clause_exit_label):
-        # check for clause pattern matches
-        if self.pattern_matches is not None and len(self.pattern_matches) != 0:
-            #self.debug_print(['emitting pattern matches'])
-            self.funk.emitter.add_label(clause_pm_label)
-            self.funk.emitter.add_comment('{}'.format(self.pattern_matches))
-
-            pm_count = 0
-            for pattern in self.pattern_matches:
-                self.funk.emitter.add_comment('{}'.format(self.arguments))
-                arg = self.funk.emitter.get_function_argument_tnode(pattern.position)
-                last = pm_count + 1 == len(self.pattern_matches)
-
-                if last:
-                    label_next = clause_precondition_label if self.preconditions is not None else clause_entry_label  # BUG, shall be preconditions if there are any
-                else:
-                    label_next = '{}_clause_{}_pattern_match_{}'.format(name, clause_idx, pm_count)
-
-                if isinstance(pattern, PatternMatchEmptyList):
-                    node_type = self.funk.emitter.get_node_type(arg)
-                    self.funk.emitter.br_cond('ne', node_type, funk_types.empty_array, clause_exit_label,
-                                              label_next)
-
-                elif isinstance(pattern, PatternMatchLiteral):
-                    label_match_literal_check_value = '{}_clause_{}_pattern_match_literal_check_value_{}'.format(
-                        name, clause_idx, pm_count)
-                    data_type = self.funk.emitter.get_node_data_type(arg)
-                    self.funk.emitter.br_cond('ne', data_type, pattern.type, clause_exit_label,
-                                              label_match_literal_check_value)
-
-                    self.funk.emitter.add_label(label_match_literal_check_value)
-                    value = self.funk.emitter.get_node_data_value(arg)
-                    self.funk.emitter.br_cond('ne', value, pattern.value, clause_exit_label, label_next)
-                elif isinstance(pattern, PatternMatchListOfIdentifiers):
-                    self.funk.emitter.add_comment(
-                        'Pattern match element against a list of {} elements '.format(len(pattern.elements)))
-                    node_len = self.funk.emitter.get_extended_len(arg)
-                    self.funk.emitter.print_funk(self.funk, [StringConstant(self.funk,'PatternMatchListOfIdentifiers, expected {} received'.format(len(pattern.elements))),
-                         StringConstant(self.funk, node_len)])
-                    val = self.funk.emitter.get_node_data_value(node_len)
-                    self.funk.emitter.br_cond('ne', len(pattern.elements), val, clause_exit_label, label_next)
-
-                else:
-                    raise Exception('Unsupported Pattern Match type')
-                if not last:
-                    self.funk.emitter.add_label(label_next)
-                pm_count += 1
-
-    def emit_preconditions(self,clause_idx, clause_precondition_label,clause_entry_label,clause_exit_label ):
-
-        if self.preconditions is not None:
-            self.funk.emitter.add_label(clause_precondition_label)
-            self.funk.emitter.add_comment('{}'.format(self.preconditions))
-            result = self.preconditions.eval()
-            self.funk.emitter.br_cond('eq', self.funk.emitter.get_node_data_value(result), 1, clause_entry_label,
-                                      clause_exit_label)
-        else:
-            self.funk.emitter.add_comment('clause {} has no preconditions'.format(clause_idx))
-
 
 class FunctionMap:
     def __init__(self, funk, name, arguments=None, tail_pairs=None, pattern_matches=None):
         if arguments is None:
             arguments = []
-        if tail_pairs is None:
-            tail_pairs = []
-        if pattern_matches is None:
-            pattern_matches = []
+        # if tail_pairs is None:
+        #     tail_pairs = []
+        # if pattern_matches is None:
+        #     pattern_matches = []
         self.funk = funk
         self.name = name
         self.arity = len(arguments)
@@ -1296,39 +1326,115 @@ class FunctionMap:
     def emit_function(self):
         self.clauses[0].funk.emitter.code += """
     struct tnode {fn_name}(int arity,  struct tnode * argument_list) {{
-        struct tnode retval;
-        funk_create_i32_scalar((arity > 0) ? get_pool_enum(argument_list[0].pool) : function_pool, &retval, -255);
+        struct tnode __retval__;
+        funk_create_i32_scalar((arity > 0) ? get_pool_enum(argument_list[0].pool) : function_pool, &__retval__, -255);
         """.format(fn_name=self.name)
 
         for clause in self.clauses:
+            pattern_match_auxiliary_variables = ''
+            pattern_matches = []
+            has_pattern_matches = clause.pattern_matches is not None and len(clause.pattern_matches) > 0
 
+            if self.name == 'next_board':
+                print('WWWW')
+
+            if has_pattern_matches:
+                for pm in clause.pattern_matches:
+                    i = pm.position
+                    if isinstance(pm, PatternMatchEmptyList):
+                        pattern_matches.append('(DATA(&argument_list[{i}],0)->type == type_empty_array)'.format(i=i))
+                    elif isinstance(pm, PatternMatchLiteral):
+                        if pm.type == funk_types.int:
+                            pattern_matches.append('DATA(&argument_list[{}],0)->data.i32 == {}'.format(i, pm.value))
+                        elif pm.type == funk_types.double:
+                            pattern_matches.append('DATA(&argument_list[{}],0)->data.d64 == {}'.format(i, pm.value))
+                    elif isinstance(pm,PatternMatchListOfIdentifiers):
+                        condition='__get_len(argument_list + {})=={}'.format(i,len(pm.elements))
+                        pattern_matches.append(condition)
+                        # this a list and it pattern matches elements from the list
+                        for j,element in enumerate(pm.elements):
+                            if isinstance(element,Identifier):
+                                pattern_match_auxiliary_variables += """
+                    struct tnode {name};
+                    funk_get_element_in_array(argument_list+{i},&{name},{j});
+                    """.format(name=element.name, i=i,j=j)
+                            if isinstance(element,IntegerConstant):
+
+
+                                condition ='funky_cmp_element_in_array_int(&argument_list[{i}], {j}, {val}) == 1'.format(i=i, j =j, val=element.eval())
+
+                                pattern_matches.append(condition)
+                    else:
+                        print('???')
+
+            pattern_matches_string = ''
+            if has_pattern_matches and len(pattern_matches) > 0:
+                pattern_matches_string = '&& {} // pattern matches'.format('&& '.join(str(e) for e in pattern_matches))
+
+
+
+            arity = len(clause.arguments)
+            # TODO: ERROR FIX THIS SHIT!
+            if self.name == 'next_board':
+                arity = len(clause.pattern_matches) + len(clause.arguments)
+
+            if len(clause.arguments) != 0 and len(clause.pattern_matches) != 0:
+                print('???')
+
+            if arity == 0 and clause.pattern_matches is not None:
+                arity = len(clause.pattern_matches)
+
+            tail_pair_check = ''
+            if False:#len(clause.tail_pairs) > 0:
+                tail_pair_check =  '&& '+'&& '.join(['(DATA(argument_list+{i},0)->type == type_array)'.format(i=clause.arguments.index(tail[0])) for tail in clause.tail_pairs])
             clause.funk.emitter.code += """
-        if (arity == {clause_arity}) {{
-            """.format(clause_arity=len(clause.arguments))
+        if (arity == {clause_arity}
+            {pattern_matches}
+            {tail_pair_check}
+            ) {{
+            {pattern_match_auxiliary_variables}
+            """.format(tail_pair_check=tail_pair_check, clause_arity=arity,pattern_matches=pattern_matches_string,pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
+
             for i, argument in enumerate(clause.arguments):
-                clause.funk.emitter.code += """
+                if argument != '_':
+                    clause.funk.emitter.code += """
         struct tnode {argument} = argument_list[{i}];   """.format(argument=argument, i=i)
 
+            for i, argument in enumerate(clause.tail_pairs):
+                anon = self.funk.emitter.create_anon()
+                clause.funk.emitter.code += """
+
+       struct tnode {prev_tail} = {head};
+       struct tnode {tail};
+       funk_create_empty_list_element(get_pool_enum({prev_tail}.pool), &{tail});
+
+       {head} = funky_pop_first(&{tail}, &{prev_tail}   ); //tail
+
+                     """.format(prev_tail=anon, head=argument[0], tail=argument[1])
+
             if clause.preconditions is not None:
+                self.funk.function_scope.args = clause.arguments
                 preconditions_result = clause.preconditions.eval()
                 clause.funk.emitter.code += """
             if (DATA(&{preconditions},0)->data.i32 == 1) {{
                     """.format(preconditions=preconditions_result)
 
+
+
             for stmt in clause.body[:-1]:
                 self.funk.emitter.add_comment(stmt)
                 stmt.eval()
 
-            clause.body[-1].eval(result='retval')
+            clause.body[-1].eval(result='__retval__')
 
             if clause.preconditions is not None:
                 clause.funk.emitter.code += """
-            return retval;
+            return __retval__;
             } //preconditions check
             """
             else:
                 clause.funk.emitter.code += """
-            return retval;
+            return __retval__;
             """
 
             clause.funk.emitter.code += """
@@ -1338,12 +1444,22 @@ class FunctionMap:
 
         self.funk.emitter.code += """
         // No clause was hit
-        printf(\"Error: {fn_name} could not function resolve overload\\n\");
-        return retval;
-        exit(1);
-
+        printf("No overload of function '{fn_name}' matches inputs:\\n");
+        for (int i = 0; i < arity; i++){{
+            funk_print_node(argument_list+i);
+            printf("\\n");
         }}
-            """.format(fn_name=self.name)
+        printf("\\n");
+        """.format(fn_name=self.name)
+
+
+
+        self.funk.emitter.code += """
+        exit(1);
+        return __retval__;
+
+        }
+            """
 
     def eval(self, result=None):
         scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs,
@@ -1357,61 +1473,6 @@ class FunctionMap:
             self.emit_function()
         return
 
-        scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs,
-                                                     empty=True)
-
-        self.funk.set_function_scope(scope_name)
-
-        # Now implement the function
-        self.funk.emitter.open_function(self.funk, self.name, len(self.arguments))
-
-        index = 0
-        for clause in self.clauses:
-
-            clause.funk.emitter.code += """
-        if (arity == {clause_arity}) {{
-            """.format(clause_arity=len(clause.arguments))
-            for i, argument in enumerate(clause.arguments):
-                clause.funk.emitter.code += """
-        struct tnode {argument} = argument_list[{i}];   """.format(argument=argument, i=i)
-
-            if clause.preconditions is not None:
-                preconditions_result = clause.preconditions.eval()
-                clause.funk.emitter.code += """
-            if (DATA(&{preconditions},0)->data.i32 == 1) {{
-                    """.format(preconditions=preconditions_result)
-
-            for stmt in clause.body:
-                stmt.eval()
-
-            if clause.preconditions is not None:
-                clause.funk.emitter.code += """
-            } //preconditions check
-                """
-
-            clause.funk.emitter.code += """
-          return; //exit the function from this clause
-        } //arity check
-                        """
-
-            self.funk.function_scope.clause_idx = index
-            clause.emit(index)
-            index += 1
-
-        if self.name not in ['main', 'sdl_render']:
-            # emit the default clause
-            # this is the clause that gets executed if nothing else matches
-            error_message = '\'ERROR could not find suitable pattern match for function {}/{}\''.format(self.name, len(self.arguments))
-            default_clause = FunctionClause(self.funk, name=self.clauses[0].name, preconditions=None, pattern_matches='*',
-                                            fn_body=[FunctionCall(self.funk, 'say', [String(self.funk, error_message)]),
-                                                     FunctionCall(self.funk,'exit', [])])
-            default_clause.emit(index)
-        #
-        self.funk.function_scope.clause_idx = 0
-
-        self.funk.emitter.close_function(self.funk.function_scope.name)
-
-        return scope_name
 
 
 class String(Expression):
@@ -1435,7 +1496,19 @@ class FunkNot(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        return self.funk.emitter.funk_not(self.funk, self.arg_list, result=result, pool=self.pool)
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+        struct tnode {result};
+            """.format(result=result)
+
+        src= self.arg_list[0].eval()
+
+        self.funk.emitter.code += """
+        {result} = funk_not(&{src});
+        """.format(result=result, src=src)
+
+        return result
 
 
 class FunkRoll(Expression):
@@ -1445,7 +1518,30 @@ class FunkRoll(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        return self.funk.emitter.funk_roll(self.funk, self.arg_list, result=result, pool=self.pool)
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+        struct tnode {result};
+            """.format(result=result)
+
+        src = self.arg_list[0].eval()
+
+        deltas = []
+        for delta in self.arg_list[1:]:
+            if isinstance(delta, IntegerConstant):
+                deltas.append(self.funk.emitter.alloc_tnode('anon', delta.eval(),
+                                                        funk_types.function_pool, funk_types.int))
+            else:
+                deltas.append(delta.eval())
+
+        # deltas = [ delta.eval() for delta in self.arg_list[1:]]
+
+        self.funk.emitter.code += """
+     struct tnode {anon}[] = {{ {deltas} }};
+    {result} = funk_roll(  &{src}, {anon}, {delta_count});
+        """.format(anon=self.funk.emitter.create_anon(), result=result, src=src, deltas=', '.join(str(e) for e in deltas), delta_count=len(deltas))
+
+        return result
 
 
 class FunkSum(Expression):
@@ -1465,8 +1561,17 @@ class Flatten(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+        struct tnode {result};
+            """.format(result=result)
 
-        return self.funk.emitter.flatten(self.funk, self.arg_list, result=result)
+        src = self.arg_list[0].eval()
+        self.funk.emitter.code += """
+        funk_flatten(&{result}, &{src});
+        """.format(result=result, src=src)
+        return result
 
 
 class Len(Expression):

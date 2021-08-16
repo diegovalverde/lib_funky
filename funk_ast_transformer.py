@@ -328,12 +328,16 @@ class TreeToAst(Transformer):
             return token[0]
 
     def action_include_external_function(self, token):
-        functions = remove_invalid(flatten(token))
-
-        for fn in functions:
-            fn_symbol = '@{}'.format(fn.name)
+        Identifiers = remove_invalid(flatten(token))
+        functions =[]
+        for fn in Identifiers:
+            function = fn.name
+            functions.append(function)
+            fn_symbol = '@{}'.format(function)
             self.funk.functions.append(fn_symbol)
             self.funk.symbol_table[fn_symbol] = funk_ast.ExternalFunction(self.funk, fn_symbol)
+
+        return funk_ast.Include(self.funk, functions)
 
     def more_extern_funcs(self, token):
         return token
@@ -444,12 +448,14 @@ class TreeToAst(Transformer):
 
     def action_indexed_array(self, tokens):
         tokens = flatten(tokens)
-        if len(tokens) >= 3 and isinstance(tokens[2], funk_ast.Range):
-            tokens[2].left = tokens[1]
-            tokens.pop(1)
 
-        tokens[0].indexes = tokens[1:]
-        return tokens[0]
+        variable = tokens.pop(0)
+        if len(tokens) >= 2 and isinstance(tokens[1], funk_ast.Range) and tokens[1].left is None:
+            tokens[1].left = tokens[0]
+            tokens.pop(0)
+
+        variable.indexes = tokens
+        return variable
 
     def action_sign_negative(self, token):
         return -1
@@ -502,7 +508,7 @@ class TreeToAst(Transformer):
 
         return [self.bin_op(tokens[0], funk_ast.Range)] + tokens[1:]
 
-    def action_foo(self, tokens):
+    def action_comma_separated_list_element(self, tokens):
         tokens = flatten(tokens)
         if len(tokens) < 2:
             return tokens

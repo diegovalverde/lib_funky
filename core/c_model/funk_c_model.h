@@ -136,6 +136,11 @@ void funk_sub_rr(struct tnode *r, struct tnode *a, struct tnode *b);
 enum pool_types get_pool_enum(struct tpool *pool) ;
 void funk_add_ri(struct tnode *node_r, struct tnode *node_a, int value);
 void funk_div_ri(struct tnode *node_r, struct tnode *node_a, int value) ;
+void funk_sub_ri(struct tnode *node_r, struct tnode *node_a, int value);
+void funk_slt_ri(struct tnode *node_r, struct tnode *node_a, int value) ;
+void funk_eq_ri(struct tnode *node_r, struct tnode *node_a, int value);
+void funk_sgt_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funk_slt_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
 
 typedef struct tnode (*FunkyFunctionPointer)(int, struct tnode *);
 
@@ -145,10 +150,41 @@ void funk_create_node(struct tnode *dst, uint32_t data_len,
 
 uint32_t _copy_node_to_pool(struct tnode *src);
 int _funk_sum_list(struct tnode *src);
-
+void funk_prepend_element_to_list(struct tnode *dst, struct tnode *L,
+                                  struct tnode *R);
 void funk_create_sub_array_lit_indexes(struct tnode *src, struct tnode *dst,
                                        int32_t c1, int32_t c2);
 
 void funk_create_sub_array(struct tnode *src, struct tnode *dst,
                            struct tnode *i, struct tnode *j);
+
+struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end);
+
+struct tnode funky_pop_first(struct tnode *dst, struct tnode *src);
+void funk_copy_first_element_from_list(struct tnode *dst, struct tnode *src);
+
+struct tnode funk_concatenate_lists(struct tnode *L,
+                            struct tnode *R);
+
+int  funky_cmp_element_in_array_int(struct tnode *src, int idx, int value) ;
+
+struct tnode funk_roll( struct tnode *src, struct tnode *deltas,
+               uint32_t delta_count);
+
+struct tnode funk_not(struct tnode *src);
+
+struct tnode funk_append_element_to_list(struct tnode *L,
+                                 struct tnode *R);
+
+void funk_flatten(struct tnode *dst, struct tnode *src);
+void funk_add_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funk_sgt_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funk_sge_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funk_and_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funk_eq_ri(struct tnode *node_r, struct tnode *node_a, int value) ;
+void funk_eq_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funky_print_type(struct tnode n);
+
+int __get_len(struct tnode *src);
+
 #endif

@@ -71,7 +71,7 @@ class Emitter(funky_emitter.Emitter):
         {data_type} {name} = \{{list}\};
         funk_create_list_{data_type}_literal({pool}, {result}, {name},  {n});
 
-        """.format( pool=pool, n=len(lit_list),  result=result, name=name, lit_list=', '.join(str(e) for e in lit_list), data_type=funk_types.to_str[as_type])
+            """.format( pool=pool, n=len(lit_list),  result=result, name=name, lit_list=', '.join(str(e) for e in lit_list), data_type=funk_types.to_str[as_type])
 
         return result
 
@@ -79,9 +79,9 @@ class Emitter(funky_emitter.Emitter):
         if result is None:
             result = self.create_anon()
 
-        self.code += """
-        struct tnode {result};
-        """.format(result=result)
+            self.code += """
+            struct tnode {result};
+            """.format(result=result)
 
         anon=self.create_anon()
 
@@ -124,7 +124,10 @@ class Emitter(funky_emitter.Emitter):
         struct tnode {result};
         """.format(result=result)
 
-        i = index.eval()
+        if isinstance(index,funk_ast.IntegerConstant):
+            i = index.eval()
+        else:
+            i = 'DATA(&{index},0)->data.i32'.format(index=index.eval())
 
         self.code += """
         funk_get_element_in_array(&{node}, &{result}, {i});
@@ -156,8 +159,8 @@ class Emitter(funky_emitter.Emitter):
         if result is None:
             result = self.create_anon()
 
-        self.code += """
-        struct tnode {result};""".format(result=result)
+            self.code += """
+            struct tnode {result};""".format(result=result)
 
         if isinstance(a, int):
             self.code += """
@@ -199,13 +202,16 @@ class Emitter(funky_emitter.Emitter):
 
     def call_function(self, funk, name, arguments, result):
         anon = self.create_anon()
+        declare = ''
         if result is None:
             result = self.create_anon()
+            declare = 'struct tnode'
 
         self.code += """
         struct tnode {anon}[] = {{ {arg_list} }};
-        struct tnode {result} = {name}({arity}, {anon});
-                 """.format(anon=anon, name=name, arg_list=', '.join(str(e) for e in arguments),  arity=len(arguments), result=result)
+        {declare} {result} = {name}({arity}, {anon});
+                 """.format(anon=anon, declare=declare, name=name, arg_list=', '.join(str(e) for e in arguments),  arity=len(arguments), result=result)
+
         return result
 
     def funk_summation_function(self, funk, arguments, result, pool):
@@ -257,5 +263,17 @@ class Emitter(funky_emitter.Emitter):
        funk_create_i32_scalar(function_pool, &{anon}, {val});
        funk_create_sub_array(&{src}, &{result}, &{i}, &{anon});
        """.format(src=src, result=result, i=i, val=val, anon=anon)
+        else:
+            val1 = c1.eval()
+            val2 = c2.eval()
+            anon1 = self.create_anon()
+            anon2 = self.create_anon()
+            self.code += """
+       struct tnode {anon1};
+       struct tnode {anon2};
+       funk_create_i32_scalar(function_pool, &{anon1}, DATA(&{val1},0)->data.i32);
+       funk_create_i32_scalar(function_pool, &{anon2}, DATA(&{val2},0)->data.i32);
+       funk_create_sub_array(&{src}, &{result}, &{anon1}, &{anon2});
+       """.format(src=src, result=result, val1=val1, val2=val2, anon1=anon1, anon2=anon2)
 
         return result
