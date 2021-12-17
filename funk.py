@@ -206,7 +206,6 @@ class Funk:
 
                 ast_generator.function_map[fn].eval()
 
-            print('-I- Success')
 
         except Exception as e:
             print('ERROR!!!!')

@@ -972,7 +972,7 @@ class Assignment(BinaryOp):
         self.funk.emitter.code += """
         struct tnode {};
         """.format(self.left.name);
-        print(self.right)
+       
         self.right.eval(result=self.left.name)
         #create_ast_named_symbol(name, self.funk, self.right, self.pool)
 
