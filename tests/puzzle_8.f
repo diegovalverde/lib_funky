@@ -128,7 +128,7 @@ get_children([]): [].
             0 <= k < len(new_pos)  ]
 
         say('next_boards', next_boards)
-        exit()
+        
         idx <- unexplored(next_boards, prev_boards ,0)
 
         children <- [[next_boards[ idx[k] ],

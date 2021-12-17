@@ -36,7 +36,18 @@ say('===== test sort =======')
       assert(sort([ 1, -2, 0, 2, -1]), [-2, -1, 0, 1, 2])
       assert(sort([ 0, -1, 1, 2, -2]), [-2, -1, 0, 1, 2])
 
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
+      say(' ')
       
+      say('lllll', sum([[1,1,1]]))
       say('sorted is:', sort([[1,1,1,1], [1], [1,1,1], [1,1] ], custom_comparator))
       exit()
 

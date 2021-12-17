@@ -398,63 +398,6 @@ class Identifier:
 
         return string
 
-    def emit_indexed_range_helper(self, node_array, idx, result):
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-            struct tnode {anon};
-            """.format(anon=result)
-
-        right = idx.right.eval()
-        left = idx.left.eval()
-
-        if not isinstance(idx.left, IntegerConstant):
-            left = 'DATA(&{},0)->data.i32'.format(left)
-
-        if not isinstance(idx.right, IntegerConstant):
-            right = 'DATA(&{},0)->data.i32'.format(right)
-
-        """
-        struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end){
-         struct tnode result;
-
-            if (level == 0){
-                funk_create_sub_array_lit_indexes(node, &result, start, end);
-                return result;
-            }
-
-            int len = *end - *start;
-            struct tnode new_array[len];
-            for (int i = start; i < end; i++){
-                struct tnode element;
-                funk_get_element_in_array(&element, &node, i);
-                new_array[i] = funky_get_element_range( level - 1, &element, start+1, end+1);
-            }
-
-            funk_create_list_of_regs(&result, new_array, len);
-            return result;
-        }
-        """
-        self.funk.emitter.code += """
-            {{ //anonymous scope
-                int start = {idx_left};
-                int end = {idx_right};
-
-                struct tnode new_array[{node_array}.len];
-                for (int i = 0; i < {node_array}.len; i++)
-                {{
-                    struct tnode original_element;
-                    funk_get_element_in_array(&{node_array}, &original_element, i);
-
-                    funk_create_sub_array_lit_indexes(&original_element, &(new_array[i]), start, end);
-                }}
-                struct tnode result;
-                funk_create_list_of_regs(&{result}, new_array, {node_array}.len);
-            }} //anonymous scope
-            """.format(node_array=node_array, result=result, idx_left=left, idx_right=right)
-
-        return result
-
     def index_emit_helper(self, node, indexes, result):
         if result is None:
             result = self.funk.emitter.create_anon()
@@ -464,8 +407,10 @@ class Identifier:
 
         list_start = []
         list_end = []
+        list_is_range_type = []
         for idx in indexes:
             if isinstance(idx, Range):
+                list_is_range_type.append(1)
                 if isinstance(idx.left, IntegerConstant):
                     list_start.append(idx.left.eval())
                 else:
@@ -476,66 +421,32 @@ class Identifier:
                 else:
                     list_end.append('DATA(&{},0)->data.i32'.format(idx.right.eval()))
             elif isinstance(idx, IntegerConstant):
+                list_is_range_type.append(0)
                 list_start.append(idx.eval())
                 list_end.append(idx.eval())
             else:
+                list_is_range_type.append(0)
                 list_start.append('DATA(&{},0)->data.i32'.format(idx.eval()))
                 list_end.append('DATA(&{},0)->data.i32'.format(idx.eval()))
-
 
         self.funk.emitter.code += """
         {{
             int start[] = {{ {list_start} }};
             int end[] = {{ {list_end} }};
+            int is_range[] = {{ {list_is_range} }};
+             // note that the ranges operate recursively
+             // this allows doing things like sliding windows
+             // for example: M[n..m, n..m] is a rectangular
+             // window into a matrix
 
-             {result} = funky_get_element_range({depth}, &{node}, start, end);
+             {result} = funky_get_element_range({depth}, &{node}, start, end, is_range);
         }}
         """.format(list_start=', '.join(str(e) for e in list_start),
                    list_end=', '.join(str(e) for e in list_end),
-                   depth=len(indexes), node=node, result=result)
+                   depth=len(indexes), node=node, result=result,
+                   list_is_range=', '.join(str(e) for e in list_is_range_type))
 
-        return result;
-
-
-        if len(indexes) == 0:
-            return node
-
-        idx = indexes.pop()
-        if isinstance(idx, Range):
-
-            self.funk.emitter.code += """
-            funky_get_element_range({depth}, &{node}, start, end)
-            """.format(depth=len(indexes)+1, node=node)
-
-            node_list = self.index_emit_helper(node, indexes, result)
-            anon_next = self.funk.emitter.create_anon()
-            anon=self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-            struct tnode {result};
-            if (DATA(&{node},0)->type == type_array){{
-                struct tnode new_array[{node}.len];
-                for (int i = 0; i < {node}.len; i++)
-                {{
-                    struct tnode original_element;
-                    funk_get_element_in_array(&{node}, &original_element, i);
-
-                    funk_create_sub_array_lit_indexes(&original_element, &(new_array[i]), {start}, {end});
-                }}
-                funk_create_list_of_regs(&{result}, new_array, {node}.len);
-            }} else {{
-                funk_create_sub_array_lit_indexes(&{node}, &{result}, {start}, {end});
-            }}
-            """.format(node=node_list,result=anon_next, anon=anon, start=idx.right.eval(), end=idx.left.eval() )
-
-            #return self.emit_indexed_range_helper(anon_next, idx, result=result)
-            return self.index_emit_helper(anon_next, indexes, result=result)
-            # L[i .. j]
-            return self.funk.emitter.create_sub_array(self.index_emit_helper(node, idx, result), c1=idx.left,
-                                                      c2=idx.right, result=result)
-        else:
-            # L[i]
-            return self.funk.emitter.get_element_in_array(self.index_emit_helper(node, indexes, result), idx,
-                                                          result=result)
+        return result
 
     def eval_node_index(self,node,result=None):
 
@@ -972,7 +883,7 @@ class Assignment(BinaryOp):
         self.funk.emitter.code += """
         struct tnode {};
         """.format(self.left.name);
-       
+
         self.right.eval(result=self.left.name)
         #create_ast_named_symbol(name, self.funk, self.right, self.pool)
 
@@ -1335,8 +1246,6 @@ class FunctionMap:
             pattern_matches = []
             has_pattern_matches = clause.pattern_matches is not None and len(clause.pattern_matches) > 0
 
-            if self.name == 'next_board':
-                print('WWWW')
 
             if has_pattern_matches:
                 for pm in clause.pattern_matches:
@@ -1364,8 +1273,7 @@ class FunctionMap:
                                 condition ='funky_cmp_element_in_array_int(&argument_list[{i}], {j}, {val}) == 1'.format(i=i, j =j, val=element.eval())
 
                                 pattern_matches.append(condition)
-                    else:
-                        print('???')
+
 
             pattern_matches_string = ''
             if has_pattern_matches and len(pattern_matches) > 0:
@@ -1377,9 +1285,6 @@ class FunctionMap:
             # TODO: ERROR FIX THIS SHIT!
             if self.name == 'next_board':
                 arity = len(clause.pattern_matches) + len(clause.arguments)
-
-            if len(clause.arguments) != 0 and len(clause.pattern_matches) != 0:
-                print('???')
 
             if arity == 0 and clause.pattern_matches is not None:
                 arity = len(clause.pattern_matches)

@@ -549,7 +549,7 @@ int arr[r*c];
 
 for (int i = 0; i < r; i++) {
   struct tnode src_row;
-  
+
   funk_get_element_in_array(src, &src_row,i);
 
   for (int j = 0; j < c; j++) {
@@ -576,7 +576,7 @@ for (int i = 0; i < r; i++){
   for (int j = 0; j < c; j++){
     funk_create_i32_scalar(get_pool_enum(src->pool), row+j, *(arr + c*i + j));
   }
-  
+
   funk_create_list_of_regs(reg_rows + i, row,r);
 }
 funk_create_list_of_regs(&dst, reg_rows, r);
@@ -591,14 +591,14 @@ struct tnode funk_not(struct tnode *src) {
 struct tnode dst;
 
     if (DATA(src,0)->type == type_array){
-      int len = __get_len(src);      
+      int len = __get_len(src);
       struct tnode elements[len];
       for (uint32_t i = 0; i < len; i++) {
         struct tnode element = funky_get_element_in_array(src,i);
         elements[i] = funk_not(&element);
       }
      funk_create_list_of_regs(&dst,elements,len);
-      
+
     } else {
         funk_create_node(&dst, 1,
                   get_pool_enum (src->pool),
@@ -607,13 +607,16 @@ struct tnode dst;
         DATA(&dst, 0)->data.i32 =
         (DATA(src, 0)->data.i32 == 0) ? 1 : 0;
     }
-  
+
 return dst;
 
 }
 
 int _funk_sum_list(struct tnode *src) {
   TRACE("START");
+
+  printf("caca\n");
+  funk_print_node(src);
   int total = 0;
   if (DATA(src,0)->type != type_array){
     printf("Not a list");
@@ -626,7 +629,7 @@ int _funk_sum_list(struct tnode *src) {
     } else {
       total += DATA(&tmp,0)->data.i32;
     }
-    
+
 
   }
 
@@ -683,7 +686,7 @@ void funk_get_element_in_matrix_ptr(struct tnode *src, struct tnode *dst,
 
   DEREF(&tmp, src, idx_0);
 
-  
+
   idx_1 = (idx_1 < 0) ? tmp.len + idx_1 : idx_1;
   idx_1 %= tmp.len;
 
@@ -795,11 +798,11 @@ int  funky_cmp_element_in_array_int(struct tnode *src, int idx, int value) {
     struct tnode node_array;
     int pool_idx =  DATA(src, 0)->data.i32;
     _extract_tnode_from_pool(&node_array, pool_idx, src->pool);
-    
+
     // negative indexes allow getting last elemets like in python
     idx = (idx < 0) ? node_array.len + idx : idx;
     idx %= MAX(1,node_array.len);
-  
+
 
     struct tnode node;
     dst.start = node_array.start + idx;
@@ -807,7 +810,7 @@ int  funky_cmp_element_in_array_int(struct tnode *src, int idx, int value) {
     if  (DATA(&node_array, idx)->type == type_i32) {
       return (DATA(&node_array, idx)->data.i32 == value) ? 1 : 0;
     }
-    
+
     return 0;
 }
 
@@ -826,14 +829,14 @@ struct tnode funky_get_element_in_array(struct tnode *src, int idx)
     }
 
     // negative indexes allow getting last elemets like in python
-    
+
     struct tnode node_array;
     int pool_idx =  DATA(src, 0)->data.i32;
     _extract_tnode_from_pool(&node_array, pool_idx, src->pool);
 
     idx = (idx < 0) ? node_array.len + idx : idx;
     idx %= MAX(1,node_array.len);
-  
+
 
     struct tnode node;
     dst.start = node_array.start + idx;
@@ -848,7 +851,7 @@ struct tnode funky_get_element_in_array(struct tnode *src, int idx)
         dst.len = 0;
         break;
       case type_array:
-      { 
+      {
         int node_entry_idx = DATA(&node_array, idx)->data.i32;
         dst.len = node_array.pool->data[(node_entry_idx+1) % FUNK_MAX_POOL_SIZE].data.i32;
       }
@@ -859,12 +862,12 @@ struct tnode funky_get_element_in_array(struct tnode *src, int idx)
       default:
         ERROR("wtf");
     }
-     
+
     dst.pool = src->pool;
     dst.dimension.ptr_idx = 0;
     dst.dimension.count = 0;
     return dst;
-  
+
 }
 
 void funk_get_element_in_array(struct tnode *src, struct tnode *dst, int idx) {
@@ -879,14 +882,14 @@ void funk_get_element_in_array(struct tnode *src, struct tnode *dst, int idx) {
     }
 
     // negative indexes allow getting last elemets like in python
-    
+
     struct tnode node_array;
     int pool_idx =  DATA(src, 0)->data.i32;
     _extract_tnode_from_pool(&node_array, pool_idx, src->pool);
 
     idx = (idx < 0) ? node_array.len + idx : idx;
     idx %= MAX(1,node_array.len);
-  
+
 
     struct tnode node;
     dst->start = node_array.start + idx;
@@ -901,7 +904,7 @@ void funk_get_element_in_array(struct tnode *src, struct tnode *dst, int idx) {
         dst->len = 0;
         break;
       case type_array:
-      { 
+      {
         int node_entry_idx = DATA(&node_array, idx)->data.i32;
         dst->len = node_array.pool->data[(node_entry_idx+1) % FUNK_MAX_POOL_SIZE].data.i32;
       }
@@ -912,11 +915,11 @@ void funk_get_element_in_array(struct tnode *src, struct tnode *dst, int idx) {
       default:
         ERROR("wtf");
     }
-     
+
     dst->pool = src->pool;
     dst->dimension.ptr_idx = 0;
     dst->dimension.count = 0;
-  
+
 }
 
 void funk_get_element_in_array_var(struct tnode *src, struct tnode *dst,
@@ -1465,7 +1468,7 @@ void funk_arith_op_rr(struct tnode *r, struct tnode *a, struct tnode *b,
     funk_copy_node(r,b);
     return;
   }*/
-  
+
   if (LEN(a) != LEN(b)) {
     ERROR("length mismatch");
     printf("'%s' length mismatch %d != %d !\n", __FUNCTION__, LEN(a), LEN(b));
@@ -1480,33 +1483,33 @@ void funk_arith_op_rr(struct tnode *r, struct tnode *a, struct tnode *b,
     _funk_arith_op_rr(r, 0, a, b, f);
     return;
   }
-  
+
   funk_create_node(r, LEN(a), get_pool_enum(a->pool), type_array, 0, NULL);
 
   struct tnode node;
   struct tnode list_of_regs[LEN(a)];
 
   for (uint32_t i = 0; i < LEN(a); i++) {
-    
+
 
     struct tnode tmp_a, tmp_b;
     funk_get_element_in_array(a, &tmp_a, i);
     funk_get_element_in_array(b, &tmp_b, i);
 
-      if (tmp_a.len != 1 || tmp_a.len != 1) {
+      if (DATA(&tmp_a,0 )->type == type_array || DATA(&tmp_b, 0)->type == type_array) {
         struct tnode row;
         funk_create_node(list_of_regs+i, tmp_a.len, get_pool_enum(a->pool), type_i32, 0, NULL);
         funk_arith_op_rr(list_of_regs+i, &tmp_a, &tmp_b,f);
-        
+
       } else {
         funk_create_node(list_of_regs+i, 1, get_pool_enum(a->pool), type_i32, 0, NULL);
         _funk_arith_op_rr(list_of_regs+i, 0, &tmp_a, &tmp_b, f);
       }
-    
-    } 
+
+    }
     funk_create_list_of_regs(r,list_of_regs,LEN(a));
 
-  
+
 }
 
 void funk_mul_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
@@ -1557,13 +1560,17 @@ void funk_ne_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
 
   TRACE("start");
   funk_eq_rr(r, a, b);
-  DATA(r,0)->data.i32 = (DATA(r,0)->data.i32 == 0) ? 1 : 0; 
+  DATA(r,0)->data.i32 = (DATA(r,0)->data.i32 == 0) ? 1 : 0;
 }
 
 void funk_eq_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
 
   TRACE("start");
   struct tnode tmp1;
+  if (a->len > 0 && b->len >0 && a->len != b->len){
+    funk_create_node(r, 1, get_pool_enum(a->pool), type_i32, 0, NULL);
+    return;
+  }
   funk_arith_op_rr(&tmp1, a, b, funk_eq);
   struct tnode tmp2;
   funk_flatten(&tmp2, &tmp1);
@@ -1736,7 +1743,7 @@ void funky_print_node(struct tnode src ){
        int pool_idx =  DATA(&src, 0)->data.i32;
        _extract_tnode_from_pool(&node_array, pool_idx, src.pool);
        printf("[");
-       
+
        for (int j = 0; j < node_array.len; j++){
          struct tnode tmp;
          tmp.start = node_array.start + j;
@@ -1757,7 +1764,7 @@ void funky_print_node(struct tnode src ){
     default:
       for (uint32_t i = 0; i < src.len; i++) {
         funk_print_scalar_element(*DATA(&src, i));
-        
+
       }
   }
    fflush(stdout);
@@ -1765,7 +1772,7 @@ void funky_print_node(struct tnode src ){
 
 void __funk_print_node(struct tnode n_) {
   funky_print_node(n_);
-  
+
 }
 
 void funk_print_node(struct tnode * n){
@@ -1877,7 +1884,7 @@ void funk_create_sub_matrix_lit_indexes(struct tnode *src, struct tnode *dst,
     //  printf("src->len = %d idx_i = %d\n", src->len, idx_i);
     struct tnode current_row;
     funk_get_element_in_array(src, &current_row, idx_i);
-    
+
 
     struct tnode new_column;
     funk_create_node(&new_column, m, pool, type_pointer_to_pool_entry, 0, NULL);
@@ -1959,7 +1966,7 @@ uint32_t _funk_set_node_dimensions(struct tnode *src, enum pool_types pool,
                                    uint32_t dim_count, uint32_t offset) {
   TRACE("start");
   struct tnode new_column;
-  
+
   uint32_t n = dimensions[dim];
   // printf("\nLEN %d offset %d, n = %d dim = %d\n\n", LEN(src), offset, n,
   // dim);
@@ -1994,9 +2001,9 @@ void _extract_tnode_from_pool(struct tnode *dst, uint32_t start,
   dst->dimension.ptr_idx = pool->data[(start + 3) % FUNK_MAX_POOL_SIZE].data.i32;
 }
 void _flatten(struct tnode *dst, struct tnode *src, uint32_t offset) {
-  
+
   if (DATA(src,0)->type == type_array){
-     
+
     for (uint32_t i = 0; i < LEN(src); i++) {
       struct tnode row;
       funk_get_element_in_array(src, &row, i);
@@ -2021,7 +2028,7 @@ if (DATA(src,0)->type != type_array){
   dst->len= src->len;
   return;
 }
- 
+
   struct tnode row;
   struct tnode node;
   funk_create_node(&node, 1, get_pool_enum(src->pool), type_array, 0, NULL);
@@ -2035,13 +2042,13 @@ if (DATA(src,0)->type != type_array){
     offset = node.len-1;
   }
   node.len--;
-   
+
   funk_create_node(dst, 0, get_pool_enum(src->pool), type_array, 0, NULL);
   DATA(dst, 0)->data.i32 = _copy_node_to_pool(&node);
   dst->len = node.len;
-  
-  
-  
+
+
+
 }
 
 void funk_set_node_dimensions(struct tnode *dst, uint32_t *dimensions,
@@ -2095,47 +2102,55 @@ void funky_print_type(struct tnode n){
 struct tnode funky_pop_first(struct tnode *dst, struct tnode *src){
   //create dst outside of fn
   if (DATA(src,0)->type == type_i32 && src->len == 1){
-    
+
     return *src;
   } else if (DATA(src,0)->type == type_array && src->len >= 1){
-   
-    // create a new node to honor the read-only proporties
+
+    // create a new node to honor the read-only properties
     // of the pool
+    struct tnode node_regs[src->len];
+    for (int i = 0; i < src->len; i++){
+      node_regs[i] = funky_get_element_in_array(src,i);
+    }
+
+    struct tnode ret_val = node_regs[0];
+    if (src->len > 1){
+      funk_create_list_of_regs(dst,node_regs+1,src->len-1);
+    } else {
+      funk_create_node(dst, 1, function_pool, type_empty_array, 0, NULL);
+    }
+
+
+/*
     struct tnode new_node;
     _extract_tnode_from_pool(&new_node, DATA(src,0)->data.i32,src->pool);
-    struct tnode ret_val;
-     ret_val.start = new_node.start;
-     ret_val.pool = new_node.pool;
-
-     if (DATA(&ret_val,0)->type != type_array)
-        ret_val.len =  1;
+    struct tnode ret_val = funky_get_element_in_array(src,0);
 
     new_node.len--;
     new_node.start = ((new_node.start + 1) % FUNK_MAX_POOL_SIZE);
 
-    
+
     DATA_NO_CHECK(dst, 0)->data.i32 = _copy_node_to_pool(&new_node);
     dst->len = src->len-1;
      DATA(dst,0)->type = (new_node.len <= 0) ? type_empty_array: type_array;
-    // if (dst->len == 0){
-    //   DATA_NO_CHECK(dst, 0)->type = type_empty_array;
-    // } else {
-    //   DATA(dst,0)->type = type_array;
-    // }
 
+
+  printf("WWWWWWWW{\n");
+  funk_print_node(&ret_val);
+  printf("}WWWWWWWW\n");*/
     return ret_val;
-    
+
   } else if (DATA(src,0)->type == type_empty_array){
     return *src;
   } else {
     struct tnode ret_val;
     ret_val.pool = src->pool;
-    printf("%s %d\n",__FUNCTION__,__LINE__);
+
     ret_val.len = 0;
     DATA(&ret_val,0)->type = type_empty_array;
     return ret_val;
   }
-  
+
 }
 /**
   [A] <~ e
@@ -2227,14 +2242,14 @@ void funk_prepend_element_to_list(struct tnode *dst, struct tnode *L,
 
     DATA(&node, k)->type = DATA(&tmp, 0)->type;
     DATA(&node, k)->data = DATA(&tmp, 0)->data;
-    
-   
+
+
     k++;
   }
 
   struct tnode ptr;
   funk_create_node(&ptr,1,get_pool_enum(L->pool), type_pointer_to_pool_entry, 0, NULL);
-  
+
   DATA_NO_CHECK(dst, 0)->data.i32 = _copy_node_to_pool(&node);
  // DATA_NO_CHECK(dst, 0)->data.i32 = (ptr.start % FUNK_MAX_POOL_SIZE);
   DATA_NO_CHECK(dst, 0)->type = type_array;
@@ -2252,7 +2267,7 @@ void funk_copy_first_element_from_list(struct tnode *dst, struct tnode *src){
 
   struct tnode tmp;
   funk_get_element_in_array(src,&tmp, 0);
-  
+
 
   if (0){//tmp.len > 1){
     DATA_NO_CHECK(dst, 0)->type = type_pointer_to_pool_entry;
@@ -2280,19 +2295,19 @@ struct tnode funk_concatenate_lists(struct tnode *L,
   if (DATA(L, 0)->type == type_empty_array &&
       DATA(R, 0)->type == type_empty_array) {
     funk_create_node(&dst, 1, get_pool_enum(L->pool), type_empty_array, 0, NULL);
-    
+
     return dst;
   }
 
   if (DATA(R, 0)->type == type_empty_array) {
         funk_copy_node(&dst, L);
-    
+
         return dst;
   }
 
   if (DATA(L, 0)->type == type_empty_array ) {
     funk_copy_node(&dst, R);
-    
+
     return dst;
   }
 
@@ -2303,7 +2318,7 @@ struct tnode funk_concatenate_lists(struct tnode *L,
                    get_pool_enum(L->pool), type_array, 0, NULL);
 
   uint32_t k = 0;
-  
+
   for (uint32_t i = 0; i < LEN(L); i++) {
     struct tnode tmp;
     funk_get_element_in_array(L , &tmp, i);
@@ -2332,7 +2347,7 @@ struct tnode funk_concatenate_lists(struct tnode *L,
   DATA_NO_CHECK(&dst, 0)->data.i32 = _copy_node_to_pool(&node);
   dst.len = node.len;
 
-  
+
   return dst;
 }
 
@@ -2381,48 +2396,31 @@ struct tnode *funk_alloc_list_of_tnodes(struct tnode *reg_len) {
 }
 
 
-struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end){
+struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end, int * is_range){
          struct tnode result;
 
             if (level-1 == 0){
-                if (*start != *end)
+                if (*is_range == 1)
                   funk_create_sub_array_lit_indexes(node, &result, *start, *end);
                 else
                   funk_get_element_in_array(node, &result, *start);
                 return result;
             }
-#if 1
-            if (*start == *end){
+
+            if (*is_range == 0){
               struct tnode new_array;
               funk_get_element_in_array(node, &new_array, *start);
-              return funky_get_element_range( level - 1, &new_array, start+1, end+1);
+              return funky_get_element_range( level - 1, &new_array, start+1, end+1, is_range+1);
             } else {
               int len = (*end - *start)+1;
               struct tnode new_array[len];
               for (int i = 0; i < len; i++){
                   struct tnode element;
                   funk_get_element_in_array(node, &element, *start + i);
-                  new_array[i] = funky_get_element_range( level - 1, &element, start+1, end+1);
+                  new_array[i] = funky_get_element_range( level - 1, &element, start+1, end+1, is_range+1);
               }
               funk_create_list_of_regs(&result, new_array, len);
             }
-            
-            return result;
-#else          
 
-              int len = (*end - *start)+1;
-              struct tnode new_array[len];
-
-            
-              
-              for (int i = 0; i < len; i++){
-                  struct tnode element;
-                  funk_get_element_in_array(node, &element, *start + i);
-                  new_array[i] = funky_get_element_range( level - 1, &element, start+1, end+1);
-              }
-              
-            
-            funk_create_list_of_regs(&result, new_array, len);
             return result;
-            #endif
         }

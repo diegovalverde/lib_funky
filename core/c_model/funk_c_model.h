@@ -158,7 +158,7 @@ void funk_create_sub_array_lit_indexes(struct tnode *src, struct tnode *dst,
 void funk_create_sub_array(struct tnode *src, struct tnode *dst,
                            struct tnode *i, struct tnode *j);
 
-struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end);
+struct tnode funky_get_element_range(unsigned int level, struct tnode * node, int * start, int * end, int * is_range);
 
 struct tnode funky_pop_first(struct tnode *dst, struct tnode *src);
 void funk_copy_first_element_from_list(struct tnode *dst, struct tnode *src);

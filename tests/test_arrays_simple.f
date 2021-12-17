@@ -26,6 +26,7 @@ test_arrays_simple():
     assert( b[2], [3,3,3] )
 
     assert( b[0..0], [[1]] )
+    assert( b[1..-1], [[2,2], [3,3,3]] )
     assert( b[0..1], [[1], [2,2]] )
 
     assert(b[1,0],2)
