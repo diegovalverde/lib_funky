@@ -1,6 +1,6 @@
 use sort, assert, arr_eq
 
-custom_comparator(a,b | sum(a) >= sum(b)): 1.
+custom_comparator(a,b | sum(a) < sum(b)): 1.
 custom_comparator(_,_): 0.
 
 test_sort():
@@ -36,20 +36,8 @@ say('===== test sort =======')
       assert(sort([ 1, -2, 0, 2, -1]), [-2, -1, 0, 1, 2])
       assert(sort([ 0, -1, 1, 2, -2]), [-2, -1, 0, 1, 2])
 
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
-      say(' ')
+      assert(sort([[1,1,1,1], [1], [1,1,1], [1,1] ], custom_comparator), [[1],[1,1], [1,1,1], [1,1,1,1]])
       
-      say('lllll', sum([[1,1,1]]))
-      say('sorted is:', sort([[1,1,1,1], [1], [1,1,1], [1,1] ], custom_comparator))
-      exit()
 
 
 1.

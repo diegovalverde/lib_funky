@@ -1246,7 +1246,6 @@ class FunctionMap:
             pattern_matches = []
             has_pattern_matches = clause.pattern_matches is not None and len(clause.pattern_matches) > 0
 
-
             if has_pattern_matches:
                 for pm in clause.pattern_matches:
                     i = pm.position
@@ -1274,12 +1273,9 @@ class FunctionMap:
 
                                 pattern_matches.append(condition)
 
-
             pattern_matches_string = ''
             if has_pattern_matches and len(pattern_matches) > 0:
                 pattern_matches_string = '&& {} // pattern matches'.format('&& '.join(str(e) for e in pattern_matches))
-
-
 
             arity = len(clause.arguments)
             # TODO: ERROR FIX THIS SHIT!

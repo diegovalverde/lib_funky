@@ -615,8 +615,6 @@ return dst;
 int _funk_sum_list(struct tnode *src) {
   TRACE("START");
 
-  printf("caca\n");
-  funk_print_node(src);
   int total = 0;
   if (DATA(src,0)->type != type_array){
     printf("Not a list");
@@ -2214,48 +2212,19 @@ void funk_prepend_element_to_list(struct tnode *dst, struct tnode *L,
     printf("funk_prepend_element_to_list [] , [] -> []\n");
     return;
   }
+  //WITCHER
 
-  struct tnode node;
-  funk_create_node(&node,
-                   ((DATA(L, 0)->type == type_empty_array) ? 0 : 1) +
-                       ((DATA(R, 0)->type == type_empty_array) ? 0 : LEN(R)),
-                   get_pool_enum(L->pool), type_array, 0, NULL);
-
-  uint32_t k = 0;
-  for (uint32_t i = 0; i < LEN(L); i++) {
-    struct tnode tmp;
-    funk_get_element_in_array(L , &tmp, i);
-    if (DATA(&tmp, 0)->type == type_empty_array)
-      break;
-
-    DATA(&node, k)->type = DATA(&tmp, 0)->type;
-    DATA(&node, k)->data = DATA(&tmp, 0)->data;
-
-    k++;
+  
+  struct tnode new_array[R->len+1];
+  new_array[0] = *L;
+  for (int i = 0; i < R->len; i++){
+      struct tnode element;
+      new_array[i+1] = funky_get_element_in_array(R,i);
+      
   }
+  funk_create_list_of_regs(dst, new_array, R->len+1);
 
-  for (uint32_t i = 0; i < LEN(R); i++) {
-    struct tnode tmp;
-    funk_get_element_in_array(R , &tmp, i);
-    if (DATA(&tmp, 0)->type == type_empty_array)
-      break;
-
-    DATA(&node, k)->type = DATA(&tmp, 0)->type;
-    DATA(&node, k)->data = DATA(&tmp, 0)->data;
-
-
-    k++;
-  }
-
-  struct tnode ptr;
-  funk_create_node(&ptr,1,get_pool_enum(L->pool), type_pointer_to_pool_entry, 0, NULL);
-
-  DATA_NO_CHECK(dst, 0)->data.i32 = _copy_node_to_pool(&node);
- // DATA_NO_CHECK(dst, 0)->data.i32 = (ptr.start % FUNK_MAX_POOL_SIZE);
-  DATA_NO_CHECK(dst, 0)->type = type_array;
-  dst->len = node.len;
-  dst->pool = node.pool;
-
+  
 }
 
 /*
@@ -2267,20 +2236,8 @@ void funk_copy_first_element_from_list(struct tnode *dst, struct tnode *src){
 
   struct tnode tmp;
   funk_get_element_in_array(src,&tmp, 0);
-
-
-  if (0){//tmp.len > 1){
-    DATA_NO_CHECK(dst, 0)->type = type_pointer_to_pool_entry;
-    DATA_NO_CHECK(dst, 0)->data.i32 = _copy_node_to_pool(&tmp);
-  } else {
-
-    funk_copy_node(dst,&tmp);
-  }
-
-  // printf("***********\n");
-  // funk_print_node(dst);
-  // printf("***********\n");
-
+  funk_copy_node(dst,&tmp);
+ 
 }
 
 struct tnode funk_concatenate_lists(struct tnode *L,

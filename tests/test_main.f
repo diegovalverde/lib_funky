@@ -1,9 +1,13 @@
 use test_matrix, test_nested_arrays, test_sort, puzzle_8, test_bfs
 use assert, test_list_concat, test_not, test_roll, test_ranges
-use test_arrays_simple
+use test_arrays_simple, test_pop, test_push
 main():
-    test_arrays_simple()
+    test_push()
     
+    test_pop() 
+
+    test_arrays_simple()
+
     test_ranges()
     
     test_list_concat()
