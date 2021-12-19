@@ -9,11 +9,6 @@ char gCurrentFunction[MAX_NAME_SZ];
 #define ERROR(s) printf("-E- %s :: %s+%d %s\n", gCurrentFunction, __FUNCTION__, __LINE__, s);
 
 
-#define FATAL_ERROR_IF(EXP, MSG) \
-  if (EXP) { \
-      ERROR("\nINTERNAL ERROR'" #EXP "':\n" #MSG "\n"); exit(1);}
-
-
 #ifdef FUNK_DEBUG_BUILD
 uint32_t g_funk_debug_current_executed_line = 0;
 uint32_t g_funk_internal_function_tracing_enabled = 0;
@@ -1128,18 +1123,6 @@ void funk_set_node_value_int(struct tnode *node, uint32_t offset,
   TRACE("\nend");
 }
 
-void funk_set_node_value_fn_ptr(struct tnode *node, uint32_t offset,
-                                void (*fn)(struct tnode *, int,
-                                           struct tnode *)) {
-  TRACE("start");
-
-  if (offset >= LEN(node)) {
-    printf("-E- %s: offset %d out of bounds for len %d", __FUNCTION__, offset,
-           LEN(node));
-  }
-  DATA(node, offset)->type = type_function;
-  DATA(node, offset)->data.fn = fn;
-}
 
 void funk_set_node_value_double(struct tnode *node, uint32_t offset,
                                 double value) {
@@ -1205,24 +1188,6 @@ void funk_debug_function_exit_hook(const char *function_name,
                                    struct tnode *retval) {
   TRACE("start");
 
-}
-
-void debug_print_arith_operation(struct tnode *r, struct tnode *a,
-                                 struct tnode *b) {
-  VALIDATE_NODE(r);
-  VALIDATE_NODE(a);
-  VALIDATE_NODE(b);
-  TRACE("start");
-
-  printf("%s[%d]", get_pool_ptr(a), a->start);
-  funk_print_scalar_element(*DATA(a, 0));
-  printf(" , ");
-  printf("%s[%d]", get_pool_ptr(b), b->start);
-  funk_print_scalar_element(*DATA(b, 0));
-
-  printf(" = %s[%d]", get_pool_ptr(r), r->start);
-  funk_print_scalar_element(*DATA(r, 0));
-  printf(" )\n");
 }
 
 void funk_mul(void *x, void *a, void *b, enum funk_types type) {
@@ -1445,11 +1410,7 @@ void _funk_arith_op_rr(struct tnode *node_r, uint32_t r_offset,
     r->type = type_invalid;
   }
 
-#ifdef FUNK_DEBUG_BUILD
-  if (g_funk_internal_function_tracing_enabled) {
-    debug_print_arith_operation(node_r, node_a, node_b);
-  }
-#endif
+
 }
 
 void funk_arith_op_rr(struct tnode *r, struct tnode *a, struct tnode *b,
@@ -2189,7 +2150,7 @@ struct tnode funk_append_element_to_list(struct tnode *L,
     DATA_NO_CHECK(&dst, dst.len - 1)->type = type_pointer_to_pool_entry;
     DATA_NO_CHECK(&dst, dst.len - 1)->data.i32 = _copy_node_to_pool(R);
   }
-
+  return dst;
 }
 /*
   x ~> [A]

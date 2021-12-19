@@ -54,6 +54,7 @@ sort_criteria(_, _):
 
 unexplored([], _ , _): [].
 unexplored(b <~ [next_boards], explored_list, i | find(b, explored_list) = 0):
+    say('i', i)
     i ~> [unexplored(next_boards,explored_list, i+1)].
 unexplored(next_boards, explored_list, i ):
     unexplored(next_boards, explored_list, i+1 ).
