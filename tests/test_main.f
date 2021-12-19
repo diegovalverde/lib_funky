@@ -1,6 +1,6 @@
 use test_matrix, test_nested_arrays, test_sort, puzzle_8, test_bfs
 use assert, test_list_concat, test_not, test_roll, test_ranges
-use test_arrays_simple, test_pop, test_push
+use test_arrays_simple, test_pop, test_push, test_find
 main():
     test_push()
     
@@ -23,6 +23,8 @@ main():
     test_not()
 
     test_roll()
+
+    test_find()
 
     say('===== 8 puzzle tests =====')
     puzzle_8([[0, 1, 3],[6, 5, 2],[4, 7, 8]])

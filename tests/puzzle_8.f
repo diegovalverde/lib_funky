@@ -43,7 +43,7 @@ sort_criteria([board1, _, cost1, _], [board2, _, cost2, _] |
         say('baord2', board2, 'cost2', cost2)
         1.
 sort_criteria(_, _):
-    say('somethings fishy')
+
     0.
 
 # unexplored(boards, [] ): boards.
@@ -124,18 +124,22 @@ get_children([]): [].
         # x <- [ d + pos | d : delta ]
 
 
-        next_boards <- [[next_board(board, pos, new_pos[k])  ] |
+        next_boards <- [next_board(board, pos, new_pos[k])   |
             0 <= k < len(new_pos)  ]
 
         say('next_boards', next_boards)
         
         idx <- unexplored(next_boards, prev_boards ,0)
 
-        children <- [[next_boards[ idx[k] ],
+        say('idx', idx)
+
+        children <- [ [next_boards[ idx[k] ] ,
              [prev_boards] <~ board,
              cost+1, new_pos[idx[k]]] | 0 <= k < len(idx) ]
 
         say('children', children, len(children))
+        say(children[0,0])
+        say(children[1,0])
 
         s <- sort(children, sort_criteria)
         say('sorted', s)
