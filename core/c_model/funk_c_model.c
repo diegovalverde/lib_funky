@@ -1526,7 +1526,8 @@ void funk_eq_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
 
   TRACE("start");
   struct tnode tmp1;
-  if (a->len > 0 && b->len >0 && a->len != b->len){
+  if ((DATA(a,0)->type != DATA(b,0)->type) ||
+      (a->len > 0 && b->len >0 && a->len != b->len)){
     funk_create_node(r, 1, get_pool_enum(a->pool), type_i32, 0, NULL);
     return;
   }

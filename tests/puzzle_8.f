@@ -38,7 +38,7 @@ is_goal(_): 0.
 
 # Use A* sort style
 sort_criteria([board1, _, cost1, _], [board2, _, cost2, _] |
-        (cost1 + count(h(board1),0)) < (cost2 + count(h(board2),0))):
+        (cost1 + count(h(board1),0)) > (cost2 + count(h(board2),0))):
         say('baord1', board1, 'cost1', cost1)
         say('baord2', board2, 'cost2', cost2)
         1.
@@ -72,63 +72,31 @@ next_board(A, [zi,zj], [di, dj] ):
     #say('roll(A * E, -1*di, -1*dj)', roll(A * E, -1*di, -1*dj))
     #exit()
     (roll(A * E, -1*di, -1*dj) + A) * not(E).
-get_children([]): [].
 
+    get_valid_deltas(_, [], _, _) : [].
+    get_valid_deltas(p, d <~ [deltas], tl, br | inside( tl, br ,p + d) != [] ):
+        d ~> [get_valid_deltas(p, deltas, tl, br)].
+    get_valid_deltas(p, d <~ [deltas], tl, br): get_valid_deltas(p, deltas, tl, br).
 
-# get_children([ board , prev_boards, cost, pos ]):
-#     delta <- [[-1,0], [1,0], [0,1], [0,-1]]
-#     x <- [ [delta[k] + pos] | 0 <= k < len(delta) ]
-#     # x <- [ [d + pos] | d : delta ]
-#
-#     # carp <- [next_board(board, pos, delta[k] + pos) | 0 <= k < len(delta) ]
-#     # say('crap', crap)
-#
-#     say('x',x)
-#     new_pos <- points_in_rec(x, [0,0],[3,3])
-#     say('new_pos',new_pos, len(new_pos))
-#
-#     next_boards <- unexplored([[next_board(board, pos, new_pos[k]), new_pos[k]] |
-#         0 <= k < len(new_pos)  ], prev_boards)
-#
-#     #next_boards <- unexplored([[next_board(board, pos, npos), npos] |
-#     #   npos : new_pos  ], prev_boards)
-#
-#     say(len(next_boards), 'next_boards', next_boards)
-#     i <- 0
-#     j <- 0
-#     say(next_boards[i,j], '....', next_boards[i,j+1])
-#     #exit()
-#
-#     # children <- [[next_boards[k]] ++ [[prev_boards] <~ board, cost+1] |
-#     #     0 <= k < len(next_boards) ]
-#
-#     children <- [[next_boards[k,i],
-#          [prev_boards] <~ board,
-#          cost+1, next_boards[k, i+1]] | 0 <= k < len(next_boards) ]
-#
-#     say('children', children, len(children))
-#
-#     s <- sort(children, sort_criteria)
-#     say('sorted', s)
-#     s.
+    get_children([]): [].
 
 
     get_children([ board , prev_boards, cost, pos ]):
         say(' &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& get_children ==============')
         say('board', board , 'prev_boards', prev_boards, 'cost', cost, 'pos', pos)
-        delta <- [[-1,0], [1,0], [0,1], [0,-1]]
+        delta <- get_valid_deltas(pos, [[-1,0], [1,0], [0,1], [0,-1]], [0,0], [3,3])
+        say('delta', delta)
+        #delta <- [[-1,0], [1,0], [0,1], [0,-1]]
 
-        x <- [ delta[k] + pos | 0 <= k < len(delta) ]
+        #x <- [ delta[k] + pos | 0 <= k < len(delta) ]
         # x <- [ delta + pos | delta : [[-1,0], [1,0], [0,1], [0,-1]]  ]
-        say('x',x)
-        new_pos <- points_in_rec(x, [0,0],[3,3])
-
-        say('new_pos', new_pos)
+        #say('x',x)
+        #new_pos <- points_in_rec(x, [0,0],[3,3])
         # x <- [ d + pos | d : delta ]
 
 
-        next_boards <- [next_board(board, pos, new_pos[k])   |
-            0 <= k < len(new_pos)  ]
+        next_boards <- [next_board(board, pos, delta[k])   |
+            0 <= k < len(delta)  ]
 
         say('next_boards', next_boards)
         say('prev_boards',prev_boards)
@@ -140,7 +108,7 @@ get_children([]): [].
 
         children <- [ [next_boards[ idx[k] ] ,
              [prev_boards] <~ board,
-             cost+1, new_pos[idx[k]]] | 0 <= k < len(idx) ]
+             cost+1, pos + delta[idx[k]]] | 0 <= k < len(idx) ]
 
         say('children', children, len(children))
         say(children[0,0])
@@ -154,5 +122,5 @@ get_children([]): [].
         
         s.
 
-puzzle_8(board):
-    bfs(is_goal, get_children, [[board,[[]],0,[0,0]]] ).
+puzzle_8(board, initial_pos):
+    bfs(is_goal, get_children, [[board,[[]],0,initial_pos]] ).
