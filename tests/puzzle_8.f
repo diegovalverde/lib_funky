@@ -53,10 +53,12 @@ sort_criteria(_, _):
 #     unexplored(boards, explored_list).
 
 unexplored([], _ , _): [].
-unexplored(b <~ [next_boards], explored_list, i | find(b, explored_list) = 0):
+unexplored(b <~ [next_boards], explored_list, i | find(b, explored_list) = -1):
     say('i', i)
     i ~> [unexplored(next_boards,explored_list, i+1)].
-unexplored(next_boards, explored_list, i ):
+unexplored(b <~ [next_boards], explored_list, i ):
+    say('++i', i)
+    say('found', b, explored_list, find(b, explored_list))
     unexplored(next_boards, explored_list, i+1 ).
 
 next_board(A, [zi,zj], [di, dj] ):
@@ -129,10 +131,12 @@ get_children([]): [].
             0 <= k < len(new_pos)  ]
 
         say('next_boards', next_boards)
+        say('prev_boards',prev_boards)
         
         idx <- unexplored(next_boards, prev_boards ,0)
 
         say('idx', idx)
+        
 
         children <- [ [next_boards[ idx[k] ] ,
              [prev_boards] <~ board,
@@ -144,6 +148,7 @@ get_children([]): [].
 
         s <- sort(children, sort_criteria)
         say('sorted', s)
+        
         s.
 
 puzzle_8(board):

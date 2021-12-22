@@ -1,7 +1,10 @@
 use test_matrix, test_nested_arrays, test_sort, puzzle_8, test_bfs
 use assert, test_list_concat, test_not, test_roll, test_ranges
-use test_arrays_simple, test_pop, test_push, test_find
+use test_arrays_simple, test_pop, test_push, test_find, test_count
 main():
+
+    test_count()
+    
     test_push()
     
     test_pop() 

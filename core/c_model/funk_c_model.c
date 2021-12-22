@@ -2173,7 +2173,6 @@ void funk_prepend_element_to_list(struct tnode *dst, struct tnode *L,
     printf("funk_prepend_element_to_list [] , [] -> []\n");
     return;
   }
-  //WITCHER
 
   
   struct tnode new_array[R->len+1];
