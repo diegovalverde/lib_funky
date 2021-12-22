@@ -147,6 +147,9 @@ get_children([]): [].
         say(children[1,0])
 
         s <- sort(children, sort_criteria)
+        say('len(s)', len(s))
+        say('len(s[0])', len(s[0]))
+        say('len(s[1])', len(s[1]))
         say('sorted', s)
         
         s.

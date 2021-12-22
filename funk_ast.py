@@ -1170,15 +1170,25 @@ class FunctionCall(Expression):
                 arguments = [create_ast_anon_symbol(self.funk, a, self.pool) for a in self.args]
             self.funk.emitter.code += """
         if (DATA(&{name},0)->type != type_function){{
-            printf("Error: {name} is not a function\\n");
+            printf("========================================================================================\\n");
+            printf("FunkyRuntime Error: When running function '{function_signature}':\\n\\t The input provided as '{name}' is not a function\\n");
+             for (int i = 0; i < arity; i++){{
+                printf("args %d: ", i);
+                funk_print_node(argument_list+i);
+                printf("\\n\\n");
+             }}
+             printf("\\n");
+             printf("========================================================================================\\n");
             exit(1);
         }}
 
         if (DATA(&{name},0)->data.fn == NULL){{
-            printf("Error: {name} function is NULL\\n");
+            printf("FunkyRuntime Error: '{name}' function is NULL\\n");
             exit(1);
         }}
-            """.format(name=name)
+            """.format(name=name, function_signature='{}({})'.format(self.funk.function_scope.name,
+                                                                     ', '.join(str(e) for e in self.funk.function_scope.args)))
+
             return self.funk.emitter.call_function(self.funk, 'DATA(&{},0)->data.fn'.format(name), arguments, result=result)
 
         if not found:
