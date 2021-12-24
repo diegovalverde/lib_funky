@@ -1,4 +1,4 @@
-use bfs, bst, sem_matrix, shift_matrix, sort, count, all, find
+use astar, bst, sem_matrix, shift_matrix, sort, count, all, find
 
 #FINAL <-> [[1, 2, 3],[5, 8, 6],[0, 7, 4]]
 #INITIAL <-> [[1, 2, 3],[5, 6, 0],[7, 8, 4]]
@@ -107,21 +107,9 @@ next_board(A, [zi,zj], [di, dj] ):
         say('idx', idx)
         
 
-        children <- [ [next_boards[ idx[k] ] ,
+        [ [next_boards[ idx[k] ] ,
              [prev_boards] <~ board,
-             cost+1, pos + delta[idx[k]]] | 0 <= k < len(idx) ]
-
-        say('children', children, len(children))
-        say(children[0,0])
-        say(children[1,0])
-
-        s <- sort(children, sort_criteria)
-        say('len(s)', len(s))
-        say('len(s[0])', len(s[0]))
-        say('len(s[1])', len(s[1]))
-        say('sorted', s)
-        
-        s.
+             cost+1, pos + delta[idx[k]]] | 0 <= k < len(idx) ].
 
 # get position of the empty (0)
 # cell        
@@ -132,4 +120,4 @@ next_board(A, [zi,zj], [di, dj] ):
 puzzle_8(board, initial_pos):
 
     #say(get_initial_position(baord))
-    bfs(is_goal, get_children, [[board,[[]],0,initial_pos]] ).
+    astar(is_goal, get_children, sort_criteria, [[board,[[]],0,initial_pos]] ).
