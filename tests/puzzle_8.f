@@ -112,7 +112,7 @@ next_board(A, [zi,zj], [di, dj] ):
 
 # get position of the empty (0)
 # cell        
-# get_initial_position(baord):
+# get_initial_position(board):
 #     n <- find(flatten(board),0)
 #     [n/3, n %3].
 
