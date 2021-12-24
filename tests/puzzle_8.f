@@ -23,11 +23,7 @@ points_in_rec(p <~ [points], p1, p2  ):
 
 # heuristic: count of misplaced cells
 h([]): [].
-h(board): 
-    say(board, '-', FINAL)
-    caca <- board - FINAL
-    say(caca)
-    board - FINAL.
+h(board): abs(flatten(board - FINAL)).
 
 is_goal([board, prev_boards,_,_] | all(h(board),0) = 1 ):
     say('solution found: ', prev_boards, board)
@@ -39,8 +35,8 @@ is_goal(b):
 # Use A* sort style
 sort_criteria([board1, _, cost1, _], [board2, _, cost2, _] |
         (cost1 + sum(h(board1))) < (cost2 + sum(h(board2)))):
-        say('baord1', board1, 'cost1', cost1)
-        say('baord2', board2, 'cost2', cost2)
+        say('sort_criteria baord1', board1, 'cost1', cost1, '+', sum(h(board1)) )
+        say('baord2', board2, 'cost2', cost2, '+', sum(h(board2)) )
         1.
 sort_criteria(_, _):
 
@@ -75,8 +71,11 @@ next_board(A, [zi,zj], [di, dj] ):
 
     get_valid_deltas(_, [], _, _) : [].
     get_valid_deltas(p, d <~ [deltas], tl, br | inside( tl, br ,p + d) != [] ):
+        say('adding delta ', d)
         d ~> [get_valid_deltas(p, deltas, tl, br)].
-    get_valid_deltas(p, d <~ [deltas], tl, br): get_valid_deltas(p, deltas, tl, br).
+    get_valid_deltas(p, d <~ [deltas], tl, br): 
+        say('dropping delta ', d)
+        get_valid_deltas(p, deltas, tl, br).
 
     get_children([]): [].
 

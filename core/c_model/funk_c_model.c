@@ -607,6 +607,33 @@ return dst;
 
 }
 
+struct tnode funk_abs(struct tnode *src) {
+  TRACE("start");
+
+struct tnode dst;
+
+    if (DATA(src,0)->type == type_array){
+      int len = __get_len(src);
+      struct tnode elements[len];
+      for (uint32_t i = 0; i < len; i++) {
+        struct tnode element = funky_get_element_in_array(src,i);
+        elements[i] = funk_abs(&element);
+      }
+     funk_create_list_of_regs(&dst,elements,len);
+
+    } else {
+        funk_create_node(&dst, 1,
+                  get_pool_enum (src->pool),
+                   DATA(src, 0)->type, 0, NULL);
+
+        DATA(&dst, 0)->data.i32 = abs(DATA(src, 0)->data.i32);
+        
+    }
+
+return dst;
+
+}
+
 int _funk_sum_list(struct tnode *src) {
   TRACE("START");
 

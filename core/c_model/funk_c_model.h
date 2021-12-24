@@ -172,6 +172,7 @@ struct tnode funk_roll( struct tnode *src, struct tnode *deltas,
                uint32_t delta_count);
 
 struct tnode funk_not(struct tnode *src);
+struct tnode funk_abs(struct tnode *src);
 
 struct tnode funk_append_element_to_list(struct tnode *L,
                                  struct tnode *R);

@@ -16,6 +16,7 @@ test_comparisons():
     assert(eq([1],[2]),0)
     assert(eq([],[]),1)
     assert(eq([1,2,3], [1,2,3]),1)
+    assert(eq([],[]),1)
 
     
     assert(ne(1,2),1)
@@ -26,4 +27,6 @@ test_comparisons():
     assert(ne(1,[]),1)
     assert(ne([],[]),0)
     assert(ne([1,2,3], [1,2,3]),0)
+    assert(ne([1,2],[]),1)
+    assert(ne([],[1,2]),1)
     1.

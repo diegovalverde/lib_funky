@@ -1116,6 +1116,7 @@ class FunctionCall(Expression):
             'flatten': Flatten,
             'sum': FunkSum,
             'not': FunkNot,
+            'abs': FunkAbs,
             'roll': FunkRoll,
             'dim': Dim,
             'sdl_window': SDLCreateWindow,
@@ -1417,6 +1418,28 @@ class FunkNot(Expression):
 
         self.funk.emitter.code += """
         {result} = funk_not(&{src});
+        """.format(result=result, src=src)
+
+        return result
+
+
+class FunkAbs(Expression):
+    def __init__(self, funk, arg_list):
+        super().__init__()
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+        struct tnode {result};
+            """.format(result=result)
+
+        src = self.arg_list[0].eval()
+
+        self.funk.emitter.code += """
+        {result} = funk_abs(&{src});
         """.format(result=result, src=src)
 
         return result
