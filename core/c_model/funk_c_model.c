@@ -2119,38 +2119,31 @@ struct tnode funky_pop_first(struct tnode *dst, struct tnode *src){
 struct tnode funk_append_element_to_list(struct tnode *L,
                                  struct tnode *R) {
   TRACE("start");
-  printf("funk_append_element_to_list\n");
+ struct tnode dst;
   VALIDATE_NODE(L);
   VALIDATE_NODE(R);
-  struct tnode dst;
+
+  // if (DATA(L, 0)->type == type_empty_array){
+  //   funk_copy_node(dst,R);
+  //   return;
+  // }
 
   if (DATA(L, 0)->type == type_empty_array &&
       DATA(R, 0)->type == type_empty_array) {
     funk_create_node(&dst, 1, function_pool, type_empty_array, 0, NULL);
-    printf("funk_append_element_to_list [] , [] -> []\n");
+    printf("funk_prepend_element_to_list [] , [] -> []\n");
     return dst;
   }
 
-  funk_create_node(&dst,
-                   ((DATA(L, 0)->type == type_empty_array) ? 0 : LEN(L)) +
-                       ((DATA(R, 0)->type == type_empty_array) ? 0 : 1),
-                   get_pool_enum(R->pool), type_array, 0, NULL);
-
-  uint32_t k = 0;
-  for (uint32_t i = 0; i < LEN(L); i++) {
-    if (DATA(L, i)->type == type_empty_array)
-      break;
-
-    DATA(&dst, k)->type = DATA(L, i)->type;
-    DATA(&dst, k)->data = DATA(L, i)->data;
-
-    k++;
+  
+  struct tnode new_array[L->len+1];
+  new_array[L->len] = *R;
+  for (int i = 0; i < L->len; i++){
+      struct tnode element;
+      new_array[i] = funky_get_element_in_array(L,i);
+      
   }
-
-  if (DATA(R, 0)->type != type_empty_array) {
-    DATA_NO_CHECK(&dst, dst.len - 1)->type = type_pointer_to_pool_entry;
-    DATA_NO_CHECK(&dst, dst.len - 1)->data.i32 = _copy_node_to_pool(R);
-  }
+  funk_create_list_of_regs(&dst, new_array, L->len+1);
   return dst;
 }
 /*

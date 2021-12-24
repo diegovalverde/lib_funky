@@ -29,12 +29,12 @@ h(board):
     say(caca)
     board - FINAL.
 
-#is_goal([FINAL, prev_boards,_,_]):
-
 is_goal([board, prev_boards,_,_] | all(h(board),0) = 1 ):
-    say('solution: ', prev_boards, board)
+    say('solution found: ', prev_boards, board)
     1.
-is_goal(_): 0.
+is_goal(b): 
+    say(b[0], 'in not a goal')
+    0.
 
 # Use A* sort style
 sort_criteria([board1, _, cost1, _], [board2, _, cost2, _] |
@@ -86,6 +86,7 @@ next_board(A, [zi,zj], [di, dj] ):
         say('board', board , 'prev_boards', prev_boards, 'cost', cost, 'pos', pos)
         delta <- get_valid_deltas(pos, [[-1,0], [1,0], [0,1], [0,-1]], [0,0], [3,3])
         say('delta', delta)
+        #exit()
         #delta <- [[-1,0], [1,0], [0,1], [0,-1]]
 
         #x <- [ delta[k] + pos | 0 <= k < len(delta) ]
@@ -122,5 +123,13 @@ next_board(A, [zi,zj], [di, dj] ):
         
         s.
 
+# get position of the empty (0)
+# cell        
+# get_initial_position(baord):
+#     n <- find(flatten(board),0)
+#     [n/3, n %3].
+
 puzzle_8(board, initial_pos):
+
+    #say(get_initial_position(baord))
     bfs(is_goal, get_children, [[board,[[]],0,initial_pos]] ).

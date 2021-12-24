@@ -2,6 +2,8 @@ use assert
     push_me(a, A):
       a ~> [A].
 
+    push_back(a, A):
+      [A] <~ a.
 
       test_push():
       say('=== test push ===')
@@ -20,4 +22,13 @@ use assert
       say([x] <~ x)
       #assert([x] <~ x, [2,3,[2,3]])
       #exit()
+
+       
+      b <- []
+      board <- [[1, 2, 3],[4, 5, 6],[7, 0, 8]] 
+      
+      assert([b] <~ board, [ [[1, 2, 3],[4, 5, 6],[7, 0, 8]] ])
+
+      c <- [1,2,3]
+      assert([c] <~ board, [ 1,2,3, [[1, 2, 3],[4, 5, 6],[7, 0, 8]] ])
       1.
