@@ -38,7 +38,7 @@ is_goal(b):
 
 # Use A* sort style
 sort_criteria([board1, _, cost1, _], [board2, _, cost2, _] |
-        (cost1 + count(h(board1),0)) > (cost2 + count(h(board2),0))):
+        (cost1 + sum(h(board1))) < (cost2 + sum(h(board2)))):
         say('baord1', board1, 'cost1', cost1)
         say('baord2', board2, 'cost2', cost2)
         1.
