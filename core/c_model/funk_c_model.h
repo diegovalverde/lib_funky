@@ -183,7 +183,9 @@ void funk_sgt_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
 void funk_sge_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
 void funk_and_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
 void funk_eq_ri(struct tnode *node_r, struct tnode *node_a, int value) ;
+void funk_mod_ri(struct tnode *node_r, struct tnode *node_a, int value);
 void funk_eq_rr(struct tnode *r, struct tnode *a, struct tnode *b) ;
+void funk_sge_ri(struct tnode *node_r, struct tnode *node_a, int value);
 void funky_print_type(struct tnode n);
 
 int __get_len(struct tnode *src);

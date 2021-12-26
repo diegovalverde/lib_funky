@@ -712,16 +712,22 @@ class Div(BinaryOp):
         # create a copy with self.linked_to *not copied*, just referenced.
         return Div(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
 
+
 class Mod(BinaryOp):
     def __repr__(self):
         return 'Mod({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.funk.emitter.srem(self.left.eval(), self.right.eval(), result)
+        a = self.left.eval()
+        b = self.right.eval()
+        result = self.funk.emitter.arith_helper( a, b, 'mod', result=result)
+
+        return result
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return Mod(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
+
 
 class And(BinaryOp):
     def __repr__(self):

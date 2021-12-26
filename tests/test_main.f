@@ -4,6 +4,7 @@ use test_arrays_simple, test_pop, test_push, test_find, test_count
 use test_comparisons
 
 main():
+    
     test_comparisons()
 
     test_count()
