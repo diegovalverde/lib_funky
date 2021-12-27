@@ -1545,8 +1545,13 @@ void funk_and_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
 void funk_ne_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
 
   TRACE("start");
+  VALIDATE_NODE(a);
+  VALIDATE_NODE(b);
+  
   funk_eq_rr(r, a, b);
   DATA(r,0)->data.i32 = (DATA(r,0)->data.i32 == 0) ? 1 : 0;
+
+  
 }
 
 void funk_eq_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
@@ -1556,11 +1561,13 @@ void funk_eq_rr(struct tnode *r, struct tnode *a, struct tnode *b) {
   if ((DATA(a,0)->type != DATA(b,0)->type) ||
       (a->len > 0 && b->len >0 && a->len != b->len)){
     funk_create_node(r, 1, get_pool_enum(a->pool), type_i32, 0, NULL);
+    DATA(r, 0)->data.i32 = 0;
     return;
   }
   funk_arith_op_rr(&tmp1, a, b, funk_eq);
   struct tnode tmp2;
   funk_flatten(&tmp2, &tmp1);
+  
 
 
   funk_create_node(r, 1, get_pool_enum(a->pool), type_i32, 0, NULL);
