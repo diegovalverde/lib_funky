@@ -1,0 +1,122 @@
+
+#include "funk_c_model.h"
+#include <sstream>
+#include <algorithm>
+#include <numeric>
+
+TData ArithOpDifferentType(const TData &a, const TData & b){ return TData(funky_type::invalid); }
+TData BoolOpEq(const TData &a, const TData & b){ return TData(0); }
+TData BoolOpNe(const TData &a, const TData & b){ return TData(1); }
+TData DefaultRetVal(const TData &r) { return TData(r);}
+
+#define BOOL_RETVAL(F,op) TData F(const TData &r){ \
+  if (r.type != funky_type::array) return r; \
+  const bool eq = std::op(r.array.begin(),r.array.end(),[](const TData & d){ return d.i32 == 1;}); \
+  return (eq) ? TData(1) : TData(0); }
+
+BOOL_RETVAL(BoolEqRetVal, all_of)
+BOOL_RETVAL(BoolNeRetVal, any_of)
+
+# define OPERATOR(op, a, b, WheDifferentTypes, RetFunct ) \
+TData operator op(const TData &a, const TData &b) {\
+    TData result;\
+    if (a.type != b.type) return WheDifferentTypes(a,b); \
+    result.type = a.type; \
+    switch (result.type) \
+    { \
+    case funky_type::i32: \
+    result.i32 = (int32_t) (a.i32 op b.i32);  break; \
+    case funky_type::d64: result.d64 = a.d64 op b.d64; break; \
+    case funky_type::array: {\
+      if (a.array.size() != b.array.size()) return WheDifferentTypes(a,b); \
+      for (std::size_t i = 0; i < a.array.size(); i++) { \
+        result.array.push_back( TData(a.array[i] op b.array[i]) ); }\
+      break;\
+    } \
+    default: \
+      break; \
+    }\
+    return RetFunct(result); \
+}
+
+OPERATOR(+,a,b, ArithOpDifferentType, DefaultRetVal)
+OPERATOR(-,a,b, ArithOpDifferentType, DefaultRetVal)
+OPERATOR(*,a,b, ArithOpDifferentType, DefaultRetVal)
+OPERATOR(/,a,b, ArithOpDifferentType, DefaultRetVal)
+OPERATOR(==,a,b, BoolOpEq, BoolEqRetVal)
+OPERATOR(!=,a,b, BoolOpNe, BoolNeRetVal)
+OPERATOR(<,a,b, BoolOpEq, BoolEqRetVal)
+
+//-------------------------------------------------------
+std::string TData::Print() const{
+  std::ostringstream oss;
+  oss << " ";
+  switch (type)
+  {
+  case funky_type::i32: oss << i32; break;
+  case funky_type::d64: oss << d64; break;
+  case funky_type::function: oss << "<function>"; break;
+  case funky_type::array: 
+    oss << "[ ";
+    for (std::size_t i = 0; i < array.size(); i++){
+      oss << array[i] << ((i + 1 < array.size()) ? "," : ""); 
+    }
+    oss << " ]";
+    break;
+  
+  default: oss << "[unknown]"; break;
+  }
+  oss << " ";
+  return oss.str();
+}
+//-------------------------------------------------------
+std::ostream& operator<<(std::ostream& os, const TData& dt) {
+    os << dt.Print();
+    return os;
+}
+//-------------------------------------------------------
+TData TData::GetLen() const {
+  if (type == funky_type::array){
+    return TData(static_cast<int32_t>(array.size()));
+  } else {
+    return 1;
+  }
+}
+//-------------------------------------------------------
+TData TData::GetRange(std::vector<TData::RangeType>  ranges ) const {
+  const auto range = ranges.front();
+  ranges.erase(ranges.begin());
+  if (array.size() == 0 ) return TData(funky_type::array); //return empty array
+  std::size_t start = (range.start > 0) ? (range.start) % array.size() : (array.size() + range.start) % array.size();
+  std::size_t end = (range.end > 0) ? (range.end) % array.size() : (array.size() + range.end) % array.size();
+  if (ranges.size() == 0 && !range.isRange && start == end){
+      return TData(array[start]);
+  }
+  TData result(funky_type::array);
+  for (int i = start; i <= end; i++){
+    TData element = (ranges.size() > 0) ? array[i].GetRange(ranges) : array[i];     
+    if (range.isRange){
+      result.array.push_back(element);
+    } else {
+      result = element;
+    }
+  }
+  return result;
+}
+//-------------------------------------------------------
+TData TData::Flatten() { 
+  if (type != funky_type::array) return TData(*this);
+  TData result = std::accumulate(array.begin(), array.end(), decltype(array)::value_type{ },
+            []( TData& dest,  TData& src) {
+              if (src.type == funky_type::array) {
+                TData n = src.Flatten();
+                dest.array.insert(dest.array.end(), n.array.begin(), n.array.end());
+              } else {
+                dest.array.insert(dest.array.end(), src);
+              }
+        return dest;
+    });
+  result.type = funky_type::array;
+  return result;
+}
+//-------------------------------------------------------

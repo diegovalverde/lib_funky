@@ -8,10 +8,10 @@ INITIAL <-> [[0, 1, 3],[6, 5, 2],[4, 7, 8]]
 
 inside([x1,y1],[x2,y2], [x, y] | x >= x1 /\ x < x2 /\ y >= y1 /\ y < y2):
     point <- [x,y]
-    say('inside', point)
+    #say('inside', point)
     [point].
 inside(_,_,p):
-    say('out',p)
+    #say('out',p)
     [].
 
 points_in_rec([], _, _ ): [].
@@ -49,41 +49,36 @@ next_board(A, [zi,zj], [di, dj] ):
 
     get_valid_deltas(_, [], _, _) : [].
     get_valid_deltas(p, d <~ [deltas], tl, br | inside( tl, br ,p + d) != [] ):
-        say('adding delta ', d)
+        #say('adding delta ', d)
         d ~> [get_valid_deltas(p, deltas, tl, br)].
     get_valid_deltas(p, d <~ [deltas], tl, br): 
-        say('dropping delta ', d)
+        #say('dropping delta ', d)
         get_valid_deltas(p, deltas, tl, br).
 
-    get_children([]): [].
-
-
-    get_children([ board , prev_boards, cost, pos ]):
-        #say(' &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& get_children ==============')
-        #say('board', board , 'prev_boards', prev_boards, 'cost', cost, 'pos', pos)
-        delta <- get_valid_deltas(pos, [[-1,0], [1,0], [0,1], [0,-1]], [0,0], [3,3])
-        #say('delta', delta)
-       
-        next_boards <- [next_board(board, pos, delta[k])   |
-            0 <= k < len(delta)  ]
-
-        
-        idx <- unexplored(next_boards, prev_boards ,0)
-
-        [ [next_boards[ idx[k] ] ,
-             [prev_boards] <~ board,
-             cost+1, pos + delta[idx[k]]] | 0 <= k < len(idx) ].
-
-# get position of the empty (0)
-# cell        
-get_initial_position(board):
-    say(flatten(board))
-    n <- find(0, flatten(board))
+get_children([]): [].
+get_children([ board , prev_boards, cost, pos ]):
+    #say(' &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& get_children ==============')
+    #say('board', board , 'prev_boards', prev_boards, 'cost', cost, 'pos', pos)
+    delta <- get_valid_deltas(pos, [[-1,0], [1,0], [0,1], [0,-1]], [0,0], [3,3])
+    #say('delta', delta)
     
+    next_boards <- [next_board(board, pos, delta[k])   |
+        0 <= k < len(delta)  ]
+
+    
+    idx <- unexplored(next_boards, prev_boards ,0)
+
+    [ [next_boards[ idx[k] ] ,
+            [prev_boards] <~ board,
+            cost+1, pos + delta[idx[k]]] | 0 <= k < len(idx) ].
+
+# get position of the empty (0) cell        
+get_initial_position(board):
+    n <- find(0, flatten(board))
     [n/3, n %3].
 
 puzzle_8(board):
     initial_pos <- get_initial_position(board)
+    initial_cost <- 0
     say('initial_pos',  initial_pos)
-    
-    astar(is_goal, get_children, sort_criteria, [[board,[[]],0,initial_pos]] ).
+    astar(is_goal, get_children, sort_criteria, [[board,[[]],initial_cost,initial_pos]] ).

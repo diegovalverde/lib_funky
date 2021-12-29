@@ -10,14 +10,15 @@ ne(_,_): 0.
 
 test_comparisons():
     say('======== test comparisons ========')
+    assert([1],[1])
+    assert([],[])
+    assert([1,2,3],[1,2,3])
     assert(eq(1,1),1)
     assert(eq(1,2),0)
-    assert(eq([1],[1]),1)
+    assert(eq([1, 2, 3],[1, 2, 3]),1)
     assert(eq([1],[2]),0)
     assert(eq([],[]),1)
-    assert(eq([1,2,3], [1,2,3]),1)
-    assert(eq([],[]),1)
-
+    
     
     assert(ne(1,2),1)
     assert(ne(1,1),0)

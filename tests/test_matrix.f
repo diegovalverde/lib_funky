@@ -21,14 +21,18 @@ test_matrix():
 
       B <- [1, 2, 3, 4]
       say( [B | 0 <= k < len(B)])
+      assert(sum(B),10)
+      assert(4*sum(B),40)
+      
       assert(sum([ B | 0 <= k < len(B)]), 4*sum(B))
+      
       assert(sum([ get_an_array() | 0 <= k < len(B)]), 4*sum(B))
       assert(sum([ [1,2,3,4] | 0 <= k < len(B)]), 4*sum(B))
       assert(sum([ [1,2,3,4] | zero <= k < len(B)]), 4*sum(B))
       assert(sum([ [1,2,3,4] | zero+0 <= k < len(B)]), 4*sum(B))
 
       M2 <- [[j | 0<= j <= 3] | 0 <= i <= 3]
-      say(M2)
+      
       assert(len(M2),4)
       assert(sum(M2[0]),6)
       assert(sum(M2[1]),6)
@@ -77,7 +81,7 @@ test_matrix():
     assert(a5[1],0.75)
     assert(a5[2,0,0],3)
     assert(a5[2,0,1],4)
-    say('yyyy')
+    
     temp <- a5[2,0,1]
     
     assert(temp,4)
@@ -145,6 +149,7 @@ test_matrix():
       assert(sum(sub_matrix),9)
       assert(sum(M2[i..j , i..j]),9)
       assert(sum(M2[i..j , i..j]),sum(sub_matrix))
+      
       assert(sum(M2[i..j , i..j]),sum([[j | 0<= j <= 2] | 0 <= i <= 2]))
       
       assert(sum(sub_matrix), M2[i,i] + M2[i+1,i] + M2[i+2,i] +
@@ -155,5 +160,6 @@ test_matrix():
      
 
       assert(sum([0 | 1<= j <= 10]),0)
+      say('satan', [1 | 1<= j <= 10])
       assert(sum([1 | 1<= j <= 10]),10)
     1.

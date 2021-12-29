@@ -44,8 +44,12 @@ test_bfs():
       assert(arr_eq(tree(7), [9,10]), 1)
       
       assert(bfs(tree_is_goal,tree,[0]), 10)
+
+      assert(other_tree([0, []] ), [  [1, [0]],[2, [0]], [3, [0]],  [4, [0]]   ] )
+      assert(other_tree([1, [6,66,666]] ),  [  [5, [6,66,666, 1]],[6, [6,66,666, 1]]] )
       # look for the path to get to the goal
       sol <- bfs(other_tree_is_goal,other_tree,[ [0, []] ])
+      say('solution = ', sol)
       assert(sol[0], 10)
       assert(sol[1], [0,4,7])
       1.

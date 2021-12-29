@@ -1,9 +1,17 @@
-use test_matrix, test_nested_arrays, test_sort, test_8_puzzle, test_bfs
-use assert, test_list_concat, test_not, test_roll, test_ranges
-use test_arrays_simple, test_pop, test_push, test_find, test_count
-use test_comparisons
+# use , , , test_8_puzzle, 
+# use assert, , , test_roll, 
+# use , 
+use test_comparisons, test_count, test_push, test_pop
+use test_fibo, test_arrays_simple, test_ranges, test_bfs
+use test_list_concat, test_matrix, test_flatten
+use test_nested_arrays, test_find, test_sort
+use test_not
 
 main():
+
+    test_flatten()
+    
+    test_fibo()
     
     test_comparisons()
 
@@ -18,10 +26,12 @@ main():
     test_ranges()
     
     test_list_concat()
-
+  
     test_matrix()
 
     test_nested_arrays()
+
+    test_find()
 
     test_sort()
 
@@ -29,11 +39,9 @@ main():
 
     test_not()
 
-    test_roll()
+    # test_roll()
 
-    test_find()
-
-    test_8_puzzle()
+    # test_8_puzzle()
 
     
     say('==== all test passed ====')

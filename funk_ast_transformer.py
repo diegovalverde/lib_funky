@@ -367,12 +367,9 @@ class TreeToAst(Transformer):
             return [funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
 
     def list(self, tokens):
-        if len(tokens) == 0:
-            return funk_ast.FixedSizeLiteralList(self.funk, 'anon-empty-list', [])
-        else:
-            elements = tokens[0]  # flatten(tokens)
-            x = self.create_list(elements) #[funk_ast.CompileTimeExprList(self.funk, 'anon', elements)]
-            return x
+        elements = tokens[0] if len(tokens) > 0 else []
+        x = self.create_list(elements)
+        return x
 
     @staticmethod
     def list_elements(token):

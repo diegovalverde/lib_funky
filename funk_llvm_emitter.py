@@ -16,10 +16,10 @@
 # under the License.
 
 from . import funk_types
-from . import funky_emitter
 from . import funk_ast
 
-class Emitter(funky_emitter.Emitter):
+
+class Emitter:
     def __init__(self):
         self.index = 0
         self.code = ''
@@ -31,65 +31,26 @@ class Emitter(funky_emitter.Emitter):
     def emit(self):
         return self.code
 
-    def alloc_tnode(self, name, value, pool, data_type):
-        if name == 'anon':
-            name = self.create_anon()
-
-        self.code += """
-        // create tnode '{name}' of type {type}
-        struct tnode {name};
-        funk_create_{type}_scalar({pool}, &{name}, {val});
-        """.format(val=value, name=name, pool=funk_types.pool_str[pool], type=funk_types.to_str[data_type])
-
-        return name
-
     def create_anon(self):
         name = 'anon_{}'.format(self.index)
         self.index += 1
         return name
-
-    def alloc_literal_list(self, name, lit_list, dimensions, pool, result=None):
-        if result is None:
-            result = self.create_anon()
-            self.code += """
-        struct tnode {result};
-        """.format(result=result)
-
-        if name == 'anon':
-            name = self.create_anon()
-
-        if len(lit_list) == 0:
-            self.code += """
-        funk_create_empty_list_element(1, &{result});
-        """.format(result=result)
-            return result
-
-        as_type = to_funk_type(lit_list[0])
-
-        self.code += """
-        // variable \'{name}\': [{lit_list}]
-        {data_type} {name} = \{{list}\};
-        funk_create_list_{data_type}_literal({pool}, {result}, {name},  {n});
-
-            """.format( pool=pool, n=len(lit_list),  result=result, name=name, lit_list=', '.join(str(e) for e in lit_list), data_type=funk_types.to_str[as_type])
-
-        return result
 
     def create_list_of_regs(self, name, reg_list, dimensions, pool, result=None):
         if result is None:
             result = self.create_anon()
 
             self.code += """
-            struct tnode {result};
+            TData {result};
             """.format(result=result)
 
-        anon=self.create_anon()
+        anon = self.create_anon()
 
         n = len(reg_list)
 
         self.code += """
         // {name}
-        struct tnode {anon}[] = {{ {reg_list} }};
+        TData {anon}[] = {{ {reg_list} }};
         funk_create_list_of_regs(&{result}, {anon}, {n});
 
         """.format(anon=anon, reg_list=', '.join(str(e) for e in reg_list), result=result, name=name,
@@ -99,32 +60,25 @@ class Emitter(funky_emitter.Emitter):
 
     def print_funk(self, funk, args):
         if args is not None:
-            for arg_expr in args:
-                self.add_comment(arg_expr.__repr__())
-                arg = arg_expr.eval()
+            l = [e.eval() for e in args]
+            self.code += 'std::cout'
+            for arg_expr in l:
+                self.code += '<< {}'.format(arg_expr)
 
-                if isinstance(arg_expr, funk_ast.String):
-                    self.code += """
-        printf(\"{arg_expr} \");
-        """.format(arg_expr=arg)
-                else:
-                    self.code += """
-        funk_print_node(&{node});
-        """.format(node=arg)
-        self.code += 'printf("\\n");'
+            self.code += '<< std::endl; '
 
     def add_comment(self, comment):
         self.code += """
-        //  {}""".format(comment)
+        //  {}\n""".format(comment)
 
     def get_element_in_array(self, node, index, result=None):
         if result is None:
             result = self.create_anon()
             self.code += """
-        struct tnode {result};
+        TData {result};
         """.format(result=result)
 
-        if isinstance(index,funk_ast.IntegerConstant):
+        if isinstance(index, funk_ast.IntegerConstant):
             i = index.eval()
         else:
             i = 'DATA(&{index},0)->data.i32'.format(index=index.eval())
@@ -140,9 +94,8 @@ class Emitter(funky_emitter.Emitter):
             raise Exception('=== exit takes 0 parameter')
 
         self.code += """
-        funk_exit();
+        exit(0);
         """
-
 
     def fcmp_signed(self, operation, a, b, result=None):
         return self.arith_helper(a, b, operation, result)
@@ -160,7 +113,7 @@ class Emitter(funky_emitter.Emitter):
             result = self.create_anon()
 
             self.code += """
-            struct tnode {result};""".format(result=result)
+            TData {result};""".format(result=result)
 
         if isinstance(a, int):
             self.code += """
@@ -190,12 +143,12 @@ class Emitter(funky_emitter.Emitter):
         if result is None:
             result = self.create_anon()
             self.code += """
-        struct tnode {result};
+        TData {result};
         """.format(result=result)
 
         self.code += """
 
-        funk_get_len(&{result}, &{node});
+        {result} = {node}.GetLen();
         """.format(node=node, result=result)
 
         return result
@@ -205,12 +158,13 @@ class Emitter(funky_emitter.Emitter):
         declare = ''
         if result is None:
             result = self.create_anon()
-            declare = 'struct tnode'
+            declare = 'TData'
 
         self.code += """
-        struct tnode {anon}[] = {{ {arg_list} }};
-        {declare} {result} = {name}({arity}, {anon});
-                 """.format(anon=anon, declare=declare, name=name, arg_list=', '.join(str(e) for e in arguments),  arity=len(arguments), result=result)
+        std::vector<TData> {anon} = {{ {arg_list} }};
+        {declare} {result} = funky::{name}({anon});
+                 """.format(anon=anon, declare=declare, name=name, arg_list=', '.join(str(e) for e in arguments),
+                            arity=len(arguments), result=result)
 
         return result
 
@@ -218,62 +172,19 @@ class Emitter(funky_emitter.Emitter):
         if len(arguments) != 1:
             raise Exception('=== exit takes 1 parameter')
 
+        ref = ''
         if result is None:
+            ref = 'TData'
             result = self.create_anon()
 
-        total = self.create_anon()
         src = arguments[0].eval()
+        anon = funk.emitter.create_anon()
         self.code += """
-        int {total} = _funk_sum_list(&{src});
-        """.format(src=src, total=total)
-
-        self.alloc_tnode(result, total, pool, funk_types.int)
-
-        return result
-
-    def create_sub_array(self, src, c1, c2, result=None):
-        if result is None:
-            result = self.create_anon()
-            self.code += """
-            struct tnode {result};
-            """.format(result=result)
-
-        if isinstance(c1, funk_ast.IntegerConstant) and isinstance(c2, funk_ast.IntegerConstant):
-            i = c1.eval()
-            j = c2.eval()
-            self.code += """
-                funk_create_sub_array_lit_indexes(&{src}, &{result}, {i}, {j});
-                """.format(src=src, result=result, i=i, j=j)
-        elif isinstance(c1, funk_ast.IntegerConstant):
-            val = c1.eval()
-            j = c2.eval()
-            anon = self.create_anon()
-            self.code += """
-        struct tnode {anon};
-        funk_create_i32_scalar(function_pool, &{anon}, {val});
-        funk_create_sub_array(&{src}, &{result}, &{anon}, &{j});
-        """.format(src=src, result=result, val=val, j=j, anon=anon)
-
-        elif isinstance(c2, funk_ast.IntegerConstant):
-            i = c1.eval()
-            val = c2.eval()
-            anon = self.create_anon()
-            self.code += """
-       struct tnode {anon};
-       funk_create_i32_scalar(function_pool, &{anon}, {val});
-       funk_create_sub_array(&{src}, &{result}, &{i}, &{anon});
-       """.format(src=src, result=result, i=i, val=val, anon=anon)
-        else:
-            val1 = c1.eval()
-            val2 = c2.eval()
-            anon1 = self.create_anon()
-            anon2 = self.create_anon()
-            self.code += """
-       struct tnode {anon1};
-       struct tnode {anon2};
-       funk_create_i32_scalar(function_pool, &{anon1}, DATA(&{val1},0)->data.i32);
-       funk_create_i32_scalar(function_pool, &{anon2}, DATA(&{val2},0)->data.i32);
-       funk_create_sub_array(&{src}, &{result}, &{anon1}, &{anon2});
-       """.format(src=src, result=result, val1=val1, val2=val2, anon1=anon1, anon2=anon2)
+        // sum
+        TData {anon} = {src}.Flatten();
+        {ref} {result} = std::accumulate({anon}.array.begin(), {anon}.array.end(),
+            TData(0),
+            [](TData& acc,  TData& n) -> TData{{ return (acc + n); }});
+        """.format(result=result, ref=ref, src=src, anon=anon)
 
         return result

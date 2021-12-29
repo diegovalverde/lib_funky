@@ -70,14 +70,14 @@ def compile_source(src_path, build_path, include_paths, debug=False):
 
         file_base_name = get_file_base_name(src_path)
 
-        funk.save_c(os.path.join(build_path, '{}.c'.format(file_base_name)))
+        funk.save_c(os.path.join(build_path, '{}.cpp'.format(file_base_name)))
         # apply clang format
-        cmd ='clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.c'.format(path=build_path,file_base_path=file_base_name)
+        cmd ='clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.cpp'.format(path=build_path,file_base_path=file_base_name)
         #print(cmd)
         os.system(cmd)
 
         # compile
-        cmd = 'clang -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.c -o {build_path}/{file_base_name}.o'.format(
+        cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
             build_path=build_path, file_base_name=file_base_name)
         obj_list.append('{build_path}/{file_base_name}.o'.format(build_path=build_path,file_base_name=file_base_name))
 
@@ -86,13 +86,13 @@ def compile_source(src_path, build_path, include_paths, debug=False):
             print(cmd)
             exit(1)
 
-        print('{} -> {}/{}'.format('{}.f'.format(file_base_name), build_path,'{}.c'.format(file_base_name)))
+        print('{} -> {}/{}'.format('{}.f'.format(file_base_name), build_path,'{}.cpp'.format(file_base_name)))
         dependency_satisfied.add(src_path)
-        link_targets.add(os.path.join(build_path,'{}.c'.format(file_base_name)))
+        link_targets.add(os.path.join(build_path,'{}.cpp'.format(file_base_name)))
 
         for dependency in get_dependencies(src_text, include_paths=include_paths):
             name = get_file_base_name(dependency)
-            ll_path = os.path.join(build_path, '{}.c'.format(name))
+            ll_path = os.path.join(build_path, '{}.cpp'.format(name))
             link_targets.add(ll_path)
             #if not os.path.isfile(ll_path) or os.path.getmtime(ll_path) < os.path.getmtime(dependency):
             dependencies.append(dependency)
@@ -130,7 +130,7 @@ def build(src_path, include_paths, build_path, debug):
     obj_list=build_source(src_path, include_paths, build_path, debug)
 
     print('==== linking ====')
-    cmd = 'clang -g -c -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/funk_c_model.c -o {build_path}/funk_c_model.o'.format(
+    cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/funk_c_model.cpp -o {build_path}/funk_c_model.o'.format(
         build_path=build_path)
 
     retval = os.system(cmd)
@@ -141,7 +141,7 @@ def build(src_path, include_paths, build_path, debug):
     _, file_name = os.path.split(src_path)
     output = os.path.join(build_path, os.path.splitext(file_name)[0])
 
-    cmd = 'clang -g {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}.exe'.format(
+    cmd = 'clang++ -std=c++11 -g {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}.exe'.format(
         build_path=build_path, output=output, objects=' '.join(obj_list))
 
     retval = os.system(cmd)
@@ -182,7 +182,7 @@ def build(src_path, include_paths, build_path, debug):
         # TODO: allow user to specify the path to libs
         libs += '-L/usr/local/lib -lSDL2 '
 
-    cmd = '{}/clang {obj_list} {libs} -o {output}'.format(llvm_bin_prefix, obj_list=obj_list, libs=libs, output=output)
+    cmd = '{}/clang++ {obj_list} {libs} -o {output}'.format(llvm_bin_prefix, obj_list=obj_list, libs=libs, output=output)
 
     retval = os.system(cmd)
     if retval != 0:
