@@ -8,6 +8,7 @@ TData ArithOpDifferentType(const TData &a, const TData & b){ return TData(funky_
 TData BoolOpEq(const TData &a, const TData & b){ return TData(0); }
 TData BoolOpNe(const TData &a, const TData & b){ return TData(1); }
 TData DefaultRetVal(const TData &r) { return TData(r);}
+//TData DefaultDoubleCast(const TData &a){ return a.d64; }
 
 #define BOOL_RETVAL(F,op) TData F(const TData &r){ \
   if (r.type != funky_type::array) return r; \
@@ -17,16 +18,17 @@ TData DefaultRetVal(const TData &r) { return TData(r);}
 BOOL_RETVAL(BoolEqRetVal, all_of)
 BOOL_RETVAL(BoolNeRetVal, any_of)
 
-# define OPERATOR(op, a, b, WheDifferentTypes, RetFunct ) \
+#define D64_DEFAULT_OPERATION(op)  result.d64 = a.d64 op b.d64 
+#define D64_UNSUPPORTED_OPERATION(op) result.type = funky_type::invalid
+
+# define OPERATOR(op, a, b, D64OPERATION, WheDifferentTypes, RetFunct ) \
 TData operator op(const TData &a, const TData &b) {\
     TData result;\
     if (a.type != b.type) return WheDifferentTypes(a,b); \
     result.type = a.type; \
-    switch (result.type) \
-    { \
-    case funky_type::i32: \
-    result.i32 = (int32_t) (a.i32 op b.i32);  break; \
-    case funky_type::d64: result.d64 = a.d64 op b.d64; break; \
+    switch (result.type) { \
+    case funky_type::i32: result.i32 = (int32_t) (a.i32 op b.i32);  break; \
+    case funky_type::d64: D64OPERATION; break; \
     case funky_type::array: {\
       if (a.array.size() != b.array.size()) return WheDifferentTypes(a,b); \
       for (std::size_t i = 0; i < a.array.size(); i++) { \
@@ -39,13 +41,20 @@ TData operator op(const TData &a, const TData &b) {\
     return RetFunct(result); \
 }
 
-OPERATOR(+,a,b, ArithOpDifferentType, DefaultRetVal)
-OPERATOR(-,a,b, ArithOpDifferentType, DefaultRetVal)
-OPERATOR(*,a,b, ArithOpDifferentType, DefaultRetVal)
-OPERATOR(/,a,b, ArithOpDifferentType, DefaultRetVal)
-OPERATOR(==,a,b, BoolOpEq, BoolEqRetVal)
-OPERATOR(!=,a,b, BoolOpNe, BoolNeRetVal)
-OPERATOR(<,a,b, BoolOpEq, BoolEqRetVal)
+OPERATOR(+,a,b, D64_DEFAULT_OPERATION(+), ArithOpDifferentType, DefaultRetVal)
+OPERATOR(-,a,b, D64_DEFAULT_OPERATION(-), ArithOpDifferentType, DefaultRetVal)
+OPERATOR(*,a,b, D64_DEFAULT_OPERATION(*), ArithOpDifferentType, DefaultRetVal)
+OPERATOR(/,a,b, D64_DEFAULT_OPERATION(/), ArithOpDifferentType, DefaultRetVal)
+OPERATOR(%,a,b, D64_UNSUPPORTED_OPERATION(%), ArithOpDifferentType, DefaultRetVal)
+OPERATOR(==,a,b, D64_DEFAULT_OPERATION(==), BoolOpEq, BoolEqRetVal)
+OPERATOR(!=,a,b, D64_DEFAULT_OPERATION(!=), BoolOpNe, BoolNeRetVal)
+OPERATOR(<,a,b, D64_DEFAULT_OPERATION(<), BoolOpEq, BoolEqRetVal)
+OPERATOR(>,a,b, D64_DEFAULT_OPERATION(>), BoolOpEq, BoolEqRetVal)
+OPERATOR(<=,a,b, D64_DEFAULT_OPERATION(<=), BoolOpEq, BoolEqRetVal)
+OPERATOR(>=,a,b, D64_DEFAULT_OPERATION(>=), BoolOpEq, BoolEqRetVal)
+OPERATOR(&&,a,b, D64_UNSUPPORTED_OPERATION(&&), BoolOpEq, BoolEqRetVal)
+OPERATOR(||,a,b, D64_UNSUPPORTED_OPERATION(||), BoolOpEq, BoolEqRetVal)
+
 
 //-------------------------------------------------------
 std::string TData::Print() const{
@@ -120,3 +129,18 @@ TData TData::Flatten() {
   return result;
 }
 //-------------------------------------------------------
+TData TData::Abs() const {
+  TData ret;
+  switch (type) {
+    case funky_type::i32: ret = TData(std::abs(i32)); break;
+    case funky_type::d64: ret = TData(std::abs(d64)); break;
+    case funky_type::array: {
+      for (auto & e : array) ret.array.push_back( e.Abs() ); 
+      ret.type = funky_type::array; 
+      } break;
+    default: ret.type = funky_type::invalid;
+  } 
+  return ret;
+}
+//-------------------------------------------------------
+

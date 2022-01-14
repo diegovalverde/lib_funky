@@ -1,4 +1,5 @@
 use astar, bst, sem_matrix, shift_matrix, sort, count, all, find
+use roll, neg
 
 #FINAL <-> [[1, 2, 3],[5, 8, 6],[0, 7, 4]]
 #INITIAL <-> [[1, 2, 3],[5, 6, 0],[7, 8, 4]]
@@ -25,9 +26,7 @@ h(board): abs(flatten(board - FINAL)).
 is_goal([board, prev_boards,_,_] | all(h(board),0) = 1 ):
     say('solution found: ', prev_boards, board)
     1.
-is_goal(b): 
-    #say(b[0], ' not a goal')
-    0.
+is_goal(b): 0.
 
 # Use A* sort style
 sort_criteria([board1, _, cost1, _], [board2, _, cost2, _] |
@@ -45,7 +44,13 @@ unexplored(b <~ [next_boards], explored_list, i ):
 
 next_board(A, [zi,zj], [di, dj] ):
     E <- sem_matrix(3,3, zi + di, zj + dj )
-    (roll(A * E, -1*di, -1*dj) + A) * not(E).
+    # say('E',E)
+    # say('neg(E)', neg(E))
+    # say('A * E', A * E)
+    # say('roll(A * E, -1*di, -1*dj)', roll(A * E, -1*di, -1*dj))
+    # say('roll(A * E, -1*di, -1*dj) + A', roll(A * E, -1*di, -1*dj) + A)
+    # say('(roll(A * E, -1*di, -1*dj) + A) * neg(E)',(roll(A * E, -1*di, -1*dj) + A) * neg(E))
+    (roll(A * E, -1*di, -1*dj) + A) * neg(E).
 
     get_valid_deltas(_, [], _, _) : [].
     get_valid_deltas(p, d <~ [deltas], tl, br | inside( tl, br ,p + d) != [] ):
@@ -57,15 +62,16 @@ next_board(A, [zi,zj], [di, dj] ):
 
 get_children([]): [].
 get_children([ board , prev_boards, cost, pos ]):
-    #say(' &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& get_children ==============')
-    #say('board', board , 'prev_boards', prev_boards, 'cost', cost, 'pos', pos)
+    # say(' &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& get_children ==============')
+    # say('board', board , 'prev_boards', prev_boards, 'cost', cost, 'pos', pos)
     delta <- get_valid_deltas(pos, [[-1,0], [1,0], [0,1], [0,-1]], [0,0], [3,3])
     #say('delta', delta)
     
     next_boards <- [next_board(board, pos, delta[k])   |
         0 <= k < len(delta)  ]
 
-    
+    #say('next boards', next_boards)
+    #exit()
     idx <- unexplored(next_boards, prev_boards ,0)
 
     [ [next_boards[ idx[k] ] ,

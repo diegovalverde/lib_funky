@@ -37,6 +37,7 @@ class TData
       bool isRange;
     };
     TData GetRange(std::vector<RangeType> ranges ) const;
+    TData Abs() const;
   
     funky_type type = funky_type::invalid;
     std::vector<TData> array;
@@ -52,7 +53,12 @@ class TData
     friend TData operator==(const TData &a, const TData &b);
     friend TData operator!=(const TData &a, const TData &b);
     friend TData operator<(const TData &a, const TData &b);
-    friend TData operator!(const TData &a);
+    friend TData operator<=(const TData &a, const TData &b);
+    friend TData operator>(const TData &a, const TData &b);
+    friend TData operator>=(const TData &a, const TData &b);
+    friend TData operator&&(const TData &a, const TData &b);
+    friend TData operator||(const TData &a, const TData &b);
+    friend TData operator%(const TData &a, const TData &b);
     friend std::ostream& operator<<(std::ostream& os, const TData& data);
 
 };

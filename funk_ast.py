@@ -602,6 +602,11 @@ class BinaryOp(Expression):
             result = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
             TData {result};""".format(result=result)
+        if isinstance(self.left,list):
+            self.left = self.left[0]
+
+        if isinstance(self.right,list):
+            self.right = self.right[0]
 
         a = self.left.eval()
         b = self.right.eval()
@@ -751,7 +756,7 @@ class GreaterOrEqualThan(BoolBinaryOp):
         return 'GreaterOrEqualThan({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.arith_op(result, '<=')
+        return self.arith_op(result, '>=')
 
 
 class ListConcat(BinaryOp):
@@ -984,14 +989,15 @@ class ExprRange(Range):
             end += 1
 
         i = self.iterator_symbol.eval()
-        self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk, '__offset__'))
+        length = self.funk.emitter.create_anon()
+        offset = self.funk.emitter.create_anon()
+        self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk, offset))
         self.funk.emitter.code += """
-        {{
-            uint32_t __len__ = {end} - {start};
-            for (int {i} = 0; {i} < __len__; {i}++)
+            uint32_t {length} = {end} - {start};
+            for (int {i} = 0; {i} < {length}; {i}++)
             {{
-                TData __offset__({start} + {i});
-        """.format(result=result, i=i, start=start, end=end)
+                TData {offset}({start} + {i});
+        """.format(result=result, i=i, start=start, end=end, offset=offset, length=length)
 
         expr = self.expr.eval()
 
@@ -999,7 +1005,6 @@ class ExprRange(Range):
                 {result}.array.push_back({val});
             }}
 
-        }}
         """.format(result=result, val=expr, start=start, end=end)
 
         return result
@@ -1046,9 +1051,7 @@ class FunctionCall(Expression):
             'len': Len,
             'flatten': Flatten,
             'sum': FunkSum,
-            'not': FunkNot,
             'abs': FunkAbs,
-            'roll': FunkRoll,
             'dim': Dim,
             'sdl_window': SDLCreateWindow,
             'sdl_rect':SDLRect,
@@ -1370,29 +1373,6 @@ class String(Expression):
     def eval(self, result=None):
         return self.fmt_str
 
-
-class FunkNot(Expression):
-    def __init__(self, funk, arg_list):
-        super().__init__()
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-        TData {result};
-            """.format(result=result)
-
-        src= self.arg_list[0].eval()
-
-        self.funk.emitter.code += """
-        {result} = !{src};
-        """.format(result=result, src=src)
-
-        return result
-
-
 class FunkAbs(Expression):
     def __init__(self, funk, arg_list):
         super().__init__()
@@ -1400,53 +1380,17 @@ class FunkAbs(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
+        ref = ''
         if result is None:
+            ref = 'TData'
             result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-        TData {result};
-            """.format(result=result)
 
         src = self.arg_list[0].eval()
-
         self.funk.emitter.code += """
-        {result} = funk_abs(&{src});
-        """.format(result=result, src=src)
+         {ref} {result} = {src}.Abs();
+        """.format(ref=ref,result=result, src=src)
 
         return result
-
-
-class FunkRoll(Expression):
-    def __init__(self, funk, arg_list):
-        super().__init__()
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-        TData {result};
-            """.format(result=result)
-
-        src = self.arg_list[0].eval()
-
-        deltas = []
-        for delta in self.arg_list[1:]:
-            if isinstance(delta, IntegerConstant):
-                deltas.append(self.funk.emitter.alloc_TData('anon', delta.eval(),
-                                                        funk_types.function_pool, funk_types.int))
-            else:
-                deltas.append(delta.eval())
-
-        # deltas = [ delta.eval() for delta in self.arg_list[1:]]
-
-        self.funk.emitter.code += """
-     TData {anon}[] = {{ {deltas} }};
-    {result} = funk_roll(  &{src}, {anon}, {delta_count});
-        """.format(anon=self.funk.emitter.create_anon(), result=result, src=src, deltas=', '.join(str(e) for e in deltas), delta_count=len(deltas))
-
-        return result
-
 
 class FunkSum(Expression):
     def __init__(self, funk, arg_list):

@@ -205,7 +205,6 @@ namespace funky {
 
                 ast_generator.function_map[fn].eval()
 
-
         except Exception as e:
             print('ERROR!!!!')
             raise Exception(formatCompilationError(e))
