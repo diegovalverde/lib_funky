@@ -3,12 +3,12 @@
 #include <sstream>
 #include <algorithm>
 #include <numeric>
+std::default_random_engine g_funky_random_engine;
 
 TData ArithOpDifferentType(const TData &a, const TData & b){ return TData(funky_type::invalid); }
 TData BoolOpEq(const TData &a, const TData & b){ return TData(0); }
 TData BoolOpNe(const TData &a, const TData & b){ return TData(1); }
 TData DefaultRetVal(const TData &r) { return TData(r);}
-//TData DefaultDoubleCast(const TData &a){ return a.d64; }
 
 #define BOOL_RETVAL(F,op) TData F(const TData &r){ \
   if (r.type != funky_type::array) return r; \
@@ -19,6 +19,7 @@ BOOL_RETVAL(BoolEqRetVal, all_of)
 BOOL_RETVAL(BoolNeRetVal, any_of)
 
 #define D64_DEFAULT_OPERATION(op)  result.d64 = a.d64 op b.d64 
+#define D64_BOOL_OPERATION(op)  result.type = funky_type::i32; result.i32 = a.d64 op b.d64 
 #define D64_UNSUPPORTED_OPERATION(op) result.type = funky_type::invalid
 
 # define OPERATOR(op, a, b, D64OPERATION, WheDifferentTypes, RetFunct ) \
@@ -48,8 +49,8 @@ OPERATOR(/,a,b, D64_DEFAULT_OPERATION(/), ArithOpDifferentType, DefaultRetVal)
 OPERATOR(%,a,b, D64_UNSUPPORTED_OPERATION(%), ArithOpDifferentType, DefaultRetVal)
 OPERATOR(==,a,b, D64_DEFAULT_OPERATION(==), BoolOpEq, BoolEqRetVal)
 OPERATOR(!=,a,b, D64_DEFAULT_OPERATION(!=), BoolOpNe, BoolNeRetVal)
-OPERATOR(<,a,b, D64_DEFAULT_OPERATION(<), BoolOpEq, BoolEqRetVal)
-OPERATOR(>,a,b, D64_DEFAULT_OPERATION(>), BoolOpEq, BoolEqRetVal)
+OPERATOR(<,a,b, D64_BOOL_OPERATION(<), BoolOpEq, BoolEqRetVal)
+OPERATOR(>,a,b, D64_BOOL_OPERATION(>), BoolOpEq, BoolEqRetVal)
 OPERATOR(<=,a,b, D64_DEFAULT_OPERATION(<=), BoolOpEq, BoolEqRetVal)
 OPERATOR(>=,a,b, D64_DEFAULT_OPERATION(>=), BoolOpEq, BoolEqRetVal)
 OPERATOR(&&,a,b, D64_UNSUPPORTED_OPERATION(&&), BoolOpEq, BoolEqRetVal)
@@ -88,7 +89,7 @@ TData TData::GetLen() const {
   if (type == funky_type::array){
     return TData(static_cast<int32_t>(array.size()));
   } else {
-    return 1;
+    return TData(1);
   }
 }
 //-------------------------------------------------------
@@ -142,5 +143,24 @@ TData TData::Abs() const {
   } 
   return ret;
 }
+
+namespace funky
+{
 //-------------------------------------------------------
+TData Reshape(const TData & L, int32_t r, int32_t c){
+  const std::vector<TData> tmp(r);
+  TData ret(tmp);
+  if (r * c != L.GetLen().i32 * L.array[0].GetLen().i32) return L;
+      for (int i = 0, k =0; i < r; i++) {
+        ret.array[i].type = funky_type::array;
+         for (int j = 0; j < c; j++) {
+            ret.array[i].array.push_back(L.array[k++]);
+         }
+      }
+  return ret;
+}
+//-------------------------------------------------------
+
+  
+} // namespace name
 

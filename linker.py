@@ -12,9 +12,9 @@ def set_cwd(path):
     global funk_build_cwd
     funk_build_cwd=path
 
+
 def get_dependencies(src, include_paths=['.',os.getcwd()]):
     """
-
     :param include_paths: list of paths to the include search folders
     :param src: The text src file
     :return: list of paths to dependencies
@@ -27,14 +27,13 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
             continue
         for dep in match[0].split(','):
             dep = dep.strip()
-            if dep == 'sdl':
+            if dep == 'sdl_simple':
                 link_with_sdl = True
                 continue
 
             found = False
             for include_path in include_paths:
                 dep_path = os.path.join(funk_build_cwd,include_path, '{}.f'.format(dep))
-
 
                 if os.path.isfile(dep_path):
                     dependencies.append(dep_path)
@@ -116,18 +115,25 @@ def is_in_path_env(program):
 def build(src_path, include_paths, build_path, debug):
     global link_with_sdl
 
-    if os.environ.get('LLVM_BIN_PATH') is None:
-        print('-E- LLVM_BIN_PATH environment variable is undefined')
-        exit(1)
-
-    llvm_bin_prefix = os.environ.get('LLVM_BIN_PATH')
-
-
     print('==== compiling ====')
 
     if not os.path.exists(build_path):
         os.mkdir(build_path)
-    obj_list=build_source(src_path, include_paths, build_path, debug)
+
+    obj_list = build_source(src_path, include_paths, build_path, debug)
+
+    additional_link_flags = ''
+    if link_with_sdl:
+        additional_link_flags += '-L/usr/local/lib -lSDL2 '
+        cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/sdl_simple.cpp -o {build_path}/sdl_simple.o'.format(
+            build_path=build_path)
+
+        retval = os.system(cmd)
+        if retval != 0:
+            print(cmd)
+            exit(1)
+
+        obj_list.append('{}/{}'.format(build_path,  'sdl_simple.o'))
 
     print('==== linking ====')
     cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/funk_c_model.cpp -o {build_path}/funk_c_model.o'.format(
@@ -141,48 +147,8 @@ def build(src_path, include_paths, build_path, debug):
     _, file_name = os.path.split(src_path)
     output = os.path.join(build_path, os.path.splitext(file_name)[0])
 
-    cmd = 'clang++ -std=c++11 -g {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}.exe'.format(
-        build_path=build_path, output=output, objects=' '.join(obj_list))
-
-    retval = os.system(cmd)
-    if retval != 0:
-        print(cmd)
-        exit(1)
-
-    return
-    if not os.path.isfile(os.path.join(build_path,'funk_core.o')):
-        link_targets.add('{}/core/funk_c_model.o'.format(os.path.dirname(os.path.abspath(__file__))))
-
-    if link_with_sdl and not os.path.isfile(os.path.join(build_path,'funk_sdl.o')):
-        link_targets.add('{}/core/funk_sdl.o'.format(os.path.dirname(os.path.abspath(__file__))))
-
-    _, file_name = os.path.split(src_path)
-    output = os.path.join(build_path, os.path.splitext(file_name)[0])
-
-    obj_list = ''
-    for link_target in link_targets:
-        file_base_name, file_extension = os.path.splitext(link_target)
-        obj_name = '{}.o'.format(file_base_name)
-
-        if not os.path.isfile(obj_name) or os.path.getmtime(link_target) > os.path.getmtime(obj_name):
-            cmd = '{}/llc -filetype=obj {link_target}'.format(llvm_bin_prefix, link_target=link_target)
-
-            retval = os.system(cmd)
-            if retval != 0:
-                print('-E- Error Linking {link_target}'.format(link_target=link_target))
-                exit(retval)
-            else:
-                print('{file_base_name}.ll -> {file_base_name}.o'.format(file_base_name=file_base_name))
-
-        obj_list += ' {} '.format(obj_name)
-
-    libs = ''
-
-    if link_with_sdl:
-        # TODO: allow user to specify the path to libs
-        libs += '-L/usr/local/lib -lSDL2 '
-
-    cmd = '{}/clang++ {obj_list} {libs} -o {output}'.format(llvm_bin_prefix, obj_list=obj_list, libs=libs, output=output)
+    cmd = 'clang++ -std=c++11 -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}.exe'.format(
+        build_path=build_path, output=output, objects=' '.join(obj_list), additional_link_flags=additional_link_flags)
 
     retval = os.system(cmd)
     if retval != 0:
@@ -191,7 +157,6 @@ def build(src_path, include_paths, build_path, debug):
 
 
 def build_source(src_path, include_paths, build_path, debug=False):
-
     dependencies = compile_source(src_path, include_paths=include_paths,
                                   build_path=build_path, debug=debug)
     for dependency in dependencies:

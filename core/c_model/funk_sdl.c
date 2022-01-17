@@ -18,16 +18,16 @@ SDL_Window *window = NULL;
 int stop_render = 0;
 int bg_color[] = {100,100,100};
 
-struct tnode g_sdl_user_global_state;
+TData g_sdl_user_global_state;
 
 void sdl_render(struct tnode *, int32_t, struct tnode *);
 void funk_create_int_scalar(enum pool_types , struct tnode * , int32_t );
 
 
-void set_sdl_user_global_state(struct tnode * state)
+TData set_sdl_user_global_state(std::vector<TData>& state)
 {
 
-  funk_copy_node( &g_sdl_user_global_state, state);
+  g_sdl_user_global_state = state;
 
 }
 void sdl_set_color(struct tnode * r, struct tnode * g, struct tnode * b){
@@ -116,7 +116,7 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void *user
 }
 #endif
 
-void funk_sdl_create_window(int32_t w, int32_t h, struct tnode * user_data)
+void funk_sdl_create_window(int32_t w, int32_t h, TData & user_data)
 {
   printf("-I- Initializing SDL 2D\n");
 
@@ -138,7 +138,7 @@ void funk_sdl_create_window(int32_t w, int32_t h, struct tnode * user_data)
 
   struct sdl_context ctx;
 //  ctx.renderer = renderer;
-  funk_copy_node( &g_sdl_user_global_state, user_data);
+   g_sdl_user_global_state = user_data;
 
 
   #if FUNK_BUILD_FOR_WEB

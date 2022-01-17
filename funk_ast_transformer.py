@@ -88,9 +88,6 @@ class TreeToAst(Transformer):
 
         fn_name = tree[0].name
 
-        if fn_name == 'concat':
-            print('???')
-
         special_fns = ['main', 'sdl_render']
         firm = remove_invalid(flatten(tree[1]))
         fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)

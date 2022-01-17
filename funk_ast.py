@@ -19,9 +19,7 @@
 from . import funk_types
 import collections
 import copy
-import types
-from functools import reduce
-
+from .sdl_extension import *
 
 def debug_print(funk, strings):
     arr = [StringConstant(funk, str) for str in strings]
@@ -1047,12 +1045,11 @@ class FunctionCall(Expression):
             'rand_float': RandFloat,
             'say': Print,
             'info': DebugInfo,
-            'ppool': PrintPool,
             'len': Len,
             'flatten': Flatten,
             'sum': FunkSum,
             'abs': FunkAbs,
-            'dim': Dim,
+            'type': FunkGetType,
             'sdl_window': SDLCreateWindow,
             'sdl_rect':SDLRect,
             'sdl_point': SDLPoint,
@@ -1180,6 +1177,8 @@ class FunctionMap:
             clause.funk.emitter.code += """
     } // namespace funky
     int main(void) {
+            std::random_device rd;
+            g_funky_random_engine = std::default_random_engine(rd());
                     """
             for stmt in clause.body:
                 stmt.eval()
@@ -1427,14 +1426,22 @@ class Len(Expression):
 
         return self.funk.emitter.get_node_length(self.funk, self.arg_list, result=result)
 
-class Dim(Expression):
+class FunkGetType(Expression):
     def __init__(self, funk, arg_list):
         super().__init__()
         self.funk = funk
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        self.funk.emitter.print_dim(self.funk, self.arg_list)
+        ref = ''
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            ref = 'TData'
+        src= self.arg_list[0].eval()
+
+        self.funk.emitter.code += """
+        {ref} {result} = TData(static_cast<int32_t>({src}.type));
+        """.format(ref=ref, result=result,src=src)
 
 class DebugInfo:
     def __init__(self, funk, arg):
@@ -1443,15 +1450,6 @@ class DebugInfo:
 
     def eval(self, result=None):
         self.funk.emitter.debug_print_node_info(self.funk, self.arg)
-
-
-class PrintPool:
-    def __init__(self, funk, arg):
-        self.funk = funk
-        self.arg = arg
-
-    def eval(self, result=None):
-        self.funk.emitter.debug_print_pool(self.funk, self.arg)
 
 
 class Print:
@@ -1484,7 +1482,18 @@ class RandFloat:
         return funk_types.double
 
     def eval(self, result=None):
-        return self.funk.emitter.rand_double(self.funk, self.arg_list, result=result)
+        ref = ''
+        if result is None:
+            ref = 'TData'
+            result = self.funk.emitter.create_anon()
+        anon = self.funk.emitter.create_anon()
+        self.funk.emitter.code += """
+
+        std::uniform_real_distribution<double> {anon}({min}, {max});
+        {ref} {result} = TData({anon}(g_funky_random_engine));
+        //std::cout << {result} << std::endl;
+        """.format(anon=anon, ref=ref, result=result, min=self.arg_list[0].eval(), max=self.arg_list[1].eval() )
+        return result
 
 class SetConfigParam:
     def __init__(self, funk, arg_list):
@@ -1520,7 +1529,19 @@ class ReShape:
         return funk_types.int
 
     def eval(self, result):
-        return self.funk.emitter.reshape(self.funk, self.arg_list, result)
+        L = self.arg_list[0].eval()
+        w = self.arg_list[1].eval()
+        h = self.arg_list[2].eval()
+        ref = ''
+        if result is None:
+            ref = 'TData'
+            result = self.funk.emitter.create_anon()
+
+        self.funk.emitter.code += """
+        {ref} {result} = funky::Reshape({L}, {w}, {h});
+        """.format(ref=ref, result=result, L=L, w=w, h=h)
+
+        return result
 
 class Exit:
     def __init__(self, funk, arg_list):
@@ -1544,58 +1565,10 @@ class Sleep:
         return funk_types.int
 
     def eval(self, result=None):
-        return self.funk.emitter.sleep(self.funk, self.arg_list)
-
-class SDLCreateWindow:
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        self.funk.emitter.sdl_create_window(self.funk, self.arg_list)
-
-class SDLRenderFunction:
-    """
-        Requires Simple2D to be installed.
-        https://github.com/simple2d/simple2d
-
-        """
-
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        self.funk.emitter.sdl_render_callback(self.funk, self.arg_list)
-
-class SDLLine:
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        self.funk.emitter.sdl_line(self.funk, self.arg_list)
-
-class SDLPoint:
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        self.funk.emitter.sdl_point(self.funk, self.arg_list)
-
-class SDLRect:
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        self.funk.emitter.sdl_rect(self.funk, self.arg_list)
-
-class SDLColor:
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    def eval(self, result=None):
-        self.funk.emitter.sdl_set_color(self.funk, self.arg_list)
+        self.funk.emitter.code += """
+        {{
+            std::chrono::milliseconds timespan({val}*1000);
+            std::this_thread::sleep_for(timespan);
+        }}
+        """.format(val=self.arg_list[0].eval())
+        return result

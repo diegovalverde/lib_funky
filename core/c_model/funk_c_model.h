@@ -6,16 +6,19 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <random>
+#include <chrono> // for std::this_thread::sleep_for
+#include <thread> // std::this_thread::sleep_for
+
+extern std::default_random_engine g_funky_random_engine;
 
 enum class funky_type{
 invalid,
+array ,
 i32,
 d64,
 str,
-array ,
-empty_array ,
-function ,
-max_types
+function
 };
 
 class TData
@@ -62,6 +65,7 @@ class TData
     friend std::ostream& operator<<(std::ostream& os, const TData& data);
 
 };
-
-
+namespace funky{
+TData Reshape(const TData & L, int32_t r, int32_t c);
+}
 #endif

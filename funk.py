@@ -113,7 +113,9 @@ namespace funky {
 //
 //
 // =============================================================== ;;
+void sdl_point( TData & x,  TData & y);
 """
+
         self.post_amble = \
             """
 } //namespace

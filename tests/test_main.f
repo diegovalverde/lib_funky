@@ -6,9 +6,11 @@ use test_fibo, test_arrays_simple, test_ranges, test_bfs
 use test_list_concat, test_matrix, test_flatten
 use test_nested_arrays, test_find, test_sort
 use test_neg, test_transpose, test_arith
-use test_roll, test_8_puzzle
+use test_roll, test_8_puzzle, test_reshape
 
 main():
+    test_reshape()
+    
     test_arith() 
     
     test_neg()
