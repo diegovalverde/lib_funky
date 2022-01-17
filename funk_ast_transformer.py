@@ -88,6 +88,9 @@ class TreeToAst(Transformer):
 
         fn_name = tree[0].name
 
+        if fn_name == 'concat':
+            print('???')
+
         special_fns = ['main', 'sdl_render']
         firm = remove_invalid(flatten(tree[1]))
         fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
@@ -97,7 +100,7 @@ class TreeToAst(Transformer):
             function_key = fn_name
 
             clause = funk_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
-                                             arguments=fn_arguments, tail_pairs=tail_pairs)
+                                             arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm))
 
             self.function_map[function_key] = funk_ast.FunctionMap(self.funk, function_key, arguments=fn_arguments,
                                                                    tail_pairs=tail_pairs)
@@ -109,7 +112,7 @@ class TreeToAst(Transformer):
             function_key = '{}'.format(fn_name)
 
             clause = funk_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
-                                             arguments=fn_arguments, tail_pairs=tail_pairs)
+                                             arguments=fn_arguments, tail_pairs=tail_pairs,arity=len(firm))
 
             if function_key not in self.function_map:
                 self.function_definition_list.append(function_key)

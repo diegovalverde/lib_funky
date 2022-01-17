@@ -1143,13 +1143,14 @@ class FunctionCall(Expression):
 
 
 class FunctionClause:
-    def __init__(self, funk, name, fn_body, preconditions, pattern_matches, tail_pairs=None, arguments=None):
+    def __init__(self, funk, name, fn_body, preconditions, pattern_matches, arity=0, tail_pairs=None, arguments=None):
         if arguments is None:
             arguments = []
         if tail_pairs is None:
             tail_pairs = []
         self.body = fn_body
         self.name = name
+        self.arity = arity
         self.arguments = arguments
         self.preconditions = preconditions
         self.pattern_matches = pattern_matches
@@ -1243,14 +1244,6 @@ class FunctionMap:
             if has_pattern_matches and len(pattern_matches) > 0:
                 pattern_matches_string = '&& {} // pattern matches'.format('&& '.join(str(e) for e in pattern_matches))
 
-            arity = len(clause.arguments)
-            # TODO: ERROR FIX THIS SHIT!
-            if self.name == 'next_board':
-                arity = len(clause.pattern_matches) + len(clause.arguments)
-
-            if arity == 0 and clause.pattern_matches is not None:
-                arity = len(clause.pattern_matches)
-
             tail_pair_check = ''
 
             clause.funk.emitter.code += """
@@ -1259,7 +1252,9 @@ class FunctionMap:
             {tail_pair_check}
             ) {{
             {pattern_match_auxiliary_variables}
-            """.format(tail_pair_check=tail_pair_check, clause_arity=arity,pattern_matches=pattern_matches_string,pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
+            """.format(tail_pair_check=tail_pair_check, clause_arity=clause.arity,
+                       pattern_matches=pattern_matches_string,
+                       pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
 
             insn = clause.body[-1]
             last_insn_is_tail_recursive = insn.name == self.name and isinstance(insn, FunctionCall)
