@@ -55,14 +55,11 @@ OPERATOR(<=,a,b, D64_DEFAULT_OPERATION(<=), BoolOpEq, BoolEqRetVal)
 OPERATOR(>=,a,b, D64_DEFAULT_OPERATION(>=), BoolOpEq, BoolEqRetVal)
 OPERATOR(&&,a,b, D64_UNSUPPORTED_OPERATION(&&), BoolOpEq, BoolEqRetVal)
 OPERATOR(||,a,b, D64_UNSUPPORTED_OPERATION(||), BoolOpEq, BoolEqRetVal)
-
-
 //-------------------------------------------------------
 std::string TData::Print() const{
   std::ostringstream oss;
   oss << " ";
-  switch (type)
-  {
+  switch (type){
   case funky_type::i32: oss << i32; break;
   case funky_type::d64: oss << d64; break;
   case funky_type::function: oss << "<function>"; break;
@@ -72,8 +69,7 @@ std::string TData::Print() const{
       oss << array[i] << ((i + 1 < array.size()) ? "," : ""); 
     }
     oss << " ]";
-    break;
-  
+    break; 
   default: oss << "[unknown]"; break;
   }
   oss << " ";
@@ -81,8 +77,15 @@ std::string TData::Print() const{
 }
 //-------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const TData& dt) {
-    os << dt.Print();
-    return os;
+    return os << dt.Print();
+}
+//-------------------------------------------------------
+std::istream& operator>>(std::istream& in, TData& data) {
+ switch (data.type){
+ case funky_type::i32: return in >> data.i32;
+ case funky_type::d64: return in >> data.d64;
+ default: return in;
+ }
 }
 //-------------------------------------------------------
 TData TData::GetLen() const {

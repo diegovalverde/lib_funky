@@ -106,6 +106,7 @@ class Funk:
         self.preamble = \
             """
 #include <funk_c_model.h>
+#include <fstream>
 namespace funky {
 // =============================================================== ;;
 //

@@ -10,6 +10,7 @@
 #include <chrono> // for std::this_thread::sleep_for
 #include <thread> // std::this_thread::sleep_for
 
+
 extern std::default_random_engine g_funky_random_engine;
 
 enum class funky_type{
@@ -29,6 +30,7 @@ class TData
     TData(const int32_t aInt32 ): type(funky_type::i32), i32(aInt32){} 
     TData(const double aD64 ) : type(funky_type::d64), d64(aD64) {}
     TData(const std::vector<TData> & aArray ) :type(funky_type::array), array(aArray) {}
+    TData(const std::string aStr ) :type(funky_type::str), str(aStr) {}
     TData(TData (*fn)(std::vector<TData> &) ) : fn(fn), type(funky_type::function) {}
 
     std::string Print() const;
@@ -63,6 +65,7 @@ class TData
     friend TData operator||(const TData &a, const TData &b);
     friend TData operator%(const TData &a, const TData &b);
     friend std::ostream& operator<<(std::ostream& os, const TData& data);
+    friend std::istream& operator>>(std::istream& in, TData& data);
 
 };
 namespace funky{

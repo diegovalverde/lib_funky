@@ -103,7 +103,7 @@
 
     list_comprehension_range_rhs:    "<" identifier range_rhs   -> action_exclusive_range_lhs
                                     |"<=" identifier range_rhs  -> action_inclusive_range_lhs
-                                    | ":" expr  // [x*x | x : A]
+                                    | ":" expr   -> action_auto_range // [x*x | x : A]
 
     range_rhs: "<" expr    -> action_range_exclusive_rhs
              | "<=" expr   -> action_range_inclusive_rhs

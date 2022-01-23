@@ -472,6 +472,10 @@ class TreeToAst(Transformer):
     def action_range_inclusive_rhs(self, token):
         return funk_ast.Range(self.funk, rhs=token[0], rhs_type='<=')
 
+    def action_auto_range(self, token):
+        return funk_ast.Range(self.funk, rhs=token[0], rhs_type=':')
+
+
     def action_inclusive_range_lhs(self, token):
         identifier = token[0]
         range = token[1]
@@ -491,6 +495,9 @@ class TreeToAst(Transformer):
         range = token[1]
         range.left = expr
         return range
+
+    def list_comprehension_range_rhs(self, token):
+        return token[0]
 
     def action_list_comprehension(self, token):
         """

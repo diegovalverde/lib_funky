@@ -95,7 +95,7 @@ def create_ast_named_symbol(name, funk, right, pool):
 
 
 def create_ast_anon_symbol(funk, right, pool):
-    if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant):
+    if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant) or isinstance(right, String):
         anon = funk.emitter.create_anon()
         funk.emitter.code += """
                 TData {symbol_name} ({val});
@@ -963,12 +963,34 @@ class ExprRange(Range):
 
         self.range_register_calculation_emitted = True
 
+    def read_from_file(self, result):
+        file_handler = self.left.eval()
+        self.right.eval(result=file_handler)
+
+        self.funk.emitter.code += """
+        std::vector<TData> elements;
+        while (!{file}.eof()) {{
+        """.format(file=file_handler)
+
+        element = self.expr.eval()
+
+        self.funk.emitter.code += """
+        if ({element}.type != funky_type::invalid) elements.push_back({element});
+        }}
+        {result} = TData(elements);
+        """.format(element=element, result=result)
+
+        return result
+
     def eval(self, result=None, parent_TData_list=None, parent_offset=None):
         if result is None:
             result = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
             TData {result}(std::vector<TData>{{ }});
             """.format(result=result)
+
+        if self.rhs_type == ':':
+            return self.read_from_file(result)
 
         if isinstance(self.left, IntegerConstant):
             start = self.left.eval()
@@ -1057,7 +1079,9 @@ class FunctionCall(Expression):
             'sdl_set_color':SDLColor,
             'sdl_render': SDLRenderFunction,
             'exit': Exit,
-            'fread_list': FReadList,
+            'file': FOpen,
+            'in': FReadNext,
+            'toi32': ToI32,
             'reshape': ReShape,
         }
 
@@ -1507,7 +1531,8 @@ class SetConfigParam:
     def eval(self, result=None):
         return self.funk.emitter.set_config_parameter(self.arg_list)
 
-class FReadList:
+
+class FOpen:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
@@ -1517,7 +1542,88 @@ class FReadList:
         return funk_types.int
 
     def eval(self, result):
-        return self.funk.emitter.fread_list(self.funk, self.arg_list, result)
+
+        path = self.arg_list[0].eval()
+        mode = self.arg_list[1].eval()
+        if result is None:
+            result = self.funk.emitter.create_anon()
+        self.funk.emitter.code += """
+        std::ifstream {result};
+        {result}.open({path}.str.c_str());
+        if (!{result}.is_open()){{
+            //throw std::exception("-E- Could not open file ");
+            std::cout << "-E- Could not open file " << {path}.str << std::endl;
+            exit(1);
+        }}
+        """.format(result=result, path=path, mode=mode)
+
+        return result
+
+
+class FReadNext:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    @staticmethod
+    def get_compile_type():
+        return funk_types.int
+
+    def eval(self, result):
+        ref = ''
+        file = self.arg_list[0].eval()
+        if result is None:
+            ref = 'TData'
+            result = self.funk.emitter.create_anon()
+
+        self.funk.emitter.code += """
+
+         {ref} {result} = TData(funky_type::str);
+         {file} >> {result}.str;
+        """.format(ref=ref, result=result, file=file)
+
+        return result
+
+
+class ToI32:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    @staticmethod
+    def get_compile_type():
+        return funk_types.int
+
+    def eval(self, result):
+        ref = ''
+        var = self.arg_list[0].eval()
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            self.funk.emitter.code += """
+            TData {result};
+            """.format(result=result)
+
+        self.funk.emitter.code += """
+
+        const bool is_number = !{var}.str.empty() && {var}.str.find_first_not_of("-0123456789") == std::string::npos;
+
+        switch ({var}.type){{
+            case funky_type::i32:{result} = {var}; break;
+            case funky_type::d64: {result} = TData(static_cast<int32_t>({var}.d64)); break;
+            case funky_type::str:
+                 if (is_number) {{
+                    {result} = TData(std::stoi({var}.str));
+                }} else {{
+                     {result} = TData(funky_type::invalid);
+                }}
+                break;
+
+            default: {result} = TData(funky_type::invalid); break;
+        }}
+        """.format(ref=ref, result=result, var=var)
+
+        return result
+
 
 class ReShape:
     def __init__(self, funk, arg_list):
