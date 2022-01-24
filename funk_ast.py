@@ -1078,6 +1078,7 @@ class FunctionCall(Expression):
             'sdl_line': SDLLine,
             'sdl_set_color':SDLColor,
             'sdl_render': SDLRenderFunction,
+            'sdl_set_user_ctx': SDLSetUserCtx,
             'exit': Exit,
             'file': FOpen,
             'in': FReadNext,

@@ -114,7 +114,12 @@ namespace funky {
 //
 //
 // =============================================================== ;;
+//todo: move this
 void sdl_point( TData & x,  TData & y);
+void sdl_rect(int x, int y, int w, int h);
+void sdl_set_color(int r, int g, int b);
+TData sdl_set_user_ctx(const TData & arg);
+
 """
 
         self.post_amble = \

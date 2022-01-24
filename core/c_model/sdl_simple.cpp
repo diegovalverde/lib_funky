@@ -47,7 +47,7 @@ CRenderer sdl;
 
   TData sdl_render( std::vector<TData> &);
 //---------------------------------------------------------------------------------------------------
-TData sdl_set_user_ctx(std::vector<TData> & arg){
+TData sdl_set_user_ctx(const TData & arg){
   ctx.user_data = arg;
   return TData(funky_type::invalid);
 }
@@ -72,6 +72,16 @@ void sdl_point( TData & x,  TData & y){
   SDL_RenderDrawPoint(sdl.renderer, x_,y_);
   SDL_SetRenderDrawColor(sdl.renderer, sdl.bg_color[0], sdl.bg_color[1], sdl.bg_color[2], 255);
 
+}
+//---------------------------------------------------------------------------------------------------
+void sdl_set_color(int r, int g, int b){
+  SDL_SetRenderDrawColor(sdl.renderer,r,g,b,255);
+    
+}
+//---------------------------------------------------------------------------------------------------
+void sdl_rect(int x, int y, int w, int h){
+  SDL_Rect r = {x,y,w,h};
+  SDL_RenderFillRect(sdl.renderer, &r );
 }
 //---------------------------------------------------------------------------------------------------
 TData sdl_simple(std::vector<TData> & args){
