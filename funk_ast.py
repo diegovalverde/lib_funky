@@ -1639,6 +1639,13 @@ class ReShape:
         L = self.arg_list[0].eval()
         w = self.arg_list[1].eval()
         h = self.arg_list[2].eval()
+
+        if not isinstance(w,int):
+            w = '{}.i32'.format(w)
+
+        if not isinstance(h,int):
+            h = '{}.i32'.format(h)
+
         ref = ''
         if result is None:
             ref = 'TData'

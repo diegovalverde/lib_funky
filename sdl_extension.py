@@ -100,8 +100,7 @@ class SDLRect:
         """.format(x=x, y=y, w=w, h=h)
 
         return result
-        #self.funk.emitter.sdl_rect(self.funk, self.arg_list)
-
+        
 class SDLColor:
     def __init__(self, funk, arg_list):
         self.funk = funk
