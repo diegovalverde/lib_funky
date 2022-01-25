@@ -1,12 +1,11 @@
 import re
-from .funk import Funk
+from .funky_compiler import Funk
 import os
 
 link_with_sdl = False
-dependency_satisfied = set()
-link_targets = set()
 funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
-obj_list = []
+#obj_list = []
+
 
 def set_cwd(path):
     global funk_build_cwd
@@ -45,7 +44,7 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
                 print('-I- Include path ',include_paths)
                 exit(1)
 
-    return dependencies
+    return list(set(dependencies))
 
 
 def get_file_base_name(src_path):
@@ -54,9 +53,14 @@ def get_file_base_name(src_path):
     return file_base_name
 
 
-def compile_source(src_path, build_path, include_paths, debug=False):
+def exe_command(cmd):
+    retval = os.system(cmd)
+    if retval != 0:
+        print(cmd)
+        exit(1)
+
+def compile_source(src_path, build_path,  debug=False):
     try:
-        dependencies = []
         funk = Funk(debug=debug)
 
         if not os.path.isfile(src_path):
@@ -72,97 +76,96 @@ def compile_source(src_path, build_path, include_paths, debug=False):
         funk.save_c(os.path.join(build_path, '{}.cpp'.format(file_base_name)))
         # apply clang format
         cmd ='clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.cpp'.format(path=build_path,file_base_path=file_base_name)
-        #print(cmd)
-        os.system(cmd)
+
+        exe_command(cmd)
 
         # compile
         cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
             build_path=build_path, file_base_name=file_base_name)
-        obj_list.append('{build_path}/{file_base_name}.o'.format(build_path=build_path,file_base_name=file_base_name))
+        #obj_list.append('{build_path}/{file_base_name}.o'.format(build_path=build_path,file_base_name=file_base_name))
 
-        retval = os.system(cmd)
-        if retval != 0:
-            print(cmd)
-            exit(1)
-
-        print('{} -> {}/{}'.format('{}.f'.format(file_base_name), build_path,'{}.cpp'.format(file_base_name)))
-        dependency_satisfied.add(src_path)
-        link_targets.add(os.path.join(build_path,'{}.cpp'.format(file_base_name)))
-
-        for dependency in get_dependencies(src_text, include_paths=include_paths):
-            name = get_file_base_name(dependency)
-            ll_path = os.path.join(build_path, '{}.cpp'.format(name))
-            link_targets.add(ll_path)
-            #if not os.path.isfile(ll_path) or os.path.getmtime(ll_path) < os.path.getmtime(dependency):
-            dependencies.append(dependency)
-
-        return dependencies
+        exe_command(cmd)
 
     except IOError:
         print('-E- File not found \'{}\''.format(src_path))
         exit()
 
 
-def is_in_path_env(program):
-    for path in os.environ["PATH"].split(os.pathsep):
-        exe_file = os.path.join(path, program)
-        if os.path.exists(exe_file):
-            return True
-
-    return False
-
-
-def build(src_path, include_paths, build_path, debug):
-    global link_with_sdl
-
-    print('==== compiling ====')
-
-    if not os.path.exists(build_path):
-        os.mkdir(build_path)
-
-    obj_list = build_source(src_path, include_paths, build_path, debug)
-
+def link_sources(obj_list, build_path, src_path):
     additional_link_flags = ''
     if link_with_sdl:
         additional_link_flags += '-L/usr/local/lib -lSDL2 '
         cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/sdl_simple.cpp -o {build_path}/sdl_simple.o'.format(
             build_path=build_path)
+        exe_command(cmd)
 
-        retval = os.system(cmd)
-        if retval != 0:
-            print(cmd)
-            exit(1)
+        obj_list.append('{}/{}'.format(build_path, 'sdl_simple.o'))
 
-        obj_list.append('{}/{}'.format(build_path,  'sdl_simple.o'))
-
-    print('==== linking ====')
     cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/funk_c_model.cpp -o {build_path}/funk_c_model.o'.format(
         build_path=build_path)
-
-    retval = os.system(cmd)
-    if retval != 0:
-        print(cmd)
-        exit(1)
+    exe_command(cmd)
 
     _, file_name = os.path.split(src_path)
     output = os.path.join(build_path, os.path.splitext(file_name)[0])
 
     cmd = 'clang++ -std=c++11 -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}.exe'.format(
         build_path=build_path, output=output, objects=' '.join(obj_list), additional_link_flags=additional_link_flags)
-
-    retval = os.system(cmd)
-    if retval != 0:
-        print(cmd)
-        exit(1)
+    exe_command(cmd)
 
 
-def build_source(src_path, include_paths, build_path, debug=False):
-    dependencies = compile_source(src_path, include_paths=include_paths,
-                                  build_path=build_path, debug=debug)
+def build(src_path, include_paths, build_path, debug):
+    global link_with_sdl
+
+    if not os.path.exists(build_path):
+        os.mkdir(build_path)
+
+    print('==== compiling ====')
+    object_files = compile_sources(src_path, include_paths, build_path, debug)
+
+    print('==== linking ====')
+    link_sources(object_files, build_path, src_path)
+
+
+def src_is_newer(src_path, build_path):
+    _, file_name = os.path.split(src_path)
+    obj_path = os.path.join(build_path, '{}.o'.format(os.path.splitext(file_name)[0]))
+
+    if not os.path.exists(obj_path):
+        return True
+
+    obj_time = os.path.getmtime(obj_path)
+    src_time = os.path.getmtime(src_path)
+
+    return src_time > obj_time
+
+
+def find_dependencies(src_path, include_paths):
+    if not os.path.isfile(src_path):
+        src_path = os.path.join(os.getcwd(), src_path)
+
+    with open(src_path, 'r') as my_file:
+        src_text = my_file.read()
+
+    dependencies = get_dependencies(src_text, include_paths=include_paths)
+
     for dependency in dependencies:
-        if dependency in dependency_satisfied:
-            continue
-        dependencies = build_source(dependency, include_paths=include_paths,
-                     build_path=build_path, debug=debug)
+        dependencies += find_dependencies(dependency, include_paths)
+        dependencies = list(set(dependencies))
 
-    return obj_list
+    return dependencies
+
+
+def compile_sources(src_path, include_paths, build_path, debug=False):
+
+    source_files = find_dependencies(src_path, include_paths)
+    source_files.append(src_path)
+
+    for src_file in source_files:
+        if src_is_newer(src_file, build_path):
+            print('{} ... '.format(src_file), end='')
+            compile_source(src_file, build_path=build_path, debug=debug)
+            print('Done')
+
+    object_files = [os.path.join(build_path, '{}.o'.format(get_file_base_name(file))) for file in source_files]
+    return object_files
+

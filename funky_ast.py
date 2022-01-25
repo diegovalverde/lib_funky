@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 Diego Valverde
+# Copyright (C) 2022 Diego Valverde
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,23 +16,10 @@
 # under the License.
 
 
-from . import funk_types
+from . import funky_types
 import collections
 import copy
 from .sdl_extension import *
-
-def debug_print(funk, strings):
-    arr = [StringConstant(funk, str) for str in strings]
-    funk.emitter.print_funk(funk, arr)
-
-
-def flatten(x):
-    if isinstance(x, collections.Iterable):
-        return [a for i in x for a in flatten(i)]
-    elif isinstance(x, List):
-        return [a for i in x.elements for a in flatten(i)]
-    else:
-        return [x]
 
 
 def list_concat_tail(funk, left, right, result=None):
@@ -76,25 +63,7 @@ def list_concat_head(funk, left, right, result=None):
     return result
 
 
-def create_ast_named_symbol(name, funk, right, pool):
-    symbol_name = '{}_{}_{}'.format(funk.function_scope.name, funk.function_scope.clause_idx, name)
-
-    if symbol_name in funk.symbol_table:
-        print('symbol table', funk.symbol_table)
-        raise Exception('=== Variables are immutable \'{}\' '.format(name))
-
-    if isinstance(right, List):
-        funk.symbol_table[symbol_name] = right.eval()
-    elif isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant):
-        funk.symbol_table[symbol_name] = funk.alloc_literal_symbol(right, pool, symbol_name)
-    else:
-        funk.symbol_table[symbol_name] = funk.create_variable_symbol(right, symbol_name)
-
-    if isinstance(right, FunctionCall) or isinstance(right, List):
-        funk.function_scope.lhs_symbols.append(funk.symbol_table[symbol_name])
-
-
-def create_ast_anon_symbol(funk, right, pool):
+def create_ast_anon_symbol(funk, right):
     if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant) or isinstance(right, String):
         anon = funk.emitter.create_anon()
         funk.emitter.code += """
@@ -104,13 +73,14 @@ def create_ast_anon_symbol(funk, right, pool):
     else:
         return right.eval()
 
+
 class Expression:
     def __init__(self):
         self.args = None
-        self.pool = funk_types.function_pool
 
     def replace_symbol(self, symbol, value):
         pass
+
 
 class IntegerConstant:
     def __init__(self, funk, value, sign=1):
@@ -121,9 +91,6 @@ class IntegerConstant:
 
     def replace_symbol(self, symbol, value):
         pass
-
-    def get_compile_type(self):
-        return funk_types.int
 
     def __repr__(self):
         sign = '-' if self.sign == -1 else ''
@@ -152,9 +119,6 @@ class DoubleConstant:
 
     def replace_symbol(self, symbol, value):
         pass
-
-    def get_compile_type(self):
-        return funk_types.double
 
     def __repr__(self):
         return 'DoubleConstant({})'.format(self.value)
@@ -189,9 +153,6 @@ class StringConstant:
 
     def __repr__(self):
         return 'StringConstant({})'.format(self.value)
-
-    def get_compile_type(self):
-        return funk_types.string
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -237,42 +198,6 @@ class List(Expression):
         return List(self.funk, name=self.name, value=copy.deepcopy(self.value, memo))
 
 
-class VariableList(List):
-    def __init__(self, funk, iterator, start, end, start_inclusive, end_inclusive, expr):
-        self.funk = funk
-        self.iterator = iterator
-        self.start = start
-        self.end = end
-        self.start_inclusive = start_inclusive == '<='
-        self.end_inclusive = end_inclusive == '<='
-        self.expr = expr
-
-    def __repr__(self):
-        return 'VariableList({},{})'.format(self.start, self.end)
-
-    def eval(self, result=None):
-        start = self.start.eval()
-        end = self.end.eval()
-
-        if not self.start_inclusive:
-            start = self.funk.emitter.add(start, 1)
-
-        if not self.end_inclusive:
-            end = self.funk.emitter.sub(end, 1)
-
-        return self.funk.emitter.create_variable_range_list(self.expr, self.identifier, start, end, resut=result)
-
-    def __deepcopy__(self, memo):
-        # create a copy with self.linked_to *not copied*, just referenced.
-        return VariableList(funk=self.funk, iterator=copy.deepcopy(self.iterator, memo),
-                            start=copy.deepcopy(self.start, memo),
-                            end=copy.deepcopy(self.end, memo),
-                            expr=copy.deepcopy(self.expr, memo),
-                            start_inclusive = self.start_inclusive,
-                            end_inclusive = self.end_inclusive
-                            )
-
-
 class CompileTimeExprList(List):
 
     def __init__(self, funk, name, elements):
@@ -315,7 +240,7 @@ class CompileTimeExprList(List):
         return CompileTimeExprList(self.funk, name=self.name, elements=copy.deepcopy(self.elements, memo))
 
 
-class Include():
+class Include:
     def __init__(self, funk, elements):
         self.funk = funk
         self.elements = elements
@@ -325,6 +250,7 @@ class Include():
             self.funk.emitter.code += """
           #include "{filename}.h"
           """.format(filename=include)
+
 
 class Identifier:
     def __init__(self, funk, name, indexes=None):
@@ -337,9 +263,6 @@ class Identifier:
         else:
             self.name = name
         self.is_literal = False
-
-    def get_compile_type(self):
-        return None
 
     def __repr__(self):
         string = 'Identifier({})'.format(self.name)
@@ -354,10 +277,6 @@ class Identifier:
             self.funk.emitter.code += """
                   TData {result};
                   """.format(result=result)
-
-        list_start = []
-        list_end = []
-        list_is_range_type = []
 
         range_initializer = []
         for idx in indexes:
@@ -411,33 +330,6 @@ class Identifier:
                 """.format(result=result,node=node)
             return node
 
-    def pattern_match_list_of_identifiers(self, result):
-        """
-
-        foo([ x, y, z]):
-            say(y)
-        """
-        for pm in self.funk.function_scope.pattern_matches:
-            if isinstance(pm, PatternMatchListOfIdentifiers):
-                for i in range(len(pm.elements)):
-
-                    pm_element = pm.elements[i]
-                    if self.name == pm_element.name:
-
-
-                        list_node = self.funk.emitter.get_function_argument_TData(pm.position)
-                        element_node = self.funk.emitter.alloc_TData('', 0, pool=funk_types.function_pool,
-                                                                     data_type=funk_types.int)
-
-
-                        self.funk.emitter.get_element_in_list_of_regs(dst=element_node, src=list_node, i=i)
-                        # if len(element_node) != len(pm.elements) ...
-
-                        if result is not None:
-                            self.funk.emitter.copy_node(element_node, result)
-                        return element_node
-        return None
-
     def eval(self, result=None):
         # Check the current function that we are building
         # To see if the identifier is a function argument
@@ -482,14 +374,7 @@ class HeadTail:
         return 'HeadTail({},{})'.format(self.head, self.tail)
 
     def eval(self, result=None):
-
-
-        self.funk.emitter.code += """
-        funk_copy_first_element_from_list(&{head},&{tail});
-        funky_pop_first(&{tail});
-        """.format(head=self.head, tail=self.tail)
-
-        return result
+        pass
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -501,7 +386,6 @@ class PatternMatch:
         self.funk = funk
         self.is_literal = True
         self.position = None
-
 
     def __repr__(self):
         return 'PatternMatch()'
@@ -535,11 +419,11 @@ class PatternMatchLiteral(PatternMatch):
         self.value = value.eval()
 
         if isinstance(value, IntegerConstant):
-            self.type = funk_types.int
+            self.type = funky_types.int
         elif isinstance(value, DoubleConstant):
-            self.type = funk_types.double
+            self.type = funky_types.double
         else:
-            self.type = funk_types.invalid
+            self.type = funky_types.invalid
 
         self.is_literal = True
 
@@ -553,21 +437,6 @@ class PatternMatchLiteral(PatternMatch):
         # create a copy with self.linked_to *not copied*, just referenced.
         return PatternMatchLiteral(self.funk,value=copy.deepcopy(self.value, memo))
 
-class PatternMatchIdentifier(PatternMatch):
-    def __init__(self, funk, name):
-        self.funk = funk
-        self.name = name
-        self.is_literal = False
-
-    def __repr__(self):
-        return 'PatternMatchIdentifier({})'.format(self.name)
-
-    def eval(self, result=None):
-        pass
-
-    def __deepcopy__(self, memo):
-        # create a copy with self.linked_to *not copied*, just referenced.
-        return PatternMatchIdentifier(self.funk,name=copy.deepcopy(self.name, memo))
 
 class PatternMatchListOfIdentifiers(PatternMatch):
     def __init__(self, funk, elements, position):
@@ -593,7 +462,6 @@ class BinaryOp(Expression):
         self.left = left
         self.right = right
         self.indexes = indexes
-        self.pool = funk_types.function_pool
 
     def arith_op(self, result, op):
         if result is None:
@@ -627,14 +495,6 @@ class BinaryOp(Expression):
             else:
                 self.right.replace_symbol(symbol, value)
 
-    def get_compile_type(self):
-        # if either operand is float, then auto promote to float at compile time
-        # if isinstance(self.right, DoubleConstant) or isinstance(self.left, DoubleConstant):
-        #     return funk_types.double
-        # else:
-        #     return funk_types.int
-        return funk_types.unknown
-
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return BinaryOp(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
@@ -650,6 +510,7 @@ class Sum(BinaryOp):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return Sum(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
+
 
 class Mul(BinaryOp):
     def __repr__(self):
@@ -670,10 +531,10 @@ class Sub(BinaryOp):
     def eval(self, result=None):
         return self.arith_op(result, '-')
 
-
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return Sub(self.funk, left=copy.deepcopy(self.left, memo), right=copy.deepcopy(self.right, memo))
+
 
 class Div(BinaryOp):
     def __repr__(self):
@@ -706,12 +567,14 @@ class And(BinaryOp):
     def eval(self, result=None):
         return self.arith_op(result, '&&')
 
+
 class Or(BinaryOp):
     def __repr__(self):
         return 'Or({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
         return self.arith_op(result, '||')
+
 
 class BoolBinaryOp(BinaryOp):
     def eval(self, as_type, result=None):
@@ -720,12 +583,14 @@ class BoolBinaryOp(BinaryOp):
 
         return lval, rval
 
+
 class GreaterThan(BoolBinaryOp):
     def __repr__(self):
         return 'GreaterThan({} , {})'.format('sgt',self.left, self.right)
 
     def eval(self, result=None):
         return self.arith_op(result, '>')
+
 
 class EqualThan(BoolBinaryOp):
     def __repr__(self):
@@ -734,6 +599,7 @@ class EqualThan(BoolBinaryOp):
     def eval(self, result=None):
         return self.arith_op(result,'==')
 
+
 class NotEqualThan(BoolBinaryOp):
     def __repr__(self):
         return 'NotEqual({} , {})'.format(self.left, self.right)
@@ -741,13 +607,14 @@ class NotEqualThan(BoolBinaryOp):
     def eval(self, result=None):
         return self.arith_op(result,'!=')
 
+
 class LessThan(BoolBinaryOp):
     def __repr__(self):
         return 'LessThan({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-
         return self.arith_op(result, '<')
+
 
 class GreaterOrEqualThan(BoolBinaryOp):
     def __repr__(self):
@@ -831,6 +698,7 @@ class ListUnion(BinaryOp):
         return ListUnion(self.funk, left=copy.deepcopy(self.left, memo),
                      right=copy.deepcopy(self.right, memo))
 
+
 class ListConcatTail(BinaryOp):
     def __init__(self, funk, left=None, right=None):
         BinaryOp.__init__(self, funk, left, right)
@@ -856,10 +724,8 @@ class Assignment(BinaryOp):
     def eval(self, result=None):
         self.funk.emitter.code += """
         TData {};
-        """.format(self.left.name);
-
+        """.format(self.left.name)
         self.right.eval(result=self.left.name)
-        #create_ast_named_symbol(name, self.funk, self.right, self.pool)
 
 
 class Range(BinaryOp):
@@ -925,43 +791,6 @@ class ExprRange(Range):
         self.reg_start= None
         self.reg_end=None
         self.range_register_calculation_emitted = False
-
-    def get_range_len(self):
-        #self.calculate_ranges()
-        return self.funk.emitter.arith_helper(self.reg_end, self.reg_start, operation='sub' )
-
-    def calculate_ranges(self):
-
-        reg_start = self.funk.emitter.alloc_TData('start', 0, funk_types.function_pool,
-                                                  funk_types.int)
-
-        reg_end = self.funk.emitter.alloc_TData('end', 0, funk_types.function_pool,
-                                                funk_types.int)
-
-        if isinstance(self.left, IntegerConstant):
-            start_val = self.left.eval()
-        else:
-            start_val = self.funk.emitter.get_node_data_value(self.left.eval())
-
-        if isinstance(self.right, IntegerConstant):
-            end_val = self.right.eval()
-        else:
-            end_val = self.funk.emitter.get_node_data_value(self.right.eval())
-
-        self.funk.emitter.set_node_data_value('start', reg_start, start_val)
-
-        self.funk.emitter.set_node_data_value('end', reg_end, end_val)
-
-        if self.lhs_type == '<':
-            self.funk.emitter.increment_node_value_int(reg_start)
-
-        if self.rhs_type == '<=':
-            self.funk.emitter.increment_node_value_int(reg_end)
-
-        self.reg_start = reg_start
-        self.reg_end = reg_end
-
-        self.range_register_calculation_emitted = True
 
     def read_from_file(self, result):
         file_handler = self.left.eval()
@@ -1029,7 +858,6 @@ class ExprRange(Range):
 
         return result
 
-
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return ExprRange(self.funk, lhs=copy.deepcopy(self.left, memo),
@@ -1061,7 +889,6 @@ class FunctionCall(Expression):
         self.name = name
         self.args = args
         self.system_functions = {
-            'funk_set_config': SetConfigParam,
             'sleep': Sleep,
             'rand_int': RandInt,
             'rand_float': RandFloat,
@@ -1085,12 +912,6 @@ class FunctionCall(Expression):
             'toi32': ToI32,
             'reshape': ReShape,
         }
-
-    def get_compile_type(self):
-        if self.name in self.system_functions:
-            return self.system_functions[self.name].get_compile_type()
-        else:
-            return None
 
     def __repr__(self):
         return 'FunctionCall({}({}))'.format(self.name, self.args)
@@ -1118,13 +939,13 @@ class FunctionCall(Expression):
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             arguments=[]
             if self.args is not None:
-                arguments=[create_ast_anon_symbol(self.funk, a, self.pool) for a in self.args]
+                arguments=[create_ast_anon_symbol(self.funk, a) for a in self.args]
 
-            return self.funk.emitter.call_function(self.funk, name, arguments, result=result)
+            return self.funk.emitter.call_function(name, arguments, result=result)
         elif name in self.funk.function_scope.args:
             arguments = []
             if self.args is not None:
-                arguments = [create_ast_anon_symbol(self.funk, a, self.pool) for a in self.args]
+                arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
@@ -1184,10 +1005,6 @@ class FunctionMap:
     def __init__(self, funk, name, arguments=None, tail_pairs=None, pattern_matches=None):
         if arguments is None:
             arguments = []
-        # if tail_pairs is None:
-        #     tail_pairs = []
-        # if pattern_matches is None:
-        #     pattern_matches = []
         self.funk = funk
         self.name = name
         self.arity = len(arguments)
@@ -1243,9 +1060,9 @@ class FunctionMap:
                     if isinstance(pm, PatternMatchEmptyList):
                         pattern_matches.append('argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.format(i=i))
                     elif isinstance(pm, PatternMatchLiteral):
-                        if pm.type == funk_types.int:
+                        if pm.type == funky_types.int:
                             pattern_matches.append('argument_list[{}].i32 == {}'.format(i, pm.value))
-                        elif pm.type == funk_types.double:
+                        elif pm.type == funky_types.double:
                             pattern_matches.append('argument_list[{}].d64 == {}'.format(i, pm.value))
                     elif isinstance(pm,PatternMatchListOfIdentifiers):
                         condition='argument_list[{}].array.size() =={}'.format(i,len(pm.elements))
@@ -1291,7 +1108,7 @@ class FunctionMap:
         TData {ref} {argument} = argument_list[{i}];   """.format(argument=argument, i=i, ref=ref)
 
             for i, argument in enumerate(clause.tail_pairs):
-                anon = self.funk.emitter.create_anon()
+                self.funk.emitter.create_anon()
                 clause.funk.emitter.code += """
        TData  {list_arg} = {head};
 
@@ -1310,8 +1127,6 @@ class FunctionMap:
                 clause.funk.emitter.code += """
             if ({preconditions}.i32 == 1) {{
                     """.format(preconditions=preconditions_result)
-
-
 
             for stmt in clause.body[:-1]:
                 self.funk.emitter.add_comment(stmt)
@@ -1367,8 +1182,7 @@ class FunctionMap:
             """
 
     def eval(self, result=None):
-        scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs,
-                                                     empty=True)
+        scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs)
 
         self.funk.set_function_scope(scope_name)
 
@@ -1392,6 +1206,7 @@ class String(Expression):
     def eval(self, result=None):
         return self.fmt_str
 
+
 class FunkAbs(Expression):
     def __init__(self, funk, arg_list):
         super().__init__()
@@ -1411,6 +1226,7 @@ class FunkAbs(Expression):
 
         return result
 
+
 class FunkSum(Expression):
     def __init__(self, funk, arg_list):
         super().__init__()
@@ -1418,7 +1234,7 @@ class FunkSum(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        return self.funk.emitter.funk_summation_function(self.funk, self.arg_list, result=result, pool=self.pool)
+        return self.funk.emitter.funk_summation_function(self.funk, self.arg_list, result=result)
 
 
 class Flatten(Expression):
@@ -1449,7 +1265,8 @@ class Len(Expression):
 
     def eval(self, result=None):
 
-        return self.funk.emitter.get_node_length(self.funk, self.arg_list, result=result)
+        return self.funk.emitter.get_node_length(self.arg_list, result=result)
+
 
 class FunkGetType(Expression):
     def __init__(self, funk, arg_list):
@@ -1468,6 +1285,7 @@ class FunkGetType(Expression):
         {ref} {result} = TData(static_cast<int32_t>({src}.type));
         """.format(ref=ref, result=result,src=src)
 
+
 class DebugInfo:
     def __init__(self, funk, arg):
         self.funk = funk
@@ -1483,28 +1301,22 @@ class Print:
         self.arg = arg
 
     def eval(self, result=None):
-        self.funk.emitter.print_funk(self.funk, self.arg)
+        self.funk.emitter.print_funk(self.arg)
+
 
 class RandInt:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
 
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
-
     def eval(self, result=None):
         return self.funk.emitter.rand_int(self.funk, self.arg_list)
+
 
 class RandFloat:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
-
-    @staticmethod
-    def get_compile_type():
-        return funk_types.double
 
     def eval(self, result=None):
         ref = ''
@@ -1516,31 +1328,14 @@ class RandFloat:
 
         std::uniform_real_distribution<double> {anon}({min}, {max});
         {ref} {result} = TData({anon}(g_funky_random_engine));
-        //std::cout << {result} << std::endl;
         """.format(anon=anon, ref=ref, result=result, min=self.arg_list[0].eval(), max=self.arg_list[1].eval() )
         return result
-
-class SetConfigParam:
-    def __init__(self, funk, arg_list):
-        self.funk = funk
-        self.arg_list = arg_list
-
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
-
-    def eval(self, result=None):
-        return self.funk.emitter.set_config_parameter(self.arg_list)
 
 
 class FOpen:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
-
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
 
     def eval(self, result):
 
@@ -1566,10 +1361,6 @@ class FReadNext:
         self.funk = funk
         self.arg_list = arg_list
 
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
-
     def eval(self, result):
         ref = ''
         file = self.arg_list[0].eval()
@@ -1578,7 +1369,6 @@ class FReadNext:
             result = self.funk.emitter.create_anon()
 
         self.funk.emitter.code += """
-
          {ref} {result} = TData(funky_type::str);
          {file} >> {result}.str;
         """.format(ref=ref, result=result, file=file)
@@ -1591,10 +1381,6 @@ class ToI32:
         self.funk = funk
         self.arg_list = arg_list
 
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
-
     def eval(self, result):
         ref = ''
         var = self.arg_list[0].eval()
@@ -1605,9 +1391,7 @@ class ToI32:
             """.format(result=result)
 
         self.funk.emitter.code += """
-
         const bool is_number = !{var}.str.empty() && {var}.str.find_first_not_of("-0123456789") == std::string::npos;
-
         switch ({var}.type){{
             case funky_type::i32:{result} = {var}; break;
             case funky_type::d64: {result} = TData(static_cast<int32_t>({var}.d64)); break;
@@ -1618,7 +1402,6 @@ class ToI32:
                      {result} = TData(funky_type::invalid);
                 }}
                 break;
-
             default: {result} = TData(funky_type::invalid); break;
         }}
         """.format(ref=ref, result=result, var=var)
@@ -1630,10 +1413,6 @@ class ReShape:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
-
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
 
     def eval(self, result):
         L = self.arg_list[0].eval()
@@ -1657,26 +1436,20 @@ class ReShape:
 
         return result
 
+
 class Exit:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
 
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
-
     def eval(self, result=None):
-        return self.funk.emitter.exit(self.funk, self.arg_list)
+        return self.funk.emitter.exit(self.arg_list)
+
 
 class Sleep:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
-
-    @staticmethod
-    def get_compile_type():
-        return funk_types.int
 
     def eval(self, result=None):
         self.funk.emitter.code += """

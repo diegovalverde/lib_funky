@@ -100,7 +100,7 @@ class SDLRect:
         """.format(x=x, y=y, w=w, h=h)
 
         return result
-        
+
 class SDLColor:
     def __init__(self, funk, arg_list):
         self.funk = funk
