@@ -4,7 +4,6 @@ import os
 
 link_with_sdl = False
 funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
-#obj_list = []
 
 
 def set_cwd(path):
@@ -59,6 +58,7 @@ def exe_command(cmd):
         print(cmd)
         exit(1)
 
+
 def compile_source(src_path, build_path,  debug=False):
     try:
         funk = Funk(debug=debug)
@@ -82,7 +82,6 @@ def compile_source(src_path, build_path,  debug=False):
         # compile
         cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
             build_path=build_path, file_base_name=file_base_name)
-        #obj_list.append('{build_path}/{file_base_name}.o'.format(build_path=build_path,file_base_name=file_base_name))
 
         exe_command(cmd)
 
@@ -114,16 +113,20 @@ def link_sources(obj_list, build_path, src_path):
 
 
 def build(src_path, include_paths, build_path, debug):
-    global link_with_sdl
+    try:
+        global link_with_sdl
 
-    if not os.path.exists(build_path):
-        os.mkdir(build_path)
+        if not os.path.exists(build_path):
+            os.mkdir(build_path)
 
-    print('==== compiling ====')
-    object_files = compile_sources(src_path, include_paths, build_path, debug)
+        print('==== compiling ====')
+        object_files = compile_sources(src_path, include_paths, build_path, debug)
 
-    print('==== linking ====')
-    link_sources(object_files, build_path, src_path)
+        print('==== linking ====')
+        link_sources(object_files, build_path, src_path)
+
+    except Exception as e:
+        print(e.__str__())
 
 
 def src_is_newer(src_path, build_path):

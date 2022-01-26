@@ -21,7 +21,6 @@ import collections
 import copy
 from .sdl_extension import *
 
-
 def list_concat_tail(funk, left, right, result=None):
     """
     This corresponds to:
@@ -262,7 +261,6 @@ class Identifier:
             self.funk.empty_arg_count += 1
         else:
             self.name = name
-        self.is_literal = False
 
     def __repr__(self):
         string = 'Identifier({})'.format(self.name)
@@ -333,6 +331,7 @@ class Identifier:
     def eval(self, result=None):
         # Check the current function that we are building
         # To see if the identifier is a function argument
+
         if self.name in self.funk.symbol_table:
             anon = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
@@ -368,7 +367,6 @@ class HeadTail:
         self.funk = funk
         self.head = head.name
         self.tail = tail.name
-        self.is_literal = False
 
     def __repr__(self):
         return 'HeadTail({},{})'.format(self.head, self.tail)
@@ -384,7 +382,6 @@ class HeadTail:
 class PatternMatch:
     def __init__(self, funk):
         self.funk = funk
-        self.is_literal = True
         self.position = None
 
     def __repr__(self):
@@ -399,7 +396,6 @@ class PatternMatchEmptyList(PatternMatch):
     def __init__(self, funk):
         PatternMatch.__init__(self, funk)
         self.funk = funk
-        self.is_literal = False
 
     def __repr__(self):
         return 'PatternMatchEmptyList()'
@@ -424,8 +420,6 @@ class PatternMatchLiteral(PatternMatch):
             self.type = funky_types.double
         else:
             self.type = funky_types.invalid
-
-        self.is_literal = True
 
     def __repr__(self):
         return 'PatternMatchLiteral({})'.format(self.value)

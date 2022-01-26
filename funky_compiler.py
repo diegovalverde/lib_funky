@@ -150,5 +150,5 @@ TData sdl_set_user_ctx(const TData & arg);
                 ast_generator.function_map[fn].eval()
 
         except Exception as e:
-            print('ERROR!!!!')
+            print('-E- Funky compilation error')
             raise Exception(format_compilation_error(e))
