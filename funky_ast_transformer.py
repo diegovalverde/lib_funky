@@ -426,7 +426,7 @@ class TreeToAst(Transformer):
         return children[0]
 
     def identifier(self, token):
-        return funky_ast.Identifier(self.funk, token[0].value)
+        return funky_ast.Identifier(self.funk, token[0].value, row=token[0].line, col=token[0].column)
 
     def string(self, token):
         return funky_ast.String(self.funk, token[0])

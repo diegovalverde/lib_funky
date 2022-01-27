@@ -7,7 +7,7 @@ use test_roll, test_8_puzzle, test_reshape
 use test_file_read
 
 main():
-    
+
    test_file_read()
 
     test_reshape()
@@ -47,7 +47,6 @@ main():
     test_transpose() 
 
     test_roll() 
-
 
     test_8_puzzle()
 

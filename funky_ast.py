@@ -19,7 +19,9 @@
 from . import funky_types
 import collections
 import copy
+import re
 from .sdl_extension import *
+
 
 def list_concat_tail(funk, left, right, result=None):
     """
@@ -58,7 +60,7 @@ def list_concat_head(funk, left, right, result=None):
     // Concatenating head to array
     {ref} {result} = {R};
     {result}.array.insert({result}.array.begin(), {L});
-    """.format(result=result, L=L, R=R, ref=ref )
+    """.format(result=result, L=L, R=R, ref=ref)
     return result
 
 
@@ -73,11 +75,55 @@ def create_ast_anon_symbol(funk, right):
         return right.eval()
 
 
+def check_symbol_definition(funk, arg):
+    if not isinstance(arg, Identifier) and not isinstance(arg, FunctionCall):
+        if isinstance(arg, Expression):
+            return arg.check_undefined_variables_in_scope()
+        return #arg.check_undefined_variables_in_scope()
+
+    # ignore automatic variables
+    if re.match('anon_\d+', arg.name):
+        return
+
+    clause = funk.function_scope.current_function_clause
+
+    # if it was in tail/head pair is fine
+    if clause.tail_pairs is not None:
+        if any([arg.name in tail_pair for tail_pair in clause.tail_pairs]):
+            return
+
+    if clause.pattern_matches is not None:
+        for pattern_match in clause.pattern_matches:
+            if arg.name in [x.name for x in pattern_match.elements]:
+                return
+
+    if isinstance(arg, Identifier):
+        if arg.name not in clause.local_variables \
+            and arg.name not in clause.arguments \
+            and arg.name not in funk.functions \
+            and '@{}'.format(arg.name) not in funk.functions:
+            raise Exception(
+                'row: {row} col: {col} variable \'{arg}\' was not declared in function \'{function_name}\''.format(
+                    function_name=funk.function_scope.name, row=arg.row, col=arg.col, arg=arg.name
+                ))
+    elif isinstance(arg, FunctionCall) and arg.name not in arg.system_functions:
+        if arg.name not in funk.functions \
+            and '@{}'.format(arg.name) not in funk.functions \
+            and arg.name not in clause.arguments :
+            raise Exception(
+                'row: {row} col: {col} function \'{arg}\' was not declare in function \'{function_name}\''.format(
+                    function_name=funk.function_scope.name, row=arg.row, col=arg.col, arg=arg.name
+                ))
+        arg.check_undefined_variables_in_scope()
+
 class Expression:
     def __init__(self):
         self.args = None
 
     def replace_symbol(self, symbol, value):
+        pass
+
+    def check_undefined_variables_in_scope(self):
         pass
 
 
@@ -91,12 +137,14 @@ class IntegerConstant:
     def replace_symbol(self, symbol, value):
         pass
 
+    def check_undefined_variables_in_scope(self):
+        pass
+
     def __repr__(self):
         sign = '-' if self.sign == -1 else ''
-        return 'Integer({}{})'.format(sign,self.value)
+        return 'Integer({}{})'.format(sign, self.value)
 
     def eval(self, result=None):
-
         value = self.sign * int(self.value)
         if result is not None:
             self.funk.emitter.code += """
@@ -119,6 +167,9 @@ class DoubleConstant:
     def replace_symbol(self, symbol, value):
         pass
 
+    def check_undefined_variables_in_scope(self):
+        pass
+
     def __repr__(self):
         return 'DoubleConstant({})'.format(self.value)
 
@@ -136,28 +187,6 @@ class DoubleConstant:
         return DoubleConstant(self.funk, value=copy.deepcopy(self.value, memo), sign=self.sign)
 
 
-class StringConstant:
-    def __init__(self, funk, value):
-        self.value = value
-        self.funk = funk
-        self.sign = 1
-        self.name = ''
-
-    def replace_symbol(self, symbol, value):
-        if symbol == self.value:
-            self.value = value
-
-    def eval(self):
-        return self.value
-
-    def __repr__(self):
-        return 'StringConstant({})'.format(self.value)
-
-    def __deepcopy__(self, memo):
-        # create a copy with self.linked_to *not copied*, just referenced.
-        return StringConstant(self.funk, value=copy.deepcopy(self.value, memo))
-
-
 class List(Expression):
     def __init__(self, funk, name, elements):
         super().__init__()
@@ -172,15 +201,21 @@ class List(Expression):
         for element in self.elements:
             element.replace_symbol(symbol, value)
 
+    def check_undefined_variables_in_scope(self):
+        for element in self.elements:
+            element.check_undefined_variables_in_scope()
+
     def get_dimensions(self):
         def traverse(x, dimensions=[]):
             elements = []
-            if isinstance(x, collections.Iterable): elements = x
-            elif isinstance(x, List): elements = x.elements
+            if isinstance(x, collections.Iterable):
+                elements = x
+            elif isinstance(x, List):
+                elements = x.elements
             dimensions.append(len(elements))
 
-            if len(elements) >0:
-                if isinstance(elements[0],List) or isinstance(elements[0], collections.Iterable):
+            if len(elements) > 0:
+                if isinstance(elements[0], List) or isinstance(elements[0], collections.Iterable):
                     return traverse(elements[0], dimensions)
             return list(reversed(dimensions))
 
@@ -218,7 +253,7 @@ class CompileTimeExprList(List):
 
         array = [k.eval() for k in self.elements]
 
-        if len(self.elements) == 1 and isinstance(self.elements[0],Range):
+        if len(self.elements) == 1 and isinstance(self.elements[0], Range):
             self.funk.emitter.code += """
                 {decl} {result} = {anon};
             """.format(result=result, anon=str(array[0]), decl=decl)
@@ -252,10 +287,11 @@ class Include:
 
 
 class Identifier:
-    def __init__(self, funk, name, indexes=None):
+    def __init__(self, funk, name, row=-1, col=-1, indexes=None, ):
         self.funk = funk
-        self.indexes = indexes # indexes for multidimensional array
-
+        self.indexes = indexes  # indexes for multidimensional array
+        self.row = row
+        self.col = col
         if name == '_':
             self.name = '_{}'.format(self.funk.empty_arg_count)
             self.funk.empty_arg_count += 1
@@ -317,7 +353,7 @@ class Identifier:
 
         return result
 
-    def eval_node_index(self,node,result=None):
+    def eval_node_index(self, node, result=None):
 
         if self.indexes is not None:
             return self.index_emit_helper(node, copy.deepcopy(self.indexes), result)
@@ -325,7 +361,7 @@ class Identifier:
             if result is not None:
                 self.funk.emitter.code += """
         {result} = {node};
-                """.format(result=result,node=node)
+                """.format(result=result, node=node)
             return node
 
     def eval(self, result=None):
@@ -341,6 +377,9 @@ class Identifier:
             return anon
         else:
             return self.eval_node_index(self.name, result)
+
+    def check_undefined_variables_in_scope(self):
+        pass
 
     def replace_symbol(self, symbol, value):
 
@@ -429,7 +468,7 @@ class PatternMatchLiteral(PatternMatch):
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return PatternMatchLiteral(self.funk,value=copy.deepcopy(self.value, memo))
+        return PatternMatchLiteral(self.funk, value=copy.deepcopy(self.value, memo))
 
 
 class PatternMatchListOfIdentifiers(PatternMatch):
@@ -446,7 +485,7 @@ class PatternMatchListOfIdentifiers(PatternMatch):
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return PatternMatchListOfIdentifiers(self.funk,name=copy.deepcopy(self.name, memo))
+        return PatternMatchListOfIdentifiers(self.funk, name=copy.deepcopy(self.name, memo))
 
 
 class BinaryOp(Expression):
@@ -462,10 +501,10 @@ class BinaryOp(Expression):
             result = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
             TData {result};""".format(result=result)
-        if isinstance(self.left,list):
+        if isinstance(self.left, list):
             self.left = self.left[0]
 
-        if isinstance(self.right,list):
+        if isinstance(self.right, list):
             self.right = self.right[0]
 
         a = self.left.eval()
@@ -476,8 +515,12 @@ class BinaryOp(Expression):
 
         return result
 
+    def check_undefined_variables_in_scope(self):
+        check_symbol_definition(self.funk, self.left)
+        check_symbol_definition(self.funk, self.right)
+
     def replace_symbol(self, symbol, value):
-        if self.left is not  None:
+        if self.left is not None:
             if self.left.__repr__() == symbol.__repr__():
                 self.left = value
             else:
@@ -580,7 +623,7 @@ class BoolBinaryOp(BinaryOp):
 
 class GreaterThan(BoolBinaryOp):
     def __repr__(self):
-        return 'GreaterThan({} , {})'.format('sgt',self.left, self.right)
+        return 'GreaterThan({} , {})'.format('sgt', self.left, self.right)
 
     def eval(self, result=None):
         return self.arith_op(result, '>')
@@ -591,7 +634,7 @@ class EqualThan(BoolBinaryOp):
         return 'Equal({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.arith_op(result,'==')
+        return self.arith_op(result, '==')
 
 
 class NotEqualThan(BoolBinaryOp):
@@ -599,7 +642,7 @@ class NotEqualThan(BoolBinaryOp):
         return 'NotEqual({} , {})'.format(self.left, self.right)
 
     def eval(self, result=None):
-        return self.arith_op(result,'!=')
+        return self.arith_op(result, '!=')
 
 
 class LessThan(BoolBinaryOp):
@@ -639,7 +682,7 @@ class ListConcat(BinaryOp):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return ListConcat(self.funk, left=copy.deepcopy(self.left, memo),
-                     right=copy.deepcopy(self.right, memo))
+                          right=copy.deepcopy(self.right, memo))
 
 
 class ListUnion(BinaryOp):
@@ -662,8 +705,8 @@ class ListUnion(BinaryOp):
             result = self.funk.emitter.create_anon()
             ref = 'TData'
 
-        L= self.left.eval()
-        R= self.right.eval()
+        L = self.left.eval()
+        R = self.right.eval()
 
         self.funk.emitter.code += """
             // List Union
@@ -683,14 +726,14 @@ class ListUnion(BinaryOp):
             {ref} {result} = {anon_l};
             {result}.array.insert({result}.array.end(), {anon_r}.array.begin(), {anon_r}.array.end());
         """.format(result=result, L=L, R=R, ref=ref, anon_l=self.funk.emitter.create_anon(),
-                   anon_r=self.funk.emitter.create_anon() )
+                   anon_r=self.funk.emitter.create_anon())
 
         return result
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return ListUnion(self.funk, left=copy.deepcopy(self.left, memo),
-                     right=copy.deepcopy(self.right, memo))
+                         right=copy.deepcopy(self.right, memo))
 
 
 class ListConcatTail(BinaryOp):
@@ -708,14 +751,30 @@ class ListConcatTail(BinaryOp):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return ListConcatTail(self.funk, left=copy.deepcopy(self.left, memo),
-                     right=copy.deepcopy(self.right, memo))
+                              right=copy.deepcopy(self.right, memo))
 
 
 class Assignment(BinaryOp):
     def __repr__(self):
         return 'Assignment({} , {})'.format(self.left, self.right)
 
+    def check_undefined_variables_in_scope(self):
+
+        variable_name = self.left.name
+        if variable_name in self.funk.function_scope.current_function_clause.local_variables:
+            raise Exception(
+                'row: {row} col: {col}: variable \'{variable_name}\' is already assigned a value in function \'{function_name}\''.format(
+                    variable_name=variable_name, row=self.left.row, col=self.left.col,
+                    function_name=self.funk.function_scope.name))
+
+        elif variable_name in self.funk.function_scope.args:
+            raise Exception('variable \'{}\' is already defined in function\'s \'{}\' signature'.format(variable_name,
+                                                                                                        self.funk.function_scope.name))
+        else:
+            self.funk.function_scope.current_function_clause.local_variables.append(variable_name)
+
     def eval(self, result=None):
+
         self.funk.emitter.code += """
         TData {};
         """.format(self.left.name)
@@ -723,7 +782,7 @@ class Assignment(BinaryOp):
 
 
 class Range(BinaryOp):
-    def __init__(self, funk,  lhs=None, rhs=None, identifier=None, expr=None, rhs_type='<', lhs_type='<'):
+    def __init__(self, funk, lhs=None, rhs=None, identifier=None, expr=None, rhs_type='<', lhs_type='<'):
         self.funk = funk
         self.identifier = identifier
         self.lhs_type = lhs_type
@@ -733,7 +792,8 @@ class Range(BinaryOp):
         self.left = lhs
 
     def __repr__(self):
-        return 'Range({} | {} {} {} {} {})'.format(self.expr, self.left, self.lhs_type, self.identifier, self.rhs_type, self.right)
+        return 'Range({} | {} {} {} {} {})'.format(self.expr, self.left, self.lhs_type, self.identifier, self.rhs_type,
+                                                   self.right)
 
     def compute_literal_range_limits(self):
         range_start = self.left.eval()
@@ -759,8 +819,8 @@ class Range(BinaryOp):
             self.right.replace_symbol(symbol, value)
 
     def eval(self):
-        return ExprRange(self.funk,self.left, self.right, self.identifier, self.expr,
-                         lhs_type= self.lhs_type, rhs_type=self.rhs_type)
+        return ExprRange(self.funk, self.left, self.right, self.identifier, self.expr,
+                         lhs_type=self.lhs_type, rhs_type=self.rhs_type)
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
@@ -782,9 +842,12 @@ class ExprRange(Range):
         self.right = rhs
         self.left = lhs
         self.iterator_symbol = identifier
-        self.reg_start= None
-        self.reg_end=None
+        self.reg_start = None
+        self.reg_end = None
         self.range_register_calculation_emitted = False
+
+    def check_undefined_variables_in_scope(self):
+        pass
 
     def read_from_file(self, result):
         file_handler = self.left.eval()
@@ -855,11 +918,11 @@ class ExprRange(Range):
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
         return ExprRange(self.funk, lhs=copy.deepcopy(self.left, memo),
-                     rhs=copy.deepcopy(self.right, memo),
-                     identifier=copy.deepcopy(self.identifier, memo),
-                     expr=copy.deepcopy(self.expr, memo),
-                     rhs_type=self.rhs_type,
-                     lhs_type=self.lhs_type)
+                         rhs=copy.deepcopy(self.right, memo),
+                         identifier=copy.deepcopy(self.identifier, memo),
+                         expr=copy.deepcopy(self.expr, memo),
+                         rhs_type=self.rhs_type,
+                         lhs_type=self.lhs_type)
 
 
 class ExternalFunction:
@@ -877,11 +940,13 @@ class ExternalFunction:
 
 
 class FunctionCall(Expression):
-    def __init__(self, funk, name, args):
+    def __init__(self, funk, name, args, row=-1, col=-1):
         super().__init__()
         self.funk = funk
         self.name = name
         self.args = args
+        self.row = row
+        self.col = col
         self.system_functions = {
             'sleep': Sleep,
             'rand_int': RandInt,
@@ -894,10 +959,10 @@ class FunctionCall(Expression):
             'abs': FunkAbs,
             'type': FunkGetType,
             'sdl_window': SDLCreateWindow,
-            'sdl_rect':SDLRect,
+            'sdl_rect': SDLRect,
             'sdl_point': SDLPoint,
             'sdl_line': SDLLine,
-            'sdl_set_color':SDLColor,
+            'sdl_set_color': SDLColor,
             'sdl_render': SDLRenderFunction,
             'sdl_set_user_ctx': SDLSetUserCtx,
             'exit': Exit,
@@ -909,6 +974,11 @@ class FunctionCall(Expression):
 
     def __repr__(self):
         return 'FunctionCall({}({}))'.format(self.name, self.args)
+
+    def check_undefined_variables_in_scope(self):
+        if self.args is not None:
+            for arg in self.args:
+                check_symbol_definition(self.funk, arg)
 
     def replace_symbol(self, symbol, value):
         if self.args is None:
@@ -930,16 +1000,12 @@ class FunctionCall(Expression):
             return p.eval(result=result)
 
         # First check if this is globally defined function
+        arguments = []
+        if self.args is not None:
+            arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
-            arguments=[]
-            if self.args is not None:
-                arguments=[create_ast_anon_symbol(self.funk, a) for a in self.args]
-
             return self.funk.emitter.call_function(name, arguments, result=result)
         elif name in self.funk.function_scope.args:
-            arguments = []
-            if self.args is not None:
-                arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
@@ -955,7 +1021,8 @@ class FunctionCall(Expression):
             printf("FunkyRuntime Error: '{name}' function is NULL\\n");
             exit(1);
         }}
-            """.format(name=name, function_signature='{}({})'.format(self.funk.function_scope.name,', '.join(str(e) for e in self.funk.function_scope.args)))
+            """.format(name=name, function_signature='{}({})'.format(self.funk.function_scope.name, ', '.join(
+                str(e) for e in self.funk.function_scope.args)))
 
             ref = ''
             if result is None:
@@ -992,6 +1059,7 @@ class FunctionClause:
         self.preconditions = preconditions
         self.pattern_matches = pattern_matches
         self.tail_pairs = tail_pairs
+        self.local_variables = []
         self.funk = funk
 
 
@@ -1004,20 +1072,22 @@ class FunctionMap:
         self.arity = len(arguments)
         self.clauses = []  # list of clauses
         self.arguments = arguments
-        self.tail_pairs = tail_pairs
-        self.pattern_matches = pattern_matches
 
     def emit_main(self):
+        if len(self.clauses) != 1:
+            raise Exception('-E- \'emit_main\' Internal error')
+        clause = self.clauses[0]
 
-        for clause in self.clauses:
-            clause.funk.emitter.code += """
+        self.funk.function_scope.current_function_clause = clause
+
+        clause.funk.emitter.code += """
     } // namespace funky
     int main(void) {
             std::random_device rd;
             g_funky_random_engine = std::default_random_engine(rd());
                     """
-            for stmt in clause.body:
-                stmt.eval()
+        for stmt in clause.body:
+            stmt.eval()
         clause.funk.emitter.code += """
             return 0;
         }
@@ -1044,6 +1114,7 @@ class FunctionMap:
         """.format(fn_name=self.name)
 
         for clause in self.clauses:
+            self.funk.function_scope.current_function_clause = clause
             pattern_match_auxiliary_variables = ''
             pattern_matches = []
             has_pattern_matches = clause.pattern_matches is not None and len(clause.pattern_matches) > 0
@@ -1052,26 +1123,27 @@ class FunctionMap:
                 for pm in clause.pattern_matches:
                     i = pm.position
                     if isinstance(pm, PatternMatchEmptyList):
-                        pattern_matches.append('argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.format(i=i))
+                        pattern_matches.append(
+                            'argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.format(
+                                i=i))
                     elif isinstance(pm, PatternMatchLiteral):
                         if pm.type == funky_types.int:
                             pattern_matches.append('argument_list[{}].i32 == {}'.format(i, pm.value))
                         elif pm.type == funky_types.double:
                             pattern_matches.append('argument_list[{}].d64 == {}'.format(i, pm.value))
-                    elif isinstance(pm,PatternMatchListOfIdentifiers):
-                        condition='argument_list[{}].array.size() =={}'.format(i,len(pm.elements))
+                    elif isinstance(pm, PatternMatchListOfIdentifiers):
+                        condition = 'argument_list[{}].array.size() =={}'.format(i, len(pm.elements))
                         pattern_matches.append(condition)
                         # this a list and it pattern matches elements from the list
-                        for j,element in enumerate(pm.elements):
-                            if isinstance(element,Identifier):
+                        for j, element in enumerate(pm.elements):
+                            if isinstance(element, Identifier):
                                 pattern_match_auxiliary_variables += """
                     TData {name} = argument_list[{i}].array[{j}];
 
-                    """.format(name=element.name, i=i,j=j)
+                    """.format(name=element.name, i=i, j=j)
                             if isinstance(element, IntegerConstant):
-
-
-                                condition ='TData(argument_list[{i}].array[{j}] == {val}).i32 == 1'.format(i=i, j =j, val=element.eval())
+                                condition = 'TData(argument_list[{i}].array[{j}] == {val}).i32 == 1'.format(i=i, j=j,
+                                                                                                            val=element.eval())
 
                                 pattern_matches.append(condition)
 
@@ -1113,7 +1185,7 @@ class FunctionMap:
             {head} = std::vector<TData>(); //empty list
        }}
 
-                     """.format( head=argument[0], list_arg=argument[1])
+                     """.format(head=argument[0], list_arg=argument[1])
 
             if clause.preconditions is not None:
                 self.funk.function_scope.args = clause.arguments
@@ -1122,9 +1194,13 @@ class FunctionMap:
             if ({preconditions}.i32 == 1) {{
                     """.format(preconditions=preconditions_result)
 
+            # go through each statement
             for stmt in clause.body[:-1]:
                 self.funk.emitter.add_comment(stmt)
+                stmt.check_undefined_variables_in_scope()
                 stmt.eval()
+
+            clause.body[-1].check_undefined_variables_in_scope()
 
             if last_insn_is_tail_recursive:
                 self.funk.emitter.code += """
@@ -1176,7 +1252,7 @@ class FunctionMap:
             """
 
     def eval(self, result=None):
-        scope_name = self.funk.create_function_scope(self.name, args=self.arguments, tail_pairs=self.tail_pairs)
+        scope_name = self.funk.create_function_scope(self.name, args=self.arguments)
 
         self.funk.set_function_scope(scope_name)
 
@@ -1197,6 +1273,9 @@ class String(Expression):
     def __repr__(self):
         return 'String({})'.format(self.fmt_str)
 
+    def check_undefined_variables_in_scope(self):
+        return
+
     def eval(self, result=None):
         return self.fmt_str
 
@@ -1216,7 +1295,7 @@ class FunkAbs(Expression):
         src = self.arg_list[0].eval()
         self.funk.emitter.code += """
          {ref} {result} = {src}.Abs();
-        """.format(ref=ref,result=result, src=src)
+        """.format(ref=ref, result=result, src=src)
 
         return result
 
@@ -1258,7 +1337,6 @@ class Len(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
-
         return self.funk.emitter.get_node_length(self.arg_list, result=result)
 
 
@@ -1273,11 +1351,11 @@ class FunkGetType(Expression):
         if result is None:
             result = self.funk.emitter.create_anon()
             ref = 'TData'
-        src= self.arg_list[0].eval()
+        src = self.arg_list[0].eval()
 
         self.funk.emitter.code += """
         {ref} {result} = TData(static_cast<int32_t>({src}.type));
-        """.format(ref=ref, result=result,src=src)
+        """.format(ref=ref, result=result, src=src)
 
 
 class DebugInfo:
@@ -1322,7 +1400,7 @@ class RandFloat:
 
         std::uniform_real_distribution<double> {anon}({min}, {max});
         {ref} {result} = TData({anon}(g_funky_random_engine));
-        """.format(anon=anon, ref=ref, result=result, min=self.arg_list[0].eval(), max=self.arg_list[1].eval() )
+        """.format(anon=anon, ref=ref, result=result, min=self.arg_list[0].eval(), max=self.arg_list[1].eval())
         return result
 
 
@@ -1332,7 +1410,6 @@ class FOpen:
         self.arg_list = arg_list
 
     def eval(self, result):
-
         path = self.arg_list[0].eval()
         mode = self.arg_list[1].eval()
         if result is None:
@@ -1413,10 +1490,10 @@ class ReShape:
         w = self.arg_list[1].eval()
         h = self.arg_list[2].eval()
 
-        if not isinstance(w,int):
+        if not isinstance(w, int):
             w = '{}.i32'.format(w)
 
-        if not isinstance(h,int):
+        if not isinstance(h, int):
             h = '{}.i32'.format(h)
 
         ref = ''

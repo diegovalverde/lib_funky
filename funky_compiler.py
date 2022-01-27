@@ -42,6 +42,7 @@ class FunctionScope:
         self.tail_pairs = tail_pairs
         self.emitter = Emitter()
         self.pattern_matches = pattern_matches
+        self.current_function_clause = None
 
     def emit(self):
         return self.emitter.emit()
@@ -67,7 +68,7 @@ class Funk:
             print('-E- File not found \'{}\''.format(ll1_path))
             exit()
 
-        self.grammar = Lark(funk_grammar)
+        self.grammar = Lark(funk_grammar, propagate_positions=True)
         self.symbol_table = {}  # the symbol table
         self.function_scope = None  # The function scope that we are currently building
         self.functions = []
@@ -114,7 +115,7 @@ TData sdl_set_user_ctx(const TData & arg);
 
     def set_function_scope(self, name):
         if name not in self.symbol_table:
-            raise Exception('-E- Function {} not in symbol table'.format(name))
+            raise Exception('\n-E- Function {} not in symbol table'.format(name))
 
         self.function_scope = self.symbol_table[name]
         self.emitter = self.function_scope.emitter
