@@ -1064,7 +1064,7 @@ class FunctionClause:
 
 
 class FunctionMap:
-    def __init__(self, funk, name, arguments=None, tail_pairs=None, pattern_matches=None):
+    def __init__(self, funk, name, arguments=None):
         if arguments is None:
             arguments = []
         self.funk = funk

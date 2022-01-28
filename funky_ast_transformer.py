@@ -99,8 +99,8 @@ class TreeToAst(Transformer):
             clause = funky_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
                                               arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm))
 
-            self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key, arguments=fn_arguments,
-                                                                    tail_pairs=tail_pairs)
+            self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key, arguments=fn_arguments)
+
 
             self.function_definition_list.append(function_key)
             self.function_map[function_key].clauses.append(clause)
@@ -113,8 +113,8 @@ class TreeToAst(Transformer):
 
             if function_key not in self.function_map:
                 self.function_definition_list.append(function_key)
-                self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key, arguments=fn_arguments,
-                                                                        tail_pairs=tail_pairs)
+                self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key, arguments=fn_arguments)
+
 
             self.function_map[function_key].clauses.append(clause)
 
