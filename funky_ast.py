@@ -767,7 +767,7 @@ class Assignment(BinaryOp):
                     variable_name=variable_name, row=self.left.row, col=self.left.col,
                     function_name=self.funk.function_scope.name))
 
-        elif variable_name in self.funk.function_scope.args:
+        elif variable_name in self.funk.function_scope.current_function_clause.arguments:
             raise Exception('variable \'{}\' is already defined in function\'s \'{}\' signature'.format(variable_name,
                                                                                                         self.funk.function_scope.name))
         else:
@@ -1005,7 +1005,7 @@ class FunctionCall(Expression):
             arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             return self.funk.emitter.call_function(name, arguments, result=result)
-        elif name in self.funk.function_scope.args:
+        elif name in self.funk.function_scope.current_function_clause.arguments:
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
@@ -1022,7 +1022,7 @@ class FunctionCall(Expression):
             exit(1);
         }}
             """.format(name=name, function_signature='{}({})'.format(self.funk.function_scope.name, ', '.join(
-                str(e) for e in self.funk.function_scope.args)))
+                str(e) for e in self.funk.function_scope.current_function_clause.arguments)))
 
             ref = ''
             if result is None:
@@ -1064,14 +1064,10 @@ class FunctionClause:
 
 
 class FunctionMap:
-    def __init__(self, funk, name, arguments=None):
-        if arguments is None:
-            arguments = []
+    def __init__(self, funk, name):
         self.funk = funk
         self.name = name
-        self.arity = len(arguments)
         self.clauses = []  # list of clauses
-        self.arguments = arguments
 
     def emit_main(self):
         if len(self.clauses) != 1:
@@ -1252,7 +1248,7 @@ class FunctionMap:
             """
 
     def eval(self, result=None):
-        scope_name = self.funk.create_function_scope(self.name, args=self.arguments)
+        scope_name = self.funk.create_function_scope(self.name)
 
         self.funk.set_function_scope(scope_name)
 

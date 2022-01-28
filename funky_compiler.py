@@ -29,19 +29,10 @@ from .funky_ast_transformer import TreeToAst
 
 
 class FunctionScope:
-    def __init__(self, name, args=None, pattern_matches=None, tail_pairs=None):
-        if pattern_matches is None:
-            pattern_matches = []
-        if tail_pairs is None:
-            tail_pairs = []
-        if args is None:
-            args = []
+    def __init__(self, name):
         self.name = name
         self.clause_idx = 0  # In case there are multiple clauses this makes sure variable names can be reused
-        self.args = args
-        self.tail_pairs = tail_pairs
         self.emitter = Emitter()
-        self.pattern_matches = pattern_matches
         self.current_function_clause = None
 
     def emit(self):
@@ -99,16 +90,9 @@ TData sdl_set_user_ctx(const TData & arg);
 
         self.emitter = None
 
-    def create_function_scope(self, name, args=None, tail_pairs=None, pattern_matches=None):
-        if args is None:
-            args = []
-        if tail_pairs is None:
-            tail_pairs = []
-        if pattern_matches is None:
-            pattern_matches = []
+    def create_function_scope(self, name):
         scope_name = '{}'.format(name)
-        self.symbol_table[scope_name] = FunctionScope(name, args=args, tail_pairs=tail_pairs,
-                                                      pattern_matches=pattern_matches)
+        self.symbol_table[scope_name] = FunctionScope(name)
         self.functions.append(scope_name)
 
         return scope_name
