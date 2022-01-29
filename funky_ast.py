@@ -339,16 +339,11 @@ class Identifier:
 
             range_initializer.append('{{ {start}, {end}, {is_range} }}'.format(start=start, end=end, is_range=is_range))
 
+        anon = self.funk.emitter.create_anon()
         self.funk.emitter.code += """
-        {{
-             // note that the ranges operate recursively
-             // this allows doing things like sliding windows
-             // for example: M[n..m, n..m] is a rectangular
-             // window into a matrix
-             std::vector<TData::RangeType> ranges = {{ {range_initializer} }};
-             {result} = {node}.GetRange(ranges);
-        }}
-        """.format(result=result, node=node,
+         std::vector<TData::RangeType> {ranges} = {{ {range_initializer} }};
+         {result} = {node}.GetRange({ranges});
+        """.format(ranges=anon, result=result, node=node,
                    range_initializer=', '.join(str(e) for e in range_initializer))
 
         return result
