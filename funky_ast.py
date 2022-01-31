@@ -1032,7 +1032,8 @@ class FunctionCall(Expression):
             return result
 
         if not found:
-            raise Exception('Undeclared function \'{}\' '.format(self.name))
+            raise Exception('Error row: {row} col: {col} Undeclared function \'{}\' '.format(
+                self.name, row=self.row, col=self.col))
 
         return None
 
@@ -1074,13 +1075,22 @@ class FunctionMap:
         clause.funk.emitter.code += """
     } // namespace funky
     int main(void) {
+        try {
             std::random_device rd;
             g_funky_random_engine = std::default_random_engine(rd());
                     """
         for stmt in clause.body:
+            stmt.check_undefined_variables_in_scope()
             stmt.eval()
         clause.funk.emitter.code += """
             return 0;
+            }
+            catch (std::string e){
+                std::cerr << "-E- Funky Runtime error: " << e << std::endl;
+            }
+            catch(...){
+                std::cerr << "-E- Funky Runtime error" << std::endl;
+            }
         }
         namespace funky {
         """
@@ -1167,6 +1177,9 @@ class FunctionMap:
             for i, argument in enumerate(clause.tail_pairs):
                 self.funk.emitter.create_anon()
                 clause.funk.emitter.code += """
+       if ({head}.type != funky_type::array) {{
+            throw std::string("in function {function_name}: {list_arg} is not an array");
+       }}
        TData  {list_arg} = {head};
 
        if ({list_arg}.array.size() > 0) {{
@@ -1176,7 +1189,7 @@ class FunctionMap:
             {head} = std::vector<TData>(); //empty list
        }}
 
-                     """.format(head=argument[0], list_arg=argument[1])
+                     """.format(head=argument[0], list_arg=argument[1], function_name=clause.name)
 
             if clause.preconditions is not None:
                 self.funk.function_scope.args = clause.arguments
