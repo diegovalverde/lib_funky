@@ -31,6 +31,7 @@
     expr:  "[" term "]" "<~" term  -> action_push_at_tail
            | term "~>" "[" term "]"       -> action_list_concat_rhs
            | "[" term "]" "++" "[" term "]" -> action_list_union
+           | "[" term "]" "--" "[" term "]" -> action_list_difference
            | term [expr_]
 
     assignment: assignment_lhs assignment_rhs  -> action_assignment

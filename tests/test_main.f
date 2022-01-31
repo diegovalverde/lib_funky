@@ -4,7 +4,7 @@ use test_list_concat, test_matrix, test_flatten
 use test_nested_arrays, test_find, test_sort
 use test_neg, test_transpose, test_arith
 use test_roll, test_8_puzzle, test_reshape
-use test_file_read, test_unique
+use test_file_read, test_unique, test_array_difference
 
 main():
 
@@ -15,7 +15,7 @@ main():
     test_arith() 
     
     test_neg()
-
+    
     test_flatten()
     
     test_fibo()
@@ -51,6 +51,8 @@ main():
     test_8_puzzle()
 
     test_unique()
+
+    test_array_difference()
 
     
     say('==== all test passed ====')

@@ -217,6 +217,9 @@ class TreeToAst(Transformer):
     def action_list_union(self, tokens):
         return funky_ast.ListUnion(self.funk, left=tokens[0], right=tokens[1])
 
+    def action_list_difference(self, tokens):
+        return funky_ast.ListDifference(self.funk, left=tokens[0], right=tokens[1])
+
     def action_arith_sub(self, token):
         return self.bin_op(token, funky_ast.Sub)
 

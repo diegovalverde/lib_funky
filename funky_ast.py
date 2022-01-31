@@ -680,6 +680,64 @@ class ListConcat(BinaryOp):
                           right=copy.deepcopy(self.right, memo))
 
 
+class ListDifference(BinaryOp):
+    def __init__(self, funk, left=None, right=None):
+        BinaryOp.__init__(self, funk, left, right)
+        self.name = ''
+        self.direction = ListConcat.head
+
+    def __repr__(self):
+        return 'ListDifference({} , {})'.format(self.left, self.right)
+
+    def eval(self, result=None):
+        """
+        This corresponds to:
+            [A] -- [B]
+
+        returns all unique elements in A that are not in B
+        """
+
+        ref = ''
+        if result is None:
+            result = self.funk.emitter.create_anon()
+            ref = 'TData'
+
+        L = self.left.eval()
+        R = self.right.eval()
+
+        self.funk.emitter.code += """
+            // List Union
+            // Make sure both L and R are arrays
+            if ({L}.type != funky_type::array) {{
+                throw std::string("{L} is not an array");
+            }}
+
+           if ({R}.type != funky_type::array) {{
+                throw std::string("{R} is not an array");
+            }}
+
+            auto __comparator__ = [](const TData & a, const TData & b){{
+                    if (a.type != b.type)
+                         throw std::string("Difference operator --: different types");
+
+                    switch(a.type) {{
+                        case funky_type::i32: return a.i32 < b.i32;
+                        case funky_type::d64: return a.d64 < b.d64;
+                        case funky_type::str: return a.str < b.str;
+                        default: throw std::string("Difference operator --: types not supported");
+                     }}
+                 }};
+
+            {ref} {result} = TData(funky_type::array);
+            std::set_difference({L}.array.begin(), {L}.array.end(),
+                {R}.array.begin(), {R}.array.end(),
+                std::inserter({result}.array, {result}.array.begin()),
+                __comparator__);
+
+        """.format(result=result, L=L, R=R, ref=ref)
+
+        return result
+
 class ListUnion(BinaryOp):
     def __init__(self, funk, left=None, right=None):
         BinaryOp.__init__(self, funk, left, right)
