@@ -89,17 +89,17 @@ def check_symbol_definition(funk, arg):
 
     # if it was in tail/head pair is fine
     if clause.tail_pairs is not None:
-        if any([arg.name in tail_pair for tail_pair in clause.tail_pairs]):
+        if any([arg.name in [t['tail'] for t in clause.tail_pairs]]):
             return
 
     if clause.pattern_matches is not None:
-        for pattern_match in clause.pattern_matches:
+        for pattern_match in [c['val'] for c in clause.pattern_matches]:
             if arg.name in [x.name for x in pattern_match.elements]:
                 return
 
     if isinstance(arg, Identifier):
         if arg.name not in clause.local_variables \
-            and arg.name not in clause.arguments \
+            and arg.name not in [c['val'] for c in clause.arguments] \
             and arg.name not in funk.functions \
             and '@{}'.format(arg.name) not in funk.functions:
             raise Exception(
@@ -109,7 +109,7 @@ def check_symbol_definition(funk, arg):
     elif isinstance(arg, FunctionCall) and arg.name not in arg.system_functions:
         if arg.name not in funk.functions \
             and '@{}'.format(arg.name) not in funk.functions \
-            and arg.name not in clause.arguments :
+            and arg.name not in [c['val'] for c in clause.arguments] :
             raise Exception(
                 'row: {row} col: {col} function \'{arg}\' was not declare in function \'{function_name}\''.format(
                     function_name=funk.function_scope.name, row=arg.row, col=arg.col, arg=arg.name
@@ -443,9 +443,10 @@ class PatternMatchEmptyList(PatternMatch):
 
 
 class PatternMatchLiteral(PatternMatch):
-    def __init__(self, funk, value):
+    def __init__(self, funk, value, position):
         PatternMatch.__init__(self, funk)
         self.funk = funk
+        self.position = position
         self.value = value.eval()
 
         if isinstance(value, IntegerConstant):
@@ -1058,7 +1059,7 @@ class FunctionCall(Expression):
             arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             return self.funk.emitter.call_function(name, arguments, result=result)
-        elif name in self.funk.function_scope.current_function_clause.arguments:
+        elif name in [a['val'] for a in self.funk.function_scope.current_function_clause.arguments]:
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
@@ -1179,7 +1180,7 @@ class FunctionMap:
             has_pattern_matches = clause.pattern_matches is not None and len(clause.pattern_matches) > 0
 
             if has_pattern_matches:
-                for pm in clause.pattern_matches:
+                for pm in [p['val'] for p in clause.pattern_matches]:
                     i = pm.position
                     if isinstance(pm, PatternMatchEmptyList):
                         pattern_matches.append(
@@ -1224,15 +1225,15 @@ class FunctionMap:
 
             insn = clause.body[-1]
             last_insn_is_tail_recursive = insn.name == self.name and isinstance(insn, FunctionCall)
-            for i, argument in enumerate(clause.arguments):
-                if argument != '_':
+            for argument in clause.arguments:
+                if argument['val'] != '_':
                     ref = ''
                     if not last_insn_is_tail_recursive and len(clause.tail_pairs) == 0:
                         ref = '&'
                     clause.funk.emitter.code += """
-        TData {ref} {argument} = argument_list[{i}];   """.format(argument=argument, i=i, ref=ref)
+        TData {ref} {argument} = argument_list[{i}];   """.format(argument=argument['val'], i=argument['pos'], ref=ref)
 
-            for i, argument in enumerate(clause.tail_pairs):
+            for argument in clause.tail_pairs:
                 self.funk.emitter.create_anon()
                 clause.funk.emitter.code += """
        if ({head}.type != funky_type::array) {{
@@ -1247,7 +1248,7 @@ class FunctionMap:
             {head} = std::vector<TData>(); //empty list
        }}
 
-                     """.format(head=argument[0], list_arg=argument[1], function_name=clause.name)
+                     """.format(head=argument['head'], list_arg=argument['tail'], function_name=clause.name)
 
             if clause.preconditions is not None:
                 self.funk.function_scope.args = clause.arguments
@@ -1269,11 +1270,11 @@ class FunctionMap:
                 // tail recursion
 
                 """
-                for i in range(len(clause.arguments)):
+                for i,argument in enumerate(clause.arguments):
                     arg = clause.body[-1].args[i].eval()
                     clause.funk.emitter.code += """
                 argument_list[{i}] = {function_parameter};
-                """.format(argument=argument, i=i, function_parameter=arg)
+                """.format(argument=argument['val'], i=i, function_parameter=arg)
                 clause.funk.emitter.code += """
                 goto label_function_start;
                 """
@@ -1298,7 +1299,7 @@ class FunctionMap:
         self.funk.emitter.code += """
         // No clause was hit
         std::cout << "No overload of function '{fn_name}' matches inputs" << std::endl;
-        for (auto & arg : argument_list){{
+        for (const auto & arg : argument_list){{
             std::cout << arg << std::endl;
 
         }}

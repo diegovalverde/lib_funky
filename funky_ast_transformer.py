@@ -65,19 +65,20 @@ class TreeToAst(Transformer):
 
         for arg in firm:
             if isinstance(arg, funky_ast.IntegerConstant) or isinstance(arg, funky_ast.DoubleConstant):
-                arg = funky_ast.PatternMatchLiteral(self.funk, arg)
+                arg = funky_ast.PatternMatchLiteral(self.funk, arg, position=position)
 
             if isinstance(arg, funky_ast.HeadTail):
-                fn_arguments.append(arg.head)
-                tail_pairs.append([arg.head, arg.tail])
+                fn_arguments.append({'val': arg.head, 'pos': position})
+                tail_pairs.append({'head': arg.head, 'tail': arg.tail, 'pos': position})
             elif isinstance(arg, funky_ast.PatternMatch):
-                fn_arguments.append('_')
+                fn_arguments.append({'val': '_', 'pos': position})
                 arg.position = position
-                pattern_matches.append(arg)
+                pattern_matches.append({'val':arg, 'pos': position})
             elif isinstance(arg, funky_ast.CompileTimeExprList):
-                pattern_matches.append(funky_ast.PatternMatchListOfIdentifiers(self.funk, arg.elements, position))
+                pattern_matches.append(
+                    {'val': funky_ast.PatternMatchListOfIdentifiers(self.funk, arg.elements, position), 'pos': position})
             else:
-                fn_arguments.append(arg.name)
+                fn_arguments.append({'val': arg.name, 'pos': position})
 
             position += 1
 
