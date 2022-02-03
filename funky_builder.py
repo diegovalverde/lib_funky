@@ -113,7 +113,7 @@ def link_sources(obj_list, build_path, src_path):
 
 
 def build(src_path, include_paths, build_path, debug):
-    if True:
+    try:
         global link_with_sdl
 
         if not os.path.exists(build_path):
@@ -125,8 +125,8 @@ def build(src_path, include_paths, build_path, debug):
         print('==== linking ====')
         link_sources(object_files, build_path, src_path)
 
-    # except Exception as e:
-    #     print(e.__str__())
+    except Exception as e:
+        print(e.__str__())
 
 
 def src_is_newer(src_path, build_path):

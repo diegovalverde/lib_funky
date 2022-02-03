@@ -922,6 +922,24 @@ class ExprRange(Range):
 
         return result
 
+    def for_each_element(self, result):
+        array = self.right.eval()
+        e = self.left.eval()
+        self.funk.emitter.code += """
+            for (const auto & {e} : {array}.array )
+            {{
+                
+        """.format(e=e,result=result, array=array)
+
+        val = self.expr.eval()
+
+        self.funk.emitter.code += """
+                {result}.array.push_back({val});
+            }}
+        """.format(result=result, val=val)
+
+        return result
+
     def eval(self, result=None, parent_TData_list=None, parent_offset=None):
         if result is None:
             result = self.funk.emitter.create_anon()
@@ -930,7 +948,10 @@ class ExprRange(Range):
             """.format(result=result)
 
         if self.rhs_type == ':':
-            return self.read_from_file(result)
+            if self.right.name == 'file':
+                return self.read_from_file(result)
+            else:
+                return self.for_each_element(result)
 
         if isinstance(self.left, IntegerConstant):
             start = self.left.eval()
@@ -1270,11 +1291,11 @@ class FunctionMap:
                 // tail recursion
 
                 """
-                for i,argument in enumerate(clause.arguments):
-                    arg = clause.body[-1].args[i].eval()
+                for i, arg in enumerate(clause.body[-1].args):
+                    arg = arg.eval()
                     clause.funk.emitter.code += """
                 argument_list[{i}] = {function_parameter};
-                """.format(argument=argument['val'], i=i, function_parameter=arg)
+                """.format(i=i, function_parameter=arg)
                 clause.funk.emitter.code += """
                 goto label_function_start;
                 """
