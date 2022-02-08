@@ -928,7 +928,7 @@ class ExprRange(Range):
         self.funk.emitter.code += """
             for (const auto & {e} : {array}.array )
             {{
-                
+
         """.format(e=e,result=result, array=array)
 
         val = self.expr.eval()
@@ -1245,7 +1245,7 @@ class FunctionMap:
                        pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
 
             insn = clause.body[-1]
-            last_insn_is_tail_recursive = insn.name == self.name and isinstance(insn, FunctionCall)
+            last_insn_is_tail_recursive = insn.name == self.name and isinstance(insn, FunctionCall) and len(insn.args) == len(clause.arguments)
             for argument in clause.arguments:
                 if argument['val'] != '_':
                     ref = ''
