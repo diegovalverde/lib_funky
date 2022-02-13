@@ -366,8 +366,8 @@ class Identifier:
         if self.name in self.funk.symbol_table:
             anon = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
-        TData {anon}({name});
-        {anon}.fn = {name};
+        TData {anon}(funky::{name});
+
         """.format(anon=anon, name=self.name)
             return anon
         else:
@@ -1074,13 +1074,19 @@ class FunctionCall(Expression):
             p = self.system_functions[self.name](self.funk, self.args)
             return p.eval(result=result)
 
+        function_is_local_variable = name in self.funk.function_scope.current_function_clause.local_variables
+        function_is_in_signature = name in [a['val'] for a in self.funk.function_scope.current_function_clause.arguments]
+        function_is_in_pattern_match_list = name in self.funk.function_scope.current_function_clause.get_list_patter_matched_symbol_names()
+
         # First check if this is globally defined function
         arguments = []
         if self.args is not None:
             arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
+
+
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             return self.funk.emitter.call_function(name, arguments, result=result)
-        elif name in [a['val'] for a in self.funk.function_scope.current_function_clause.arguments]:
+        elif function_is_in_signature or function_is_local_variable or function_is_in_pattern_match_list:
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
@@ -1138,6 +1144,14 @@ class FunctionClause:
         self.local_variables = []
         self.funk = funk
 
+    def get_list_patter_matched_symbol_names(self):
+        elements = []
+        if self.pattern_matches is not None:
+            for pm in [a['val'] for a in self.pattern_matches]:
+                for element in pm.elements:
+                    elements.append(element.name)
+
+        return elements
 
 class FunctionMap:
     def __init__(self, funk, name):
