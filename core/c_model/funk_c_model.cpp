@@ -62,7 +62,7 @@ std::string TData::Print() const{
   switch (type){
   case funky_type::i32: oss << i32; break;
   case funky_type::d64: oss << d64; break;
-  case funky_type::function: oss << "<function>"; break;
+  case funky_type::function: oss << "<fn: " << str << ">"; break;
   case funky_type::array: 
     oss << "[ ";
     for (std::size_t i = 0; i < array.size(); i++){

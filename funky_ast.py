@@ -367,6 +367,7 @@ class Identifier:
             anon = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
         TData {anon}(funky::{name});
+        {anon}.str = "{name}";
 
         """.format(anon=anon, name=self.name)
             return anon
@@ -1082,7 +1083,6 @@ class FunctionCall(Expression):
         arguments = []
         if self.args is not None:
             arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
-
 
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             return self.funk.emitter.call_function(name, arguments, result=result)
