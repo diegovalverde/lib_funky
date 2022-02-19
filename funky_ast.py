@@ -94,8 +94,12 @@ def check_symbol_definition(funk, arg):
 
     if clause.pattern_matches is not None:
         for pattern_match in [c['val'] for c in clause.pattern_matches]:
-            if arg.name in [x.name for x in pattern_match.elements]:
+            if isinstance(pattern_match,PatternMatchLiteral):
                 return
+
+            if isinstance(pattern_match,PatternMatchListOfIdentifiers):
+                if arg.name in [x.name for x in pattern_match.elements]:
+                    return
 
     if isinstance(arg, Identifier):
         if arg.name not in clause.local_variables \
@@ -1020,6 +1024,10 @@ class FunctionCall(Expression):
         super().__init__()
         self.funk = funk
         self.name = name
+
+        # for n in [a.name for a in args]:
+        #     if re.match('_\d+', n):
+        #         raise Exception('\'_\' is not allowed in function calls')
         self.args = args
         self.row = row
         self.col = col
@@ -1077,7 +1085,7 @@ class FunctionCall(Expression):
 
         function_is_local_variable = name in self.funk.function_scope.current_function_clause.local_variables
         function_is_in_signature = name in [a['val'] for a in self.funk.function_scope.current_function_clause.arguments]
-        function_is_in_pattern_match_list = name in self.funk.function_scope.current_function_clause.get_list_patter_matched_symbol_names()
+        function_is_in_pattern_match_list = name in self.funk.function_scope.current_function_clause.get_list_pattern_matched_symbol_names()
 
         # First check if this is globally defined function
         arguments = []
@@ -1144,10 +1152,13 @@ class FunctionClause:
         self.local_variables = []
         self.funk = funk
 
-    def get_list_patter_matched_symbol_names(self):
+    def get_list_pattern_matched_symbol_names(self):
         elements = []
         if self.pattern_matches is not None:
             for pm in [a['val'] for a in self.pattern_matches]:
+                if isinstance(pm, PatternMatchLiteral):
+                    continue
+
                 for element in pm.elements:
                     elements.append(element.name)
 
@@ -1158,6 +1169,9 @@ class FunctionMap:
         self.funk = funk
         self.name = name
         self.clauses = []  # list of clauses
+        self.funk.preamble += """
+        TData {function_name}(std::vector<TData> &);
+        """.format(function_name=name)
 
     def emit_main(self):
         if len(self.clauses) != 1:

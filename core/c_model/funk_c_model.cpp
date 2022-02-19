@@ -58,17 +58,17 @@ OPERATOR(||,a,b, D64_UNSUPPORTED_OPERATION(||), BoolOpEq, BoolEqRetVal)
 //-------------------------------------------------------
 std::string TData::Print() const{
   std::ostringstream oss;
-  oss << " ";
+  oss << "";
   switch (type){
   case funky_type::i32: oss << i32; break;
   case funky_type::d64: oss << d64; break;
   case funky_type::function: oss << "<fn: " << str << ">"; break;
   case funky_type::array: 
-    oss << "[ ";
+    oss << "[";
     for (std::size_t i = 0; i < array.size(); i++){
       oss << array[i] << ((i + 1 < array.size()) ? "," : ""); 
     }
-    oss << " ]";
+    oss << "]";
     break; 
   default: oss << "[unknown]"; break;
   }
