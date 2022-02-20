@@ -85,39 +85,26 @@ class TreeToAst(Transformer):
         return fn_arguments, pattern_matches, tail_pairs, preconditions
 
     def function(self, tree):
-        # TODO Needs refactoring
-
         fn_name = tree[0].name
 
         special_fns = ['main', 'sdl_render']
         firm = remove_invalid(flatten(tree[1]))
         fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
         fn_body = flatten(tree[2])
+        function_key = fn_name
+
+        clause = funky_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
+                                          arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm))
 
         if fn_name in special_fns:
-            function_key = fn_name
-
-            clause = funky_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
-                                              arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm))
-
             self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key)
-
-
             self.function_definition_list.append(function_key)
-            self.function_map[function_key].clauses.append(clause)
-
         else:
-            function_key = '{}'.format(fn_name)
-
-            clause = funky_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
-                                              arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm))
-
             if function_key not in self.function_map:
                 self.function_definition_list.append(function_key)
                 self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key)
 
-
-            self.function_map[function_key].clauses.append(clause)
+        self.function_map[function_key].clauses.append(clause)
 
     def fn_precondition(self, token):
         return token
