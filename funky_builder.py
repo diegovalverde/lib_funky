@@ -107,7 +107,7 @@ def link_sources(obj_list, build_path, src_path):
     _, file_name = os.path.split(src_path)
     output = os.path.join(build_path, os.path.splitext(file_name)[0])
 
-    cmd = 'clang++ -std=c++11 -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}.exe'.format(
+    cmd = 'clang++ -std=c++11 -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}'.format(
         build_path=build_path, output=output, objects=' '.join(obj_list), additional_link_flags=additional_link_flags)
     exe_command(cmd)
 

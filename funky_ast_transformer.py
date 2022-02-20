@@ -126,8 +126,11 @@ class TreeToAst(Transformer):
             return token[0]
 
     def action_function_call_args(self, args):
-
-        return funky_ast.FunctionCall(self.funk, '<un-named>', flatten(args))
+        row, col = -1,-1
+        if len(args) > 0 and isinstance(args[0], funky_ast.Identifier):
+            row = args[0].row
+            col = args[0].col
+        return funky_ast.FunctionCall(self.funk, '<un-named>', flatten(args), row=row, col=col)
 
     def expr__(self, token):
         return flatten(token)
