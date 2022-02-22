@@ -44,7 +44,7 @@ def preprocess(text):
 
     # The grammar does not really allow you to put ',\n'
     # Let's just fix this in some pre-processing stage
-    escapable_symbols = [',', '\\/', '-', '+', '*', '<-', '|']
+    escapable_symbols = [ '\\/', '-', '+', '*', '<-', '|']
     for symbol in escapable_symbols:
         preprocessed_text = preprocessed_text.replace('{}\n'.format(symbol), symbol)
 
