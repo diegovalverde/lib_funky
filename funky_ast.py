@@ -120,6 +120,7 @@ def check_symbol_definition(funk, arg):
                 ))
         arg.check_undefined_variables_in_scope()
 
+
 class Expression:
     def __init__(self):
         self.args = None
@@ -248,6 +249,9 @@ class CompileTimeExprList(List):
             self.elements = [elements]
 
     def eval(self, result=None):
+
+        self.check_undefined_variables_in_scope()
+
         decl = ''
         if result is None:
             result = self.funk.emitter.create_anon()
@@ -977,6 +981,11 @@ class ExprRange(Range):
         i = self.iterator_symbol.eval()
         length = self.funk.emitter.create_anon()
         offset = self.funk.emitter.create_anon()
+        self.funk.function_scope.current_function_clause.local_variables.append(self.iterator_symbol.name)
+
+        check_symbol_definition(self.funk, self.expr)
+        self.funk.function_scope.current_function_clause.local_variables.pop(-1)
+
         self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk, offset))
         self.funk.emitter.code += """
             uint32_t {length} = {end} - {start};
@@ -1053,6 +1062,7 @@ class FunctionCall(Expression):
             'file': FOpen,
             'in': FReadNext,
             'toi32': ToI32,
+            'reverse': Reverse,
             'reshape': ReShape,
         }
 
@@ -1588,6 +1598,27 @@ class ToI32:
             default: {result} = TData(funky_type::invalid); break;
         }}
         """.format(ref=ref, result=result, var=var)
+
+        return result
+
+
+class Reverse:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result):
+        src = self.arg_list[0].eval()
+
+        ref = ''
+        if result is None:
+            ref = 'TData'
+            result = self.funk.emitter.create_anon()
+
+        self.funk.emitter.code += """
+        {ref} {v} = {src};
+        std::reverse({v}.array.begin(), {v}.array.end());
+        """.format(ref=ref, v=result, src=src)
 
         return result
 
