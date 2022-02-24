@@ -14,6 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+import io
 
 import re
 
@@ -39,8 +40,8 @@ def replace_macros(src):
     return str_out
 
 
-def preprocess(text):
-    preprocessed_text = text
+
+def preprocess(preprocessed_text):
 
     # The grammar does not really allow you to put ',\n'
     # Let's just fix this in some pre-processing stage
@@ -50,5 +51,10 @@ def preprocess(text):
 
     preprocessed_text = preprocessed_text.replace('assert', '___funky_assert')
     preprocessed_text = replace_macros(preprocessed_text)
+
+    line_count = 1
+    for line in io.StringIO(preprocessed_text):
+        line.replace('__line__','{}'.format(line_count))
+        line_count += 1
 
     return preprocessed_text

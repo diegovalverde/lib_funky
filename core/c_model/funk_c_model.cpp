@@ -68,7 +68,7 @@ std::string TData::Print() const{
     for (std::size_t i = 0; i < array.size(); i++){
       oss << array[i] << ((i + 1 < array.size()) ? "," : ""); 
     }
-    oss << "]";
+    oss << "]\n";
     break; 
   default: oss << "[unknown]"; break;
   }
