@@ -1223,13 +1223,13 @@ class FunctionMap:
                 TData {fn_name}(std::vector<TData> & original_argument_list) {{
                     // copy for tail recursion
                     std::vector<TData> argument_list = original_argument_list;
-                    TData __retval__(-255);
+                    TData __retval__(funky_type::invalid);
                     label_function_start:
                     """.format(fn_name=self.name)
         else:
             self.clauses[0].funk.emitter.code += """
                 TData {fn_name}(std::vector<TData> & argument_list) {{
-                    TData __retval__(-255);
+                    TData __retval__(funky_type::invalid);
         """.format(fn_name=self.name)
 
         for clause in self.clauses:
