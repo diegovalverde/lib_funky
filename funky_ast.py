@@ -1340,8 +1340,15 @@ class FunctionMap:
             else:
                 clause.body[-1].eval(result='__retval__')
 
+            clause.funk.emitter.code += """
+             if (__retval__.type == funky_type::invalid) {{
+                throw std::string(" returning invalid type in function \'{function_name}\'");
+            }}
+            """.format(function_name = clause.name)
+
             if clause.preconditions is not None:
                 clause.funk.emitter.code += """
+
             return __retval__;
             } //preconditions check
             """
