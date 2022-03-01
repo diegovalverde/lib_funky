@@ -49,7 +49,7 @@ CRenderer sdl;
 //---------------------------------------------------------------------------------------------------
 TData sdl_set_user_ctx(const TData & arg){
   ctx.user_data = arg;
-  return TData(funky_type::invalid);
+  return TData(1);
 }
 //---------------------------------------------------------------------------------------------------
 void sdl_render_loop(void *arg)

@@ -1102,6 +1102,9 @@ class FunctionCall(Expression):
         if self.args is not None:
             arguments = [create_ast_anon_symbol(self.funk, a) for a in self.args]
 
+        for arg in self.args:
+            check_symbol_definition(self.funk, arg)
+
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             return self.funk.emitter.call_function(name, arguments, result=result)
         elif function_is_in_signature or function_is_local_variable or function_is_in_pattern_match_list:
@@ -1342,9 +1345,9 @@ class FunctionMap:
 
             clause.funk.emitter.code += """
              if (__retval__.type == funky_type::invalid) {{
-                throw std::string(" returning invalid type in function \'{function_name}\'");
+                throw std::string(" returning invalid type in function \'{function_name}\' arity:{arity}");
             }}
-            """.format(function_name = clause.name)
+            """.format(function_name=clause.name, arity=clause.arity)
 
             if clause.preconditions is not None:
                 clause.funk.emitter.code += """
