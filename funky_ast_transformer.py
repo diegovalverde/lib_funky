@@ -89,12 +89,19 @@ class TreeToAst(Transformer):
 
         special_fns = ['main', 'sdl_render']
         firm = remove_invalid(flatten(tree[1]))
+
+        check_arity = True
+        if len(firm) > 0 and isinstance(firm[-1], funky_ast.FirmEllipses):
+            check_arity = False
+            firm.pop(-1)
+
         fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
         fn_body = flatten(tree[2])
         function_key = fn_name
 
         clause = funky_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
-                                          arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm))
+                                          arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm),
+                                          check_arity=check_arity)
 
         if fn_name in special_fns:
             self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key)
@@ -174,6 +181,9 @@ class TreeToAst(Transformer):
 
     def action_match_empty_list(self, token):
         return funky_ast.PatternMatchEmptyList(self.funk)
+
+    def action_arg_ellipses(self, token):
+        return funky_ast.FirmEllipses()
 
     def expr(self, token):
         return self.expr_handler(token)
@@ -294,6 +304,12 @@ class TreeToAst(Transformer):
             return funky_ast.GreaterOrEqualThan(self.funk, left=token[0], right=token[1])
         else:
             return funky_ast.GreaterOrEqualThan(self.funk, right=token[0])
+
+    def action_bool_le(self, token):
+        if len(token) == 2:
+            return funky_ast.LessOrEqualThan(self.funk, left=token[0], right=token[1])
+        else:
+            return funky_ast.LessOrEqualThan(self.funk, right=token[0])
 
     def action_bool_gt(self, token):
         if len(token) == 2:

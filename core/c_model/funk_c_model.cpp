@@ -28,7 +28,7 @@ TData operator op(const TData &a, const TData &b) {\
     if (a.type != b.type) return WheDifferentTypes(a,b); \
     result.type = a.type; \
     switch (result.type) { \
-    case funky_type::i32: result.i32 = (int32_t) (a.i32 op b.i32);  break; \
+    case funky_type::i32: result.i32 = (std::int32_t) (a.i32 op b.i32);  break; \
     case funky_type::d64: D64OPERATION; break; \
     case funky_type::array: {\
       if (a.array.size() != b.array.size()) return WheDifferentTypes(a,b); \
@@ -90,7 +90,7 @@ std::istream& operator>>(std::istream& in, TData& data) {
 //-------------------------------------------------------
 TData TData::GetLen() const {
   if (type == funky_type::array){
-    return TData(static_cast<int32_t>(array.size()));
+    return TData(static_cast<std::int32_t>(array.size()));
   } else {
     return TData(1);
   }
@@ -150,7 +150,7 @@ TData TData::Abs() const {
 namespace funky
 {
 //-------------------------------------------------------
-TData Reshape(const TData & L, int32_t r, int32_t c){
+TData Reshape(const TData & L, const std::int32_t r, const std::int32_t c){
   const std::vector<TData> tmp(r);
   TData ret(tmp);
   if (r * c != L.GetLen().i32 * L.array[0].GetLen().i32) return L;

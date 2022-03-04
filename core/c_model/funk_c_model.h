@@ -27,7 +27,7 @@ class TData
   public:
     TData(): type(funky_type::invalid),  fn(nullptr) {}
     TData(const funky_type aType) : type(aType), fn(nullptr) {}
-    TData(const int32_t aInt32 ): type(funky_type::i32), i32(aInt32){} 
+    TData(const std::int32_t aInt32 ): type(funky_type::i32), i32(aInt32){} 
     TData(const double aD64 ) : type(funky_type::d64), d64(aD64) {}
     TData(const std::vector<TData> & aArray ) :type(funky_type::array), array(aArray) {}
     TData(const std::string aStr ) :type(funky_type::str), str(aStr) {}
@@ -38,16 +38,16 @@ class TData
     TData Flatten() ;
 
     struct RangeType{
-      int32_t start, end;
+      std::int32_t start, end;
       bool isRange;
     };
     TData GetRange(std::vector<RangeType> ranges ) const;
     TData Abs() const;
   
-    funky_type type = funky_type::invalid;
+    funky_type type{ funky_type::invalid };
     std::vector<TData> array;
     double d64;
-    int32_t i32;
+    std::int32_t i32;
     std::string str;
     TData (*fn)(std::vector<TData> &);
      
@@ -69,6 +69,6 @@ class TData
 
 };
 namespace funky{
-TData Reshape(const TData & L, int32_t r, int32_t c);
+TData Reshape(const TData & L, const std::int32_t r, const std::int32_t c);
 }
 #endif

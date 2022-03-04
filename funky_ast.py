@@ -434,7 +434,6 @@ class PatternMatch:
         # create a copy with self.linked_to *not copied*, just referenced.
         return PatternMatch(self.funk)
 
-
 class PatternMatchEmptyList(PatternMatch):
     def __init__(self, funk):
         PatternMatch.__init__(self, funk)
@@ -664,6 +663,14 @@ class GreaterOrEqualThan(BoolBinaryOp):
 
     def eval(self, result=None):
         return self.arith_op(result, '>=')
+
+
+class LessOrEqualThan(BoolBinaryOp):
+    def __repr__(self):
+        return 'LessOrEqualThan({} , {})'.format(self.left, self.right)
+
+    def eval(self, result=None):
+        return self.arith_op(result, '<=')
 
 
 class ListConcat(BinaryOp):
@@ -1063,6 +1070,7 @@ class FunctionCall(Expression):
             'in': FReadNext,
             'toi32': ToI32,
             'reverse': Reverse,
+            'infinity': Infinity,
             'reshape': ReShape,
         }
 
@@ -1150,7 +1158,8 @@ class FunctionCall(Expression):
 
 
 class FunctionClause:
-    def __init__(self, funk, name, fn_body, preconditions, pattern_matches, arity=0, tail_pairs=None, arguments=None):
+    def __init__(self, funk, name, fn_body, preconditions, pattern_matches, arity=0, tail_pairs=None, arguments=None,
+                 check_arity=True):
         if arguments is None:
             arguments = []
         if tail_pairs is None:
@@ -1158,6 +1167,7 @@ class FunctionClause:
         self.body = fn_body
         self.name = name
         self.arity = arity
+        self.check_arity = check_arity
         self.arguments = arguments
         self.preconditions = preconditions
         self.pattern_matches = pattern_matches
@@ -1176,6 +1186,7 @@ class FunctionClause:
                     elements.append(element.name)
 
         return elements
+
 
 class FunctionMap:
     def __init__(self, funk, name):
@@ -1275,13 +1286,21 @@ class FunctionMap:
 
             tail_pair_check = ''
 
+            arity_check = ''
+            if clause.check_arity:
+                arity_check = '&& (argument_list.size() == {clause_arity})'.format(clause_arity=clause.arity)
+
             clause.funk.emitter.code += """
-        if (argument_list.size() == {clause_arity}
-            {pattern_matches}
-            {tail_pair_check}
-            ) {{
-            {pattern_match_auxiliary_variables}
-            """.format(tail_pair_check=tail_pair_check, clause_arity=clause.arity,
+
+        if ( true
+             {arity_check}
+             {tail_pair_check}
+             {pattern_matches}
+             ) {{
+
+                {pattern_match_auxiliary_variables}
+            """.format(arity_check=arity_check,
+                       tail_pair_check=tail_pair_check, clause_arity=clause.arity,
                        pattern_matches=pattern_matches_string,
                        pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
 
@@ -1393,6 +1412,15 @@ class FunctionMap:
         else:
             self.emit_function()
         return
+
+
+class FirmEllipses:
+    def __init__(self):
+        self.name = ''
+        pass
+
+    def __repr__(self):
+        return '...'.format(self.fmt_str)
 
 
 class String(Expression):
@@ -1632,6 +1660,23 @@ class Reverse:
 
         return result
 
+
+class Infinity:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result):
+        ref = ''
+        if result is None:
+            ref = 'TData'
+            result = self.funk.emitter.create_anon()
+
+        self.funk.emitter.code += """
+        {ref} {result} = TData(std::numeric_limits<std::int32_t>::max());
+        """.format(ref=ref, result=result)
+
+        return result
 
 class ReShape:
     def __init__(self, funk, arg_list):

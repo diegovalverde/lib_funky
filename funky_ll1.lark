@@ -82,6 +82,7 @@
     boolean_binary_term_:    ">"  factor  -> action_bool_gt
                     | "<"  factor         -> action_bool_lt
                     | ">="  factor         -> action_bool_ge
+                    | "<="  factor         -> action_bool_le
                     | "=" factor          -> action_bool_eq
                     | "!=" factor         -> action_bool_neq
 
@@ -142,6 +143,7 @@
 
     fn_firm_element: expr fn_firm_element_ -> action_firm_element
                      |"[" "]"                     -> action_match_empty_list
+                     | "..."                      -> action_arg_ellipses
                    //  | number                     -> action_match_literal
 
     fn_firm_element_:   "<~" "[" identifier "]"   -> action_pop_list_head
