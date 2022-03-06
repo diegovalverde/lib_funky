@@ -23,6 +23,7 @@ import re
 from .sdl_extension import *
 
 
+
 def list_concat_tail(funk, left, right, result=None):
     """
     This corresponds to:
@@ -1113,9 +1114,7 @@ class FunctionCall(Expression):
         for arg in self.args:
             check_symbol_definition(self.funk, arg)
 
-        if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
-            return self.funk.emitter.call_function(name, arguments, result=result)
-        elif function_is_in_signature or function_is_local_variable or function_is_in_pattern_match_list:
+        if function_is_in_signature or function_is_local_variable or function_is_in_pattern_match_list:
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
@@ -1132,7 +1131,7 @@ class FunctionCall(Expression):
             exit(1);
         }}
             """.format(name=name, function_signature='{}({})'.format(self.funk.function_scope.name, ', '.join(
-                str(e) for e in self.funk.function_scope.current_function_clause.arguments)))
+                str(e['val']) for e in self.funk.function_scope.current_function_clause.arguments)))
 
             ref = ''
             if result is None:
@@ -1145,8 +1144,13 @@ class FunctionCall(Expression):
             {ref} {result} = {name}.fn({anon});
             """.format(ref=ref, name=name, arg_list=', '.join(str(e) for e in arguments), result=result, anon=anon)
             return result
+        elif name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
+            return self.funk.emitter.call_function(name, arguments, result=result)
 
         if not found:
+            self.funk.forwarded_functions.append(name)
+            return self.funk.emitter.call_function(name, arguments, result=result)
+
             raise Exception('Error row: {row} col: {col} Undeclared function \'{}\' '.format(
                 self.name, row=self.row, col=self.col))
 
@@ -1247,6 +1251,7 @@ class FunctionMap:
         """.format(fn_name=self.name)
 
         for clause in self.clauses:
+
             self.funk.function_scope.current_function_clause = clause
             pattern_match_auxiliary_variables = ''
             pattern_matches = []

@@ -43,6 +43,7 @@ class Funk:
     def __init__(self, ll1_path=None, debug=False):
 
         self.debug = debug
+        self.forwarded_functions = []
 
         if self.debug:
             print('-I- Initializing compiler')
@@ -133,6 +134,10 @@ TData sdl_set_user_ctx(const TData & arg);
 
             for fn in ast_generator.function_definition_list:
                 ast_generator.function_map[fn].eval()
+
+            for fn in list(set(self.forwarded_functions)):
+                if fn not in ast_generator.function_definition_list:
+                    raise Exception('Undefined function \'{}\''.format(fn))
 
         except Exception as e:
             print('-E- Funky compilation error')

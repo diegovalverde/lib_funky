@@ -51,16 +51,21 @@ class TreeToAst(Transformer):
 
     def parse_function_firm(self, firm):
         if len(firm) == 0:
-            return None, None, None, None
+            return None, None, None, None, None
 
         fn_arguments = []
         tail_pairs = []
         pattern_matches = []
         position = 0
         preconditions = None
+        check_arity = True
 
         if isinstance(firm[-1], funky_ast.BinaryOp):
             preconditions = firm[-1]
+            firm.pop()
+
+        if isinstance(firm[-1], funky_ast.FirmEllipses):
+            check_arity = False
             firm.pop()
 
         for arg in firm:
@@ -82,7 +87,7 @@ class TreeToAst(Transformer):
 
             position += 1
 
-        return fn_arguments, pattern_matches, tail_pairs, preconditions
+        return check_arity, fn_arguments, pattern_matches, tail_pairs, preconditions
 
     def function(self, tree):
         fn_name = tree[0].name
@@ -90,12 +95,7 @@ class TreeToAst(Transformer):
         special_fns = ['main', 'sdl_render']
         firm = remove_invalid(flatten(tree[1]))
 
-        check_arity = True
-        if len(firm) > 0 and isinstance(firm[-1], funky_ast.FirmEllipses):
-            check_arity = False
-            firm.pop(-1)
-
-        fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
+        check_arity, fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
         fn_body = flatten(tree[2])
         function_key = fn_name
 
