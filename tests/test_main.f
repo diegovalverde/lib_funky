@@ -5,7 +5,7 @@ use test_nested_arrays, test_find, test_sort
 use test_neg, test_transpose, test_arith
 use test_roll, test_8_puzzle, test_reshape
 use test_file_read, test_unique, test_array_difference
-use test_sudoku, test_all, test_any, test_argmax
+use test_sudoku, test_all, test_any, test_argmax, test_min, test_max
 
 main():
 
@@ -62,6 +62,10 @@ main():
     test_any()
 
     test_argmax()
+
+    test_min()
+
+    test_max()
     
     say('==== all test passed ====')
 

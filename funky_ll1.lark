@@ -144,6 +144,7 @@
     fn_firm_element: expr fn_firm_element_ -> action_firm_element
                      |"[" "]"                     -> action_match_empty_list
                      | "..."                      -> action_arg_ellipses
+                     | "etc"                      -> action_arg_etc
                    //  | number                     -> action_match_literal
 
     fn_firm_element_:   "<~" "[" identifier "]"   -> action_pop_list_head

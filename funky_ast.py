@@ -83,7 +83,7 @@ def check_symbol_definition(funk, arg):
         return #arg.check_undefined_variables_in_scope()
 
     # ignore automatic variables
-    if re.match('anon_\d+', arg.name):
+    if re.match('anon_\d+', arg.name) or arg.name == 'etc':
         return
 
     clause = funk.function_scope.current_function_clause
@@ -1120,7 +1120,7 @@ class FunctionCall(Expression):
             std::cout << "========================================================================================" << std::endl;
             std::cout << "FunkyRuntime Error: When running function '{function_signature}':\\n\\t The input provided as '{name}' is not a function" << std::endl;
              for (int i = 0; i < argument_list.size(); i++){{
-                std::cout << "args " << i << argument_list[i] << std::endl;
+                std::cout << "args " << i << ": " << argument_list[i] << std::endl;
              }}
             std::cout << "========================================================================================" << std::endl;
             exit(1);
@@ -1163,7 +1163,7 @@ class FunctionCall(Expression):
 
 class FunctionClause:
     def __init__(self, funk, name, fn_body, preconditions, pattern_matches, arity=0, tail_pairs=None, arguments=None,
-                 check_arity=True):
+                 check_arity=True, fill_etc=False):
         if arguments is None:
             arguments = []
         if tail_pairs is None:
@@ -1172,6 +1172,7 @@ class FunctionClause:
         self.name = name
         self.arity = arity
         self.check_arity = check_arity
+        self.fill_etc = fill_etc
         self.arguments = arguments
         self.preconditions = preconditions
         self.pattern_matches = pattern_matches
@@ -1292,6 +1293,7 @@ class FunctionMap:
             tail_pair_check = ''
 
             arity_check = ''
+
             if clause.check_arity:
                 arity_check = '&& (argument_list.size() == {clause_arity})'.format(clause_arity=clause.arity)
 
@@ -1308,6 +1310,12 @@ class FunctionMap:
                        tail_pair_check=tail_pair_check, clause_arity=clause.arity,
                        pattern_matches=pattern_matches_string,
                        pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
+
+            if clause.fill_etc:
+                clause.funk.emitter.code += """
+                    // etc
+                    std::vector<TData> etc{{ argument_list.begin() + {offset}, argument_list.end() }};
+                    """.format(offset=clause.arguments[-1]['pos'] + 1)
 
             insn = clause.body[-1]
             last_insn_is_tail_recursive = insn.name == self.name and isinstance(insn, FunctionCall) and len(insn.args) == len(clause.arguments)
@@ -1420,8 +1428,9 @@ class FunctionMap:
 
 
 class FirmEllipses:
-    def __init__(self):
+    def __init__(self, etc=False):
         self.name = ''
+        self.etc = etc
         pass
 
     def __repr__(self):

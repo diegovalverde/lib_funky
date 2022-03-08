@@ -51,7 +51,7 @@ class TreeToAst(Transformer):
 
     def parse_function_firm(self, firm):
         if len(firm) == 0:
-            return None, None, None, None, None
+            return None, None, None, None, None, None
 
         fn_arguments = []
         tail_pairs = []
@@ -59,6 +59,7 @@ class TreeToAst(Transformer):
         position = 0
         preconditions = None
         check_arity = True
+        fill_etc = False
 
         if isinstance(firm[-1], funky_ast.BinaryOp):
             preconditions = firm[-1]
@@ -66,6 +67,7 @@ class TreeToAst(Transformer):
 
         if isinstance(firm[-1], funky_ast.FirmEllipses):
             check_arity = False
+            fill_etc = firm[-1].etc
             firm.pop()
 
         for arg in firm:
@@ -87,7 +89,7 @@ class TreeToAst(Transformer):
 
             position += 1
 
-        return check_arity, fn_arguments, pattern_matches, tail_pairs, preconditions
+        return fill_etc, check_arity, fn_arguments, pattern_matches, tail_pairs, preconditions
 
     def function(self, tree):
         fn_name = tree[0].name
@@ -95,13 +97,13 @@ class TreeToAst(Transformer):
         special_fns = ['main', 'sdl_render']
         firm = remove_invalid(flatten(tree[1]))
 
-        check_arity, fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
+        fill_etc, check_arity, fn_arguments, pattern_matches, tail_pairs, preconditions = self.parse_function_firm(firm)
         fn_body = flatten(tree[2])
         function_key = fn_name
 
         clause = funky_ast.FunctionClause(self.funk, function_key, fn_body, preconditions, pattern_matches,
                                           arguments=fn_arguments, tail_pairs=tail_pairs, arity=len(firm),
-                                          check_arity=check_arity)
+                                          check_arity=check_arity, fill_etc=fill_etc)
 
         if fn_name in special_fns:
             self.function_map[function_key] = funky_ast.FunctionMap(self.funk, function_key)
@@ -184,6 +186,9 @@ class TreeToAst(Transformer):
 
     def action_arg_ellipses(self, token):
         return funky_ast.FirmEllipses()
+
+    def action_arg_etc(self, token):
+        return funky_ast.FirmEllipses(etc=True)
 
     def expr(self, token):
         return self.expr_handler(token)

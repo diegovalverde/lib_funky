@@ -70,9 +70,19 @@ class Emitter:
             declare = 'TData'
 
         self.code += """
-        std::vector<TData> {anon} = {{ {arg_list} }};
+       std::vector<TData> {anon} = {{ {arg_list} }};
+       """.format(anon=anon, arg_list=', '.join(str(e) for e in arguments if e != 'etc'))
+
+        if 'etc' in arguments:
+            arguments.remove('etc')
+            self.code += """
+            {anon}.insert( {anon}.end(), etc.begin(), etc.end() );
+            """.format(anon=anon)
+
+
+        self.code += """
         {declare} {result} = funky::{name}({anon});
-                 """.format(anon=anon, declare=declare, name=name, arg_list=', '.join(str(e) for e in arguments),
+                 """.format(anon=anon, declare=declare, name=name,
                             arity=len(arguments), result=result)
 
         return result
