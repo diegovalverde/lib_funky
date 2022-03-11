@@ -940,6 +940,8 @@ class ExprRange(Range):
         return result
 
     def for_each_element(self, result):
+        if self.left is not None:
+            self.funk.function_scope.current_function_clause.local_variables.append(self.left.name)
         array = self.right.eval()
         e = self.left.eval()
         self.funk.emitter.code += """
@@ -954,7 +956,8 @@ class ExprRange(Range):
                 {result}.array.push_back({val});
             }}
         """.format(result=result, val=val)
-
+        if self.left is not None:
+            self.funk.function_scope.current_function_clause.local_variables.pop(-1)
         return result
 
     def eval(self, result=None, parent_TData_list=None, parent_offset=None):
@@ -1608,10 +1611,15 @@ class FReadNext:
 
     def eval(self, result):
         ref = ''
-        file = self.arg_list[0].eval()
+
         if result is None:
             ref = 'TData'
             result = self.funk.emitter.create_anon()
+
+        if len(self.arg_list) == 1:
+            file = self.arg_list[0].eval()
+        else:
+            file = 'std::cin'
 
         self.funk.emitter.code += """
          {ref} {result} = TData(funky_type::str);
