@@ -60,7 +60,13 @@ std::string TData::Print() const{
   std::ostringstream oss;
   oss << "";
   switch (type){
-  case funky_type::i32: oss << i32; break;
+  case funky_type::i32: 
+    if (i32 == std::numeric_limits<std::int32_t>::max())
+      oss << "inf";
+    else if (i32 == -1*std::numeric_limits<std::int32_t>::max())
+      oss << "-inf";
+    else
+      oss << i32; break;
   case funky_type::d64: oss << d64; break;
   case funky_type::function: oss << "<fn: " << str << ">"; break;
   case funky_type::array: 
