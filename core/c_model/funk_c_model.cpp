@@ -76,6 +76,7 @@ std::string TData::Print() const{
     }
     oss << "]\n";
     break; 
+  case funky_type::str: oss << str; break;
   default: oss << "[unknown]"; break;
   }
   oss << " ";

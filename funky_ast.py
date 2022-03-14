@@ -1454,7 +1454,13 @@ class String(Expression):
         return
 
     def eval(self, result=None):
-        return self.fmt_str
+        value = self.fmt_str
+        if result is not None:
+            self.funk.emitter.code += """
+                   {result} = TData({val});
+                   """.format(result=result, val=self.fmt_str)
+
+        return value
 
 
 class FunkAbs(Expression):
