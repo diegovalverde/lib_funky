@@ -23,7 +23,6 @@ import re
 from .sdl_extension import *
 
 
-
 def list_concat_tail(funk, left, right, result=None):
     """
     This corresponds to:
@@ -95,10 +94,10 @@ def check_symbol_definition(funk, arg):
 
     if clause.pattern_matches is not None:
         for pattern_match in [c['val'] for c in clause.pattern_matches]:
-            if isinstance(pattern_match,PatternMatchLiteral):
+            if isinstance(pattern_match, PatternMatchLiteral):
                 return
 
-            if isinstance(pattern_match,PatternMatchListOfIdentifiers):
+            if isinstance(pattern_match, PatternMatchListOfIdentifiers):
                 if arg.name in [x.name for x in pattern_match.elements]:
                     return
 
@@ -427,6 +426,7 @@ class PatternMatch:
     def __init__(self, funk):
         self.funk = funk
         self.position = None
+        self.name = ''
 
     def __repr__(self):
         return 'PatternMatch()'
@@ -473,7 +473,7 @@ class PatternMatchLiteral(PatternMatch):
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return PatternMatchLiteral(self.funk, value=copy.deepcopy(self.value, memo))
+        return PatternMatchLiteral(self.funk, value=copy.deepcopy(self.value, memo), position=self.position)
 
 
 class PatternMatchListOfIdentifiers(PatternMatch):
@@ -490,7 +490,8 @@ class PatternMatchListOfIdentifiers(PatternMatch):
 
     def __deepcopy__(self, memo):
         # create a copy with self.linked_to *not copied*, just referenced.
-        return PatternMatchListOfIdentifiers(self.funk, name=copy.deepcopy(self.name, memo))
+        return PatternMatchListOfIdentifiers(self.funk,
+                                             elements=copy.deepcopy(self.nameself.elements), position=self.position)
 
 
 class BinaryOp(Expression):
@@ -619,11 +620,11 @@ class Or(BinaryOp):
 
 
 class BoolBinaryOp(BinaryOp):
-    def eval(self, as_type, result=None):
-        lval = self.left.eval()
-        rval = self.right.eval()
+    def eval(self, result=None):
+        left_val = self.left.eval()
+        right_val = self.right.eval()
 
-        return lval, rval
+        return left_val, right_val
 
 
 class GreaterThan(BoolBinaryOp):
@@ -948,7 +949,7 @@ class ExprRange(Range):
             for (const auto & {e} : {array}.array )
             {{
 
-        """.format(e=e,result=result, array=array)
+        """.format(e=e, result=result, array=array)
 
         val = self.expr.eval()
 
@@ -1122,12 +1123,15 @@ class FunctionCall(Expression):
         if function_is_in_signature or function_is_local_variable or function_is_in_pattern_match_list:
             self.funk.emitter.code += """
         if ({name}.type != funky_type::function){{
-            std::cout << "========================================================================================" << std::endl;
-            std::cout << "FunkyRuntime Error: When running function '{function_signature}':\\n\\t The input provided as '{name}' is not a function" << std::endl;
+            std::cout << "========================================================================================"
+            << std::endl;
+            std::cout << "FunkyRuntime Error: When running function '{function_signature}' "
+                << ":\\n\\t The input provided as '{name}' is not a function" << std::endl;
              for (int i = 0; i < argument_list.size(); i++){{
                 std::cout << "args " << i << ": " << argument_list[i] << std::endl;
              }}
-            std::cout << "========================================================================================" << std::endl;
+            std::cout << "========================================================================================"
+            << std::endl;
             exit(1);
         }}
 
@@ -1268,8 +1272,9 @@ class FunctionMap:
                     i = pm.position
                     if isinstance(pm, PatternMatchEmptyList):
                         pattern_matches.append(
-                            'argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.format(
-                                i=i))
+                            'argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.
+                            format(i=i))
+
                     elif isinstance(pm, PatternMatchLiteral):
                         if pm.type == funky_types.int:
                             pattern_matches.append('argument_list[{}].i32 == {}'.format(i, pm.value))
@@ -1563,7 +1568,6 @@ class Print:
         return result
 
 
-
 class RandInt:
     def __init__(self, funk, arg_list):
         self.funk = funk
@@ -1710,6 +1714,7 @@ class Infinity:
         """.format(ref=ref, result=result)
 
         return result
+
 
 class ReShape:
     def __init__(self, funk, arg_list):

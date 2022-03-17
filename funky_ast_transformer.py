@@ -22,7 +22,8 @@ from . import funky_ast
 try:
     from lark import Lark, Transformer
 except ImportError:
-    import lark, Transformer
+    import lark
+    import Transformer
 
 
 def flatten(x):
@@ -80,10 +81,11 @@ class TreeToAst(Transformer):
             elif isinstance(arg, funky_ast.PatternMatch):
                 fn_arguments.append({'val': '_', 'pos': position})
                 arg.position = position
-                pattern_matches.append({'val':arg, 'pos': position})
+                pattern_matches.append({'val': arg, 'pos': position})
             elif isinstance(arg, funky_ast.CompileTimeExprList):
                 pattern_matches.append(
-                    {'val': funky_ast.PatternMatchListOfIdentifiers(self.funk, arg.elements, position), 'pos': position})
+                    {'val': funky_ast.PatternMatchListOfIdentifiers(self.funk, arg.elements, position),
+                     'pos': position})
             else:
                 fn_arguments.append({'val': arg.name, 'pos': position})
 
@@ -135,7 +137,7 @@ class TreeToAst(Transformer):
             return token[0]
 
     def action_function_call_args(self, args):
-        row, col = -1,-1
+        row, col = -1, -1
         if len(args) > 0 and isinstance(args[0], funky_ast.Identifier):
             row = args[0].row
             col = args[0].col
@@ -343,9 +345,9 @@ class TreeToAst(Transformer):
             return token[0]
 
     def action_include_external_function(self, token):
-        Identifiers = remove_invalid(flatten(token))
+        identifiers = remove_invalid(flatten(token))
         functions = []
-        for fn in Identifiers:
+        for fn in identifiers:
             function = fn.name
             functions.append(function)
             fn_symbol = '@{}'.format(function)
@@ -514,7 +516,8 @@ class TreeToAst(Transformer):
 
     def action_range(self, tokens):
         tokens = flatten(tokens)
-        if len(tokens) == 0: return tokens
+        if len(tokens) == 0:
+            return tokens
 
         return [self.bin_op(tokens[0], funky_ast.Range)] + tokens[1:]
 
