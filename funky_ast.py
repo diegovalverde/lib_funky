@@ -1106,8 +1106,10 @@ class FunctionCall(Expression):
             return p.eval(result=result)
 
         function_is_local_variable = name in self.funk.function_scope.current_function_clause.local_variables
-        function_is_in_signature = name in [a['val'] for a in self.funk.function_scope.current_function_clause.arguments]
-        function_is_in_pattern_match_list = name in self.funk.function_scope.current_function_clause.get_list_pattern_matched_symbol_names()
+        function_is_in_signature = name in [a['val'] for a in
+                                            self.funk.function_scope.current_function_clause.arguments]
+        function_is_in_pattern_match_list = \
+            name in self.funk.function_scope.current_function_clause.get_list_pattern_matched_symbol_names()
 
         # First check if this is globally defined function
         arguments = []
@@ -1427,7 +1429,7 @@ class FunctionMap:
             self.emit_main()
         else:
             self.emit_function()
-        return
+        return result
 
 
 class FirmEllipses:
@@ -1548,6 +1550,7 @@ class DebugInfo:
 
     def eval(self, result=None):
         self.funk.emitter.debug_print_node_info(self.funk, self.arg)
+        return result
 
 
 class Print:
@@ -1556,7 +1559,9 @@ class Print:
         self.arg = arg
 
     def eval(self, result=None):
-        self.funk.emitter.print_funk(self.arg)
+        result = self.funk.emitter.print_funk(self.arg, result)
+        return result
+
 
 
 class RandInt:

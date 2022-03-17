@@ -29,13 +29,22 @@ class Emitter:
         self.index += 1
         return name
 
-    def print_funk(self, args):
+    def print_funk(self, args, result=None):
         if args is not None:
             l = [e.eval() for e in args]
             self.code += 'std::cout'
             for arg_expr in l:
                 self.code += '<< {}'.format(arg_expr)
             self.code += '<< std::endl; '
+
+        ref = ''
+        if result is None:
+            result = self.create_anon()
+            ref = 'TData'
+
+        self.code += """
+           {ref} {result} = TData(1);
+        """.format(ref=ref, result=result)
 
     def add_comment(self, comment):
         self.code += """
