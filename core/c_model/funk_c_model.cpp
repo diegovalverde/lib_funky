@@ -5,9 +5,9 @@
 #include <numeric>
 std::default_random_engine g_funky_random_engine;
 
-TData ArithOpDifferentType(const TData &a, const TData & b){ return TData(funky_type::invalid); }
-TData BoolOpEq(const TData &a, const TData & b){ return TData(0); }
-TData BoolOpNe(const TData &a, const TData & b){ return TData(1); }
+TData ArithOpDifferentType(const TData &, const TData & ){ return TData(funky_type::invalid); }
+TData BoolOpEq(const TData &, const TData & ){ return TData(0); }
+TData BoolOpNe(const TData &, const TData & ){ return TData(1); }
 TData DefaultRetVal(const TData &r) { return TData(r);}
 
 #define BOOL_RETVAL(F,op) TData F(const TData &r){ \
@@ -18,8 +18,8 @@ TData DefaultRetVal(const TData &r) { return TData(r);}
 BOOL_RETVAL(BoolEqRetVal, all_of)
 BOOL_RETVAL(BoolNeRetVal, any_of)
 
-#define D64_DEFAULT_OPERATION(op)  result.d64 = a.d64 op b.d64 
-#define D64_BOOL_OPERATION(op)  result.type = funky_type::i32; result.i32 = a.d64 op b.d64 
+#define D64_DEFAULT_OPERATION(op)  result.d64 = a.d64 op b.d64
+#define D64_BOOL_OPERATION(op)  result.type = funky_type::i32; result.i32 = a.d64 op b.d64
 #define D64_UNSUPPORTED_OPERATION(op) result.type = funky_type::invalid
 
 # define OPERATOR(op, a, b, D64OPERATION, WheDifferentTypes, RetFunct ) \
@@ -60,22 +60,23 @@ std::string TData::Print() const{
   std::ostringstream oss;
   oss << "";
   switch (type){
-  case funky_type::i32: 
+  case funky_type::i32:
     if (i32 == std::numeric_limits<std::int32_t>::max())
       oss << "inf";
     else if (i32 == -1*std::numeric_limits<std::int32_t>::max())
       oss << "-inf";
     else
-      oss << i32; break;
+      oss << i32;
+    break;
   case funky_type::d64: oss << d64; break;
   case funky_type::function: oss << "<fn: " << str << ">"; break;
-  case funky_type::array: 
+  case funky_type::array:
     oss << "[";
     for (std::size_t i = 0; i < array.size(); i++){
-      oss << array[i] << ((i + 1 < array.size()) ? "," : ""); 
+      oss << array[i] << ((i + 1 < array.size()) ? "," : "");
     }
     oss << "]\n";
-    break; 
+    break;
   case funky_type::str: oss << str; break;
   default: oss << "[unknown]"; break;
   }
@@ -113,8 +114,8 @@ TData TData::GetRange(std::vector<TData::RangeType>  ranges ) const {
       return TData(array[start]);
   }
   TData result(funky_type::array);
-  for (int i = start; i <= end; i++){
-    TData element = (ranges.size() > 0) ? array[i].GetRange(ranges) : array[i];     
+  for (std::size_t i = start; i <= end; i++){
+    TData element = (ranges.size() > 0) ? array[i].GetRange(ranges) : array[i];
     if (range.isRange){
       result.array.push_back(element);
     } else {
@@ -124,7 +125,7 @@ TData TData::GetRange(std::vector<TData::RangeType>  ranges ) const {
   return result;
 }
 //-------------------------------------------------------
-TData TData::Flatten() { 
+TData TData::Flatten() {
   if (type != funky_type::array) return TData(*this);
   TData result = std::accumulate(array.begin(), array.end(), decltype(array)::value_type{ },
             []( TData& dest,  TData& src) {
@@ -146,11 +147,11 @@ TData TData::Abs() const {
     case funky_type::i32: ret = TData(std::abs(i32)); break;
     case funky_type::d64: ret = TData(std::abs(d64)); break;
     case funky_type::array: {
-      for (auto & e : array) ret.array.push_back( e.Abs() ); 
-      ret.type = funky_type::array; 
+      for (auto & e : array) ret.array.push_back( e.Abs() );
+      ret.type = funky_type::array;
       } break;
     default: ret.type = funky_type::invalid;
-  } 
+  }
   return ret;
 }
 
@@ -170,7 +171,4 @@ TData Reshape(const TData & L, const std::int32_t r, const std::int32_t c){
   return ret;
 }
 //-------------------------------------------------------
-
-  
 } // namespace name
-
