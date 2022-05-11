@@ -67,9 +67,7 @@ def list_concat_head(funk, left, right, result=None):
 def create_ast_anon_symbol(funk, right):
     if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant) or isinstance(right, String):
         anon = funk.emitter.create_anon()
-        funk.emitter.code += """
-                TData {symbol_name} ({val});
-                """.format(symbol_name=anon, val=right.eval())
+        funk.emitter.create_variable(anon, right.eval())
         return anon
     else:
         return right.eval()
@@ -153,6 +151,7 @@ class IntegerConstant:
         value = self.sign * int(self.value)
         if result is not None:
             self.funk.emitter.code += """
+
             {result} = TData({val});
             """.format(result=result, val=value)
 
@@ -249,28 +248,20 @@ class CompileTimeExprList(List):
             self.elements = [elements]
 
     def eval(self, result=None):
-
         self.check_undefined_variables_in_scope()
-
-        decl = ''
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            decl = 'TData'
-
-        anon = self.funk.emitter.create_anon()
-
         array = [k.eval() for k in self.elements]
 
         if len(self.elements) == 1 and isinstance(self.elements[0], Range):
+            decl = ''
+            if result is None:
+                result = self.funk.emitter.create_anon()
+                decl = 'TData'
+
             self.funk.emitter.code += """
                 {decl} {result} = {anon};
             """.format(result=result, anon=str(array[0]), decl=decl)
         else:
-            self.funk.emitter.code += """
-                const std::vector<TData> {anon} = {{ {values} }};
-                {decl} {result} = TData({anon});
-                """.format(decl=decl, anon=anon, result=result,
-                           values=','.join(str(e) for e in array))
+            return self.funk.emitter.create_array(array,result)
 
         return result
 
@@ -314,16 +305,9 @@ class Identifier:
         return string
 
     def index_emit_helper(self, node, indexes, result):
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-                  TData {result};
-                  """.format(result=result)
-
         range_initializer = []
         for idx in indexes:
             if isinstance(idx, Range):
-
                 is_range = 'true'
 
                 if isinstance(idx.left, IntegerConstant):
@@ -347,14 +331,7 @@ class Identifier:
 
             range_initializer.append('{{ {start}, {end}, {is_range} }}'.format(start=start, end=end, is_range=is_range))
 
-        anon = self.funk.emitter.create_anon()
-        self.funk.emitter.code += """
-         std::vector<TData::RangeType> {ranges} = {{ {range_initializer} }};
-         {result} = {node}.GetRange({ranges});
-        """.format(ranges=anon, result=result, node=node,
-                   range_initializer=', '.join(str(e) for e in range_initializer))
-
-        return result
+        return self.funk.emitter.get_ranges(node, range_initializer, result)
 
     def eval_node_index(self, node, result=None):
 
@@ -503,10 +480,7 @@ class BinaryOp(Expression):
         self.indexes = indexes
 
     def arith_op(self, result, op):
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-            TData {result};""".format(result=result)
+        
         if isinstance(self.left, list):
             self.left = self.left[0]
 
@@ -515,11 +489,8 @@ class BinaryOp(Expression):
 
         a = self.left.eval()
         b = self.right.eval()
-        self.funk.emitter.code += """
-            {result} = {a} {op} {b};
-        """.format(result=result, a=a, b=b, op=op)
+        return self.funk.emitter.arith_op(result,a,op,b)
 
-        return result
 
     def check_undefined_variables_in_scope(self):
         check_symbol_definition(self.funk, self.left)
@@ -847,9 +818,8 @@ class Assignment(BinaryOp):
 
     def eval(self, result=None):
 
-        self.funk.emitter.code += """
-        TData {};
-        """.format(self.left.name)
+        self.funk.emitter.create_variable(self.left.name)
+
         self.right.eval(result=self.left.name)
 
 
@@ -1207,9 +1177,6 @@ class FunctionMap:
         self.funk = funk
         self.name = name
         self.clauses = []  # list of clauses
-        self.funk.preamble += """
-        TData {function_name}(std::vector<TData> &);
-        """.format(function_name=name)
 
     def emit_main(self):
         if len(self.clauses) != 1:
@@ -1217,48 +1184,19 @@ class FunctionMap:
         clause = self.clauses[0]
 
         self.funk.function_scope.current_function_clause = clause
+        clause.funk.emitter.emit_main_preamble()
 
-        clause.funk.emitter.code += """
-    } // namespace funky
-    int main(void) {
-        try {
-            std::random_device rd;
-            g_funky_random_engine = std::default_random_engine(rd());
-                    """
         for stmt in clause.body:
             stmt.check_undefined_variables_in_scope()
             stmt.eval()
-        clause.funk.emitter.code += """
-            return 0;
-            }
-            catch (std::string e){
-                std::cerr << "-E- Funky Runtime error: " << e << std::endl;
-            }
-            catch(...){
-                std::cerr << "-E- Funky Runtime error" << std::endl;
-            }
-        }
-        namespace funky {
-        """
+
+        clause.funk.emitter.emit_main_postamble()
 
     def emit_function(self):
         has_tail_recursion = any([insn.name == self.name and isinstance(insn, FunctionCall) for insn in
                                   [clause.body[-1] for clause in self.clauses]])
 
-        if has_tail_recursion:
-            self.clauses[0].funk.emitter.code += """
-
-                TData {fn_name}(std::vector<TData> & original_argument_list) {{
-                    // copy for tail recursion
-                    std::vector<TData> argument_list = original_argument_list;
-                    TData __retval__(funky_type::invalid);
-                    label_function_start:
-                    """.format(fn_name=self.name)
-        else:
-            self.clauses[0].funk.emitter.code += """
-                TData {fn_name}(std::vector<TData> & argument_list) {{
-                    TData __retval__(funky_type::invalid);
-        """.format(fn_name=self.name)
+        self.clauses[0].funk.emitter.emit_function_signature(self.name, has_tail_recursion)
 
         for clause in self.clauses:
 
@@ -1271,28 +1209,28 @@ class FunctionMap:
                 for pm in [p['val'] for p in clause.pattern_matches]:
                     i = pm.position
                     if isinstance(pm, PatternMatchEmptyList):
-                        pattern_matches.append(
-                            'argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.
-                            format(i=i))
-
+                        pattern_matches.append(self.funk.emitter.pattern_match_is_array('argument_list[{i}]'.format(i=i)))
                     elif isinstance(pm, PatternMatchLiteral):
                         if pm.type == funky_types.int:
-                            pattern_matches.append('argument_list[{}].i32 == {}'.format(i, pm.value))
+                            pattern_matches.append(self.funk.emitter.pattern_match_int('argument_list[{i}]'.format(i=i), pm.value))  #'argument_list[{}].i32 == {}'.format(i, pm.value))
                         elif pm.type == funky_types.double:
-                            pattern_matches.append('argument_list[{}].d64 == {}'.format(i, pm.value))
+                            pattern_matches.append(self.funk.emitter.pattern_match_double('argument_list[{i}]'.format(i=i),
+                                                                                       pm.value))
+
                     elif isinstance(pm, PatternMatchListOfIdentifiers):
                         condition = 'argument_list[{}].array.size() =={}'.format(i, len(pm.elements))
                         pattern_matches.append(condition)
                         # this a list and it pattern matches elements from the list
                         for j, element in enumerate(pm.elements):
                             if isinstance(element, Identifier):
-                                pattern_match_auxiliary_variables += """
-                    TData {name} = argument_list[{i}].array[{j}];
+                                pattern_match_auxiliary_variables += self.funk.emitter.copy_var(
+                                    '{name}'.format(name=element.name),
+                                    'argument_list[{i}].array[{j}]'.format(i=i, j=j))
 
-                    """.format(name=element.name, i=i, j=j)
                             if isinstance(element, IntegerConstant):
-                                condition = 'TData(argument_list[{i}].array[{j}] == {val}).i32 == 1'.format(i=i, j=j,
-                                                                                                            val=element.eval())
+                                condition = 'TData(argument_list[{i}].array[{j}] == {val}).i32 == 1'.format(
+                                    i=i, j=j,
+                                    val=element.eval())
 
                                 pattern_matches.append(condition)
 
@@ -1305,11 +1243,11 @@ class FunctionMap:
             arity_check = ''
 
             if clause.check_arity:
-                arity_check = '&& (argument_list.size() == {clause_arity})'.format(clause_arity=clause.arity)
+                arity_check = '&& {}'.format(self.funk.emitter.check_arity(clause.arity))
 
             clause.funk.emitter.code += """
 
-        if ( true
+        if (  true
              {arity_check}
              {tail_pair_check}
              {pattern_matches}
@@ -1328,31 +1266,40 @@ class FunctionMap:
                     """.format(offset=clause.arguments[-1]['pos'] + 1)
 
             insn = clause.body[-1]
-            last_insn_is_tail_recursive = insn.name == self.name and isinstance(insn, FunctionCall) and len(insn.args) == len(clause.arguments)
+            last_insn_is_tail_recursive = self.funk.mode == 'cpp' and \
+                                          insn.name == self.name and \
+                                          isinstance(insn, FunctionCall) and\
+                                          len(insn.args) == len(clause.arguments)
+
             for argument in clause.arguments:
                 if argument['val'] != '_':
                     ref = ''
                     if not last_insn_is_tail_recursive and len(clause.tail_pairs) == 0:
                         ref = '&'
-                    clause.funk.emitter.code += """
-        TData {ref} {argument} = argument_list[{i}];   """.format(argument=argument['val'], i=argument['pos'], ref=ref)
+
+                    clause.funk.emitter.code += self.funk.emitter.copy_var(argument['val'],
+                                                                           'argument_list[{i}]'.format(
+                                                                               i=argument['pos'],
+                                                                               ref=ref))
 
             for argument in clause.tail_pairs:
                 self.funk.emitter.create_anon()
+                clause.funk.emitter.code += \
+                    self.funk.emitter.throw_if(
+                        '{head}.type != {array}'.format(head=argument['head'], array=self.funk.emitter.type('array')),
+                        "in function {function_name}: {list_arg} is not an array".format(
+                            list_arg=argument['tail'], function_name=clause.name))
+
                 clause.funk.emitter.code += """
-       if ({head}.type != funky_type::array) {{
-            throw std::string("in function {function_name}: {list_arg} is not an array");
-       }}
-       TData  {list_arg} = {head};
+               TData  {list_arg} = {head};
 
-       if ({list_arg}.array.size() > 0) {{
-            {head} = {list_arg}.array.front();
-            {list_arg}.array.erase({list_arg}.array.begin());
-       }} else {{
-            {head} = std::vector<TData>(); //empty list
-       }}
-
-                     """.format(head=argument['head'], list_arg=argument['tail'], function_name=clause.name)
+               if ({list_arg}.array.size() > 0) {{
+                    {head} = {list_arg}.array.front();
+                    {list_arg}.array.erase({list_arg}.array.begin());
+               }} else {{
+                    {head} = std::vector<TData>(); //empty list
+               }}
+                     """.format(head=argument['head'], list_arg=argument['tail'])
 
             if clause.preconditions is not None:
                 self.funk.function_scope.args = clause.arguments
@@ -1385,11 +1332,10 @@ class FunctionMap:
             else:
                 clause.body[-1].eval(result='__retval__')
 
-            clause.funk.emitter.code += """
-             if (__retval__.type == funky_type::invalid) {{
-                throw std::string(" returning invalid type in function \'{function_name}\' arity:{arity}");
-            }}
-            """.format(function_name=clause.name, arity=clause.arity)
+            clause.funk.emitter.code += \
+                self.funk.emitter.throw_if('__retval__.type == {}'.format(self.funk.emitter.type('invalid')),
+                                           " returning invalid type in function \'{function_name}\' arity:{arity}".format(
+                                               function_name=clause.name, arity=clause.arity))
 
             if clause.preconditions is not None:
                 clause.funk.emitter.code += """
@@ -1407,15 +1353,7 @@ class FunctionMap:
         } //arity check
         """
 
-        self.funk.emitter.code += """
-        // No clause was hit
-        std::cout << "No overload of function '{fn_name}' matches inputs" << std::endl;
-        for (const auto & arg : argument_list){{
-            std::cout << arg << std::endl;
-
-        }}
-
-        """.format(fn_name=self.name)
+        self.funk.emitter.emit_no_suitable_clause_found(self.name)
 
         self.funk.emitter.code += """
         exit(1);

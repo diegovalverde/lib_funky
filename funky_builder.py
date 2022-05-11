@@ -59,9 +59,21 @@ def exe_command(cmd):
         exit(1)
 
 
-def compile_source(src_path, build_path,  debug=False):
+def call_clang_on_cpp_source(build_path, file_base_name):
+    # apply clang format
+    cmd = 'clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.cpp'.format(
+        path=build_path, file_base_path=file_base_name)
+    exe_command(cmd)
+
+    # compile
+    cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
+        build_path=build_path, file_base_name=file_base_name)
+    exe_command(cmd)
+
+
+def compile_source(src_path, build_path,  debug=False, mode='cpp'):
     try:
-        funk = Funk(debug=debug)
+        funk = Funk(debug=debug, mode=mode)
 
         if not os.path.isfile(src_path):
             src_path = os.path.join(os.getcwd(),src_path)
@@ -73,17 +85,10 @@ def compile_source(src_path, build_path,  debug=False):
 
         file_base_name = get_file_base_name(src_path)
 
-        funk.save_c(os.path.join(build_path, '{}.cpp'.format(file_base_name)))
-        # apply clang format
-        cmd ='clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.cpp'.format(path=build_path,file_base_path=file_base_name)
+        funk.save_c(os.path.join(build_path, '{file_base_name}.{mode}'.format(file_base_name=file_base_name, mode=mode)))
 
-        exe_command(cmd)
-
-        # compile
-        cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
-            build_path=build_path, file_base_name=file_base_name)
-
-        exe_command(cmd)
+        if mode == 'cpp':
+            call_clang_on_cpp_source(build_path, file_base_name)
 
     except IOError:
         print('-E- File not found \'{}\''.format(src_path))
@@ -112,7 +117,7 @@ def link_sources(obj_list, build_path, src_path):
     exe_command(cmd)
 
 
-def build(src_path, include_paths, build_path, debug):
+def build(src_path, include_paths, build_path, debug, mode='cpp'):
     try:
         global link_with_sdl
 
@@ -120,10 +125,11 @@ def build(src_path, include_paths, build_path, debug):
             os.mkdir(build_path)
 
         print('==== compiling ====')
-        object_files = compile_sources(src_path, include_paths, build_path, debug)
+        object_files = compile_sources(src_path, include_paths, build_path, debug=debug, mode=mode)
 
-        print('==== linking ====')
-        link_sources(object_files, build_path, src_path)
+        if mode == 'cpp':
+            print('==== linking ====')
+            link_sources(object_files, build_path, src_path)
 
     except Exception as e:
         print(e.__str__())
@@ -158,7 +164,7 @@ def find_dependencies(src_path, include_paths):
     return dependencies
 
 
-def compile_sources(src_path, include_paths, build_path, debug=False):
+def compile_sources(src_path, include_paths, build_path, debug=False, mode='cpp'):
 
     source_files = find_dependencies(src_path, include_paths)
     source_files.append(src_path)
@@ -166,7 +172,7 @@ def compile_sources(src_path, include_paths, build_path, debug=False):
     for src_file in source_files:
         if src_is_newer(src_file, build_path):
             print('{} ... '.format(src_file), end='')
-            compile_source(src_file, build_path=build_path, debug=debug)
+            compile_source(src_file, build_path=build_path, debug=debug, mode=mode)
             print('Done')
 
     object_files = [os.path.join(build_path, '{}.o'.format(get_file_base_name(file))) for file in source_files]

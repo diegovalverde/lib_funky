@@ -16,7 +16,8 @@
 # under the License.
 
 
-from .funky_emitter import Emitter
+from .funky_emitter_cpp import EmitterCpp
+from .funky_emitter_js import EmitterJs
 from .funky_utils import *
 from .preprocessor import *
 import os
@@ -29,10 +30,14 @@ from .funky_ast_transformer import TreeToAst
 
 
 class FunctionScope:
-    def __init__(self, name):
+    def __init__(self, name, mode='cpp'):
         self.name = name
         self.clause_idx = 0  # In case there are multiple clauses this makes sure variable names can be reused
-        self.emitter = Emitter()
+        if mode == 'cpp':
+            self.emitter = EmitterCpp()
+        else: # js javascript
+            self.emitter = EmitterJs()
+
         self.current_function_clause = None
 
     def emit(self):
@@ -40,9 +45,10 @@ class FunctionScope:
 
 
 class Funk:
-    def __init__(self, ll1_path=None, debug=False):
+    def __init__(self, ll1_path=None, debug=False, mode='cpp'):
 
         self.debug = debug
+        self.mode = mode
         self.forwarded_functions = []
 
         if self.debug:
@@ -65,35 +71,11 @@ class Funk:
         self.function_scope = None  # The function scope that we are currently building
         self.functions = []
         self.empty_arg_count = 0  # essentially all of the '_' shall be uniquely identifiable
-        self.preamble = \
-            """
-#include <funk_c_model.h>
-#include <fstream>
-namespace funky {
-// =============================================================== ;;
-//
-// *** F U N K Y ! *** Runtime embedded environment
-//
-//
-// =============================================================== ;;
-//todo: move this
-void sdl_point( TData & x,  TData & y);
-void sdl_rect(int x, int y, int w, int h);
-void sdl_set_color(int r, int g, int b);
-TData sdl_set_user_ctx(const TData & arg);
-
-"""
-
-        self.post_amble = \
-            """
-} //namespace
-        """
-
         self.emitter = None
 
     def create_function_scope(self, name):
         scope_name = '{}'.format(name)
-        self.symbol_table[scope_name] = FunctionScope(name)
+        self.symbol_table[scope_name] = FunctionScope(name, mode=self.mode)
         self.functions.append(scope_name)
 
         return scope_name
@@ -106,11 +88,12 @@ TData sdl_set_user_ctx(const TData & arg);
         self.emitter = self.function_scope.emitter
 
     def emit(self):
-        code = self.preamble
+        code = self.emitter.preamble([self.symbol_table[f].name.replace('@','') for f in self.functions])
+
         for func in self.functions:
             code += self.symbol_table[func].emit()
 
-        code += self.post_amble
+        code += self.emitter.postamble()
 
         return code
 
