@@ -35,7 +35,7 @@ class EmitterJs:
             str_value = 'funky_console.value += '
             for arg_expr in l:
                 str_value += '{}.toString() +'.format(arg_expr)
-                
+
             self.code += str_value[:-1] + '\n'
 
         ref = ''

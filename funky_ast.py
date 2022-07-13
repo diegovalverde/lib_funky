@@ -480,7 +480,7 @@ class BinaryOp(Expression):
         self.indexes = indexes
 
     def arith_op(self, result, op):
-        
+
         if isinstance(self.left, list):
             self.left = self.left[0]
 
@@ -933,10 +933,7 @@ class ExprRange(Range):
 
     def eval(self, result=None, parent_TData_list=None, parent_offset=None):
         if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-            TData {result}(std::vector<TData>{{ }});
-            """.format(result=result)
+            result = self.funk.emitter.create_array([],result)
 
         if self.rhs_type == ':':
             if self.right.name == 'file':
