@@ -944,12 +944,12 @@ class ExprRange(Range):
         if isinstance(self.left, IntegerConstant):
             start = self.left.eval()
         else:
-            start = '{}.i32'.format(self.left.eval())
+            start = self.funk.emitter.get_int(self.left.eval())
 
         if isinstance(self.right, IntegerConstant):
             end = self.right.eval()
         else:
-            end = '{}.i32'.format(self.right.eval())
+            end = self.funk.emitter.get_int(self.right.eval())
 
         if self.lhs_type == '<':
             start += 1
@@ -958,7 +958,7 @@ class ExprRange(Range):
             end += 1
 
         i = self.iterator_symbol.eval()
-        length = self.funk.emitter.create_anon()
+
         offset = self.funk.emitter.create_anon()
         self.funk.function_scope.current_function_clause.local_variables.append(self.iterator_symbol.name)
 
@@ -966,20 +966,23 @@ class ExprRange(Range):
         self.funk.function_scope.current_function_clause.local_variables.pop(-1)
 
         self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk, offset))
+
         self.funk.emitter.code += """
-            uint32_t {length} = {end} - {start};
-            for (int {i} = 0; {i} < {length}; {i}++)
+
+            for (int {i} = 0; {i} < ({end}-{start}); {i}++)
             {{
-                TData {offset}({start} + {i});
-        """.format(result=result, i=i, start=start, end=end, offset=offset, length=length)
+
+        """.format(i=i, end=end, start=start)
+
+        self.funk.emitter.create_variable(name=offset, value='{} + {}'.format(start, i))
 
         expr = self.expr.eval()
 
-        self.funk.emitter.code += """
-                {result}.array.push_back({val});
-            }}
+        self.funk.emitter.array_push(result,expr)
 
-        """.format(result=result, val=expr, start=start, end=end)
+        self.funk.emitter.code += """
+            } // end for loop
+        """
 
         return result
 
@@ -1209,7 +1212,8 @@ class FunctionMap:
                         pattern_matches.append(self.funk.emitter.pattern_match_is_array('argument_list[{i}]'.format(i=i)))
                     elif isinstance(pm, PatternMatchLiteral):
                         if pm.type == funky_types.int:
-                            pattern_matches.append(self.funk.emitter.pattern_match_int('argument_list[{i}]'.format(i=i), pm.value))  #'argument_list[{}].i32 == {}'.format(i, pm.value))
+                            pattern = '{lhs} == {rhs}'.format(lhs=self.funk.emitter.get_int('argument_list[{i}]'.format(i=i)), rhs=pm.value)
+                            pattern_matches.append(pattern)
                         elif pm.type == funky_types.double:
                             pattern_matches.append(self.funk.emitter.pattern_match_double('argument_list[{i}]'.format(i=i),
                                                                                        pm.value))

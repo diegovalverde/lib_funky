@@ -118,8 +118,8 @@ class EmitterJs:
     def copy_var(self,lhs,rhs,ref=''):
         return 'var {lhs} = {rhs};\n'.format(lhs=lhs, rhs=rhs)
 
-    def pattern_match_int(self, var, val):
-        return '{var}.data == {val}'.format(var=var, val=val)
+    def get_int(self, var):
+        return '{var}.data'.format(var=var)
 
     def pattern_match_double(self, var, val):
         return '(abs({var}.data - {val}) < 1e-9)'.format(var=var, val=val)
@@ -225,3 +225,6 @@ class EmitterJs:
             """.format(ref=ref, result=result,
                        values=','.join(str(e) for e in array))
         return result
+
+    def array_push(self, array, val):
+        self.code += '{array}.push({val});'.format(array=array, val=val)

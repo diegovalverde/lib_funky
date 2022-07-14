@@ -117,8 +117,8 @@ class EmitterCpp:
 
         return result
 
-    def pattern_match_int(self, var, val):
-        return '{var}.i32 == {val}'.format(var=var, val=val)
+    def get_int(self, var):
+        return '{var}.i32'.format(var=var)
 
     def pattern_match_double(self, var, val):
         return '(std::fabs({var}.d64 - {val}) < 1e-9)'.format(var=var, val=val)
@@ -266,3 +266,6 @@ class EmitterCpp:
                         """.format(decl=decl, anon=anon, result=result,
                                    values=','.join(str(e) for e in array))
         return result
+
+    def array_push(self, array, val):
+        self.code += '{array}.array.push_back({val});'.format(array=array, val=val)
