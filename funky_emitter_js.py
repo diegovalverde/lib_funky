@@ -227,7 +227,7 @@ class EmitterJs:
         return result
 
     def array_push(self, array, val):
-        self.code += '{array}.push({val});'.format(array=array, val=val)
+        self.code += '{array}.data.push({val});'.format(array=array, val=val)
 
     def start_for_loop(self, i, start, end):
         self.code += """
