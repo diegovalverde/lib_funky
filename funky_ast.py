@@ -967,12 +967,7 @@ class ExprRange(Range):
 
         self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk, offset))
 
-        self.funk.emitter.code += """
-
-            for (int {i} = 0; {i} < ({end}-{start}); {i}++)
-            {{
-
-        """.format(i=i, end=end, start=start)
+        self.funk.emitter.start_for_loop(i=i, start=start, end=end)
 
         self.funk.emitter.create_variable(name=offset, value='{} + {}'.format(start, i))
 
@@ -980,9 +975,7 @@ class ExprRange(Range):
 
         self.funk.emitter.array_push(result,expr)
 
-        self.funk.emitter.code += """
-            } // end for loop
-        """
+        self.funk.emitter.end_for_loop()
 
         return result
 
