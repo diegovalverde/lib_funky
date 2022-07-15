@@ -223,12 +223,16 @@ class EmitterCpp:
         """
 
     def create_variable(self, name, value=''):
+        _, name = self.create_if_null(name)
+
         xval = ''
         if value != '':
             xval = '({})'.format(value)
         self.code += """
         TData {name}{xval};
         """.format(name=name, xval=xval)
+
+        return name
 
     def create_if_null(self, node):
         ref = ''

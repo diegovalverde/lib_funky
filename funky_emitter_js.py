@@ -63,7 +63,7 @@ class EmitterJs:
         if result is None:
             result = self.create_anon()
             self.code += """
-        let {result} = new TData();
+        var {result} = new TData();
         """.format(result=result)
 
         self.code += """
@@ -99,7 +99,7 @@ class EmitterJs:
 
         ref = ''
         if result is None:
-            ref = 'TData'
+            ref = 'var'
             result = self.create_anon()
 
         src = arguments[0].eval()
@@ -187,9 +187,12 @@ class EmitterJs:
         return ''
 
     def create_variable(self, name, value=''):
+        _, name = self.create_if_null(name)
+
         self.code += """
            var {name} = new TData({value});
            """.format(name=name,value=value)
+        return name
 
     def create_if_null(self, node):
         ref = ''

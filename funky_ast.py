@@ -252,16 +252,14 @@ class CompileTimeExprList(List):
         array = [k.eval() for k in self.elements]
 
         if len(self.elements) == 1 and isinstance(self.elements[0], Range):
-            decl = ''
             if result is None:
-                result = self.funk.emitter.create_anon()
-                decl = 'TData'
+                result = self.funk.emitter.create_variable(result, str(array[0]))
 
             self.funk.emitter.code += """
-                {decl} {result} = {anon};
-            """.format(result=result, anon=str(array[0]), decl=decl)
+                {} = {};
+                """.format(result, str(array[0]))
         else:
-            return self.funk.emitter.create_array(array,result)
+            return self.funk.emitter.create_array(array, result)
 
         return result
 
