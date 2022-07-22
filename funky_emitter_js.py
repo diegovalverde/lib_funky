@@ -229,6 +229,16 @@ class EmitterJs:
                        values=','.join(str(e) for e in array))
         return result
 
+    def array_concat(self, result, L, R):
+        decl, result = self.create_if_null(result)
+
+        self.code += """
+        // Concatenating head to array
+        {ref} {result} = {R}.data.unshift({L});
+    """.format(result=result, L=L, R=R, ref=decl)
+
+        return result
+
     def array_push(self, array, val):
         self.code += '{array}.data.push({val});'.format(array=array, val=val)
 

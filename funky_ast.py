@@ -49,19 +49,9 @@ def list_concat_head(funk, left, right, result=None):
     This corresponds to:
         X ~> [MyArray]
     """
-    ref = ''
-    if result is None:
-        result = funk.emitter.create_anon()
-        ref = 'TData'
     L = left.eval()
     R = right.eval()
-
-    funk.emitter.code += """
-    // Concatenating head to array
-    {ref} {result} = {R};
-    {result}.array.insert({result}.array.begin(), {L});
-    """.format(result=result, L=L, R=R, ref=ref)
-    return result
+    return funk.emitter.array_concat(result, L, R)
 
 
 def create_ast_anon_symbol(funk, right):
