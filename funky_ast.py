@@ -28,20 +28,9 @@ def list_concat_tail(funk, left, right, result=None):
     This corresponds to:
         [MyArray] <~ x
     """
-    ref = ''
-    if result is None:
-        result = funk.emitter.create_anon()
-        ref = 'TData'
-
     L = left.eval()
     R = right.eval()
-
-    funk.emitter.code += """
-    {ref} {result} = {L};
-    {result}.array.insert({result}.array.end(), {R});
-    """.format(ref=ref, result=result, L=L, R=R)
-
-    return result
+    return funk.emitter.array_append(result, L, R)
 
 
 def list_concat_head(funk, left, right, result=None):
@@ -51,7 +40,7 @@ def list_concat_head(funk, left, right, result=None):
     """
     L = left.eval()
     R = right.eval()
-    return funk.emitter.array_concat(result, L, R)
+    return funk.emitter.array_prepend(result, L, R)
 
 
 def create_ast_anon_symbol(funk, right):
