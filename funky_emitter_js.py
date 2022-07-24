@@ -246,6 +246,24 @@ class EmitterJs:
 
         return result
 
+    def array_difference(self, result, L, R):
+        decl, result = self.create_if_null(result)
+
+        self.code += """
+        {ref} {result} = {L}.filter(x= > !{R}.includes(x));
+        """.format(result=result, L=L, R=R, ref=decl)
+
+        return result
+
+    def array_union(self,result, L, R):
+        decl, result = self.create_if_null(result)
+
+        self.code += """
+        {ref} {result} = {L}.concat({R});
+        """.format(result=result, L=L, R=R, ref=decl)
+
+        return result
+
     def array_push(self, array, val):
         self.code += '{array}.data.push({val});'.format(array=array, val=val)
 

@@ -290,6 +290,67 @@ class EmitterCpp:
 
         return result
 
+    def array_difference(self, result, L, R):
+
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+                   // List Union
+                   // Make sure both L and R are arrays
+                   if ({L}.type != funky_type::array) {{
+                       throw std::string("{L} is not an array");
+                   }}
+
+                  if ({R}.type != funky_type::array) {{
+                       throw std::string("{R} is not an array");
+                   }}
+
+                   auto __comparator__ = [](const TData & a, const TData & b){{
+                           if (a.type != b.type)
+                                throw std::string("Difference operator --: different types");
+
+                           switch(a.type) {{
+                               case funky_type::i32: return a.i32 < b.i32;
+                               case funky_type::d64: return a.d64 < b.d64;
+                               case funky_type::str: return a.str < b.str;
+                               default: throw std::string("Difference operator --: types not supported");
+                            }}
+                        }};
+
+                   {ref} {result} = TData(funky_type::array);
+                   std::set_difference({L}.array.begin(), {L}.array.end(),
+                       {R}.array.begin(), {R}.array.end(),
+                       std::inserter({result}.array, {result}.array.begin()),
+                       __comparator__);
+
+               """.format(result=result, L=L, R=R, ref=ref)
+
+        return result
+
+    def array_union(self, result, L, R):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+                    // List Union
+                    // Make sure both L and R are arrays
+                    TData {anon_l} = {L};
+                    TData {anon_r} = {R};
+                    if ({L}.type != funky_type::array) {{
+                        const std::vector<TData> tmp = {{ {L} }};
+                        {anon_l} = TData(tmp);
+                    }}
+
+                   if ({R}.type != funky_type::array) {{
+                        const std::vector<TData> tmp = {{ {R} }};
+                        {anon_r} = TData(tmp);
+                    }}
+
+                    {ref} {result} = {anon_l};
+                    {result}.array.insert({result}.array.end(), {anon_r}.array.begin(), {anon_r}.array.end());
+                """.format(result=result, L=L, R=R, ref=ref, anon_l=self.create_anon(),
+                           anon_r=self.create_anon())
+        return result
+
     def array_push(self, array, val):
         self.code += '{array}.array.push_back({val});'.format(array=array, val=val)
 
