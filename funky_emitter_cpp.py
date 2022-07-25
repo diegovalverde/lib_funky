@@ -71,6 +71,27 @@ class EmitterCpp:
 
         return result
 
+    def validate_function_pointer(self,name,function_signature):
+        self.code += """
+                if ({name}.type != funky_type::function){{
+                    std::cout << "========================================================================================"
+                    << std::endl;
+                    std::cout << "FunkyRuntime Error: When running function '{function_signature}' "
+                        << ":\\n\\t The input provided as '{name}' is not a function" << std::endl;
+                     for (int i = 0; i < argument_list.size(); i++){{
+                        std::cout << "args " << i << ": " << argument_list[i] << std::endl;
+                     }}
+                    std::cout << "========================================================================================"
+                    << std::endl;
+                    exit(1);
+                }}
+
+                if ({name}.fn == nullptr){{
+                    printf("FunkyRuntime Error: '{name}' function is NULL\\n");
+                    exit(1);
+                }}
+                    """.format(name=name, function_signature=function_signature)
+
     def call_function(self, name, arguments, result):
         anon = self.create_anon()
         declare = ''

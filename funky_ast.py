@@ -999,26 +999,10 @@ class FunctionCall(Expression):
             check_symbol_definition(self.funk, arg)
 
         if function_is_in_signature or function_is_local_variable or function_is_in_pattern_match_list:
-            self.funk.emitter.code += """
-        if ({name}.type != funky_type::function){{
-            std::cout << "========================================================================================"
-            << std::endl;
-            std::cout << "FunkyRuntime Error: When running function '{function_signature}' "
-                << ":\\n\\t The input provided as '{name}' is not a function" << std::endl;
-             for (int i = 0; i < argument_list.size(); i++){{
-                std::cout << "args " << i << ": " << argument_list[i] << std::endl;
-             }}
-            std::cout << "========================================================================================"
-            << std::endl;
-            exit(1);
-        }}
+            function_signature = '{}({})'.format(self.funk.function_scope.name, ', '.join(
+                str(e['val']) for e in self.funk.function_scope.current_function_clause.arguments))
 
-        if ({name}.fn == nullptr){{
-            printf("FunkyRuntime Error: '{name}' function is NULL\\n");
-            exit(1);
-        }}
-            """.format(name=name, function_signature='{}({})'.format(self.funk.function_scope.name, ', '.join(
-                str(e['val']) for e in self.funk.function_scope.current_function_clause.arguments)))
+            self.funk.emitter.validate_function_pointer(name, function_signature)
 
             ref = ''
             if result is None:
