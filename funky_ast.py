@@ -1176,23 +1176,8 @@ class FunctionMap:
                                                                                ref=ref))
 
             for argument in clause.tail_pairs:
-                self.funk.emitter.create_anon()
-                clause.funk.emitter.code += \
-                    self.funk.emitter.throw_if(
-                        '{head}.type != {array}'.format(head=argument['head'], array=self.funk.emitter.type('array')),
-                        "in function {function_name}: {list_arg} is not an array".format(
-                            list_arg=argument['tail'], function_name=clause.name))
-
-                clause.funk.emitter.code += """
-               TData  {list_arg} = {head};
-
-               if ({list_arg}.array.size() > 0) {{
-                    {head} = {list_arg}.array.front();
-                    {list_arg}.array.erase({list_arg}.array.begin());
-               }} else {{
-                    {head} = std::vector<TData>(); //empty list
-               }}
-                     """.format(head=argument['head'], list_arg=argument['tail'])
+                self.funk.emitter.process_function_head_tails(function_name=clause.name, head=argument['head'],
+                                                              tail=argument['tail'])
 
             if clause.preconditions is not None:
                 self.funk.function_scope.args = clause.arguments

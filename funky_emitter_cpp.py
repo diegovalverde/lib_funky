@@ -71,6 +71,22 @@ class EmitterCpp:
 
         return result
 
+    def process_function_head_tails(self,function_name, head, tail):
+        self.code += """
+
+          if ({head}.type != funky_type::array){{
+             throw std::string(\"in function {function_name}: {list_arg} is not an array");
+          }}
+          TData  {list_arg} = {head};
+
+          if ({list_arg}.array.size() > 0) {{
+               {head} = {list_arg}.array.front();
+               {list_arg}.array.erase({list_arg}.array.begin());
+          }} else {{
+               {head} = std::vector<TData>(); //empty list
+          }}
+                            """.format(function_name=function_name, head=head, list_arg=tail)
+
     def validate_function_pointer(self,name,function_signature):
         self.code += """
                 if ({name}.type != funky_type::function){{

@@ -72,6 +72,22 @@ class EmitterJs:
 
         return result
 
+    def process_function_head_tails(self, function_name, head, tail):
+        self.code += """
+
+             if ({head}.type != funky_type.array){{
+                throw \"in function {function_name}: {list_arg} is not an array";
+             }}
+             var  {list_arg} = new TData({head});
+
+             if ({list_arg}.value.length > 0) {{
+                  {head} = {list_arg}.data[0];
+                  {list_arg}.data.shift();
+             }} else {{
+                  {head} = []; //empty list
+             }}
+                               """.format(function_name=function_name, head=head, list_arg=tail)
+
     def validate_function_pointer(self,name,function_signature):
         self.code += """
                 if ({name}.type != funky_type.function){{
