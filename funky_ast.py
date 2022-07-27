@@ -1323,17 +1323,7 @@ class Flatten(Expression):
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        ref = ''
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            ref = 'const TData'
-
-        src = self.arg_list[0].eval()
-        self.funk.emitter.code += """
-        // flatten vector
-       {ref} {result} = {src}.Flatten();
-        """.format(result=result, src=src, ref=ref)
-        return result
+        return self.funk.emitter.flatten(result, self.arg_list[0].eval())
 
 
 class Len(Expression):

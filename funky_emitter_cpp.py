@@ -401,3 +401,11 @@ class EmitterCpp:
     def end_for_loop(self):
         self.code += '} //end for loop'
 
+    def flatten(self, result, src):
+        ref, result = self.create_if_null(result)
+        self.code += """
+        // flatten vector
+       {ref} {result} = {src}.Flatten();
+        """.format(result=result, src=src, ref=ref)
+
+        return result
