@@ -162,7 +162,7 @@ class EmitterJs:
         return '(abs({var}.data - {val}) < 1e-9)'.format(var=var, val=val)
 
     def pattern_match_is_array(self, var):
-        return '{var}.type == funky_type.array && {var}.array.length == 0'.format(var=var)
+        return '{var}.type == funky_type.array && {var}.data.length == 0'.format(var=var)
 
     def check_arity(self, arity):
         return '(argument_list.length == {clause_arity})'.format(clause_arity=arity)
