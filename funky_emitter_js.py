@@ -80,7 +80,7 @@ class EmitterJs:
              }}
              var  {list_arg} = new TData({head});
 
-             if ({list_arg}.value.length > 0) {{
+             if ({list_arg}.data.length > 0) {{
                   {head} = {list_arg}.data[0];
                   {list_arg}.data.shift();
              }} else {{
