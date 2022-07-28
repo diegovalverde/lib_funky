@@ -1121,9 +1121,8 @@ class FunctionMap:
                                     'argument_list[{i}].array[{j}]'.format(i=i, j=j))
 
                             if isinstance(element, IntegerConstant):
-                                condition = 'TData(argument_list[{i}].array[{j}] == {val}).i32 == 1'.format(
-                                    i=i, j=j,
-                                    val=element.eval())
+                                condition = self.funk.emitter.get_int('TData(argument_list[{i}].array[{j}] == {val})'.format(
+                                    i=i, j=j,val=element.eval()))+ ' == 1'
 
                                 pattern_matches.append(condition)
 
