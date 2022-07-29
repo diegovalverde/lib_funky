@@ -290,12 +290,12 @@ class Identifier:
                 if isinstance(idx.left, IntegerConstant):
                     start = '{}'.format(idx.left.eval())
                 else:
-                    start = '{}.i32'.format(idx.left.eval())
+                    start = self.funk.emitter.get_int('{}'.format(idx.left.eval()))
 
                 if isinstance(idx.right, IntegerConstant):
                     end = '{}'.format(idx.right.eval())
                 else:
-                    end = '{}.i32'.format(idx.right.eval())
+                    end = self.funk.emitter.get_int('{}'.format(idx.right.eval()))
 
             elif isinstance(idx, IntegerConstant):
                 is_range = 'false'
@@ -303,8 +303,8 @@ class Identifier:
                 end = '{}'.format(idx.eval())
             else:
                 is_range = 'false'
-                start = '{}.i32'.format(idx.eval())
-                end = '{}.i32'.format(idx.eval())
+                start = self.funk.emitter.get_int('{}'.format(idx.eval()))
+                end = self.funk.emitter.get_int('{}'.format(idx.eval()))
 
             range_initializer.append('{{ {start}, {end}, {is_range} }}'.format(start=start, end=end, is_range=is_range))
 
@@ -1181,9 +1181,8 @@ class FunctionMap:
             if clause.preconditions is not None:
                 self.funk.function_scope.args = clause.arguments
                 preconditions_result = clause.preconditions.eval()
-                clause.funk.emitter.code += """
-            if ({preconditions}.i32 == 1) {{
-                    """.format(preconditions=preconditions_result)
+                clause.funk.emitter.code += 'if (' + self.funk.emitter.get_int(
+                    '{}'.format(preconditions_result)) + ' == 1){'
 
             # go through each statement
             for stmt in clause.body[:-1]:
@@ -1532,10 +1531,10 @@ class ReShape:
         h = self.arg_list[2].eval()
 
         if not isinstance(w, int):
-            w = '{}.i32'.format(w)
+            w = self.funk.emitter.get_int('{}'.format(w))
 
         if not isinstance(h, int):
-            h = '{}.i32'.format(h)
+            h = self.funk.emitter.get_int('{}'.format(h))
 
         ref = ''
         if result is None:
