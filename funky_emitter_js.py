@@ -324,4 +324,4 @@ class EmitterJs:
         return result
 
     def is_equal(self, lhs, rhs):
-        return '{lhs}.value == {rhs}.value'
+        return '{lhs}.value == {rhs}.value'.format(lhs=lhs, rhs=rhs)
