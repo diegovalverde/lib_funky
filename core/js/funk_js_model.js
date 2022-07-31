@@ -21,10 +21,6 @@ class RangeType{
 export class TData
 {
     constructor(data={}){
-      if (data === null){
-        this.type = funky_type.invalid;
-        this.type = 666;
-      }
       var rtt = typeof(data);
       if (Array.isArray(data)){
         this.type = funky_type.array;
@@ -50,7 +46,7 @@ export class TData
         this.type = funky_type.function;
         this.data = data;
       }else if (rtt === "object") {
-        this.type = funky_type.array;
+        this.type = data.type;
         this.data = data.data;
       } else {
         this.type = funky_type.invalid;

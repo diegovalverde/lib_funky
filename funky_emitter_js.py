@@ -324,10 +324,10 @@ class EmitterJs:
         return result
 
     def is_equal(self, lhs, rhs):
-        if not lhs.isnumeric():
+        if isinstance(lhs,str) and not lhs.isnumeric():
             lhs += '.data'
 
-        if not rhs.isnumeric():
+        if isinstance(rhs,str) and not rhs.isnumeric():
             rhs += '.data'
 
         return '{lhs} == {rhs}'.format(lhs=lhs, rhs=rhs)
