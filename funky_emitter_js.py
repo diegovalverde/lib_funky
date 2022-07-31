@@ -153,7 +153,7 @@ class EmitterJs:
         return result
 
     def copy_var(self,lhs,rhs,ref=''):
-        return 'var {lhs} = {rhs};\n'.format(lhs=lhs, rhs=rhs)
+        return 'var {lhs} = new  TData({rhs} );\n'.format(lhs=lhs, rhs=rhs)
 
     def get_int(self, var):
         return '{var}.data'.format(var=var)
@@ -322,3 +322,6 @@ class EmitterJs:
            """.format(result=result, src=src, ref=ref)
 
         return result
+
+    def is_equal(self, lhs, rhs):
+        return '{lhs}.value == {rhs}.value'

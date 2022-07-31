@@ -71,7 +71,7 @@ class EmitterCpp:
 
         return result
 
-    def process_function_head_tails(self,function_name, head, tail):
+    def process_function_head_tails(self, function_name, head, tail):
         self.code += """
 
           if ({head}.type != funky_type::array){{
@@ -87,7 +87,7 @@ class EmitterCpp:
           }}
                             """.format(function_name=function_name, head=head, list_arg=tail)
 
-    def validate_function_pointer(self,name,function_signature):
+    def validate_function_pointer(self, name, function_signature):
         self.code += """
                 if ({name}.type != funky_type::function){{
                     std::cout << "========================================================================================"
@@ -171,7 +171,7 @@ class EmitterCpp:
                 throw std::string(" {msg}");
             }}""".format(condition=condition, msg=msg)
 
-    def copy_var(self,lhs,rhs, ref=''):
+    def copy_var(self, lhs, rhs, ref=''):
         return 'TData {ref} {lhs} = {rhs};\n'.format(ref=ref, lhs=lhs, rhs=rhs)
 
     def check_arity(self, arity):
@@ -278,7 +278,7 @@ class EmitterCpp:
             ref = 'TData'
         return ref, node
 
-    def arith_op(self,result,a,op,b):
+    def arith_op(self, result, a, op, b):
         ref, result = self.create_if_null(result)
         self.code += """
                    {ref} {result} = {a} {op} {b};
@@ -308,15 +308,15 @@ class EmitterCpp:
                                    values=','.join(str(e) for e in array))
         return result
 
-    def array_append(self, result,L,R):
+    def array_append(self, result, L, R):
         decl, result = self.create_if_null(result)
         self.code += """
          {ref} {result} = {L};
          {result}.array.insert({result}.array.end(), {R});
-        """.format(result=result,ref=decl,L=L,R=R)
+        """.format(result=result, ref=decl, L=L, R=R)
         return result
 
-    def array_prepend(self,result,L,R):
+    def array_prepend(self, result, L, R):
         decl, result = self.create_if_null(result)
 
         self.code += """
@@ -409,3 +409,6 @@ class EmitterCpp:
         """.format(result=result, src=src, ref=ref)
 
         return result
+
+    def is_equal(self, lhs, rhs):
+        return '{lhs} == {rhs}'.format(lhs=lhs, rhs=rhs)
