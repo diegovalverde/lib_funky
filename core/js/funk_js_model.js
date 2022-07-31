@@ -21,7 +21,7 @@ class RangeType{
 export class TData
 {
     constructor(data={}){
-      if (data === {}){
+      if (data === null){
         this.type = funky_type.invalid;
         this.type = 666;
       }
