@@ -20,44 +20,51 @@ class RangeType{
 
 export class TData
 {
-    constructor(data={}){
-      var rtt = typeof(data);
-      if (Array.isArray(data)){
+    constructor(data=null){
+	if (data == null){
+		this.type = funky_type.invalid;
+		this.data = 666;
+		return;
+	}
+    let rtt = typeof(data);
+    if (Array.isArray(data)){
         this.type = funky_type.array;
-        var array = []
-        for (var i = 0; i < data.length; i++){
-          array.push(new TData(data[i]));
+        let array = []
+        for (let i = 0; i < data.length; i++){
+            array.push(new TData(data[i]));
         }
-        this.data = array;
-      }
-      else if (rtt === "string") {
+    this.data = array;
+    }
+    else if (rtt === "string") {
         this.type = funky_type.str;
         this.data = data;
-      }
-      else if (rtt === "number") {
+    }
+    else if (rtt === "number") {
         if (!isNaN(parseFloat(data))){
-          this.type = funky_type.i32;
-          this.data = data;
+            this.type = funky_type.i32;
+            this.data = data;
         } else {
-          this.type = funky_type.d64;
-          this.data = data;
+            this.type = funky_type.d64;
+            this.data = data;
         }
-      }else if (rtt === "function") {
+    }else if (rtt === "function") {
         this.type = funky_type.function;
         this.data = data;
-      }else if (rtt === "object") {
-        this.type = data.type;
-        this.data = data.data;
-      } else {
+    }else if (rtt === "object") {
+    	this.type = data.type;
+	    if (this.type == "array"){
+			this.data = Object.assign([],data.data);
+	    } else {
+		    this.data = data.data;
+	    }
+    } else {
         this.type = funky_type.invalid;
         this.data = data;
-      }
-
-
     }
+}
     //-------------------------------------------------------------------------
     Print(){
-      var str = '';
+      let str = '';
       switch(this.type){
         case funky_type.i32:
           if (this.data == Number.MAX_SAFE_INTEGER){
@@ -74,7 +81,7 @@ export class TData
           break;
           case funky_type.array:
             str += '[';
-            for (var i = 0; i < this.data.length; i++){
+            for (let i = 0; i < this.data.length; i++){
                   str += this.data[i].Print();
                   if (i + 1 < this.data.length){
                     str += ', ';
@@ -101,19 +108,19 @@ export class TData
     //-------------------------------------------------------------------------
     //-------------------------------------------------------
     GetRange( ranges )  {
-        var range = ranges.pop();
+        let range = ranges.pop();
 
         if (this.data.lenght == 0 ) return TData([],funky_type.array); //return empty array
-        var n = this.data.length;
-        var start = (range.start > 0) ? (range.start) % n : (n + range.start) % n;
-        var end = (range.end > 0) ? (range.end) % n : (n + range.end) % n;
+        let n = this.data.length;
+        let start = (range.start > 0) ? (range.start) % n : (n + range.start) % n;
+        let end = (range.end > 0) ? (range.end) % n : (n + range.end) % n;
 
         if (ranges.length == 0 && !range.isRange && start == end){
             return new TData(this.data[start], funky_type.i32);
         }
-        var result = new TData([], funky_type.array);
-        for (var i = start; i <= end; i++){
-          var element = new TData();
+        let result = new TData([], funky_type.array);
+        for (let i = start; i <= end; i++){
+          let element = new TData();
           element = (ranges.length > 0) ? this.data[i].GetRange(ranges) : this.data[i];
           if (range.isRange){
             result.data.push(element);
@@ -127,13 +134,13 @@ export class TData
     Flatten() {
       if (this.type != funky_type.array) return new TData(this.data, this.type);
 
-      var result = new TData([], funky_type.array);
-      for (var i = 0; i < this.data.length; i++){
-        var flattened = this.data[i].Flatten();
+      let result = new TData([], funky_type.array);
+      for (let i = 0; i < this.data.length; i++){
+        let flattened = this.data[i].Flatten();
         if (flattened.type != funky_type.array){
           result.data.push( flattened );
         } else {
-          for (var j = 0; i < flattened.data.length; j++){
+          for (let j = 0; i < flattened.data.length; j++){
             result.data.push( flattened.data[j] );
           }
         }
@@ -152,8 +159,41 @@ export class TData
       return this.Print();
     }
     //-------------------------------------------------------------------------
+    Equals(x){
+        if (x.type != this.type){
+            return 0;
+        }
 
-    #type = funky_type.invalid;
-    #data;  // the data holder
+        switch(this.type){
+          case funky_type.array:
+            if (x.data.length != this.data.length){
+                return 0;
+            }
+
+            for (let i = 0; i < this.data.length; i++){
+                  if (this.data[i].Equals(x.data[i]) == 0){
+                    return 0;
+                  }
+              }
+
+            break;
+
+          default:
+            if (this.data == x.data){
+            return 1;
+            }
+      }
+        return 0;
+    }
+    //-------------------------------------------------------------------------
+    Nequals(x){
+        if (Equals(x) == 1){
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+    //-------------------------------------------------------------------------
+
 
 };

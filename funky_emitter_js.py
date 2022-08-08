@@ -240,9 +240,19 @@ class EmitterJs:
 
     def arith_op(self, result, a, op, b):
         ref, result = self.create_if_null(result)
-        self.code += """
-                   {ref} {result} = new TData({a} {op} {b});
-                """.format(result=result, ref=ref, a=a, b=b, op=op)
+
+        if op == '==':
+            self.code += """
+                       {ref} {result} = new TData({a}.Equals({b});
+                    """.format(result=result, ref=ref, a=a, b=b, op=op)
+        elif op == '!=':
+            self.code += """
+                       {ref} {result} = new TData({a}.Nequals({b});
+                    """.format(result=result, ref=ref, a=a, b=b, op=op)
+        else:
+            self.code += """
+                       {ref} {result} = new TData({a} {op} {b});
+                    """.format(result=result, ref=ref, a=a, b=b, op=op)
         return result
 
     def get_ranges(self, node, range_initializer, result=None):
@@ -324,7 +334,7 @@ class EmitterJs:
         return result
 
     def is_equal(self, lhs, rhs):
-        if isinstance(lhs,str) and not lhs.isnumeric():
+        if isinstance(lhs, str) and not lhs.isnumeric():
             lhs += '.data'
 
         if isinstance(rhs,str) and not rhs.isnumeric():
