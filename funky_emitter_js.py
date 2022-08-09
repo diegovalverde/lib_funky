@@ -63,7 +63,7 @@ class EmitterJs:
         if result is None:
             result = self.create_anon()
             self.code += """
-        var {result} = new TData();
+        let {result} = new TData();
         """.format(result=result)
 
         self.code += """
@@ -78,7 +78,7 @@ class EmitterJs:
              if ({head}.type != funky_type.array){{
                 throw \"in function {function_name}: {list_arg} is not an array";
              }}
-             var  {list_arg} = new TData({head});
+             let  {list_arg} = new TData({head});
 
              if ({list_arg}.data.length > 0) {{
                   {head} = {list_arg}.data[0];
@@ -88,14 +88,14 @@ class EmitterJs:
              }}
                                """.format(function_name=function_name, head=head, list_arg=tail)
 
-    def validate_function_pointer(self,name,function_signature):
+    def validate_function_pointer(self, name, function_signature):
         self.code += """
                 if ({name}.type != funky_type.function){{
                     funky_console.value += "========================================================================================<br\>";
 
                     funky_console.value += "FunkyRuntime Error: When running function '{function_signature}' ";
                     funky_console.value += ":\\n\\t The input provided as '{name}' is not a function <br\>";
-                     for (var i = 0; i < argument_list.length; i++){{
+                     for (let i = 0; i < argument_list.length; i++){{
                         funky_console.value += "args " + i.toString() + ": " + argument_list[i].toString() + "<br\>";
                      }}
                     funky_console.value += "========================================================================================<br\>"
@@ -114,7 +114,7 @@ class EmitterJs:
 
         anon = self.create_anon()
         self.code += """
-              var {anon} = [ {arg_list} ];
+              let {anon} = [ {arg_list} ];
               """.format(anon=anon, arg_list=', '.join(str(e) for e in arguments if e != 'etc'))
 
         if 'etc' in arguments:
@@ -152,8 +152,8 @@ class EmitterJs:
 
         return result
 
-    def copy_var(self,lhs,rhs,ref=''):
-        return 'var {lhs} = new  TData({rhs} );\n'.format(lhs=lhs, rhs=rhs)
+    def copy_var(self, lhs, rhs, ref=''):
+        return 'let {lhs} = new  TData({rhs} );\n'.format(lhs=lhs, rhs=rhs)
 
     def get_int(self, var):
         return '{var}.data'.format(var=var)
@@ -178,7 +178,7 @@ class EmitterJs:
     def emit_function_signature(self, name, has_tail_recursion):
         self.code += """
                    function {fn_name}(argument_list) {{
-                       var __retval__ = new TData();
+                       let __retval__ = new TData();
                        label_function_start:
            """.format(fn_name=name)
 
@@ -205,7 +205,7 @@ class EmitterJs:
         self.code += """
         // No clause was hit
         funky_console.value += "No overload of function '{fn_name}' matches inputs" + "<br\>";
-        for (var i = 0; i < argument_list.length; i++){{
+        for (let i = 0; i < argument_list.length; i++){{
             funky_console.value += argument_list[i]  + "<br\>";
         }}
 
@@ -227,7 +227,7 @@ class EmitterJs:
         _, name = self.create_if_null(name)
 
         self.code += """
-           var {name} = new TData({value});
+           let {name} = new TData({value});
            """.format(name=name,value=value)
         return name
 
@@ -260,7 +260,7 @@ class EmitterJs:
         anon = self.create_anon()
 
         self.code += """
-            var {ranges} = [ {range_initializer} ];
+            let {ranges} = [ {range_initializer} ];
             {ref} {result} = {node}.GetRange({ranges});
            """.format(ref=ref, ranges=anon, result=result, node=node,
                       range_initializer=', '.join(str(e) for e in range_initializer))
@@ -280,7 +280,7 @@ class EmitterJs:
         decl, result = self.create_if_null(result)
         self.code += """
          {ref} {result} = {L}.data.push({R});
-        """.format(result=result,ref=decl,L=L,R=R)
+        """.format(result=result, ref=decl, L=L, R=R)
         return result
 
     def array_prepend(self, result, L, R):
@@ -316,7 +316,7 @@ class EmitterJs:
 
     def start_for_loop(self, i, start, end):
         self.code += """
-                       for (var {i} = 0; {i} < ({end}-{start}); {i}++)
+                       for (let {i} = 0; {i} < ({end}-{start}); {i}++)
                        {{
 
                    """.format(i=i, end=end, start=start)
