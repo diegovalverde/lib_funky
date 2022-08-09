@@ -411,4 +411,4 @@ class EmitterCpp:
         return result
 
     def is_equal(self, lhs, rhs):
-        return '{lhs} == {rhs}'.format(lhs=lhs, rhs=rhs)
+        return 'TData({lhs} == {rhs}).i32'.format(lhs=lhs, rhs=rhs)

@@ -1104,9 +1104,8 @@ class FunctionMap:
                         pattern_matches.append(self.funk.emitter.pattern_match_is_array('argument_list[{i}]'.format(i=i)))
                     elif isinstance(pm, PatternMatchLiteral):
                         if pm.type == funky_types.int:
-                            lhs=self.funk.emitter.get_int('argument_list[{i}]'.format(i=i))
                             rhs=pm.value
-                            pattern = self.funk.emitter.is_equal(lhs, rhs)
+                            pattern = self.funk.emitter.is_equal('argument_list[{i}]'.format(i=i), rhs)
                             pattern_matches.append(pattern)
                         elif pm.type == funky_types.double:
                             pattern_matches.append(self.funk.emitter.pattern_match_double('argument_list[{i}]'.format(i=i),
