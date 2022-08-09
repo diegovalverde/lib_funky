@@ -160,6 +160,10 @@ export class TData
     }
     //-------------------------------------------------------------------------
     Equals(x){
+        if (typeof(x) != "object"){
+			return x == this.data;
+		}
+
         if (x.type != this.type){
             return 0;
         }
