@@ -243,11 +243,11 @@ class EmitterJs:
 
         if op == '==':
             self.code += """
-                       {ref} {result} = new TData({a}.Equals({b});
+                       {ref} {result} = new TData({a}.Equals({b}));
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
         elif op == '!=':
             self.code += """
-                       {ref} {result} = new TData({a}.Nequals({b});
+                       {ref} {result} = new TData({a}.Nequals({b}));
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
         else:
             self.code += """
@@ -334,4 +334,4 @@ class EmitterJs:
         return result
 
     def is_equal(self, lhs, rhs):
-        return '{lhs}.Equal({rhs})'.format(lhs=lhs, rhs=rhs)
+        return '{lhs}.Equals({rhs})'.format(lhs=lhs, rhs=rhs)
