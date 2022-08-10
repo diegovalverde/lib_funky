@@ -349,3 +349,10 @@ class EmitterJs:
                    anon=anon)
 
         return result
+
+    def create_function_call(self, name):
+        anon = self.create_anon()
+        self.code += """
+               let {anon} = new TData({name});
+               """.format(anon=anon, name=name)
+        return anon

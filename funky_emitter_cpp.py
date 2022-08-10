@@ -427,3 +427,12 @@ class EmitterCpp:
                    anon=anon)
 
         return result
+
+    def create_function_call(self, name):
+        anon = self.create_anon()
+        self.code += """
+               TData {anon}(funky::{name});
+               {anon}.str = "{name}";
+
+               """.format(anon=anon, name=name)
+        return anon

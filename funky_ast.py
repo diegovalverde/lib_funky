@@ -326,6 +326,7 @@ class Identifier:
         # To see if the identifier is a function argument
 
         if self.name in self.funk.symbol_table:
+            return self.funk.emitter.create_function_call(self.name)
             anon = self.funk.emitter.create_anon()
             self.funk.emitter.code += """
         TData {anon}(funky::{name});
