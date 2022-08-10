@@ -213,7 +213,7 @@ class EmitterJs:
 
     def preamble(self, _):
         return """
-            import { TData, funky_type } from "./funk_js_model.js";
+            import { RangeType, TData, funky_type } from "./funk_js_model.js";
             // make sure that in the index.html you include your file like:
             // <script type="module" src="js/fibo.js"></script>
 
