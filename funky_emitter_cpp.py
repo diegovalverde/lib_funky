@@ -259,6 +259,13 @@ class EmitterCpp:
     } //namespace
         """
 
+    def assign_variable(self, name,val):
+        self.code += """
+                {name} = TData({val});
+                """.format(name=name, val=val)
+
+        return name
+
     def create_variable(self, name, value=''):
         _, name = self.create_if_null(name)
 

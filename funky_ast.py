@@ -129,11 +129,7 @@ class IntegerConstant:
     def eval(self, result=None):
         value = self.sign * int(self.value)
         if result is not None:
-            self.funk.emitter.code += """
-
-            {result} = TData({val});
-            """.format(result=result, val=value)
-
+            self.funk.emitter.assign_variable(result, val=value)
         return value
 
     def __deepcopy__(self, memo):
@@ -159,10 +155,7 @@ class DoubleConstant:
     def eval(self, result=None):
         value = self.sign * float(self.value)
         if result is not None:
-            self.funk.emitter.code += """
-            {result} = TData({val});
-            """.format(result=result, val=value)
-
+            self.funk.emitter.assign_variable(result, val=value)
         return value
 
     def __deepcopy__(self, memo):
