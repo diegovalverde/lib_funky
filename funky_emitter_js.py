@@ -103,7 +103,7 @@ class EmitterJs:
 
                 }}
 
-                if ({name}.fn == nil){{
+                if ({name}.fn == null){{
                     funky_console.value +="FunkyRuntime Error: '{name}' function is NULL <br\>";
 
                 }}
