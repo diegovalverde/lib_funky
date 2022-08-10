@@ -306,7 +306,7 @@ class Identifier:
                 start = self.funk.emitter.get_int('{}'.format(idx.eval()))
                 end = self.funk.emitter.get_int('{}'.format(idx.eval()))
 
-            range_initializer.append('{{ {start}, {end}, {is_range} }}'.format(start=start, end=end, is_range=is_range))
+            range_initializer.append( self.funk.emitter.get_range_initializer(start,end,is_range))
 
         return self.funk.emitter.get_ranges(node, range_initializer, result)
 

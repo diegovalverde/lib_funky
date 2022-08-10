@@ -286,6 +286,9 @@ class EmitterCpp:
 
         return result
 
+    def get_range_initializer(self, start, end, is_range):
+        return '{{ {start}, {end}, {is_range} }}'.format(start=start, end=end, is_range=is_range)
+
     def get_ranges(self, node, range_initializer, result=None):
         ref, result = self.create_if_null(result)
         anon = self.create_anon()
