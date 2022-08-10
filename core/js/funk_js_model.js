@@ -7,7 +7,7 @@ export const funky_type = {
   function : 'function'
 };
 
-class RangeType{
+export class RangeType{
       constructor(start, end, isRange){
         this.start = start;
         this.end = end;
