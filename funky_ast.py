@@ -1004,17 +1004,8 @@ class FunctionCall(Expression):
 
             self.funk.emitter.validate_function_pointer(name, function_signature)
 
-            ref = ''
-            if result is None:
-                result = self.funk.emitter.create_anon()
-                ref = 'TData'
+            return self.funk.emitter.function_call(result, name, arguments)
 
-            anon = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-            std::vector<TData> {anon} = {{ {arg_list} }};
-            {ref} {result} = {name}.fn({anon});
-            """.format(ref=ref, name=name, arg_list=', '.join(str(e) for e in arguments), result=result, anon=anon)
-            return result
         elif name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
             return self.funk.emitter.call_function(name, arguments, result=result)
 

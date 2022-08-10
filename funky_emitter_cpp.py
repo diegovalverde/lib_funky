@@ -412,3 +412,15 @@ class EmitterCpp:
 
     def is_equal(self, lhs, rhs):
         return 'TData({lhs} == {rhs}).i32'.format(lhs=lhs, rhs=rhs)
+
+    def function_call(self, result, name, arguments):
+        ref, result = self.create_if_null(result)
+        anon = self.create_anon()
+
+        self.code += """
+        std::vector<TData> {anon} = {{ {arg_list} }};
+        {ref} {result} = {name}.fn({anon});
+        """.format(ref=ref, name=name, arg_list=', '.join(str(e) for e in arguments), result=result,
+                   anon=anon)
+
+        return result

@@ -235,7 +235,7 @@ class EmitterJs:
         ref = ''
         if node is None:
             node = self.create_anon()
-            ref = 'var'
+            ref = 'let'
         return ref, node
 
     def arith_op(self, result, a, op, b):
@@ -335,3 +335,14 @@ class EmitterJs:
 
     def is_equal(self, lhs, rhs):
         return '{lhs}.Equals({rhs})'.format(lhs=lhs, rhs=rhs)
+
+    def function_call(self, result, name, arguments):
+        ref, result = self.create_if_null(result)
+        anon = self.create_anon()
+
+        self.code += """
+        {ref} {result} = {name}.data([{arg_list}]);
+        """.format(ref=ref, name=name, arg_list=', '.join(str(e) for e in arguments), result=result,
+                   anon=anon)
+
+        return result
