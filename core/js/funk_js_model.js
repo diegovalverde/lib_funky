@@ -99,9 +99,9 @@ export class TData
     //-------------------------------------------------------------------------
     GetLen(){
       if (this.data.length == undefined){
-        return 1;
+        return new TData(1);
       } else {
-        return this.data.length;
+        return new TData(this.data.length);
       }
 
     }
