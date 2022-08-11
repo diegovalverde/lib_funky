@@ -289,7 +289,8 @@ class EmitterJs:
     def array_append(self, result,L,R):
         decl, result = self.create_if_null(result)
         self.code += """
-         {ref} {result} = {L}.data.push({R});
+        {ref} {result} = new TData({L});
+        {result}.data.push({R});
         """.format(result=result, ref=decl, L=L, R=R)
         return result
 
@@ -298,7 +299,8 @@ class EmitterJs:
 
         self.code += """
         // Concatenating head to array
-        {ref} {result} = {R}.data.unshift({L});
+        {ref} {result} = new TData({R});
+        {result}.data.unshift({L});
     """.format(result=result, L=L, R=R, ref=decl)
 
         return result

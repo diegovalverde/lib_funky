@@ -110,7 +110,7 @@ export class TData
     GetRange( ranges )  {
         let range = ranges.pop();
 
-        if (this.data.lenght == 0 ) return new TData([],funky_type.array); //return empty array
+        if (this.data.length == 0 ) return new TData([],funky_type.array); //return empty array
         let n = this.data.length;
         let start = (range.start > 0) ? (range.start) % n : (n + range.start) % n;
         let end = (range.end > 0) ? (range.end) % n : (n + range.end) % n;
