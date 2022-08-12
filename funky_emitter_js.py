@@ -256,15 +256,6 @@ class EmitterJs:
             self.code += """
                        {ref} {result} = new TData({a}.Nequals({b}));
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
-        elif op == '/':
-            self.code += """
-                    if ({a}.type == funky_type.i32 && {b}.type == funky_type.i32) {{
-                        {ref} {result} = new TData(Math.floor({a} {op} {b}));
-                    }} else {{
-                        {ref} {result} = new TData({a} {op} {b});
-                    }}
-
-                """.format(result=result, ref=ref, a=a, b=b, op=op)
         else:
             self.code += """
                        {ref} {result} = new TData({a} {op} {b});

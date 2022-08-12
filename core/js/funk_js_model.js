@@ -112,8 +112,11 @@ export class TData
 
         if (this.data.length == 0 ) return new TData([],funky_type.array); //return empty array
         let n = this.data.length;
-        let start = (range.start > 0) ? (range.start) % n : (n + range.start) % n;
-        let end = (range.end > 0) ? (range.end) % n : (n + range.end) % n;
+        let start = Math.floor(range.start)
+        let end = Math.floor(range.end)
+
+        start = (start > 0) ? (start) % n : (n + start) % n;
+        end = (end > 0) ? (end) % n : (n + end) % n;
 
         if (ranges.length == 0 && !range.isRange && start == end){
             return new TData(this.data[start], funky_type.i32);
