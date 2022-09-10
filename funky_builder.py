@@ -11,6 +11,21 @@ def set_cwd(path):
     funk_build_cwd=path
 
 
+def get_depnames(src):
+    # find the dependencies
+    deps = []
+    for line in src.splitlines():
+        global link_with_sdl, funk_build_cwd
+        match = re.findall('^ *\t*use +(.*)', line)
+        if len(match) == 0:
+            continue
+        for dep in match[0].split(','):
+            dep = dep.strip()
+            deps.append(dep)
+
+    return deps
+
+
 def get_dependencies(src, include_paths=['.',os.getcwd()]):
     """
     :param include_paths: list of paths to the include search folders
