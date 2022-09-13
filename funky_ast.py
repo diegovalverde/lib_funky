@@ -907,9 +907,12 @@ class ExternalFunction:
         return 'ExternalFunction({})'.format(self.name)
 
     def emit(self):
-        return """
- TData {name}(std::vector<TData>&);
+        if self.funk.mode == 'cpp':
+            return """
+                TData {name}(std::vector<TData>&);
                 """.format(name=self.name[1:])
+        else:
+            return ''
 
 
 class FunctionCall(Expression):
