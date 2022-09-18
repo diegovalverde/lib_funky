@@ -1097,14 +1097,14 @@ class FunctionMap:
                                                                                        pm.value))
 
                     elif isinstance(pm, PatternMatchListOfIdentifiers):
-                        condition = 'argument_list[{}].array.size() =={}'.format(i, len(pm.elements))
+                        condition = '{} == {}'.format(self.funk.emitter.get_len('argument_list[{}]'.format(i)), len(pm.elements) )
                         pattern_matches.append(condition)
                         # this a list and it pattern matches elements from the list
                         for j, element in enumerate(pm.elements):
                             if isinstance(element, Identifier):
                                 pattern_match_auxiliary_variables += self.funk.emitter.copy_var(
                                     '{name}'.format(name=element.name),
-                                    'argument_list[{i}].array[{j}]'.format(i=i, j=j))
+                                    self.funk.emitter.get_element('argument_list[{i}]'.format(i=i), j))
 
                             if isinstance(element, IntegerConstant):
                                 condition = self.funk.emitter.get_int('TData(argument_list[{i}].array[{j}] == {val})'.format(

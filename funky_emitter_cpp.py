@@ -163,6 +163,12 @@ class EmitterCpp:
     def pattern_match_is_array(self, var):
         return '{var}.type == funky_type::array && {var}.array.size() == 0'.format(var=var)
 
+    def get_element(self, var, i):
+        return '{}.array[{}]'.format(var, i)
+
+    def get_len(self, var):
+        return '{var}.array.size()'.format(var=var)
+
     def type(self, type):
         return 'funky_type::{}'.format(type)
 

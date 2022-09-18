@@ -161,6 +161,12 @@ class EmitterJs:
     def pattern_match_double(self, var, val):
         return '(abs({var}.data - {val}) < 1e-9)'.format(var=var, val=val)
 
+    def get_element(self, var, i):
+        return '{}.data[{}]'.format(var,i)
+
+    def get_len(self, var):
+        return '{var}.data.length'.format(var=var)
+
     def pattern_match_is_array(self, var):
         return '{var}.type == funky_type.array && {var}.data.length == 0'.format(var=var)
 

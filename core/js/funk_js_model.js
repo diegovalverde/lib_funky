@@ -143,7 +143,7 @@ export class TData
         if (flattened.type != funky_type.array){
           result.data.push( flattened );
         } else {
-          for (let j = 0; i < flattened.data.length; j++){
+          for (let j = 0; j < flattened.data.length; j++){
             result.data.push( flattened.data[j] );
           }
         }
