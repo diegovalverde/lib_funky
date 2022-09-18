@@ -16,6 +16,11 @@
 # under the License.
 
 import collections
+#https://stackoverflow.com/questions/53978542/how-to-use-collections-abc-from-both-python-3-8-and-python-2-7/53978543#53978543
+try:
+    collectionsAbc = collections.abc
+except AttributeError:
+    collectionsAbc = collections
 
 from . import funky_ast
 
