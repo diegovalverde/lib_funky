@@ -101,6 +101,19 @@ class Funk:
         f = open(path, 'w')
         f.write(self.emit())
         f.close()
+    
+    def get_depnames(self, src, include_path='root/include'):
+        # find the dependencies
+        deps = []
+        for line in src.splitlines():
+            match = re.findall('^ *\t*use +(.*)', line)
+            if len(match) == 0:
+                continue
+            for dep in match[0].split(','):
+                dep = dep.strip()
+                deps.append('{include}/{dep}.f'.format(include=include_path,dep=dep))
+
+        return deps
 
     def compile(self, text):
         try:
