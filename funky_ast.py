@@ -184,14 +184,14 @@ class List(Expression):
     def get_dimensions(self):
         def traverse(x, dimensions=[]):
             elements = []
-            if isinstance(x, collections.Iterable):
+            if isinstance(x, collections.abc.Iterable):
                 elements = x
             elif isinstance(x, List):
                 elements = x.elements
             dimensions.append(len(elements))
 
             if len(elements) > 0:
-                if isinstance(elements[0], List) or isinstance(elements[0], collections.Iterable):
+                if isinstance(elements[0], List) or isinstance(elements[0], collections.abc.Iterable):
                     return traverse(elements[0], dimensions)
             return list(reversed(dimensions))
 
@@ -214,7 +214,7 @@ class CompileTimeExprList(List):
         super().__init__(funk, name, elements)
         self.funk = funk
         self.name = name
-        if isinstance(elements, collections.Iterable):
+        if isinstance(elements, collections.abc.Iterable):
             self.elements = elements
         else:
             self.elements = [elements]

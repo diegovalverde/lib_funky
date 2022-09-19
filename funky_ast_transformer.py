@@ -32,7 +32,7 @@ except ImportError:
 
 
 def flatten(x):
-    if isinstance(x, collections.Iterable):
+    if isinstance(x, collections.abc.Iterable):
         return [a for i in x for a in flatten(i)]
     else:
         return [x]
@@ -383,8 +383,9 @@ class TreeToAst(Transformer):
             return None
 
     def create_list(self, elements):
-        if isinstance(elements, collections.Iterable) and len(elements) == 1 and isinstance(elements[0],
-                                                                                            collections.Iterable):
+       
+        if isinstance(elements, collections.abc.Iterable) and len(elements) == 1 and isinstance(elements[0],
+                                                                                            collections.abc.Iterable):
             return [funky_ast.CompileTimeExprList(self.funk, 'anon', self.create_list(elements[0]))]
         else:
             return [funky_ast.CompileTimeExprList(self.funk, 'anon', elements)]
