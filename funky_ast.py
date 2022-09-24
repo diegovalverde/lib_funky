@@ -1110,8 +1110,9 @@ class FunctionMap:
                                     self.funk.emitter.get_element('argument_list[{i}]'.format(i=i), j))
 
                             if isinstance(element, IntegerConstant):
-                                condition = self.funk.emitter.get_int('TData(argument_list[{i}].array[{j}] == {val})'.format(
-                                    i=i, j=j,val=element.eval()))+ ' == 1'
+                                e = self.funk.emitter.get_element('argument_list[{i}]'.format(i=i),j)
+                                condition = self.funk.emitter.get_int('TData({element} == {val})'.format(
+                                    element=e, val=element.eval())) + ' == 1'
 
                                 pattern_matches.append(condition)
 

@@ -264,7 +264,12 @@ class EmitterJs:
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
         else:
             self.code += """
-                       {ref} {result} = new TData({a} {op} {b});
+                        {ref} {result};
+                        if (TData({a}).type == funky_type.i32 && TData({b}).type == funky_type.i32){{
+                            {result} = new TData(parseInt({a} {op} {b}));
+                       }} else {{
+                            {result} = new TData({a} {op} {b});
+                       }}
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
         return result
 
