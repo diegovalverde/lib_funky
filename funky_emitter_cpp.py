@@ -160,6 +160,10 @@ class EmitterCpp:
     def pattern_match_double(self, var, val):
         return '(std::fabs({var}.d64 - {val}) < 1e-9)'.format(var=var, val=val)
 
+
+    def pattern_match_integer(self, var, val):
+        return '(TData({var}.i32 == {val}).i32 == 1)'.format(var=var, val=val)
+
     def pattern_match_is_array(self, var):
         return '{var}.type == funky_type::array && {var}.array.size() == 0'.format(var=var)
 

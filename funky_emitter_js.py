@@ -161,6 +161,9 @@ class EmitterJs:
     def pattern_match_double(self, var, val):
         return '(abs({var}.data - {val}) < 1e-9)'.format(var=var, val=val)
 
+    def pattern_match_integer(self, var, val):
+        return '((new TData({var}.data == {val})).data == 1)'.format(var=var, val=val)
+
     def get_element(self, var, i):
         return '{}.data[{}]'.format(var,i)
 
@@ -329,7 +332,7 @@ class EmitterJs:
         decl, result = self.create_if_null(result)
 
         self.code += """
-        {ref} {result} = {L}.concat({R});
+        {ref} {result} = {L}.data.concat({R}.data);
         """.format(result=result, L=L, R=R, ref=decl)
 
         return result
