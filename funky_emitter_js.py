@@ -219,7 +219,7 @@ class EmitterJs:
 
     def preamble(self, _):
         return """
-            import { RangeType, TData, funky_type } from "./app/funky/core/js/funk_js_model.js";
+            import { RangeType, TData, funky_type } from "./lib_funky/core/js/funk_js_model.js";
             // make sure that in the index.html you include your file like:
             // <script type="module" src="js/fibo.js"></script>
 
@@ -265,7 +265,7 @@ class EmitterJs:
         else:
             self.code += """
                         {ref} {result};
-                        if (TData({a}).type == funky_type.i32 && TData({b}).type == funky_type.i32){{
+                        if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
                             {result} = new TData(parseInt({a} {op} {b}));
                        }} else {{
                             {result} = new TData({a} {op} {b});
