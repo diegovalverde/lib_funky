@@ -335,9 +335,9 @@ class EmitterJs:
 
     def array_union(self,result, L, R):
         decl, result = self.create_if_null(result)
-
+       
         self.code += """
-        {ref} {result} = {L}.data.concat({R}.data);
+        {ref} {result} = new TData({L}.data.concat({R}.data));
         """.format(result=result, L=L, R=R, ref=decl)
 
         return result
