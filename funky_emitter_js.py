@@ -265,14 +265,19 @@ class EmitterJs:
             self.code += """
                        {ref} {result} = new TData({a}.Nequals({b}));
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
+        elif op == '/':
+            self.code += """
+                       {ref} {result};
+                       if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
+                           {result} = new TData(parseInt({a} / {b}));
+                      }} else {{
+                           {result} = new TData({a} / {b});
+                      }}
+                   """.format(result=result, ref=ref, a=a, b=b)
         else:
             self.code += """
-                        {ref} {result};
-                        if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
-                            {result} = new TData(parseInt({a} {op} {b}));
-                       }} else {{
-                            {result} = new TData({a} {op} {b});
-                       }}
+                        {ref} {result} = new TData({a} {op} {b});
+
                     """.format(result=result, ref=ref, a=a, b=b, op=op)
         return result
 
