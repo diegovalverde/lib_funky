@@ -81,10 +81,10 @@ class EmitterJs:
              let  {list_arg} = new TData({head});
 
              if ({list_arg}.data.length > 0) {{
-                  {head} = {list_arg}.data[0];
+                  {head} = new TData({list_arg}.data[0]);
                   {list_arg}.data.shift();
              }} else {{
-                  {head} = []; //empty list
+                  {head} = new TData([]); //empty list
              }}
                                """.format(function_name=function_name, head=head, list_arg=tail)
 
@@ -335,7 +335,7 @@ class EmitterJs:
 
     def array_union(self,result, L, R):
         decl, result = self.create_if_null(result)
-       
+
         self.code += """
         {ref} {result} = new TData({L}.data.concat({R}.data));
         """.format(result=result, L=L, R=R, ref=decl)
