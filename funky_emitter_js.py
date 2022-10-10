@@ -36,7 +36,7 @@ class EmitterJs:
             for arg_expr in l:
                 str_value += '{}.toString() +'.format(arg_expr)
 
-            self.code += str_value[:-1] + '\n'
+            self.code += str_value + "\"\\n\""
 
         ref = ''
         if result is None:
@@ -91,20 +91,20 @@ class EmitterJs:
     def validate_function_pointer(self, name, function_signature):
         self.code += """
                 if ({name}.type != funky_type.function){{
-                    funky_console.value += "========================================================================================<br\>";
+                    funky_console.value += "========================================================================================\\n";
 
                     funky_console.value += "FunkyRuntime Error: When running function '{function_signature}' ";
-                    funky_console.value += ":\\n\\t The input provided as '{name}' is not a function <br\>";
+                    funky_console.value += ":\\n\\t The input provided as '{name}' is not a function \\n";
                      for (let i = 0; i < argument_list.length; i++){{
-                        funky_console.value += "args " + i.toString() + ": " + argument_list[i].toString() + "<br\>";
+                        funky_console.value += "args " + i.toString() + ": " + argument_list[i].toString() + "\\n";
                      }}
-                    funky_console.value += "========================================================================================<br\>"
+                    funky_console.value += "========================================================================================\\n"
 
 
                 }}
 
                 if ({name}.data == null){{
-                    funky_console.value +="FunkyRuntime Error: '{name}' function is NULL <br\>";
+                    funky_console.value +="FunkyRuntime Error: '{name}' function is NULL \\n";
 
                 }}
                     """.format(name=name, function_signature=function_signature)
@@ -203,7 +203,7 @@ class EmitterJs:
                     return 0;
                     } //end of try block
                     catch (e){
-                        funky_console.value += e.message + "<br\>";
+                        funky_console.value += e.message + "\\n";
                     }
 
                 } //end of main function
@@ -213,9 +213,9 @@ class EmitterJs:
     def emit_no_suitable_clause_found(self, name):
         self.code += """
         // No clause was hit
-        funky_console.value += "No overload of function '{fn_name}' matches inputs" + "<br\>";
+        funky_console.value += "No overload of function '{fn_name}' matches inputs" + "\\n";
         for (let i = 0; i < argument_list.length; i++){{
-            funky_console.value += argument_list[i]  + "<br\>";
+            funky_console.value += argument_list[i]  + "\\n";
         }}
 
         """.format(fn_name=name)
