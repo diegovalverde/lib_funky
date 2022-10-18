@@ -107,31 +107,37 @@ export class TData
     }
     //-------------------------------------------------------------------------
     //-------------------------------------------------------
-    GetRange( ranges )  {
-        let range = ranges.pop();
+      GetRange( ranges_ )  {
+		let ranges = JSON.parse(JSON.stringify(ranges_));
+        let range = ranges.shift();
 
         if (this.data.length == 0 ) return new TData([],funky_type.array); //return empty array
         let n = this.data.length;
-        let start = Math.floor(range.start)
-        let end = Math.floor(range.end)
-
-        start = (start > 0) ? (start) % n : (n + start) % n;
-        end = (end > 0) ? (end) % n : (n + end) % n;
+        let start = (range.start > 0) ? (range.start) % n : (n + range.start) % n;
+        let end = (range.end > 0) ? (range.end) % n : (n + range.end) % n;
 
         if (ranges.length == 0 && !range.isRange && start == end){
             return new TData(this.data[start], funky_type.i32);
         }
-        let result = new TData([], funky_type.array);
-        for (let i = start; i <= end; i++){
-          let element = new TData();
-          element = (ranges.length > 0) ? this.data[i].GetRange(ranges) : this.data[i];
-          if (range.isRange){
-            result.data.push(element);
-          } else {
-            result = element;
-          }
-        }
+
+				let result = new TData([], funky_type.array);
+
+
+				for (let i = start; i <= end; i++){
+
+					let element = (ranges.length > 0) ?
+						this.data[i].GetRange(ranges) : new TData(this.data[i]);
+						if (range.isRange){
+							result.data.push(element);
+						} else {
+							result = element;
+						}
+				}
+
+
+				console.log(result);
         return result;
+
 }
     //-------------------------------------------------------------------------
     Flatten() {
