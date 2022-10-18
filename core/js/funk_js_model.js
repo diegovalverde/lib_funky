@@ -108,7 +108,7 @@ export class TData
     //-------------------------------------------------------------------------
     //-------------------------------------------------------
     GetRange( ranges )  {
-        let range = ranges.pop();
+        let range = ranges.shift();
 
         if (this.data.length == 0 ) return new TData([],funky_type.array); //return empty array
         let n = this.data.length;
@@ -182,7 +182,7 @@ export class TData
                     return 0;
                   }
               }
-
+	    return 1;
             break;
 
           default:
@@ -194,7 +194,7 @@ export class TData
     }
     //-------------------------------------------------------------------------
     Nequals(x){
-        if (Equals(x) == 1){
+        if (this.Equals(x) == 1){
             return 0;
         } else {
             return 1;
