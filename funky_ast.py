@@ -1271,9 +1271,7 @@ class String(Expression):
     def eval(self, result=None):
         value = self.fmt_str
         if result is not None:
-            self.funk.emitter.code += """
-                   {result} = TData({val});
-                   """.format(result=result, val=self.fmt_str)
+            self.funk.emitter.assign_variable(result, self.fmt_str)
 
         return value
 
@@ -1423,23 +1421,12 @@ class FReadNext:
         self.arg_list = arg_list
 
     def eval(self, result):
-        ref = ''
-
-        if result is None:
-            ref = 'TData'
-            result = self.funk.emitter.create_anon()
-
         if len(self.arg_list) == 1:
             file = self.arg_list[0].eval()
         else:
             file = 'std::cin'
 
-        self.funk.emitter.code += """
-         {ref} {result} = TData(funky_type::str);
-         {file} >> {result}.str;
-        """.format(ref=ref, result=result, file=file)
-
-        return result
+        return self.funk.emitter.read_user_input(result, file)
 
 
 class ToI32:
@@ -1448,31 +1435,8 @@ class ToI32:
         self.arg_list = arg_list
 
     def eval(self, result):
-        ref = ''
         var = self.arg_list[0].eval()
-        if result is None:
-            result = self.funk.emitter.create_anon()
-            self.funk.emitter.code += """
-            TData {result};
-            """.format(result=result)
-
-        self.funk.emitter.code += """
-        const bool is_number = !{var}.str.empty() && {var}.str.find_first_not_of("-0123456789") == std::string::npos;
-        switch ({var}.type){{
-            case funky_type::i32:{result} = {var}; break;
-            case funky_type::d64: {result} = TData(static_cast<int32_t>({var}.d64)); break;
-            case funky_type::str:
-                 if (is_number) {{
-                    {result} = TData(std::stoi({var}.str));
-                }} else {{
-                     {result} = TData(funky_type::invalid);
-                }}
-                break;
-            default: {result} = TData(funky_type::invalid); break;
-        }}
-        """.format(ref=ref, result=result, var=var)
-
-        return result
+        return self.funk.emitter.toi32(result, var)
 
 
 class Reverse:
@@ -1482,18 +1446,7 @@ class Reverse:
 
     def eval(self, result):
         src = self.arg_list[0].eval()
-
-        ref = ''
-        if result is None:
-            ref = 'TData'
-            result = self.funk.emitter.create_anon()
-
-        self.funk.emitter.code += """
-        {ref} {v} = {src};
-        std::reverse({v}.array.begin(), {v}.array.end());
-        """.format(ref=ref, v=result, src=src)
-
-        return result
+        return self.funk.emitter.reverse(result,src)
 
 
 class Infinity:
@@ -1502,16 +1455,7 @@ class Infinity:
         self.arg_list = arg_list
 
     def eval(self, result):
-        ref = ''
-        if result is None:
-            ref = 'TData'
-            result = self.funk.emitter.create_anon()
-
-        self.funk.emitter.code += """
-        {ref} {result} = TData(std::numeric_limits<std::int32_t>::max());
-        """.format(ref=ref, result=result)
-
-        return result
+        return self.funk.emitter.infinity(result)
 
 
 class ReShape:

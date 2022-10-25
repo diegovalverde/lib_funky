@@ -186,7 +186,7 @@ class EmitterJs:
 
     def emit_function_signature(self, name, has_tail_recursion):
         self.code += """
-                   function {fn_name}(argument_list) {{
+                   async function {fn_name}(argument_list) {{
                        let __retval__ = new TData();
                        label_function_start:
            """.format(fn_name=name)
@@ -194,7 +194,7 @@ class EmitterJs:
     def emit_main_preamble(self):
         self.code += """
 
-            function main() {
+            async function main() {
                 try {
         """
 
@@ -384,3 +384,41 @@ class EmitterJs:
                let {anon} = new TData({name});
                """.format(anon=anon, name=name)
         return anon
+
+    def infinity(self,result):
+        ref, result = self.create_if_null(result)
+        self.code += """
+        {ref} {result} = new TData(Math.pow(10, 1000));
+        """.format(result=result,ref=ref)
+        return result
+
+    def reverse(self, result, src):
+        ref, result = self.create_if_null(result)
+        self.code += """
+                {ref} {result} = new TData({src}.data.reverse());
+                """.format(ref=ref, result=result, src=src)
+
+        return result
+
+    def toi32(self, result, var):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+
+        switch ({var}.type){{
+            case funky_type.i32:{result} = {var}; break;
+            case funky_type.d64: {result} = new TData(Math.floor(parseFloat({var}.data))); break;
+            case funky_type.str: {result} = new TData(parseInt({var}.data)); break;
+            default: {result} = new TData(funky_type.invalid); break;
+        }}
+        """.format(ref=ref, result=result, var=var)
+
+    def read_user_input(self, result, file='std::cin'):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+        await funky_read_user();
+        {result}.data = funky_last_input;
+        """.format(result=result)
+
+        return result

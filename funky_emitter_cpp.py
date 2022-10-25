@@ -453,3 +453,54 @@ class EmitterCpp:
 
                """.format(anon=anon, name=name)
         return anon
+
+    def infinity(self, result):
+        ref, result = self.create_if_null(result)
+        self.code += '{ref} {result} = TData(std::numeric_limits<std::int32_t>::max());'.format(ref=ref,
+                                                                                                             result=result)
+        return result
+
+    def reverse(self, result, src):
+        ref, result = self.create_if_null(result)
+        self.code += """
+                {ref} {v} = {src};
+                std::reverse({v}.array.begin(), {v}.array.end());
+                """.format(ref=ref, v=result, src=src)
+
+        return result
+
+    def toi32(self,result, var):
+        ref, result = self.create_if_null(result)
+        if ref != '':
+            self.code += """
+                {ref} {result};
+            """.format(ref=ref, result=result)
+
+        self.code += """
+
+        const bool is_number = !{var}.str.empty() && {var}.str.find_first_not_of("-0123456789") == std::string::npos;
+        switch ({var}.type){{
+            case funky_type::i32:{result} = {var}; break;
+            case funky_type::d64: {result} = TData(static_cast<int32_t>({var}.d64)); break;
+            case funky_type::str:
+                 if (is_number) {{
+                    {result} = TData(std::stoi({var}.str));
+                }} else {{
+                     {result} = TData(funky_type::invalid);
+                }}
+                break;
+            default: {result} = TData(funky_type::invalid); break;
+        }}
+        """.format(ref=ref, result=result, var=var)
+
+        return result
+
+    def read_user_input(self, result, file):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+         {ref} {result} = TData(funky_type::str);
+         {file} >> {result}.str;
+        """.format(result=result, ref=ref, file=file)
+
+        return result
