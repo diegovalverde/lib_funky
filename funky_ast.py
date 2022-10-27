@@ -824,18 +824,14 @@ class ExprRange(Range):
             self.funk.function_scope.current_function_clause.local_variables.append(self.left.name)
         array = self.right.eval()
         e = self.left.eval()
-        self.funk.emitter.code += """
-            for (const auto & {e} : {array}.array )
-            {{
 
-        """.format(e=e, result=result, array=array)
+        self.funk.emitter.start_foreach_loop(e, array)
 
         val = self.expr.eval()
+        self.funk.emitter.array_push(result, val)
 
-        self.funk.emitter.code += """
-                {result}.array.push_back({val});
-            }}
-        """.format(result=result, val=val)
+        self.funk.emitter.end_for_loop()
+
         if self.left is not None:
             self.funk.function_scope.current_function_clause.local_variables.pop(-1)
         return result

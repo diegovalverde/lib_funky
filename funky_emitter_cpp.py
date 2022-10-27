@@ -411,6 +411,13 @@ class EmitterCpp:
     def array_push(self, array, val):
         self.code += '{array}.array.push_back({val});'.format(array=array, val=val)
 
+    def start_foreach_loop(self, e, array):
+        self.code += """
+          for (const auto & {e} : {array}.array )
+            {{
+
+        """.format(e=e,  array=array)
+
     def start_for_loop(self, i, start, end):
         self.code += """
                     for (int {i} = 0; {i} < ({end}-{start}); {i}++)

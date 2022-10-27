@@ -133,11 +133,7 @@ class EmitterJs:
     def funk_summation_function(self, funk, arguments, result):
         if len(arguments) != 1:
             raise Exception('=== exit takes 1 parameter')
-
-        ref = ''
-        if result is None:
-            ref = 'var'
-            result = self.create_anon()
+        ref, result = self.create_if_null(result)
 
         src = arguments[0].eval()
         anon = funk.emitter.create_anon()
@@ -254,31 +250,61 @@ class EmitterJs:
             ref = 'let'
         return ref, node
 
-    def arith_op(self, result, a, op, b):
-        ref, result = self.create_if_null(result)
-
+    def arith_op_helper(self, result, a, op, b):
         if op == '==':
             self.code += """
-                       {ref} {result} = new TData({a}.Equals({b}));
-                    """.format(result=result, ref=ref, a=a, b=b, op=op)
+                       {result} = new TData({a}.Equals({b}));
+                    """.format(result=result, a=a, b=b, op=op)
         elif op == '!=':
             self.code += """
-                       {ref} {result} = new TData({a}.Nequals({b}));
-                    """.format(result=result, ref=ref, a=a, b=b, op=op)
+                       {result} = new TData({a}.Nequals({b}));
+                    """.format(result=result, a=a, b=b, op=op)
         elif op == '/':
             self.code += """
-                       {ref} {result};
+
                        if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
                            {result} = new TData(parseInt({a} / {b}));
                       }} else {{
                            {result} = new TData({a} / {b});
                       }}
-                   """.format(result=result, ref=ref, a=a, b=b)
+                   """.format(result=result, a=a, b=b)
         else:
             self.code += """
-                        {ref} {result} = new TData({a} {op} {b});
+                        {result} = new TData({a} {op} {b});
 
-                    """.format(result=result, ref=ref, a=a, b=b, op=op)
+                    """.format(result=result, a=a, b=b, op=op)
+
+
+    def arith_op(self, result, a, op, b):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+        {ref} {result};
+        if ({a}.type != funky_type.array && {b}.type !=  funky_type.array) {{
+
+
+        """.format(ref=ref, result=result, a=a, b=b, op=op)
+
+        self.arith_op_helper(result,a,op,b)
+
+        self.code += """
+        }} else {{
+                 if ({a}.type == funky_type.array && {b}.type ==  funky_type.array) {{
+                      if ({a}.data.length != {b}.data.length){{
+                            throw \"{op}: array length mismatch between {a} and {b}\";
+                      }}
+                     let n =  {a}.data.length;
+                     {result}.data = new Array(n)
+                      for (let i = 0; i < n; i++){{
+        """.format(result=result, a=a, b=b, op=op)
+
+        self.arith_op_helper('result.data[i]'.format(result), '{}.data[i]'.format(a), op, '{}.data[i]'.format(b))
+
+        self.code += """
+
+                      } //end for
+        }
+        """
         return result
 
     def get_range_initializer(self, start, end, is_range):
@@ -351,6 +377,13 @@ class EmitterJs:
                        {{
 
                    """.format(i=i, end=end, start=start)
+
+    def start_foreach_loop(self, e, array):
+        self.code += """
+             for (let i = 0; i < {array}.data.length; i++ )
+              {{
+                    let {e} = {array}.data[i];
+           """.format(e=e, array=array)
 
     def end_for_loop(self):
         self.code += '} //end for loop'
