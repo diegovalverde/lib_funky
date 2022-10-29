@@ -290,7 +290,7 @@ class EmitterJs:
         self.code += """
         }} else {{
                  let a = new TData({a});
-                 let b= new TData({b};
+                 let b= new TData({b});
                  if (a.type == funky_type.array && b.type ==  funky_type.array) {{
                       if (a.data.length != b.data.length){{
                             throw \"{op}: array length mismatch between {a} and {b}\";
