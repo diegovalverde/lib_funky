@@ -280,7 +280,7 @@ class EmitterJs:
 
         self.code += """
         {ref} {result};
-        if ({a}.type != funky_type.array && {b}.type !=  funky_type.array) {{
+        if (new TData({a}).type != funky_type.array && new TData({b}).type !=  funky_type.array) {{
 
 
         """.format(ref=ref, result=result, a=a, b=b, op=op)
@@ -289,7 +289,7 @@ class EmitterJs:
 
         self.code += """
         }} else {{
-                 if ({a}.type == funky_type.array && {b}.type ==  funky_type.array) {{
+                 if (new TData({a}).type == funky_type.array && new TData({b}).type ==  funky_type.array) {{
                       if ({a}.data.length != {b}.data.length){{
                             throw \"{op}: array length mismatch between {a} and {b}\";
                       }}
