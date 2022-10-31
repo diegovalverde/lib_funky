@@ -168,6 +168,33 @@ export class TData
       return this.Print();
     }
     //-------------------------------------------------------------------------
+    BroadCastOperation(op,x){
+     if (this.type == funky_type.array && new TData(x).type == funky_type.array){
+        if (this.data.length != x.data.length){
+           throw "{op}: array length mismatch between {x}";
+        }
+        let n =  this.data.length;
+        let result = new TData(funky_type.array);
+        for (let i = 0; i < n; i++){
+            result.data.push( this.data[i].BroadCastOperation(op, x.data[i]) );
+        }
+        return result;
+     } else {
+        switch(op){
+            case '+': return new TData(this.data + x.data);
+            case '-': return new TData(this.data - x.data);
+            case '*': return new TData(this.data * x.data);
+            case '==': return new TData(this.data == new TData(x).data);
+            case '!=': return new TData(this.data != new TData(x).data);
+            case '/':
+                if (this.type == funky_type.i32 && (new TData(x).type == funky_type.i32){
+                       return new TData(parseInt(this.data / x.data));
+                } else { return new TData(this.data / x.data); }
+        }
+
+     }
+    }
+    //-------------------------------------------------------------------------
     Equals(x){
         if (typeof(x) != "object"){
 			    return x == this.data;
