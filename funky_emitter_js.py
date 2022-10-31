@@ -182,11 +182,22 @@ class EmitterJs:
 
     def emit_function_signature(self, name, has_tail_recursion):
         self.code += """
-                   async function {fn_name}(argument_list) {{
+                   function {fn_name}(argument_list) {{
+                     try {{
                        let __retval__ = new TData();
                        label_function_start:
            """.format(fn_name=name)
+    def emit_function_postamble(self):
+        self.code += """
 
+         } //end of try block
+                    catch (e){
+                        funky_console.value += new Error().stack + "msg: " + e.message + "\\n";
+                        throw e;
+                    }
+        } // end of function
+
+        """
     def emit_main_preamble(self):
         self.code += """
 
@@ -220,9 +231,9 @@ class EmitterJs:
         return """
             import { RangeType, TData, funky_type } from "./lib_funky/core/js/funk_js_model.js";
             // make sure that in the index.html you include your file like:
-            // <script type="module" src="js/fibo.js"></script>
+            // script type="module" src="js/fibo.js"
 
-            var funky_console = document.getElementById('funky_console')
+            var funky_console = document.getElementById('funky_console');
         """
 
     def postamble(self):
@@ -274,38 +285,45 @@ class EmitterJs:
 
                     """.format(result=result, a=a, b=b, op=op)
 
+        return result
+
 
     def arith_op(self, result, a, op, b):
         ref, result = self.create_if_null(result)
+        if op == '==' or op == '!=':
+            self.code += "{ref} {result};".format(ref=ref, result=result)
+            return self.arith_op_helper(result,a,op,b)
 
         self.code += """
-        {ref} {result};
+        {ref} {result} = new TData();
         if (new TData({a}).type != funky_type.array && new TData({b}).type !=  funky_type.array) {{
 
 
         """.format(ref=ref, result=result, a=a, b=b, op=op)
 
-        self.arith_op_helper(result,a,op,b)
+        result =self.arith_op_helper(result,a,op,b)
 
         self.code += """
         }} else {{
-                 let a = new TData({a});
-                 let b= new TData({b});
-                 if (a.type == funky_type.array && b.type ==  funky_type.array) {{
-                      if (a.data.length != b.data.length){{
+                 {result} = new TData(funky_type.array);
+                 let __a__ = new TData({a});
+                 let __b__= new TData({b});
+                 if (__a__.type == funky_type.array && __b__.type ==  funky_type.array) {{
+                      if (__a__.data.length != __b__.data.length){{
                             throw \"{op}: array length mismatch between {a} and {b}\";
                       }}
-                     let n =  a.data.length;
+                     let n =  __a__.data.length;
                      {result}.data = new Array(n)
                       for (let i = 0; i < n; i++){{
-        """.format(result=result, a=a, b=b, op=op)
+        """.format(ref=ref, result=result, a=a, b=b, op=op)
 
-        self.arith_op_helper('result.data[i]'.format(result), '{}.data[i]'.format(a), op, '{}.data[i]'.format(b))
+        self.arith_op_helper('{result}.data[i]'.format(result=result), '__a__.data[i]', op, '__b__.data[i]')
 
         self.code += """
 
                       } //end for
-        }
+                } //inner if      
+        } // outer if
         """
         return result
 
@@ -447,13 +465,15 @@ class EmitterJs:
             default: {result} = new TData(funky_type.invalid); break;
         }}
         """.format(ref=ref, result=result, var=var)
+        return result
 
     def read_user_input(self, result, file='std::cin'):
         ref, result = self.create_if_null(result)
-
+        
         self.code += """
+        {ref} {result} = new TData(funky_type.str);
         await funky_read_user();
         {result}.data = funky_last_input;
-        """.format(result=result)
+        """.format(ref=ref, result=result)
 
         return result

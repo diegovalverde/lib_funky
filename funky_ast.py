@@ -1225,9 +1225,9 @@ class FunctionMap:
         exit(1);
         return __retval__;
 
-        }
 
             """
+        self.funk.emitter.emit_function_postamble()
 
     def eval(self, result=None):
         scope_name = self.funk.create_function_scope(self.name)

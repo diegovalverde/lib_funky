@@ -135,7 +135,6 @@ export class TData
 				}
 
 
-				console.log(result);
         return result;
 
 }
