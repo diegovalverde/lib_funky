@@ -261,105 +261,11 @@ class EmitterJs:
             ref = 'let'
         return ref, node
 
-<<<<<<< HEAD
-    # def arith_op_helper(self, result, a, op, b):
-    #     if op == '==':
-    #         self.code += """
-    #                    {result} = new TData({a}.Equals({b}));
-    #                 """.format(result=result, a=a, b=b, op=op)
-    #     elif op == '!=':
-    #         self.code += """
-    #                    {result} = new TData({a}.Nequals({b}));
-    #                 """.format(result=result, a=a, b=b, op=op)
-    #     elif op == '/':
-    #         self.code += """
-    #
-    #                    if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
-    #                        {result} = new TData(parseInt({a} / {b}));
-    #                   }} else {{
-    #                        {result} = new TData({a} / {b});
-    #                   }}
-    #                """.format(result=result, a=a, b=b)
-    #     else:
-    #         self.code += """
-    #                     {result} = new TData({a} {op} {b});
-    #
-    #                 """.format(result=result, a=a, b=b, op=op)
-    #
-    # def arith_op(self, result, a, op, b):
-    #     ref, result = self.create_if_null(result)
-    #
-    #     self.code += """
-    #     {ref} {result};
-    #     if (new TData({a}).type != funky_type.array && new TData({b}).type !=  funky_type.array) {{
-    #
-    #
-    #     """.format(ref=ref, result=result, a=a, b=b, op=op)
-    #
-    #     self.arith_op_helper(result,a,op,b)
-    #
-    #     self.code += """
-    #     }} else {{
-    #              let a = new TData({a});
-    #              let b= new TData({b});
-    #              if (a.type == funky_type.array && b.type ==  funky_type.array) {{
-    #                   if (a.data.length != b.data.length){{
-    #                         throw \"{op}: array length mismatch between {a} and {b}\";
-    #                   }}
-    #                      let n =  a.data.length;
-    #                  {result}.data = new Array(n)
-    #                   for (let i = 0; i < n; i++){{
-    #     """.format(result=result, a=a, b=b, op=op)
-    #
-    #     self.arith_op_helper('result.data[i]'.format(result), '{}.data[i]'.format(a), op, '{}.data[i]'.format(b))
-    #
-    #     self.code += """
-    #
-    #                   } //end for
-    #            } // end inner if
-    #     } // end outer if
-    #     """
-    #     return result
 
     def arith_op(self, result, a, op, b):
         ref, result = self.create_if_null(result)
-=======
-    def arith_op_helper(self, result, a, op, b):
-        if op == '==':
-            self.code += """
-                       {result} = new TData({a}.Equals({b}));
-                    """.format(result=result, a=a, b=b, op=op)
-        elif op == '!=':
-            self.code += """
-                       {result} = new TData({a}.Nequals({b}));
-                    """.format(result=result, a=a, b=b, op=op)
-        elif op == '/':
-            self.code += """
-
-                       if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
-                           {result} = new TData(parseInt({a} / {b}));
-                      }} else {{
-                           {result} = new TData({a} / {b});
-                      }}
-                   """.format(result=result, a=a, b=b)
-        else:
-            self.code += """
-                        {result} = new TData({a} {op} {b});
-
-                    """.format(result=result, a=a, b=b, op=op)
-
-        return result
-
-
-    def arith_op(self, result, a, op, b):
         self.code += """
-        if (typeof({a}) == "object"){{
-            {ref} {result} = {a}.BroadCastOperation({b});
-        }} else if (typeof({b}) == "object") {{
-            {ref} {result} = {b}.BroadCastOperation({a});
-        }} else {{
-            {ref} {result} = new TData({a}{op}{b});
-        }}
+            {ref} {result} = new TData({a}).BroadCastOperation('{op}', new TData({b}));
         """.format(ref=ref, result=result, op=op, a=a, b=b)
         return result
 
@@ -454,7 +360,7 @@ class EmitterJs:
         return result
 
     def is_equal(self, lhs, rhs):
-        return '{lhs}.Equals({rhs})'.format(lhs=lhs, rhs=rhs)
+        return '{lhs} == {rhs}'.format(lhs=lhs, rhs=rhs)
 
     def function_call(self, result, name, arguments):
         ref, result = self.create_if_null(result)

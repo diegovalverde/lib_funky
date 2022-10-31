@@ -168,69 +168,48 @@ export class TData
     }
     //-------------------------------------------------------------------------
     BroadCastOperation(op,x){
+     try {	    
      if (this.type == funky_type.array && new TData(x).type == funky_type.array){
         if (this.data.length != x.data.length){
-           throw "{op}: array length mismatch between {x}";
+	   if (op == '==') return new TData(0);
+	   if (op == '!=') return new TData(1);	
+
+           throw "{op}: array length mismatch between {x}".format(op=op,x=x);
         }
         let n =  this.data.length;
-        let result = new TData(funky_type.array);
+        let result = new TData([]);
         for (let i = 0; i < n; i++){
             result.data.push( this.data[i].BroadCastOperation(op, x.data[i]) );
-        }
+	}
+	if (op == '==' || op == '!='){
+	  return new TData(result.data.reduce((a,b) => a * b ));
+	}
         return result;
      } else {
         switch(op){
             case '+': return new TData(this.data + x.data);
             case '-': return new TData(this.data - x.data);
             case '*': return new TData(this.data * x.data);
-            case '==': return new TData(this.data == new TData(x).data);
-            case '!=': return new TData(this.data != new TData(x).data);
+            case '%': return new TData(this.data % x.data);
+	    case '==': return new TData((this.data == x.data)? 1 : 0);
+	    case '!=': return new TData((this.data != x.data)? 1 : 0);
+	    case '>': return new TData(this.data >  x.data);			
+	    case '>=': return new TData(this.data >=  x.data);			
+	    case '<': return new TData(this.data <  x.data);			
+	    case '<=': return new TData(this.data <=  x.data);			
             case '/':
-                if (this.type == funky_type.i32 && (new TData(x).type == funky_type.i32){
+                if (this.type == funky_type.i32 && new TData(x).type == funky_type.i32){
                        return new TData(parseInt(this.data / x.data));
                 } else { return new TData(this.data / x.data); }
         }
 
      }
-    }
-    //-------------------------------------------------------------------------
-    Equals(x){
-        if (typeof(x) != "object"){
-			    return x == this.data;
-		    } 
+     } //try
+     catch (e){
+        funky_console.value += new Error().stack + "msg: " + e.message + "\\n";
+        throw e;
+     }
 
-        if (x.type != this.type){
-            return 0;
-        }
-
-        switch(this.type){
-          case funky_type.array:
-            if (x.data.length != this.data.length){
-                return 0;
-            }
-
-            for (let i = 0; i < this.data.length; i++){
-                  if (this.data[i].Equals(x.data[i]) == 0){
-                    return 0;
-                  }
-              }
-	    return 1;
-            break;
-
-          default:
-            if (this.data == x.data){
-            return 1;
-            }
-      }
-        return 0;
-    }
-    //-------------------------------------------------------------------------
-    Nequals(x){
-        if (this.Equals(x) == 1){
-            return 0;
-        } else {
-            return 1;
-        }
     }
     //-------------------------------------------------------------------------
 
