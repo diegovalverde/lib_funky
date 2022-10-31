@@ -182,11 +182,22 @@ class EmitterJs:
 
     def emit_function_signature(self, name, has_tail_recursion):
         self.code += """
-                function {fn_name}(argument_list) {{
+                   function {fn_name}(argument_list) {{
+                     try {{
                        let __retval__ = new TData();
                        label_function_start:
            """.format(fn_name=name)
+    def emit_function_postamble(self):
+        self.code += """
 
+         } //end of try block
+                    catch (e){
+                        funky_console.value += new Error().stack + "msg: " + e.message + "\\n";
+                        throw e;
+                    }
+        } // end of function
+
+        """
     def emit_main_preamble(self):
         self.code += """
 
@@ -220,9 +231,9 @@ class EmitterJs:
         return """
             import { RangeType, TData, funky_type } from "./lib_funky/core/js/funk_js_model.js";
             // make sure that in the index.html you include your file like:
-            // <script type="module" src="js/fibo.js"></script>
+            // script type="module" src="js/fibo.js"
 
-            var funky_console = document.getElementById('funky_console')
+            var funky_console = document.getElementById('funky_console');
         """
 
     def postamble(self):
@@ -250,6 +261,7 @@ class EmitterJs:
             ref = 'let'
         return ref, node
 
+<<<<<<< HEAD
     # def arith_op_helper(self, result, a, op, b):
     #     if op == '==':
     #         self.code += """
@@ -311,6 +323,35 @@ class EmitterJs:
 
     def arith_op(self, result, a, op, b):
         ref, result = self.create_if_null(result)
+=======
+    def arith_op_helper(self, result, a, op, b):
+        if op == '==':
+            self.code += """
+                       {result} = new TData({a}.Equals({b}));
+                    """.format(result=result, a=a, b=b, op=op)
+        elif op == '!=':
+            self.code += """
+                       {result} = new TData({a}.Nequals({b}));
+                    """.format(result=result, a=a, b=b, op=op)
+        elif op == '/':
+            self.code += """
+
+                       if ((new TData({a})).type == funky_type.i32 && (new TData({b})).type == funky_type.i32){{
+                           {result} = new TData(parseInt({a} / {b}));
+                      }} else {{
+                           {result} = new TData({a} / {b});
+                      }}
+                   """.format(result=result, a=a, b=b)
+        else:
+            self.code += """
+                        {result} = new TData({a} {op} {b});
+
+                    """.format(result=result, a=a, b=b, op=op)
+
+        return result
+
+
+    def arith_op(self, result, a, op, b):
         self.code += """
         if (typeof({a}) == "object"){{
             {ref} {result} = {a}.BroadCastOperation({b});
@@ -460,13 +501,15 @@ class EmitterJs:
             default: {result} = new TData(funky_type.invalid); break;
         }}
         """.format(ref=ref, result=result, var=var)
+        return result
 
     def read_user_input(self, result, file='std::cin'):
         ref, result = self.create_if_null(result)
 
         self.code += """
+        {ref} {result} = new TData(funky_type.str);
         await funky_read_user();
         {result}.data = funky_last_input;
-        """.format(result=result)
+        """.format(ref=ref, result=result)
 
         return result
