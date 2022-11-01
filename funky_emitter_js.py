@@ -187,6 +187,7 @@ class EmitterJs:
                        let __retval__ = new TData();
                        label_function_start:
            """.format(fn_name=name)
+
     def emit_function_postamble(self):
         self.code += """
 

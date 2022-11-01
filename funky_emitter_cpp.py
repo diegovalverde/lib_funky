@@ -211,6 +211,11 @@ class EmitterCpp:
                     g_funky_random_engine = std::default_random_engine(rd());
                             """
 
+    def emit_function_postamble(self):
+        self.code += """
+                    } // end of function
+                    """
+
     def emit_main_postamble(self):
         self.code += """
                     return 0;
