@@ -1076,11 +1076,11 @@ class FunctionMap:
         as 'async' for it to work properly
 
         """
+
         for clause in self.clauses:
             for statement in clause.body:
-                if isinstance(statement, FReadNext):
+                if re.match(r'.*FunctionCall\(in\(.*',str(statement)):
                     return True
-
         return False
 
     def emit_function(self):
