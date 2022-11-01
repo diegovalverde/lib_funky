@@ -180,13 +180,17 @@ class EmitterJs:
                 throw "{msg}";
             }}""".format(condition=condition, msg=msg)
 
-    def emit_function_signature(self, name, has_tail_recursion):
+    def emit_function_signature(self, name, has_tail_recursion, is_asycn=False):
+
+        tag = ''
+        if is_asycn:
+            tag = 'async'
         self.code += """
-                   function {fn_name}(argument_list) {{
+                   {tag} function {fn_name}(argument_list) {{
                      try {{
                        let __retval__ = new TData();
                        label_function_start:
-           """.format(fn_name=name)
+           """.format(fn_name=name, tag=tag)
 
     def emit_function_postamble(self):
         self.code += """
@@ -199,6 +203,7 @@ class EmitterJs:
         } // end of function
 
         """
+
     def emit_main_preamble(self):
         self.code += """
 

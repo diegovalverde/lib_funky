@@ -1068,11 +1068,27 @@ class FunctionMap:
 
         clause.funk.emitter.emit_main_postamble()
 
+    def has_asycn_calls(self):
+        """
+        This is specific to the javascript emmiter.
+        Whenever we have calls to await such as when usin the 'cin'
+        functionality in the browser, then we need to mark the function
+        as 'async' for it to work properly
+
+        """
+        for clause in self.clauses:
+            for statement in clause.body:
+                if isinstance(statement, FReadNext):
+                    return True
+
+        return False
+
     def emit_function(self):
         has_tail_recursion = any([insn.name == self.name and isinstance(insn, FunctionCall) for insn in
                                   [clause.body[-1] for clause in self.clauses]])
 
-        self.clauses[0].funk.emitter.emit_function_signature(self.name, has_tail_recursion)
+        is_async = self.has_asycn_calls()
+        self.clauses[0].funk.emitter.emit_function_signature(self.name, has_tail_recursion, is_async=is_async)
 
         for clause in self.clauses:
 

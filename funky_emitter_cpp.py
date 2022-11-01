@@ -187,7 +187,7 @@ class EmitterCpp:
     def check_arity(self, arity):
         return '(argument_list.size() == {clause_arity})    '.format(clause_arity=arity)
 
-    def emit_function_signature(self, name, has_tail_recursion):
+    def emit_function_signature(self, name, has_tail_recursion, is_async=False):
         if has_tail_recursion:
             self.code += """
             TData {fn_name}(std::vector<TData> & original_argument_list) {{
