@@ -141,7 +141,7 @@ class EmitterJs:
         // sum
         {anon} = new TData( {src}.Flatten());
 
-        {ref} {result} = new TData( {anon}.data.reduce(function (x, y) {{return x.data + y.data;}}, 0),
+        {ref} {result} = new TData( {anon}.data.reduce(function (x, y) {{return x + y;}}),
          {src}.data[0].type);
 
         """.format(result=result, ref=ref, src=src, anon=anon)
@@ -180,10 +180,10 @@ class EmitterJs:
                 throw "{msg}";
             }}""".format(condition=condition, msg=msg)
 
-    def emit_function_signature(self, name, has_tail_recursion, is_asycn=False):
+    def emit_function_signature(self, name, has_tail_recursion, is_async=False):
 
         tag = ''
-        if is_asycn:
+        if is_async:
             tag = 'async'
         self.code += """
                    {tag} function {fn_name}(argument_list) {{
