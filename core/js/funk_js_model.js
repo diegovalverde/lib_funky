@@ -216,18 +216,3 @@ export class TData
 
 };
 
-function funky_read_user(){
-
-	return new Promise((resolve) => {
-		document.addEventListener('keydown', onKeyHandler);
-    function onKeyHandler(e) {
-      if (e.keyCode === 13) {
-        document.removeEventListener('keydown', onKeyHandler);
-				funky_last_input = document.getElementById("funky_console").value;
-
-        resolve();
-      }
-    }
-	});
-
-}

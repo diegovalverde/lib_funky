@@ -139,7 +139,7 @@ class EmitterJs:
         anon = funk.emitter.create_anon()
         self.code += """
         // sum
-        {anon} = new TData( {src}.Flatten());
+        let {anon} = new TData( {src}.Flatten());
 
         {ref} {result} = new TData( {anon}.data.reduce(function (x, y) {{return x + y;}}),
          {src}.data[0].type);
@@ -405,7 +405,7 @@ class EmitterJs:
         ref, result = self.create_if_null(result)
 
         self.code += """
-
+        {ref} {result};
         switch ({var}.type){{
             case funky_type.i32:{result} = {var}; break;
             case funky_type.d64: {result} = new TData(Math.floor(parseFloat({var}.data))); break;
