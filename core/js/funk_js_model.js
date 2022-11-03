@@ -87,7 +87,7 @@ export class TData
                     str += ', ';
                   }
               }
-            str += ']'
+            str += ']\n'
             break;
         case funky_type.d64: console.log(this.data); break;
           default:
@@ -107,8 +107,8 @@ export class TData
     }
     //-------------------------------------------------------------------------
     //-------------------------------------------------------
-      GetRange( ranges_ )  {
-		let ranges = JSON.parse(JSON.stringify(ranges_));
+    GetRange( ranges_ )  {
+				let ranges = JSON.parse(JSON.stringify(ranges_));
         let range = ranges.shift();
 
         if (this.data.length == 0 ) return new TData([],funky_type.array); //return empty array
@@ -145,6 +145,7 @@ export class TData
       let result = new TData([], funky_type.array);
       for (let i = 0; i < this.data.length; i++){
         let flattened = this.data[i].Flatten();
+
         if (flattened.type != funky_type.array){
           result.data.push( flattened );
         } else {
@@ -156,47 +157,75 @@ export class TData
       return result;
     }
     //-------------------------------------------------------------------------
-    Abs() {}
+		Abs() {
+
+     let ret = new TData();
+  switch (this.type) {
+    case funky_type.i32: ret = new TData(Math.abs(this.data)); break;
+    case funky_type.d64: ret = new TData(Math.abs(this.data)); break;
+    case funky_type.array: {
+			ret = new TData([])
+      for (let i = 0; i < this.data.length; i++) {
+	      ret.data.push( this.data[i].Abs());
+      }
+      ret.type = funky_type.array;
+      } break;
+    default: ret.type = funky_type.invalid;
+  }
+  return ret;
+
+    }
     //-------------------------------------------------------------------------
     valueOf() {
       // this allows doing the poor man's operator overloading in JS
+
       return this.data;
     };
     //-------------------------------------------------------------------------
     toString(){
       return this.Print();
     }
-    //-------------------------------------------------------------------------
+		//-------------------------------------------------------------------------
     BroadCastOperation(op,x){
-     try {	    
+     try {
      if (this.type == funky_type.array && new TData(x).type == funky_type.array){
         if (this.data.length != x.data.length){
-	   if (op == '==') return new TData(0);
-	   if (op == '!=') return new TData(1);	
-
-           throw "{op}: array length mismatch between {x}".format(op=op,x=x);
-        }
+	      
+	      if (op == '==') return new TData(0);
+              if (op == '!=') return new TData(1);
+		throw "{op}: array length mismatch between {x}";
+        } else if (this.data.length == 0 && x.data.length == 0){
+	      if (op == '==') return new TData(1);
+              if (op == '!=') return new TData(0);
+	}
         let n =  this.data.length;
         let result = new TData([]);
         for (let i = 0; i < n; i++){
             result.data.push( this.data[i].BroadCastOperation(op, x.data[i]) );
-	}
-	if (op == '==' || op == '!='){
-	  return new TData(result.data.reduce((a,b) => a * b ));
-	}
+        }
+				if (op == '==' || op == '!='){
+				 if (n == 0){
+					 return new TData(1); // [] == []
+				 }
+				 return new TData(result.data.reduce((a,b) => a * b ));
+			 }
+
+
         return result;
      } else {
         switch(op){
             case '+': return new TData(this.data + x.data);
             case '-': return new TData(this.data - x.data);
             case '*': return new TData(this.data * x.data);
-            case '%': return new TData(this.data % x.data);
-	    case '==': return new TData((this.data == x.data)? 1 : 0);
-	    case '!=': return new TData((this.data != x.data)? 1 : 0);
-	    case '>': return new TData(this.data >  x.data);			
-	    case '>=': return new TData(this.data >=  x.data);			
-	    case '<': return new TData(this.data <  x.data);			
-	    case '<=': return new TData(this.data <=  x.data);			
+						case '%': return new TData(this.data % x.data);
+						case '==': return new TData((this.data == x.data)? 1 : 0);
+					  case '!=': return new TData((this.data != x.data)? 1 : 0);
+						case '>': return new TData(this.data >  x.data);
+            case '>=': return new TData(this.data >=  x.data);
+            case '<': return new TData(this.data <  x.data);
+            case '<=': return new TData(this.data <=  x.data);
+						case '&&': return new TData(this.data &&  x.data);
+						case '||': return new TData(this.data || x.data);
             case '/':
                 if (this.type == funky_type.i32 && new TData(x).type == funky_type.i32){
                        return new TData(parseInt(this.data / x.data));
@@ -204,15 +233,12 @@ export class TData
         }
 
      }
-     } //try
-     catch (e){
+      } //try
+    catch (e){
         funky_console.value += new Error().stack + "msg: " + e.message + "\\n";
         throw e;
      }
-
     }
-    //-------------------------------------------------------------------------
 
 
 };
-
