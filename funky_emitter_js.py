@@ -425,3 +425,12 @@ class EmitterJs:
         """.format(ref=ref, result=result)
 
         return result
+
+    def s2d_point(self, arg_list):
+        x = arg_list[0].eval()
+        y = arg_list[1].eval()
+        self.code += """
+            // p5js point
+            point(x.data, y.data);
+
+        """.format(x=x, y=y)

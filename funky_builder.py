@@ -10,10 +10,6 @@ def set_cwd(path):
     global funk_build_cwd
     funk_build_cwd=path
 
-
-
-
-
 def get_dependencies(src, include_paths=['.',os.getcwd()]):
     """
     :param include_paths: list of paths to the include search folders
@@ -28,7 +24,7 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
             continue
         for dep in match[0].split(','):
             dep = dep.strip()
-            if dep == 'sdl_simple':
+            if dep == 's2d':
                 link_with_sdl = True
                 continue
 

@@ -45,25 +45,25 @@ CRenderer sdl;
       TData user_data;
   } ctx;
 
-  TData sdl_render( std::vector<TData> &);
+  TData s2d_render( std::vector<TData> &);
 //---------------------------------------------------------------------------------------------------
 TData sdl_set_user_ctx(const TData & arg){
   ctx.user_data = arg;
   return TData(1);
 }
 //---------------------------------------------------------------------------------------------------
-void sdl_render_loop(void *arg)
+void s2d_render_loop(void *arg)
 {
     SDL_SetRenderDrawColor(sdl.renderer, sdl.bg_color[0], sdl.bg_color[1], sdl.bg_color[2], 255);
     SDL_RenderClear(sdl.renderer);
 
     std::vector<TData> args = {ctx.user_data};
-    TData result = funky::sdl_render( args );
+    TData result = funky::s2d_render( args );
    
     SDL_RenderPresent(sdl.renderer);
 }
 //---------------------------------------------------------------------------------------------------
-void sdl_point( TData & x,  TData & y){
+void s2d_point( TData & x,  TData & y){
   
   int x_ = (x.type == funky_type::i32) ? x.i32 : static_cast<int>(x.d64);
   int y_ = (y.type == funky_type::i32) ? y.i32 : static_cast<int>(y.d64);
@@ -84,7 +84,7 @@ void sdl_rect(int x, int y, int w, int h){
   SDL_RenderFillRect(sdl.renderer, &r );
 }
 //---------------------------------------------------------------------------------------------------
-TData sdl_simple(std::vector<TData> & args){
+TData s2d(std::vector<TData> & args){
     int w = args[0].i32;
     int h = args[1].i32;
     ctx.user_data = args[2];
@@ -97,7 +97,7 @@ TData sdl_simple(std::vector<TData> & args){
       if (event.type == SDL_QUIT) {
             break;
       }
-      sdl_render_loop((void*)&ctx);
+      s2d_render_loop((void*)&ctx);
     }
   
   return TData(1);

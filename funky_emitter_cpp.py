@@ -254,7 +254,7 @@ class EmitterCpp:
             //
             // =============================================================== ;;
             //todo: move this
-            void sdl_point( TData & x,  TData & y);
+            void s2d_point( TData & x,  TData & y);
             void sdl_rect(int x, int y, int w, int h);
             void sdl_set_color(int r, int g, int b);
             TData sdl_set_user_ctx(const TData & arg);
@@ -516,3 +516,15 @@ class EmitterCpp:
         """.format(result=result, ref=ref, file=file)
 
         return result
+
+    def s2d_point(self, arg_list):
+        x = arg_list[0].eval()
+        y = arg_list[1].eval()
+        self.code += """
+        {{
+           // std::cout << x << "," << y << std::endl;
+            TData _x({x});
+            TData _y({y});
+            funky::s2d_point(_x, _y);
+        }}
+        """.format(x=x, y=y)
