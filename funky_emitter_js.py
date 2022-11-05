@@ -139,9 +139,9 @@ class EmitterJs:
         anon = funk.emitter.create_anon()
         self.code += """
         // sum
-        {anon} = new TData( {src}.Flatten());
+        let {anon} = new TData( {src}.Flatten());
 
-        {ref} {result} = new TData( {anon}.data.reduce(function (x, y) {{return x.data + y.data;}}, 0),
+        {ref} {result} = new TData( {anon}.data.reduce(function (x, y) {{return x + y;}}),
          {src}.data[0].type);
 
         """.format(result=result, ref=ref, src=src, anon=anon)
@@ -180,10 +180,10 @@ class EmitterJs:
                 throw "{msg}";
             }}""".format(condition=condition, msg=msg)
 
-    def emit_function_signature(self, name, has_tail_recursion, is_asycn=False):
+    def emit_function_signature(self, name, has_tail_recursion, is_async=False):
 
         tag = ''
-        if is_asycn:
+        if is_async:
             tag = 'async'
         self.code += """
                    {tag} function {fn_name}(argument_list) {{
@@ -405,7 +405,7 @@ class EmitterJs:
         ref, result = self.create_if_null(result)
 
         self.code += """
-
+        {ref} {result};
         switch ({var}.type){{
             case funky_type.i32:{result} = {var}; break;
             case funky_type.d64: {result} = new TData(Math.floor(parseFloat({var}.data))); break;
