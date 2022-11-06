@@ -434,3 +434,12 @@ class EmitterJs:
             point(x.data, y.data);
 
         """.format(x=x, y=y)
+
+    def rand_double(self,result, left, right):
+        ref, result = self.create_if_null(result)
+        anon = self.create_anon()
+        self.funk.emitter.code += """
+                {ref} {result} = TData( (Math.random() * ({max} - {min}) + {min}) );
+
+                """.format(anon=anon, ref=ref, result=result, min=left, max=right)
+        return result

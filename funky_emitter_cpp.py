@@ -528,3 +528,12 @@ class EmitterCpp:
             funky::s2d_point(_x, _y);
         }}
         """.format(x=x, y=y)
+
+    def rand_double(self,result, left, right):
+        ref, result = self.create_if_null(result)
+        anon = self.create_anon()
+        self.code += """
+                std::uniform_real_distribution<double> {anon}({min}, {max});
+                {ref} {result} = TData({anon}(g_funky_random_engine));
+                """.format(anon=anon, ref=ref, result=result, min=left, max=right)
+        return result

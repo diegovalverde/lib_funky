@@ -1390,18 +1390,7 @@ class RandFloat:
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        ref = ''
-        if result is None:
-            ref = 'TData'
-            result = self.funk.emitter.create_anon()
-        anon = self.funk.emitter.create_anon()
-        self.funk.emitter.code += """
-
-        std::uniform_real_distribution<double> {anon}({min}, {max});
-        {ref} {result} = TData({anon}(g_funky_random_engine));
-        """.format(anon=anon, ref=ref, result=result, min=self.arg_list[0].eval(), max=self.arg_list[1].eval())
-        return result
-
+        return self.funk.emitter.rand_double(result, self.arg_list[0].eval(), self.arg_list[1].eval())
 
 class FOpen:
     def __init__(self, funk, arg_list):
