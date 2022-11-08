@@ -40,7 +40,7 @@ export class TData
         this.data = data;
     }
     else if (rtt === "number") {
-        if (!isNaN(parseFloat(data))){
+        if (Number.isInteger(data)){
             this.type = funky_type.i32;
             this.data = data;
         } else {
@@ -259,18 +259,3 @@ function funky_read_user(){
 
 }
 //-----------------------------------------------------------------------------------
-var ctx = new TData();
-
-function s2d( args){
-    let w = args[0].data;
-    let h = args[1].data;
-    ctx.user_data = args[2];
-
-    createCanvas(w, h);
-  return TData(1);
-}
-//---------------------------------------------------------------------------------------------------
-function draw() {
-   s2d_render([ctx]);
-}
-//---------------------------------------------------------------------------------------------------

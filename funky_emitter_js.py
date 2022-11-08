@@ -235,15 +235,43 @@ class EmitterJs:
 
     def preamble(self, _):
         return """
-            import { RangeType, TData, funky_type } from "./lib_funky/core/js/funk_js_model.js";
+            import { RangeType, TData, funky_type} from "./lib_funky/core/js/funk_js_model.js";
             // make sure that in the index.html you include your file like:
             // script type="module" src="js/fibo.js"
 
+            //-----------------------------------------------------------------------------------
+var ctx = new TData();
+var s2d_params = [510,510]
+
+ function s2d( args){
+    s2d_params[0] = args[0].data;
+    s2d_params[1] = args[1].data;
+    ctx.user_data = args[2];
+    console.log('calling s2d and draw');
+  return new TData(1);
+}
+var gp5 = null;
             var funky_console = document.getElementById('funky_console');
-        """
+        """    
 
     def postamble(self):
-        return ''
+        return """
+
+        // https://github.com/processing/p5.js/wiki/Global-and-instance-mode
+        const funk_p5_sketch = (sketch) => {
+            sketch.setup = () => {
+                console.log('creating p5 canvas...');
+                sketch.createCanvas(s2d_params[0], s2d_params[1]);
+                sketch.background('gray');
+            };
+
+            sketch.draw = () => {
+                s2d_render([ctx]);
+            };
+            gp5 = sketch;
+        };
+
+        """
 
     def assign_variable(self, name,val):
         self.code += """
@@ -431,15 +459,15 @@ class EmitterJs:
         y = arg_list[1].eval()
         self.code += """
             // p5js point
-            point(x.data, y.data);
+            gp5.point({x}.data, {y}.data);
 
         """.format(x=x, y=y)
 
     def rand_double(self,result, left, right):
         ref, result = self.create_if_null(result)
         anon = self.create_anon()
-        self.funk.emitter.code += """
-                {ref} {result} = TData( (Math.random() * ({max} - {min}) + {min}) );
+        self.code += """
+                {ref} {result} = new TData( (Math.random() * ({max} - {min}) + {min}) );
 
                 """.format(anon=anon, ref=ref, result=result, min=left, max=right)
         return result
