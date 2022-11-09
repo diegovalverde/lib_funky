@@ -252,7 +252,7 @@ var s2d_params = [510,510]
 }
 var gp5 = null;
             var funky_console = document.getElementById('funky_console');
-        """    
+        """
 
     def postamble(self):
         return """
@@ -453,6 +453,18 @@ var gp5 = null;
         """.format(ref=ref, result=result)
 
         return result
+
+    def s2d_line(self, arg_list):
+        x1 = arg_list[0].eval()
+        y1 = arg_list[1].eval()
+        x2 = arg_list[2].eval()
+        y2 = arg_list[3].eval()
+        self.code += """
+            // p5js line
+            gp5.line({x1}.data, {y1}.data, {x2}.data, {y2}.data);
+
+        """.format(x1=x1, y1=y1, x2=x2, y2=y2)
+
 
     def s2d_point(self, arg_list):
         x = arg_list[0].eval()

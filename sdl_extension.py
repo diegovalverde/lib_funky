@@ -39,14 +39,13 @@ class SDLRenderFunction:
         pass
 
 
-class SDLLine:
+class S2DLine:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        pass
-        #self.funk.emitter.sdl_line(self.funk, self.arg_list)
+        self.funk.emitter.s2d_line(self.funk, self.arg_list)
 
 class S2DPoint:
     def __init__(self, funk, arg_list):

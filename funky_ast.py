@@ -936,7 +936,7 @@ class FunctionCall(Expression):
             'type': FunkGetType,
             'sdl_rect': SDLRect,
             's2d_point': S2DPoint,
-            'sdl_line': SDLLine,
+            's2d_line': S2DLine,
             'sdl_set_color': SDLColor,
             'sdl_render': SDLRenderFunction,
             'sdl_set_user_ctx': SDLSetUserCtx,
