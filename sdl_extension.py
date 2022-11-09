@@ -45,7 +45,7 @@ class S2DLine:
         self.arg_list = arg_list
 
     def eval(self, result=None):
-        self.funk.emitter.s2d_line(self.funk, self.arg_list)
+        self.funk.emitter.s2d_line( self.arg_list)
 
 class S2DPoint:
     def __init__(self, funk, arg_list):
