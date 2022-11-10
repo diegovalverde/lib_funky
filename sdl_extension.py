@@ -1,5 +1,5 @@
 
-class SDLSetUserCtx:
+class S2DSetUserCtx:
     """
             Requires Simple2D to be installed.
             https://github.com/simple2d/simple2d
@@ -55,7 +55,7 @@ class S2DPoint:
     def eval(self, result=None):
         self.funk.emitter.s2d_point(self.arg_list)
 
-class SDLRect:
+class S2DRect:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
@@ -65,13 +65,11 @@ class SDLRect:
         y = self.arg_list[1].eval()
         w = self.arg_list[2].eval()
         h = self.arg_list[3].eval()
-        self.funk.emitter.code += """
-        funky::sdl_rect({x}.i32, {y}.i32, {w}.i32, {h}.i32);
-        """.format(x=x, y=y, w=w, h=h)
 
-        return result
+        return self.funk.emitter.s2d_rect(result,x,y,w,h)
 
-class SDLColor:
+
+class S2DColor:
     def __init__(self, funk, arg_list):
         self.funk = funk
         self.arg_list = arg_list
@@ -81,8 +79,5 @@ class SDLColor:
         g = self.arg_list[1].eval()
         b = self.arg_list[2].eval()
 
-        self.funk.emitter.code += """
-        funky::sdl_set_color({r}.i32, {g}.i32, {b}.i32);
-        """.format(r=r, g=g, b=b)
+        return self.funk.emitter.s2d_color(result,r,g,b)
 
-        return result

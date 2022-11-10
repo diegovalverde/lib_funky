@@ -934,12 +934,12 @@ class FunctionCall(Expression):
             'sum': FunkSum,
             'abs': FunkAbs,
             'type': FunkGetType,
-            'sdl_rect': SDLRect,
+            's2d_rect': S2DRect,
             's2d_point': S2DPoint,
             's2d_line': S2DLine,
-            'sdl_set_color': SDLColor,
+            's2d_set_color': S2DColor,
             'sdl_render': SDLRenderFunction,
-            'sdl_set_user_ctx': SDLSetUserCtx,
+            's2d_set_user_ctx': S2DSetUserCtx,
             'exit': Exit,
             'file': FOpen,
             'in': FReadNext,
@@ -1400,19 +1400,9 @@ class FOpen:
     def eval(self, result):
         path = self.arg_list[0].eval()
         mode = self.arg_list[1].eval()
-        if result is None:
-            result = self.funk.emitter.create_anon()
-        self.funk.emitter.code += """
-        std::ifstream {result};
-        {result}.open({path}.str.c_str());
-        if (!{result}.is_open()){{
-            //throw std::exception("-E- Could not open file ");
-            std::cout << "-E- Could not open file " << {path}.str << std::endl;
-            exit(1);
-        }}
-        """.format(result=result, path=path, mode=mode)
 
-        return result
+        return self.funk.emitter.open_file(result, path, mode)
+
 
 
 class FReadNext:

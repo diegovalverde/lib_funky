@@ -529,6 +529,20 @@ class EmitterCpp:
         }}
         """.format(x=x, y=y)
 
+    def s2d_rect(self,result, x,y,w,h):
+        self.code += """
+                funky::sdl_rect({x}.i32, {y}.i32, {w}.i32, {h}.i32);
+                """.format(x=x, y=y, w=w, h=h)
+
+        return result
+
+    def s2d_color(self, result,r,g,b):
+        self.code += """
+                funky::sdl_set_color({r}.i32, {g}.i32, {b}.i32);
+                """.format(r=r, g=g, b=b)
+
+        return result
+
     def rand_double(self,result, left, right):
         ref, result = self.create_if_null(result)
         anon = self.create_anon()
@@ -536,4 +550,21 @@ class EmitterCpp:
                 std::uniform_real_distribution<double> {anon}({min}, {max});
                 {ref} {result} = TData({anon}(g_funky_random_engine));
                 """.format(anon=anon, ref=ref, result=result, min=left, max=right)
+        return result
+
+    def open_file(self,result, path, mode):
+
+        if result is None:
+            result = self.funk.emitter.create_anon()
+
+        self.code += """
+        std::ifstream {result};
+        {result}.open({path}.str.c_str());
+        if (!{result}.is_open()){{
+            //throw std::exception("-E- Could not open file ");
+            std::cout << "-E- Could not open file " << {path}.str << std::endl;
+            exit(1);
+        }}
+        """.format(result=result, path=path, mode=mode)
+
         return result
