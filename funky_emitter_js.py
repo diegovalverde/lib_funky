@@ -465,7 +465,6 @@ var gp5 = null;
 
         """.format(x1=x1, y1=y1, x2=x2, y2=y2)
 
-
     def s2d_point(self, arg_list):
         x = arg_list[0].eval()
         y = arg_list[1].eval()
@@ -474,6 +473,20 @@ var gp5 = null;
             gp5.point({x}.data, {y}.data);
 
         """.format(x=x, y=y)
+
+    def s2d_rect(self,result, x,y,w,h):
+        self.code += """
+                gp5.rect({x}.i32, {y}.i32, {w}.i32, {h}.i32);
+                """.format(x=x, y=y, w=w, h=h)
+
+        return result
+
+    def s2d_color(self, result,r,g,b):
+        self.code += """
+                gp5.color({r}.i32, {g}.i32, {b}.i32);
+                """.format(r=r, g=g, b=b)
+
+        return result
 
     def rand_double(self,result, left, right):
         ref, result = self.create_if_null(result)
