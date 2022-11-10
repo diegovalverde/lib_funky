@@ -476,14 +476,14 @@ var gp5 = null;
 
     def s2d_rect(self,result, x,y,w,h):
         self.code += """
-                gp5.rect({x}.i32, {y}.i32, {w}.i32, {h}.i32);
+                gp5.rect({x}.data, {y}.data, {w}.i32, {h}.data);
                 """.format(x=x, y=y, w=w, h=h)
 
         return result
 
     def s2d_color(self, result,r,g,b):
         self.code += """
-                gp5.color({r}.i32, {g}.i32, {b}.i32);
+                gp5.color({r}.data, {g}.data, {b}.data);
                 """.format(r=r, g=g, b=b)
 
         return result
