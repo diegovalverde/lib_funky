@@ -804,20 +804,7 @@ class ExprRange(Range):
         file_handler = self.left.eval()
         self.right.eval(result=file_handler)
 
-        self.funk.emitter.code += """
-        std::vector<TData> elements;
-        while (!{file}.eof()) {{
-        """.format(file=file_handler)
-
-        element = self.expr.eval()
-
-        self.funk.emitter.code += """
-        if ({element}.type != funky_type::invalid) elements.push_back({element});
-        }}
-        {result} = TData(elements);
-        """.format(element=element, result=result)
-
-        return result
+        return self.funk.emitter.read_from_file(result, file_handler, self.expr)
 
     def for_each_element(self, result):
         if self.left is not None:

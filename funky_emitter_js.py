@@ -476,7 +476,7 @@ var gp5 = null;
 
     def s2d_rect(self,result, x,y,w,h):
         self.code += """
-                gp5.rect({x}.data, {y}.data, {w}.i32, {h}.data);
+                gp5.rect({x}.data, {y}.data, {w}.data, {h}.data);
                 """.format(x=x, y=y, w=w, h=h)
 
         return result
@@ -495,4 +495,27 @@ var gp5 = null;
                 {ref} {result} = new TData( (Math.random() * ({max} - {min}) + {min}) );
 
                 """.format(anon=anon, ref=ref, result=result, min=left, max=right)
+        return result
+
+    def open_file(self, result, path, mode):
+
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+        let url='https://jellybytes.dev/pages/funk_online_web_editor/';
+        {ref} {result}
+        $.ajax
+        ({{
+                type: "GET",
+                url: url+'funky_example_files/root/' + {path},
+                success: function (text) {{
+                        {result} = new TData(text);
+                }}
+                failure: function (){{
+                    funky_console.value += 'Could not read from ' + url+'funky_example_files/root/' + {path};
+                }}
+        }});
+
+        """.format(ref=ref, result=result, path=path, mode=mode)
+
         return result
