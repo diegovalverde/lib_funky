@@ -568,3 +568,19 @@ class EmitterCpp:
         """.format(result=result, path=path, mode=mode)
 
         return result
+
+    def read_from_file(self,result, file_handler, expr):
+        self.code += """
+           std::vector<TData> elements;
+           while (!{file}.eof()) {{
+           """.format(file=file_handler)
+
+        element = expr.eval()
+
+        self.code += """
+               if ({element}.type != funky_type::invalid) elements.push_back({element});
+           }}
+           {result} = TData(elements);
+           """.format(element=element, result=result)
+
+        return result
