@@ -251,7 +251,7 @@ var s2d_params = [510,510]
   return new TData(1);
 }
 var gp5 = null;
-            var funky_console = document.getElementById('funky_console');
+var funky_console = document.getElementById('funky_console');
         """
 
     def postamble(self):
@@ -365,7 +365,7 @@ var gp5 = null;
         return result
 
     def array_push(self, array, val):
-        self.code += '{array}.data.push({val});'.format(array=array, val=val)
+        self.code += '{array}.data.push(new TData({val}));'.format(array=array, val=val)
 
     def start_for_loop(self, i, start, end):
         self.code += """
@@ -448,6 +448,7 @@ var gp5 = null;
 
         self.code += """
         {ref} {result} = new TData(funky_type.str);
+        funky_last_input = '';
         await funky_read_user();
         {result}.data = funky_last_input;
         """.format(ref=ref, result=result)
@@ -476,15 +477,18 @@ var gp5 = null;
 
     def s2d_rect(self,result, x,y,w,h):
         self.code += """
-                gp5.rect({x}.data, {y}.data, {w}.i32, {h}.data);
+                gp5.rect(new TData({x}).data, new TData({y}).data, new TData({w}).data, new TData({h}).data);
                 """.format(x=x, y=y, w=w, h=h)
 
         return result
 
     def s2d_color(self, result,r,g,b):
+        anon = self.create_anon()
         self.code += """
-                gp5.color({r}.data, {g}.data, {b}.data);
-                """.format(r=r, g=g, b=b)
+                let {anon}=gp5.color(new TData({r}).data, new TData({g}).data, new TData({b}).data);
+                gp5.fill({anon});
+                gp5.stroke({anon});
+                """.format(r=r, g=g, b=b, anon=anon)
 
         return result
 
