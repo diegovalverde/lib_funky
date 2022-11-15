@@ -443,17 +443,6 @@ var gp5 = null;
         """.format(ref=ref, result=result, var=var)
         return result
 
-    def read_user_input(self, result, file='std::cin'):
-        ref, result = self.create_if_null(result)
-
-        self.code += """
-        {ref} {result} = new TData(funky_type.str);
-        await funky_read_user();
-        {result}.data = funky_last_input;
-        """.format(ref=ref, result=result)
-
-        return result
-
     def s2d_line(self, arg_list):
         x1 = arg_list[0].eval()
         y1 = arg_list[1].eval()
@@ -497,25 +486,49 @@ var gp5 = null;
                 """.format(anon=anon, ref=ref, result=result, min=left, max=right)
         return result
 
+    def read_user_input(self, result, file='std::cin'):
+        ref, result = self.create_if_null(result)
+
+        if file == 'std::cin':
+            self.code += """
+            {ref} {result} = new TData(funky_type.str);
+            await funky_read_user();
+            {result}.data = funky_last_input;
+            """.format(ref=ref, result=result)
+        else:
+            self.code += """
+
+            {ref} {result} = new TData(funky_type.str);
+            if (funky_input_buffer.length > 0)
+                {result}.data = funky_input_buffer.pop();
+            """.format(ref=ref, result=result)
+
+        return result
+
     def open_file(self, result, path, mode):
 
         ref, result = self.create_if_null(result)
 
         self.code += """
-        let url='https://jellybytes.dev/pages/funk_online_web_editor/';
-        {ref} {result}
-        $.ajax
-        ({{
-                type: "GET",
-                url: url+'funky_example_files/root/' + {path},
-                success: function (text) {{
-                        {result} = new TData(text);
-                }}
-                failure: function (){{
-                    funky_console.value += 'Could not read from ' + url+'funky_example_files/root/' + {path};
-                }}
-        }});
+        await funky_read_file_from_server({path});
+
 
         """.format(ref=ref, result=result, path=path, mode=mode)
+
+        return result
+
+    def read_from_file(self,result, txt, expr):
+        self.code += """
+                   elements = [];
+                   while (funky_input_buffer.length > 0) {{
+                   """
+
+        element = expr.eval()
+
+        self.code += """
+                       if ({element}.type != funky_type::invalid) elements.push_back({element});
+                   }}
+                   {result} = TData(elements);
+                   """.format(element=element, result=result)
 
         return result
