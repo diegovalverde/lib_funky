@@ -523,13 +523,13 @@ var funky_console = document.getElementById('funky_console');
     def read_from_file(self,result, txt, expr):
         self.code += """
                    elements = [];
-                   while (funky_input_buffer.length > 0) {{
+                   while (funky_input_buffer.length > 0) {
                    """
 
         element = expr.eval()
 
         self.code += """
-                       if ({element}.type != funky_type::invalid) elements.push_back({element});
+                       if ({element}.type != funky_type.invalid) elements.push_back({element});
                    }}
                    {result} = TData(elements);
                    """.format(element=element, result=result)
