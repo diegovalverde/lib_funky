@@ -47,7 +47,7 @@ CRenderer sdl;
 
   TData s2d_render( std::vector<TData> &);
 //---------------------------------------------------------------------------------------------------
-TData sdl_set_user_ctx(const TData & arg){
+TData s2d_set_user_ctx(const TData & arg){
   ctx.user_data = arg;
   return TData(1);
 }

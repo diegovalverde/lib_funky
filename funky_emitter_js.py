@@ -535,3 +535,10 @@ var funky_console = document.getElementById('funky_console');
                    """.format(element=element, result=result)
 
         return result
+
+    def s2d_set_context(self,result,ctx):
+        ref, result = self.create_if_null(result)
+        self.code += """
+                {ref} {result} = s2d_set_user_ctx({ctx});
+                """.format(result=result, ctx=ctx, ref=ref)
+        return result
