@@ -257,7 +257,7 @@ class EmitterCpp:
             void s2d_point( TData & x,  TData & y);
             void sdl_rect(int x, int y, int w, int h);
             void sdl_set_color(int r, int g, int b);
-            TData sdl_set_user_ctx(const TData & arg);
+            TData s2d_set_user_ctx(const TData & arg);
 
             """
 
@@ -583,4 +583,11 @@ class EmitterCpp:
            {result} = TData(elements);
            """.format(element=element, result=result)
 
+        return result
+
+    def s2d_set_context(self,result,ctx):
+        ref, result = self.create_if_null(result)
+        self.code += """
+                {ref} {result} = funky::s2d_set_user_ctx({ctx});
+                """.format(result=result, ctx=ctx, ref=ref)
         return result

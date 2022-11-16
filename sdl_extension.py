@@ -11,17 +11,9 @@ class S2DSetUserCtx:
         self.arg_list = arg_list
 
     def eval(self, result=None):
-
         ctx = self.arg_list[0].eval()
-        ref = ''
-        if result is None:
-            ref = 'TData'
-            result = self.funk.emitter.create_anon()
+        return self.funk.emitter.s2d_set_context(result, ctx)
 
-        self.funk.emitter.code += """
-        {ref} {result} = funky::sdl_set_user_ctx({ctx});
-        """.format(result=result, ctx=ctx, ref=ref)
-        return result
 
 
 class SDLRenderFunction:
