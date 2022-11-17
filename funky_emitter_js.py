@@ -542,3 +542,20 @@ var funky_console = document.getElementById('funky_console');
                 {ref} {result} = s2d_set_user_ctx({ctx});
                 """.format(result=result, ctx=ctx, ref=ref)
         return result
+
+    def reshape(self, result, L, w, h):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+
+              {ref} {ret} = new TData([]);
+              if ({r} * {c} != L.GetLen().data * L.array[0].GetLen().data) return {L};
+                  for (let i = 0, k =0; i < {r}; i++) {{
+                    ret.data.push( new TData([]));
+                     for (let j = 0; j < {c}; j++) {{
+                        ret.data[i].data.push(L.data[k++]);
+                     }}
+                  }}
+
+               """.format(ref=ref, ret=result, L=L, c=w, r=h)
+        return result

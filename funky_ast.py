@@ -1451,16 +1451,7 @@ class ReShape:
         if not isinstance(h, int):
             h = self.funk.emitter.get_int('{}'.format(h))
 
-        ref = ''
-        if result is None:
-            ref = 'TData'
-            result = self.funk.emitter.create_anon()
-
-        self.funk.emitter.code += """
-        {ref} {result} = funky::Reshape({L}, {w}, {h});
-        """.format(ref=ref, result=result, L=L, w=w, h=h)
-
-        return result
+        return self.funk.emitter.reshape(result,L,w,h)
 
 
 class Exit:
