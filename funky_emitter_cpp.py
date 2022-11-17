@@ -591,3 +591,11 @@ class EmitterCpp:
                 {ref} {result} = funky::s2d_set_user_ctx({ctx});
                 """.format(result=result, ctx=ctx, ref=ref)
         return result
+
+    def reshape(self, result, L, w, h):
+        ref, result = self.create_if_null(result)
+
+        self.code += """
+               {ref} {result} = funky::Reshape({L}, {w}, {h});
+               """.format(ref=ref, result=result, L=L, w=w, h=h)
+        return result
