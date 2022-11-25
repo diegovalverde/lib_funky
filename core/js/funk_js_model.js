@@ -1,3 +1,4 @@
+export var funky_input_buffer=[]
 export const funky_type = {
   invalid : 'invalid',
   array : 'array',
@@ -242,4 +243,19 @@ export class TData
 
 
 };
+
 //-----------------------------------------------------------------------------------
+export async function funky_read_file_from_server(path){
+
+			let url='https://jellybytes.dev/pages/funk_online_web_editor/';
+		        const result = await $.ajax
+		        ({
+		                type: "GET",
+		                url: url+'funky_example_files/root/' + path,
+		        });
+	funky_input_buffer = result.split(' ');
+	let arr = result.split(/[\n\s]+/g);
+
+	 return arr.filter( e => e != '');
+}
+//--------------------------------------------------------------------------------------------------

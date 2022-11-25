@@ -132,18 +132,23 @@ class EmitterJs:
 
     def funk_summation_function(self, funk, arguments, result):
         if len(arguments) != 1:
-            raise Exception('=== exit takes 1 parameter')
+            raise Exception('=== sum takes 1 parameter')
         ref, result = self.create_if_null(result)
 
         src = arguments[0].eval()
         anon = funk.emitter.create_anon()
         self.code += """
         // sum
-        let {anon} = new TData( {src}.Flatten());
+        {ref} {result};
+        if ({src}.data.length == 0){{
+            {result} = new TData(0);
+        }} else {{
+             console.log('sum ', {src});
+             let {anon} = new TData( {src}.Flatten());
 
-        {ref} {result} = new TData( {anon}.data.reduce(function (x, y) {{return x + y;}}),
-         {src}.data[0].type);
-
+             {result} = new TData( {anon}.data.reduce(function (x, y) {{return x + y;}},0),
+             {src}.data[0].type);
+        }}
         """.format(result=result, ref=ref, src=src, anon=anon)
 
         return result
@@ -183,6 +188,7 @@ class EmitterJs:
     def emit_function_signature(self, name, has_tail_recursion, is_async=False):
 
         tag = ''
+
         if is_async:
             tag = 'async'
         self.code += """
@@ -206,7 +212,7 @@ class EmitterJs:
 
     def emit_main_preamble(self):
         self.code += """
-
+            var pato = ['pato'];
             async function main() {
                 try {
         """
@@ -235,7 +241,7 @@ class EmitterJs:
 
     def preamble(self, _):
         return """
-            import { RangeType, TData, funky_type} from "./lib_funky/core/js/funk_js_model.js";
+            import { RangeType, TData, funky_type,funky_read_file_from_server} from "./lib_funky/core/js/funk_js_model.js";
             // make sure that in the index.html you include your file like:
             // script type="module" src="js/fibo.js"
 
@@ -244,9 +250,10 @@ var ctx = new TData();
 var s2d_params = [510,510]
 
  function s2d( args){
+    console.log('...... sd2 .....');
     s2d_params[0] = args[0].data;
     s2d_params[1] = args[1].data;
-    ctx.user_data = args[2];
+    ctx= args[2];
     console.log('calling s2d and draw');
   return new TData(1);
 }
@@ -502,8 +509,8 @@ var funky_console = document.getElementById('funky_console');
             self.code += """
 
             {ref} {result} = new TData(funky_type.str);
-            if (funky_input_buffer.length > 0)
-                {result}.data = funky_input_buffer.pop();
+            if (pato.length > 0)
+                {result}.data = pato.shift();
             """.format(ref=ref, result=result)
 
         return result
@@ -513,25 +520,26 @@ var funky_console = document.getElementById('funky_console');
         ref, result = self.create_if_null(result)
 
         self.code += """
-        await funky_read_file_from_server({path});
-
-
+        pato = await funky_read_file_from_server({path});
+        console.log('7666 pato=',pato);
+        //pato = await caca;
+        //console.log('666 pato=',pato);
         """.format(ref=ref, result=result, path=path, mode=mode)
 
         return result
 
     def read_from_file(self,result, txt, expr):
         self.code += """
-                   elements = [];
-                   while (funky_input_buffer.length > 0) {
+                   let elements = [];
+                   while (pato.length > 0) {
                    """
 
         element = expr.eval()
 
         self.code += """
-                       if ({element}.type != funky_type.invalid) elements.push_back({element});
+                       if ({element}.type != funky_type.invalid) elements.push({element});
                    }}
-                   {result} = TData(elements);
+                   {result} = new TData(elements);
                    """.format(element=element, result=result)
 
         return result
@@ -539,7 +547,10 @@ var funky_console = document.getElementById('funky_console');
     def s2d_set_context(self,result,ctx):
         ref, result = self.create_if_null(result)
         self.code += """
-                {ref} {result} = s2d_set_user_ctx({ctx});
+                console.log('ctx=',{ctx});
+                ctx = new TData({ctx});
+                ctx.Print();
+                {result} = new TData(1);
                 """.format(result=result, ctx=ctx, ref=ref)
         return result
 
@@ -547,15 +558,19 @@ var funky_console = document.getElementById('funky_console');
         ref, result = self.create_if_null(result)
 
         self.code += """
-
+              // reshape
               {ref} {ret} = new TData([]);
-              if ({r} * {c} != L.GetLen().data * L.array[0].GetLen().data) return {L};
+              console.log('r=',{r},{c});
+              if ({r} * {c} != {L}.GetLen().data * {L}.data[0].GetLen().data){{
+                {ret} =  {L};
+              }} else {{
                   for (let i = 0, k =0; i < {r}; i++) {{
-                    ret.data.push( new TData([]));
+                    {ret}.data.push( new TData([]));
                      for (let j = 0; j < {c}; j++) {{
-                        ret.data[i].data.push(L.data[k++]);
+                        {ret}.data[i].data.push({L}.data[k++]);
                      }}
                   }}
+             }}
 
                """.format(ref=ref, ret=result, L=L, c=w, r=h)
         return result
