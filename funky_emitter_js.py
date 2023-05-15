@@ -30,8 +30,8 @@ class EmitterJs:
         return name
 
     def io_config(self, args, result=None):
-        if args.len != 2:
-            self.code += 'throw \"io_config requires 2 arguments, key and value\"';
+        if len(args) != 2:
+            self.code += 'throw \"io_config requires 2 arguments, key and value\"\n';
         else:
             self.code += 'gfunky_options[\"{}\"]={}\n'.format(args[0], args[1])
         return result
@@ -565,7 +565,7 @@ var funky_console = document.getElementById('funky_console');
         self.code += """
               // reshape
               {ref} {ret} = new TData([]);
-              
+
               if ({r} * {c} != {L}.GetLen().data * {L}.data[0].GetLen().data){{
                 {ret} =  {L};
               }} else {{
