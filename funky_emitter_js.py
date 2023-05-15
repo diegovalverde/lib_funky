@@ -254,7 +254,7 @@ class EmitterJs:
 
             //-----------------------------------------------------------------------------------
 var ctx = new TData();
-var s2d_params = [510,510]
+var s2d_params = [560,350]
 
  function s2d( args){
     console.log('...... sd2 .....');
@@ -479,6 +479,7 @@ var funky_console = document.getElementById('funky_console');
 
     def s2d_rect(self,result, x,y,w,h):
         self.code += """
+                gp5.stroke('gray');
                 gp5.rect(new TData({x}).data, new TData({y}).data, new TData({w}).data, new TData({h}).data);
                 """.format(x=x, y=y, w=w, h=h)
 
@@ -528,9 +529,6 @@ var funky_console = document.getElementById('funky_console');
 
         self.code += """
         pato = await funky_read_file_from_server({path});
-        console.log('7666 pato=',pato);
-        //pato = await caca;
-        //console.log('666 pato=',pato);
         """.format(ref=ref, result=result, path=path, mode=mode)
 
         return result
@@ -567,7 +565,7 @@ var funky_console = document.getElementById('funky_console');
         self.code += """
               // reshape
               {ref} {ret} = new TData([]);
-              console.log('r=',{r},{c});
+              
               if ({r} * {c} != {L}.GetLen().data * {L}.data[0].GetLen().data){{
                 {ret} =  {L};
               }} else {{
