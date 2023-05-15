@@ -29,6 +29,14 @@ class EmitterCpp:
         self.index += 1
         return name
 
+    def io_config(self, args, result=None):
+        if args.len != 2:
+            self.code += 'std::string(\"io_config requires 2 arguments, key and value\");\n';
+        else:
+            self.code += '//ioconfig not implemented\n'
+        return result
+
+
     def print_funk(self, args, result=None):
         if args is not None:
             l = [e.eval() for e in args]

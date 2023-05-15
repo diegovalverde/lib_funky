@@ -1,4 +1,6 @@
 export var funky_input_buffer=[]
+export var gfunky_options = {'pretty_print': 1}
+
 export const funky_type = {
   invalid : 'invalid',
   array : 'array',
@@ -78,17 +80,29 @@ export class TData
           break;
           case funky_type.function: str+="<fn>"; break;
           case funky_type.str:
-            str += '\'' + this.data + '\''
+            if (gfunky_options['pretty_print'] == 1){
+                str += '\'' + this.data + '\'';
+            }else{
+                str += this.data;
+            }
           break;
           case funky_type.array:
-            str += '[';
+            if (gfunky_options['pretty_print'] == 1)
+                str += '[';
             for (let i = 0; i < this.data.length; i++){
                   str += this.data[i].Print();
-                  if (i + 1 < this.data.length){
-                    str += ', ';
+                  if (gfunky_options['pretty_print'] == 1){
+                      if (i + 1 < this.data.length){
+                        str += ', ';
+                      }
+                  }else{
+                    str += ' '
                   }
               }
-            str += ']\n'
+            if (gfunky_options['pretty_print'] == 1)
+                str += ']\n';
+            else
+                str += '\n';
             break;
         case funky_type.d64: console.log(this.data); break;
           default:

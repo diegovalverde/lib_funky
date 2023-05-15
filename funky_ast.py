@@ -915,7 +915,6 @@ class FunctionCall(Expression):
             'rand_int': RandInt,
             'rand_float': RandFloat,
             'say': Print,
-            'info': DebugInfo,
             'len': Len,
             'flatten': Flatten,
             'sum': FunkSum,
@@ -934,6 +933,7 @@ class FunctionCall(Expression):
             'reverse': Reverse,
             'infinity': Infinity,
             'reshape': ReShape,
+            'ioconfig': IOConfig,
         }
 
     def __repr__(self):
@@ -1324,6 +1324,17 @@ class Len(Expression):
         return self.funk.emitter.get_node_length(self.arg_list, result=result)
 
 
+class IOConfig(Expression):
+    def __init__(self, funk, arg):
+        super().__init__()
+        self.funk = funk
+        self.arg = arg
+
+    def eval(self, result=None):
+        result = self.funk.emitter.io_config(self.arg, result)
+        return result
+
+
 class FunkGetType(Expression):
     def __init__(self, funk, arg_list):
         super().__init__()
@@ -1340,16 +1351,6 @@ class FunkGetType(Expression):
         self.funk.emitter.code += """
         {ref} {result} = TData(static_cast<int32_t>({src}.type));
         """.format(ref=ref, result=result, src=src)
-
-
-class DebugInfo:
-    def __init__(self, funk, arg):
-        self.funk = funk
-        self.arg = arg
-
-    def eval(self, result=None):
-        self.funk.emitter.debug_print_node_info(self.funk, self.arg)
-        return result
 
 
 class Print:
