@@ -933,7 +933,7 @@ class FunctionCall(Expression):
             'reverse': Reverse,
             'infinity': Infinity,
             'reshape': ReShape,
-            'ioconfig': IOConfig,
+            'funky_config': IOConfig,
         }
 
     def __repr__(self):

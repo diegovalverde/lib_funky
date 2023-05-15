@@ -33,7 +33,7 @@ class EmitterJs:
         if len(args) != 2:
             self.code += 'throw \"io_config requires 2 arguments, key and value\"\n';
         else:
-            self.code += 'gfunky_options[\"{}\"]={}\n'.format(args[0].eval(), args[1].eval())
+            self.code += 'gfunky_options[{}]={}\n'.format(args[0].eval(), args[1].eval())
         return result
 
     def print_funk(self, args, result=None):
@@ -248,7 +248,7 @@ class EmitterJs:
 
     def preamble(self, _):
         return """
-            import { RangeType, TData, funky_type,funky_read_file_from_server} from "./lib_funky/core/js/funk_js_model.js";
+            import { RangeType, TData,gfunky_options, funky_type,funky_read_file_from_server} from "./lib_funky/core/js/funk_js_model.js";
             // make sure that in the index.html you include your file like:
             // script type="module" src="js/fibo.js"
 
