@@ -33,7 +33,7 @@ class EmitterJs:
         if len(args) != 2:
             self.code += 'throw \"io_config requires 2 arguments, key and value\"\n';
         else:
-            self.code += 'gfunky_options[\"{}\"]={}\n'.format(args[0], args[1])
+            self.code += 'gfunky_options[\"{}\"]={}\n'.format(args[0].eval(), args[1].eval())
         return result
 
     def print_funk(self, args, result=None):
