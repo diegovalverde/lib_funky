@@ -1,5 +1,6 @@
 import re
 import shutil
+import subprocess
 from .funky_compiler import Funk
 import os
 
@@ -60,6 +61,24 @@ def exe_command(cmd):
         exit(1)
 
 
+def get_sdl_flags():
+    """
+    Return (cflags, ldflags) for SDL2 if available via pkg-config or sdl2-config.
+    """
+    for cmd in (['pkg-config', '--cflags', 'sdl2'], ['sdl2-config', '--cflags']):
+        try:
+            cflags = subprocess.check_output(cmd, text=True).strip()
+            ldflags = ''
+            if cmd[0] == 'pkg-config':
+                ldflags = subprocess.check_output(['pkg-config', '--libs', 'sdl2'], text=True).strip()
+            else:
+                ldflags = subprocess.check_output(['sdl2-config', '--libs'], text=True).strip()
+            return cflags, ldflags
+        except Exception:
+            continue
+    return '', ''
+
+
 def compile_source(src_path, build_path,  debug=False):
     try:
         funk = Funk(debug=debug)
@@ -95,8 +114,11 @@ def link_sources(obj_list, build_path, src_path):
     additional_link_flags = ''
     if link_with_sdl:
         additional_link_flags += '-L/usr/local/lib -lSDL2 '
-        cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/sdl_simple.cpp -o {build_path}/sdl_simple.o'.format(
-            build_path=build_path)
+        sdl_cflags, sdl_ldflags = get_sdl_flags()
+        if sdl_ldflags:
+            additional_link_flags += ' ' + sdl_ldflags
+        cmd = 'clang++ -g -c -std=c++11 {sdl_cflags} -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/sdl_simple.cpp -o {build_path}/sdl_simple.o'.format(
+            build_path=build_path, sdl_cflags=sdl_cflags)
         exe_command(cmd)
 
         obj_list.append('{}/{}'.format(build_path, 'sdl_simple.o'))
