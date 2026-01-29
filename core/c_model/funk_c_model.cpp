@@ -96,7 +96,15 @@ std::istream& operator>>(std::istream& in, TData& data) {
 //-------------------------------------------------------
 TData TData::GetLen() const {
   if (type == funky_type::array){
-    return TData(static_cast<std::int32_t>(array.size()));
+    std::int32_t total = 0;
+    for (const auto &el : array) {
+      if (el.type == funky_type::array) {
+        total += el.GetLen().i32;
+      } else {
+        total += 1;
+      }
+    }
+    return TData(total);
   } else {
     return TData(1);
   }
@@ -172,4 +180,3 @@ TData Reshape(const TData & L, const std::int32_t r, const std::int32_t c){
 
   
 } // namespace name
-

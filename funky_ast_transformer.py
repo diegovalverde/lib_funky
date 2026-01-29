@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import collections
+from collections.abc import Iterable
 
 from . import funky_ast
 
@@ -26,7 +26,7 @@ except ImportError:
 
 
 def flatten(x):
-    if isinstance(x, collections.Iterable):
+    if isinstance(x, Iterable):
         return [a for i in x for a in flatten(i)]
     else:
         return [x]
@@ -82,8 +82,14 @@ class TreeToAst(Transformer):
                 arg.position = position
                 pattern_matches.append({'val':arg, 'pos': position})
             elif isinstance(arg, funky_ast.CompileTimeExprList):
-                pattern_matches.append(
-                    {'val': funky_ast.PatternMatchListOfIdentifiers(self.funk, arg.elements, position), 'pos': position})
+                elements = [e for e in arg.elements if e is not None]
+                if len(elements) == 0:
+                    empty_match = funky_ast.PatternMatchEmptyList(self.funk)
+                    empty_match.position = position
+                    pattern_matches.append({'val': empty_match, 'pos': position})
+                else:
+                    pattern_matches.append(
+                        {'val': funky_ast.PatternMatchListOfIdentifiers(self.funk, elements, position), 'pos': position})
             else:
                 fn_arguments.append({'val': arg.name, 'pos': position})
 
@@ -128,9 +134,13 @@ class TreeToAst(Transformer):
 
     def function_call(self, token):
         if len(token) == 2:
-            if isinstance(token[1], funky_ast.FunctionCall) or isinstance(token[1], funky_ast.ArrayElement):
+            array_element_cls = getattr(funky_ast, 'ArrayElement', None)
+            if isinstance(token[1], funky_ast.FunctionCall) or (
+                array_element_cls and isinstance(token[1], array_element_cls)
+            ):
                 token[1].name = token[0].name
                 return token[1]
+            return token[0]
         else:
             return token[0]
 
@@ -139,7 +149,7 @@ class TreeToAst(Transformer):
         if len(args) > 0 and isinstance(args[0], funky_ast.Identifier):
             row = args[0].row
             col = args[0].col
-        return funky_ast.FunctionCall(self.funk, '<un-named>', flatten(args), row=row, col=col)
+        return funky_ast.FunctionCall(self.funk, '<un-named>', remove_invalid(flatten(args)), row=row, col=col)
 
     def expr__(self, token):
         return flatten(token)
@@ -239,7 +249,7 @@ class TreeToAst(Transformer):
         return self.bin_op(token, funky_ast.Mul)
 
     def action_arith_mod(self, token):
-        return self.bin_op(token[0], funky_ast.Mod)
+        return self.bin_op(token, funky_ast.Mod)
 
     def action_assignment(self, children):
         if len(children) != 2:
@@ -376,20 +386,27 @@ class TreeToAst(Transformer):
             return None
 
     def create_list(self, elements):
-        if isinstance(elements, collections.Iterable) and len(elements) == 1 and isinstance(elements[0],
-                                                                                            collections.Iterable):
-            return [funky_ast.CompileTimeExprList(self.funk, 'anon', self.create_list(elements[0]))]
+        if isinstance(elements, Iterable) and len(elements) == 1 and isinstance(elements[0], Iterable):
+            return [funky_ast.CompileTimeExprList(self.funk, 'anon', self.create_list(remove_invalid(elements[0])))]
         else:
+            if isinstance(elements, Iterable):
+                elements = remove_invalid(elements)
             return [funky_ast.CompileTimeExprList(self.funk, 'anon', elements)]
 
     def list(self, tokens):
-        elements = tokens[0] if len(tokens) > 0 else []
+        if len(tokens) > 0 and tokens[0] is not None:
+            if isinstance(tokens[0], Iterable):
+                elements = remove_invalid(tokens[0])
+            else:
+                elements = [tokens[0]]
+        else:
+            elements = []
         x = self.create_list(elements)
         return x
 
     @staticmethod
     def list_elements(token):
-        return flatten(token)
+        return remove_invalid(flatten(token))
 
     @staticmethod
     def list_initialization(token):
@@ -432,7 +449,11 @@ class TreeToAst(Transformer):
         if len(children) == 2:
             lhs = children[0]
             rhs_expr = children[1]
-            rhs_expr.left = lhs
+            if rhs_expr is None:
+                return lhs
+            if hasattr(rhs_expr, 'left'):
+                rhs_expr.left = lhs
+                return rhs_expr
             return rhs_expr
         else:
             return children[0]
@@ -451,7 +472,7 @@ class TreeToAst(Transformer):
         return token[1]
 
     def action_indexed_array(self, tokens):
-        tokens = flatten(tokens)
+        tokens = remove_invalid(flatten(tokens))
 
         variable = tokens.pop(0)
         if len(tokens) >= 2 and isinstance(tokens[1], funky_ast.Range) and tokens[1].left is None:

@@ -17,7 +17,7 @@
 
 
 from . import funky_types
-import collections
+from collections.abc import Iterable
 import copy
 import re
 from .sdl_extension import *
@@ -214,14 +214,14 @@ class List(Expression):
     def get_dimensions(self):
         def traverse(x, dimensions=[]):
             elements = []
-            if isinstance(x, collections.Iterable):
+            if isinstance(x, Iterable):
                 elements = x
             elif isinstance(x, List):
                 elements = x.elements
             dimensions.append(len(elements))
 
             if len(elements) > 0:
-                if isinstance(elements[0], List) or isinstance(elements[0], collections.Iterable):
+                if isinstance(elements[0], List) or isinstance(elements[0], Iterable):
                     return traverse(elements[0], dimensions)
             return list(reversed(dimensions))
 
@@ -244,8 +244,8 @@ class CompileTimeExprList(List):
         super().__init__(funk, name, elements)
         self.funk = funk
         self.name = name
-        if isinstance(elements, collections.Iterable):
-            self.elements = elements
+        if isinstance(elements, Iterable):
+            self.elements = [e for e in elements if e is not None]
         else:
             self.elements = [elements]
 

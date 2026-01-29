@@ -1,4 +1,5 @@
 import re
+import shutil
 from .funky_compiler import Funk
 import os
 
@@ -75,9 +76,9 @@ def compile_source(src_path, build_path,  debug=False):
 
         funk.save_c(os.path.join(build_path, '{}.cpp'.format(file_base_name)))
         # apply clang format
-        cmd ='clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.cpp'.format(path=build_path,file_base_path=file_base_name)
-
-        exe_command(cmd)
+        if shutil.which('clang-format'):
+            cmd ='clang-format -i --style="{{BasedOnStyle: llvm, IndentWidth: 8}}" {path}/{file_base_path}.cpp'.format(path=build_path,file_base_path=file_base_name)
+            exe_command(cmd)
 
         # compile
         cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
@@ -171,4 +172,3 @@ def compile_sources(src_path, include_paths, build_path, debug=False):
 
     object_files = [os.path.join(build_path, '{}.o'.format(get_file_base_name(file))) for file in source_files]
     return object_files
-
