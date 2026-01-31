@@ -290,18 +290,23 @@ class TreeToAst(Transformer):
         return funky_ast.ListConcat(self.funk, left=children[0], right=children[1])
 
     def action_bool_and(self, tokens):
+        tokens = remove_invalid(flatten(tokens))
         if len(tokens) > 1:
             for i in range(1, len(tokens)):
-                tokens[i].left = tokens[i - 1]
-
+                if tokens[i] is not None and hasattr(tokens[i], 'left'):
+                    tokens[i].left = tokens[i - 1]
+        if len(tokens) == 0:
+            return None
         return funky_ast.And(self.funk, right=tokens[-1])
 
     def action_bool_or(self, tokens):
-
+        tokens = remove_invalid(flatten(tokens))
         if len(tokens) > 1:
             for i in range(1, len(tokens)):
-                tokens[i].left = tokens[i - 1]
-
+                if tokens[i] is not None and hasattr(tokens[i], 'left'):
+                    tokens[i].left = tokens[i - 1]
+        if len(tokens) == 0:
+            return None
         return funky_ast.Or(self.funk, right=tokens[-1])
 
     def action_bool_mod(self, token):

@@ -29,10 +29,10 @@ from .funky_ast_transformer import TreeToAst
 
 
 class FunctionScope:
-    def __init__(self, name):
+    def __init__(self, name, emitter_class=Emitter):
         self.name = name
         self.clause_idx = 0  # In case there are multiple clauses this makes sure variable names can be reused
-        self.emitter = Emitter()
+        self.emitter = emitter_class()
         self.current_function_clause = None
 
     def emit(self):
@@ -40,10 +40,11 @@ class FunctionScope:
 
 
 class Funk:
-    def __init__(self, ll1_path=None, debug=False):
+    def __init__(self, ll1_path=None, debug=False, emitter_class=Emitter, c_model_header='funk_c_model.h'):
 
         self.debug = debug
         self.forwarded_functions = []
+        self.emitter_class = emitter_class
 
         if self.debug:
             print('-I- Initializing compiler')
@@ -67,9 +68,9 @@ class Funk:
         self.empty_arg_count = 0  # essentially all of the '_' shall be uniquely identifiable
         self.preamble = \
             """
-#include <funk_c_model.h>
+#include <{c_model_header}>
 #include <fstream>
-namespace funky {
+namespace funky {{
 // =============================================================== ;;
 //
 // *** F U N K Y ! *** Runtime embedded environment
@@ -82,7 +83,7 @@ void sdl_rect(int x, int y, int w, int h);
 void sdl_set_color(int r, int g, int b);
 TData sdl_set_user_ctx(const TData & arg);
 
-"""
+""".format(c_model_header=c_model_header)
 
         self.post_amble = \
             """
@@ -90,10 +91,11 @@ TData sdl_set_user_ctx(const TData & arg);
         """
 
         self.emitter = None
+        self.c_model_header = c_model_header
 
     def create_function_scope(self, name):
         scope_name = '{}'.format(name)
-        self.symbol_table[scope_name] = FunctionScope(name)
+        self.symbol_table[scope_name] = FunctionScope(name, emitter_class=self.emitter_class)
         self.functions.append(scope_name)
 
         return scope_name

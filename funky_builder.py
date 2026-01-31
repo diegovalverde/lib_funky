@@ -1,8 +1,12 @@
+import os
 import re
 import shutil
 import subprocess
 from .funky_compiler import Funk
-import os
+from .optimized_compiler import OptimizedFunk
+
+BACKEND_DEFAULT = 'default'
+BACKEND_OPTIMIZED = 'optimized_cpp'
 
 link_with_sdl = False
 funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
@@ -79,9 +83,12 @@ def get_sdl_flags():
     return '', ''
 
 
-def compile_source(src_path, build_path,  debug=False):
+def compile_source(src_path, build_path, debug=False, backend=BACKEND_DEFAULT):
     try:
-        funk = Funk(debug=debug)
+        if backend == BACKEND_OPTIMIZED:
+            funk = OptimizedFunk(debug=debug)
+        else:
+            funk = Funk(debug=debug)
 
         if not os.path.isfile(src_path):
             src_path = os.path.join(os.getcwd(),src_path)
@@ -100,8 +107,10 @@ def compile_source(src_path, build_path,  debug=False):
             exe_command(cmd)
 
         # compile
-        cmd = 'clang++ -std=c++11 -g -c -I{build_path}/../funk/core/c_model/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
-            build_path=build_path, file_base_name=file_base_name)
+        cxx_std = 'c++20' if backend == BACKEND_OPTIMIZED else 'c++11'
+        c_model_dir = 'c_model_opt' if backend == BACKEND_OPTIMIZED else 'c_model'
+        cmd = 'clang++ -std={cxx_std} -g -c -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
+            build_path=build_path, file_base_name=file_base_name, cxx_std=cxx_std, c_model_dir=c_model_dir)
 
         exe_command(cmd)
 
@@ -110,32 +119,37 @@ def compile_source(src_path, build_path,  debug=False):
         exit()
 
 
-def link_sources(obj_list, build_path, src_path):
+def link_sources(obj_list, build_path, src_path, backend=BACKEND_DEFAULT):
     additional_link_flags = ''
+    cxx_std = 'c++20' if backend == BACKEND_OPTIMIZED else 'c++11'
+    c_model_dir = 'c_model_opt' if backend == BACKEND_OPTIMIZED else 'c_model'
+    c_model_cpp = 'funk_c_model_opt.cpp' if backend == BACKEND_OPTIMIZED else 'funk_c_model.cpp'
+    sdl_cpp = 'sdl_simple.cpp'
     if link_with_sdl:
         additional_link_flags += '-L/usr/local/lib -lSDL2 '
         sdl_cflags, sdl_ldflags = get_sdl_flags()
         if sdl_ldflags:
             additional_link_flags += ' ' + sdl_ldflags
-        cmd = 'clang++ -g -c -std=c++11 {sdl_cflags} -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/sdl_simple.cpp -o {build_path}/sdl_simple.o'.format(
-            build_path=build_path, sdl_cflags=sdl_cflags)
+        cmd = 'clang++ -g -c -std={cxx_std} {sdl_cflags} -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/../funk/core/{c_model_dir}/{sdl_cpp} -o {build_path}/sdl_simple.o'.format(
+            build_path=build_path, sdl_cflags=sdl_cflags, cxx_std=cxx_std, c_model_dir=c_model_dir, sdl_cpp=sdl_cpp)
         exe_command(cmd)
 
         obj_list.append('{}/{}'.format(build_path, 'sdl_simple.o'))
 
-    cmd = 'clang++ -g -c -std=c++11 -I{build_path}/../funk/core/c_model/ {build_path}/../funk/core/c_model/funk_c_model.cpp -o {build_path}/funk_c_model.o'.format(
-        build_path=build_path)
+    cmd = 'clang++ -g -c -std={cxx_std} -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/../funk/core/{c_model_dir}/{c_model_cpp} -o {build_path}/funk_c_model.o'.format(
+        build_path=build_path, cxx_std=cxx_std, c_model_dir=c_model_dir, c_model_cpp=c_model_cpp)
     exe_command(cmd)
 
     _, file_name = os.path.split(src_path)
     output = os.path.join(build_path, os.path.splitext(file_name)[0])
 
-    cmd = 'clang++ -std=c++11 -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/c_model/ -o {output}'.format(
-        build_path=build_path, output=output, objects=' '.join(obj_list), additional_link_flags=additional_link_flags)
+    cmd = 'clang++ -std={cxx_std} -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/{c_model_dir}/ -o {output}'.format(
+        build_path=build_path, output=output, objects=' '.join(obj_list),
+        additional_link_flags=additional_link_flags, cxx_std=cxx_std, c_model_dir=c_model_dir)
     exe_command(cmd)
 
 
-def build(src_path, include_paths, build_path, debug):
+def build(src_path, include_paths, build_path, debug, backend=BACKEND_DEFAULT):
     try:
         global link_with_sdl
 
@@ -143,10 +157,10 @@ def build(src_path, include_paths, build_path, debug):
             os.mkdir(build_path)
 
         print('==== compiling ====')
-        object_files = compile_sources(src_path, include_paths, build_path, debug)
+        object_files = compile_sources(src_path, include_paths, build_path, debug, backend=backend)
 
         print('==== linking ====')
-        link_sources(object_files, build_path, src_path)
+        link_sources(object_files, build_path, src_path, backend=backend)
 
     except Exception as e:
         print(e.__str__())
@@ -181,7 +195,7 @@ def find_dependencies(src_path, include_paths):
     return dependencies
 
 
-def compile_sources(src_path, include_paths, build_path, debug=False):
+def compile_sources(src_path, include_paths, build_path, debug=False, backend=BACKEND_DEFAULT):
 
     source_files = find_dependencies(src_path, include_paths)
     source_files.append(src_path)
@@ -189,7 +203,7 @@ def compile_sources(src_path, include_paths, build_path, debug=False):
     for src_file in source_files:
         if src_is_newer(src_file, build_path):
             print('{} ... '.format(src_file), end='')
-            compile_source(src_file, build_path=build_path, debug=debug)
+            compile_source(src_file, build_path=build_path, debug=debug, backend=backend)
             print('Done')
 
     object_files = [os.path.join(build_path, '{}.o'.format(get_file_base_name(file))) for file in source_files]
