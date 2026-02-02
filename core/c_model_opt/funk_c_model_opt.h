@@ -253,43 +253,43 @@ inline TData call0(TData (*fn)(std::vector<TData> &)) {
     return res;
 }
 
-inline TData call1(TData (*fn)(std::vector<TData> &), TData a) {
+inline TData call1(TData (*fn)(std::vector<TData> &), const TData &a) {
     auto &stack = arg_stack();
     auto &v = stack.get(1);
-    v.emplace_back(std::move(a));
+    v.emplace_back(a);
     TData res = fn(v);
     stack.pop();
     return res;
 }
 
-inline TData call2(TData (*fn)(std::vector<TData> &), TData a, TData b) {
+inline TData call2(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b) {
     auto &stack = arg_stack();
     auto &v = stack.get(2);
-    v.emplace_back(std::move(a));
-    v.emplace_back(std::move(b));
+    v.emplace_back(a);
+    v.emplace_back(b);
     TData res = fn(v);
     stack.pop();
     return res;
 }
 
-inline TData call3(TData (*fn)(std::vector<TData> &), TData a, TData b, TData c) {
+inline TData call3(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b, const TData &c) {
     auto &stack = arg_stack();
     auto &v = stack.get(3);
-    v.emplace_back(std::move(a));
-    v.emplace_back(std::move(b));
-    v.emplace_back(std::move(c));
+    v.emplace_back(a);
+    v.emplace_back(b);
+    v.emplace_back(c);
     TData res = fn(v);
     stack.pop();
     return res;
 }
 
-inline TData call4(TData (*fn)(std::vector<TData> &), TData a, TData b, TData c, TData d) {
+inline TData call4(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b, const TData &c, const TData &d) {
     auto &stack = arg_stack();
     auto &v = stack.get(4);
-    v.emplace_back(std::move(a));
-    v.emplace_back(std::move(b));
-    v.emplace_back(std::move(c));
-    v.emplace_back(std::move(d));
+    v.emplace_back(a);
+    v.emplace_back(b);
+    v.emplace_back(c);
+    v.emplace_back(d);
     TData res = fn(v);
     stack.pop();
     return res;
