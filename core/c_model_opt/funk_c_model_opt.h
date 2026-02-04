@@ -50,6 +50,7 @@ class TData;
 class ArrayStorage {
   public:
     using Storage = std::vector<TData>;
+    using value_type = TData;
     using iterator = Storage::iterator;
     using const_iterator = Storage::const_iterator;
 
