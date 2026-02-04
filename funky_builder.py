@@ -2,10 +2,8 @@ import os
 import re
 import shutil
 import subprocess
-from .funky_compiler import Funk
 from .optimized_compiler import OptimizedFunk
 
-BACKEND_DEFAULT = 'default'
 BACKEND_OPTIMIZED = 'optimized_cpp'
 
 link_with_sdl = False
@@ -83,12 +81,11 @@ def get_sdl_flags():
     return '', ''
 
 
-def compile_source(src_path, build_path, debug=False, backend=BACKEND_DEFAULT):
+def compile_source(src_path, build_path, debug=False, backend=BACKEND_OPTIMIZED):
     try:
-        if backend == BACKEND_OPTIMIZED:
-            funk = OptimizedFunk(debug=debug)
-        else:
-            funk = Funk(debug=debug)
+        if backend != BACKEND_OPTIMIZED:
+            raise ValueError('Only optimized_cpp backend is supported')
+        funk = OptimizedFunk(debug=debug)
 
         if not os.path.isfile(src_path):
             src_path = os.path.join(os.getcwd(),src_path)
@@ -107,8 +104,8 @@ def compile_source(src_path, build_path, debug=False, backend=BACKEND_DEFAULT):
             exe_command(cmd)
 
         # compile
-        cxx_std = 'c++20' if backend == BACKEND_OPTIMIZED else 'c++11'
-        c_model_dir = 'c_model_opt' if backend == BACKEND_OPTIMIZED else 'c_model'
+        cxx_std = 'c++20'
+        c_model_dir = 'c_model_opt'
         cmd = 'clang++ -std={cxx_std} -g -c -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
             build_path=build_path, file_base_name=file_base_name, cxx_std=cxx_std, c_model_dir=c_model_dir)
 
@@ -119,11 +116,13 @@ def compile_source(src_path, build_path, debug=False, backend=BACKEND_DEFAULT):
         exit()
 
 
-def link_sources(obj_list, build_path, src_path, backend=BACKEND_DEFAULT):
+def link_sources(obj_list, build_path, src_path, backend=BACKEND_OPTIMIZED):
     additional_link_flags = ''
-    cxx_std = 'c++20' if backend == BACKEND_OPTIMIZED else 'c++11'
-    c_model_dir = 'c_model_opt' if backend == BACKEND_OPTIMIZED else 'c_model'
-    c_model_cpp = 'funk_c_model_opt.cpp' if backend == BACKEND_OPTIMIZED else 'funk_c_model.cpp'
+    if backend != BACKEND_OPTIMIZED:
+        raise ValueError('Only optimized_cpp backend is supported')
+    cxx_std = 'c++20'
+    c_model_dir = 'c_model_opt'
+    c_model_cpp = 'funk_c_model_opt.cpp'
     sdl_cpp = 'sdl_simple.cpp'
     if link_with_sdl:
         additional_link_flags += '-L/usr/local/lib -lSDL2 '
@@ -149,7 +148,7 @@ def link_sources(obj_list, build_path, src_path, backend=BACKEND_DEFAULT):
     exe_command(cmd)
 
 
-def build(src_path, include_paths, build_path, debug, backend=BACKEND_DEFAULT):
+def build(src_path, include_paths, build_path, debug, backend=BACKEND_OPTIMIZED):
     try:
         global link_with_sdl
 
@@ -195,7 +194,7 @@ def find_dependencies(src_path, include_paths):
     return dependencies
 
 
-def compile_sources(src_path, include_paths, build_path, debug=False, backend=BACKEND_DEFAULT):
+def compile_sources(src_path, include_paths, build_path, debug=False, backend=BACKEND_OPTIMIZED):
 
     source_files = find_dependencies(src_path, include_paths)
     source_files.append(src_path)
