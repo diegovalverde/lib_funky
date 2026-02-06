@@ -8,6 +8,12 @@ test_include_misc():
     bs_a <- [1,3,5,7,9]
     assert(arr_eq(binary_search(bs_a, 7, 0, 4), [3]), 1)
     assert(arr_eq(binary_search(bs_a, 2, 0, 4), []), 1)
+    # edge cases
+    assert(arr_eq(binary_search(bs_a, 1, 0, 4), [0]), 1)
+    assert(arr_eq(binary_search(bs_a, 9, 0, 4), [4]), 1)
+    assert(arr_eq(binary_search(bs_a, 1, 1, 4), []), 1)
+    assert(arr_eq(binary_search(bs_a, 9, 0, 3), []), 1)
+    assert(arr_eq(binary_search([], 1, 0, -1), []), 1)
 
     # argmin
     assert(argmin([3,1,2]), 1)
