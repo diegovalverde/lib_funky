@@ -4,7 +4,7 @@ import shutil
 import subprocess
 from .optimized_compiler import OptimizedFunk
 
-BACKEND_OPTIMIZED = 'optimized_cpp'
+BACKEND_OPTIMIZED = 'cpp20'
 
 link_with_sdl = False
 funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
@@ -84,7 +84,7 @@ def get_sdl_flags():
 def compile_source(src_path, build_path, debug=False, backend=BACKEND_OPTIMIZED):
     try:
         if backend != BACKEND_OPTIMIZED:
-            raise ValueError('Only optimized_cpp backend is supported')
+            raise ValueError('Only cpp20 backend is supported')
         funk = OptimizedFunk(debug=debug)
 
         if not os.path.isfile(src_path):
@@ -119,7 +119,7 @@ def compile_source(src_path, build_path, debug=False, backend=BACKEND_OPTIMIZED)
 def link_sources(obj_list, build_path, src_path, backend=BACKEND_OPTIMIZED):
     additional_link_flags = ''
     if backend != BACKEND_OPTIMIZED:
-        raise ValueError('Only optimized_cpp backend is supported')
+        raise ValueError('Only cpp20 backend is supported')
     cxx_std = 'c++20'
     c_model_dir = 'c_model_opt'
     c_model_cpp = 'funk_c_model_opt.cpp'
