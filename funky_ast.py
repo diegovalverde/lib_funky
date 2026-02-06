@@ -1254,38 +1254,41 @@ class FunctionMap:
                     TData __retval__(funky_type::invalid);
         """.format(fn_name=self.name)
 
-        for clause in self.clauses:
+        for clause_index, clause in enumerate(self.clauses):
 
             self.funk.function_scope.current_function_clause = clause
             pattern_match_auxiliary_variables = ''
             pattern_matches = []
             has_pattern_matches = clause.pattern_matches is not None and len(clause.pattern_matches) > 0
 
+            pattern_match_arg_positions = set()
             if has_pattern_matches:
                 for pm in [p['val'] for p in clause.pattern_matches]:
                     i = pm.position
+                    pattern_match_arg_positions.add(i)
+                    arg_ref = '__arg{idx}_{clause_idx}'.format(idx=i, clause_idx=clause_index)
                     if isinstance(pm, PatternMatchEmptyList):
                         pattern_matches.append(
-                            'argument_list[{i}].type == funky_type::array && argument_list[{i}].array.size() == 0'.format(
-                                i=i))
+                            '{arg}.type == funky_type::array && {arg}.array.size() == 0'.format(
+                                arg=arg_ref))
                     elif isinstance(pm, PatternMatchLiteral):
                         if pm.type == funky_types.int:
-                            pattern_matches.append('argument_list[{}].i32 == {}'.format(i, pm.value))
+                            pattern_matches.append('{arg}.i32 == {val}'.format(arg=arg_ref, val=pm.value))
                         elif pm.type == funky_types.double:
-                            pattern_matches.append('argument_list[{}].d64 == {}'.format(i, pm.value))
+                            pattern_matches.append('{arg}.d64 == {val}'.format(arg=arg_ref, val=pm.value))
                     elif isinstance(pm, PatternMatchListOfIdentifiers):
-                        condition = 'argument_list[{}].array.size() =={}'.format(i, len(pm.elements))
+                        condition = '{arg}.array.size() =={val}'.format(arg=arg_ref, val=len(pm.elements))
                         pattern_matches.append(condition)
                         # this a list and it pattern matches elements from the list
                         for j, element in enumerate(pm.elements):
                             if isinstance(element, Identifier):
                                 pattern_match_auxiliary_variables += """
-                    TData {name} = argument_list[{i}].array[{j}];
+                    TData {name} = {arg}.array[{j}];
 
-                    """.format(name=element.name, i=i, j=j)
+                    """.format(name=element.name, arg=arg_ref, j=j)
                             if isinstance(element, IntegerConstant):
-                                condition = 'TData(argument_list[{i}].array[{j}] == {val}).i32 == 1'.format(i=i, j=j,
-                                                                                                            val=element.eval())
+                                condition = 'TData({arg}.array[{j}] == {val}).i32 == 1'.format(
+                                    arg=arg_ref, j=j, val=element.eval())
 
                                 pattern_matches.append(condition)
 
@@ -1300,7 +1303,16 @@ class FunctionMap:
             if clause.check_arity:
                 arity_check = '&& (argument_list.size() == {clause_arity})'.format(clause_arity=clause.arity)
 
+            pattern_match_arg_refs = ''
+            if len(pattern_match_arg_positions) > 0:
+                pattern_match_arg_refs = '\n        ' + '\n        '.join(
+                    'const TData &__arg{idx}_{clause_idx} = argument_list[{idx}];'.format(
+                        idx=idx, clause_idx=clause_index)
+                    for idx in sorted(pattern_match_arg_positions)
+                )
+
             clause.funk.emitter.code += """
+        {pattern_match_arg_refs}
 
         if ( true
              {arity_check}
@@ -1312,7 +1324,8 @@ class FunctionMap:
             """.format(arity_check=arity_check,
                        tail_pair_check=tail_pair_check, clause_arity=clause.arity,
                        pattern_matches=pattern_matches_string,
-                       pattern_match_auxiliary_variables=pattern_match_auxiliary_variables)
+                       pattern_match_auxiliary_variables=pattern_match_auxiliary_variables,
+                       pattern_match_arg_refs=pattern_match_arg_refs)
 
             if clause.fill_etc:
                 clause.funk.emitter.code += """
