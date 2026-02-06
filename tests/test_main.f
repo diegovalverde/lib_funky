@@ -6,7 +6,7 @@ use test_neg, test_transpose, test_arith
 use test_roll, test_8_puzzle, test_8_puzzle_helpers, test_reshape
 use test_file_read, test_unique, test_array_difference
 use test_sudoku, test_all, test_any, test_argmax, test_min, test_max
-use test_diagonals
+use test_diagonals, test_astar
 
 main():
 
@@ -46,6 +46,8 @@ main():
     # test_sort()
 
     test_bfs()
+
+    test_astar()
 
     test_transpose() 
 
