@@ -1216,6 +1216,22 @@ class FunctionMap:
             return '/'
         if isinstance(expr, Mod):
             return '%'
+        if isinstance(expr, And):
+            return '&&'
+        if isinstance(expr, Or):
+            return '||'
+        if isinstance(expr, GreaterThan):
+            return '>'
+        if isinstance(expr, EqualThan):
+            return '=='
+        if isinstance(expr, NotEqualThan):
+            return '!='
+        if isinstance(expr, LessThan):
+            return '<'
+        if isinstance(expr, GreaterOrEqualThan):
+            return '>='
+        if isinstance(expr, LessOrEqualThan):
+            return '<='
         return None
 
     def _i32_expr_to_cpp(self, expr, arg_pos_by_name, helper_name):
@@ -1262,7 +1278,7 @@ class FunctionMap:
         for clause in self.clauses:
             if clause.arity != arity or not clause.check_arity or clause.fill_etc:
                 return None
-            if clause.preconditions is not None or len(clause.tail_pairs) > 0:
+            if len(clause.tail_pairs) > 0:
                 return None
             if len(clause.body) != 1:
                 return None
@@ -1289,6 +1305,12 @@ class FunctionMap:
                     if not isinstance(pm, PatternMatchLiteral) or pm.type != funky_types.int:
                         return None
                     conds.append('arg{idx} == {val}'.format(idx=pm.position, val=pm.value))
+
+            if clause.preconditions is not None:
+                guard_cpp = self._i32_expr_to_cpp(clause.preconditions, arg_pos_by_name, helper_name)
+                if guard_cpp is None:
+                    return None
+                conds.append('({guard})'.format(guard=guard_cpp))
 
             expr_cpp = self._i32_expr_to_cpp(clause.body[-1], arg_pos_by_name, helper_name)
             if expr_cpp is None:
