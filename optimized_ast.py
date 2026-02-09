@@ -259,7 +259,12 @@ class FunctionCall(funky_ast.FunctionCall):
             """.format(ref=ref, name=name, result=result, anon=anon)
             return result
 
-        if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
+        if (
+            name in self.funk.functions
+            or '@{}'.format(name) in self.funk.functions
+            or name in getattr(self.funk, 'known_functions', set())
+            or '@{}'.format(name) in getattr(self.funk, 'known_functions', set())
+        ):
             args_list = [a for a in arguments if a != 'etc']
             if len(args_list) == 0 and 'etc' not in arguments:
                 if result is None:

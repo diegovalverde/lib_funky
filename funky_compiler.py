@@ -47,6 +47,7 @@ class Funk:
         self.forwarded_functions = []
         self.emitter_class = emitter_class
         self.enable_i32_lowering = enable_i32_lowering
+        self.known_functions = set()
 
         if self.debug:
             print('-I- Initializing compiler')
@@ -135,6 +136,8 @@ TData sdl_set_user_ctx(const TData & arg);
             ast_generator = TreeToAst(self, debug=self.debug)
 
             ast_generator.transform(parse_tree)
+            self.known_functions = set(ast_generator.function_definition_list)
+            self.function_map = ast_generator.function_map
 
             for fn in ast_generator.function_definition_list:
                 ast_generator.function_map[fn].eval()

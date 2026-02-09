@@ -1147,7 +1147,12 @@ class FunctionCall(Expression):
             {ref} {result} = {name}.fn({anon});
             """.format(ref=ref, name=name, arg_list=', '.join(str(e) for e in arguments), result=result, anon=anon)
             return result
-        elif name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
+        elif (
+            name in self.funk.functions
+            or '@{}'.format(name) in self.funk.functions
+            or name in getattr(self.funk, 'known_functions', set())
+            or '@{}'.format(name) in getattr(self.funk, 'known_functions', set())
+        ):
             return self.funk.emitter.call_function(name, arguments, result=result)
 
         if not found:
@@ -1234,7 +1239,7 @@ class FunctionMap:
             return '<='
         return None
 
-    def _i32_expr_to_cpp(self, expr, arg_pos_by_name, helper_name):
+    def _i32_expr_to_cpp(self, expr, arg_pos_by_name, helper_name_by_fn, allow_calls_set):
         if isinstance(expr, IntegerConstant):
             return str(expr.eval())
         if isinstance(expr, Identifier):
@@ -1242,13 +1247,22 @@ class FunctionMap:
                 return 'arg{idx}'.format(idx=arg_pos_by_name[expr.name])
             return None
         if isinstance(expr, FunctionCall):
-            if expr.name != self.name or expr.args is None:
+            if expr.args is None:
                 return None
-            if len(expr.args) != len(arg_pos_by_name):
+            callee = expr.name
+            if callee not in allow_calls_set:
+                return None
+            helper_name = helper_name_by_fn.get(callee)
+            if helper_name is None:
+                return None
+            callee_map = getattr(self.funk, 'function_map', {}).get(callee)
+            if callee_map is None or len(callee_map.clauses) == 0:
+                return None
+            if len(expr.args) != callee_map.clauses[0].arity:
                 return None
             rendered_args = []
             for a in expr.args:
-                cpp = self._i32_expr_to_cpp(a, arg_pos_by_name, helper_name)
+                cpp = self._i32_expr_to_cpp(a, arg_pos_by_name, helper_name_by_fn, allow_calls_set)
                 if cpp is None:
                     return None
                 rendered_args.append(cpp)
@@ -1256,13 +1270,97 @@ class FunctionMap:
 
         op = self._i32_op_symbol(expr)
         if op is not None:
-            lhs = self._i32_expr_to_cpp(expr.left, arg_pos_by_name, helper_name)
-            rhs = self._i32_expr_to_cpp(expr.right, arg_pos_by_name, helper_name)
+            lhs = self._i32_expr_to_cpp(expr.left, arg_pos_by_name, helper_name_by_fn, allow_calls_set)
+            rhs = self._i32_expr_to_cpp(expr.right, arg_pos_by_name, helper_name_by_fn, allow_calls_set)
             if lhs is None or rhs is None:
                 return None
             return '({lhs} {op} {rhs})'.format(lhs=lhs, op=op, rhs=rhs)
 
         return None
+
+    def _i32_arg_pos_by_name(self):
+        arg_pos_by_name = {}
+        for clause in self.clauses:
+            for arg in clause.arguments:
+                if arg['val'] == '_':
+                    continue
+                if arg['val'] in arg_pos_by_name and arg_pos_by_name[arg['val']] != arg['pos']:
+                    return None
+                arg_pos_by_name[arg['val']] = arg['pos']
+        return arg_pos_by_name
+
+    def _i32_structural_ok(self):
+        if self.name == 'main':
+            return False
+        if len(self.clauses) == 0:
+            return False
+        arity = self.clauses[0].arity
+        if arity <= 0:
+            return False
+        for clause in self.clauses:
+            if clause.arity != arity or not clause.check_arity or clause.fill_etc:
+                return False
+            if len(clause.tail_pairs) > 0:
+                return False
+            if len(clause.body) != 1:
+                return False
+            if clause.pattern_matches is not None:
+                for pm in [p['val'] for p in clause.pattern_matches]:
+                    if not isinstance(pm, PatternMatchLiteral) or pm.type != funky_types.int:
+                        return False
+        arg_pos_by_name = self._i32_arg_pos_by_name()
+        if arg_pos_by_name is None or len(arg_pos_by_name) == 0:
+            return False
+        return True
+
+    def _i32_helper_name(self):
+        arity = self.clauses[0].arity
+        return '__funk_i32_{name}_{arity}'.format(name=self.name, arity=arity)
+
+    def _compute_i32_lowerable_registry(self):
+        cache = getattr(self.funk, '_i32_lowering_registry', None)
+        if cache is not None:
+            return cache
+
+        fn_map = getattr(self.funk, 'function_map', {})
+        structural = {name for name, fmap in fn_map.items() if fmap._i32_structural_ok()}
+        lowerable = set(structural)
+
+        changed = True
+        while changed:
+            changed = False
+            helper_name_by_fn = {name: fn_map[name]._i32_helper_name() for name in lowerable}
+            for name in list(lowerable):
+                fmap = fn_map[name]
+                arg_pos_by_name = fmap._i32_arg_pos_by_name()
+                if arg_pos_by_name is None or len(arg_pos_by_name) == 0:
+                    lowerable.remove(name)
+                    changed = True
+                    continue
+                ok = True
+                for clause in fmap.clauses:
+                    exprs = []
+                    if clause.preconditions is not None:
+                        exprs.append(clause.preconditions)
+                    exprs.append(clause.body[-1])
+                    for expr in exprs:
+                        cpp = fmap._i32_expr_to_cpp(expr, arg_pos_by_name, helper_name_by_fn, lowerable)
+                        if cpp is None:
+                            ok = False
+                            break
+                    if not ok:
+                        break
+                if not ok:
+                    lowerable.remove(name)
+                    changed = True
+
+        helper_name_by_fn = {name: fn_map[name]._i32_helper_name() for name in lowerable}
+        registry = {
+            'lowerable': lowerable,
+            'helper_name_by_fn': helper_name_by_fn,
+        }
+        self.funk._i32_lowering_registry = registry
+        return registry
 
     def _build_i32_lowering(self):
         if self.name == 'main':
@@ -1272,31 +1370,43 @@ class FunctionMap:
         if len(self.clauses) == 0:
             return None
 
+        registry = self._compute_i32_lowerable_registry()
+        if self.name not in registry['lowerable']:
+            return None
+
         arity = self.clauses[0].arity
-        if arity <= 0:
-            return None
-        for clause in self.clauses:
-            if clause.arity != arity or not clause.check_arity or clause.fill_etc:
-                return None
-            if len(clause.tail_pairs) > 0:
-                return None
-            if len(clause.body) != 1:
-                return None
-
-        arg_pos_by_name = {}
-        for clause in self.clauses:
-            for arg in clause.arguments:
-                if arg['val'] == '_':
-                    continue
-                if arg['val'] in arg_pos_by_name and arg_pos_by_name[arg['val']] != arg['pos']:
-                    return None
-                arg_pos_by_name[arg['val']] = arg['pos']
-        if len(arg_pos_by_name) == 0:
-            return None
-
-        helper_name = '__funk_i32_{name}_{arity}'.format(name=self.name, arity=arity)
+        arg_pos_by_name = self._i32_arg_pos_by_name()
+        helper_name_by_fn = registry['helper_name_by_fn']
+        helper_name = helper_name_by_fn[self.name]
         helper_args = ', '.join('std::int32_t arg{idx}'.format(idx=i) for i in range(arity))
-        lines = ['static std::int32_t {name}({args}) {{'.format(name=helper_name, args=helper_args)]
+        lines = []
+
+        # Forward-declare helpers of callees in the same lowered set (supports mutual recursion).
+        called_helpers = set()
+        for clause in self.clauses:
+            exprs = [clause.body[-1]]
+            if clause.preconditions is not None:
+                exprs.append(clause.preconditions)
+            for expr in exprs:
+                stack = [expr]
+                while len(stack) > 0:
+                    node = stack.pop()
+                    if isinstance(node, FunctionCall):
+                        callee = node.name
+                        if callee != self.name and callee in helper_name_by_fn:
+                            called_helpers.add(callee)
+                        if node.args is not None:
+                            stack.extend([a for a in node.args if a is not None])
+                    else:
+                        if hasattr(node, 'left') and node.left is not None:
+                            stack.append(node.left)
+                        if hasattr(node, 'right') and node.right is not None:
+                            stack.append(node.right)
+        for callee in sorted(called_helpers):
+            callee_arity = self.funk.function_map[callee].clauses[0].arity
+            callee_args = ', '.join('std::int32_t arg{idx}'.format(idx=i) for i in range(callee_arity))
+            lines.append('static std::int32_t {name}({args});'.format(name=helper_name_by_fn[callee], args=callee_args))
+        lines.append('static std::int32_t {name}({args}) {{'.format(name=helper_name, args=helper_args))
 
         for clause in self.clauses:
             conds = []
@@ -1307,12 +1417,16 @@ class FunctionMap:
                     conds.append('arg{idx} == {val}'.format(idx=pm.position, val=pm.value))
 
             if clause.preconditions is not None:
-                guard_cpp = self._i32_expr_to_cpp(clause.preconditions, arg_pos_by_name, helper_name)
+                guard_cpp = self._i32_expr_to_cpp(
+                    clause.preconditions, arg_pos_by_name, helper_name_by_fn, registry['lowerable']
+                )
                 if guard_cpp is None:
                     return None
                 conds.append('({guard})'.format(guard=guard_cpp))
 
-            expr_cpp = self._i32_expr_to_cpp(clause.body[-1], arg_pos_by_name, helper_name)
+            expr_cpp = self._i32_expr_to_cpp(
+                clause.body[-1], arg_pos_by_name, helper_name_by_fn, registry['lowerable']
+            )
             if expr_cpp is None:
                 return None
 
