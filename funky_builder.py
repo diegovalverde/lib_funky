@@ -2,9 +2,10 @@ import os
 import re
 import shutil
 import subprocess
-from .optimized_compiler import OptimizedFunk
+from .optimized_compiler import OptimizedFunk, OptimizedFunkI32
 
 BACKEND_OPTIMIZED = 'cpp20'
+BACKEND_OPTIMIZED_I32 = 'cpp20_i32'
 
 link_with_sdl = False
 funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
@@ -83,9 +84,9 @@ def get_sdl_flags():
 
 def compile_source(src_path, build_path, debug=False, backend=BACKEND_OPTIMIZED):
     try:
-        if backend != BACKEND_OPTIMIZED:
-            raise ValueError('Only cpp20 backend is supported')
-        funk = OptimizedFunk(debug=debug)
+        if backend not in (BACKEND_OPTIMIZED, BACKEND_OPTIMIZED_I32):
+            raise ValueError('Only cpp20 and cpp20_i32 backends are supported')
+        funk = OptimizedFunkI32(debug=debug) if backend == BACKEND_OPTIMIZED_I32 else OptimizedFunk(debug=debug)
 
         if not os.path.isfile(src_path):
             src_path = os.path.join(os.getcwd(),src_path)
@@ -106,8 +107,10 @@ def compile_source(src_path, build_path, debug=False, backend=BACKEND_OPTIMIZED)
         # compile
         cxx_std = 'c++20'
         c_model_dir = 'c_model_opt'
-        cmd = 'clang++ -std={cxx_std} -g -c -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
-            build_path=build_path, file_base_name=file_base_name, cxx_std=cxx_std, c_model_dir=c_model_dir)
+        extra_cxxflags = os.environ.get('FUNK_EXTRA_CXXFLAGS', '')
+        cmd = 'clang++ -std={cxx_std} -g {extra_cxxflags} -c -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/{file_base_name}.cpp -o {build_path}/{file_base_name}.o'.format(
+            build_path=build_path, file_base_name=file_base_name, cxx_std=cxx_std,
+            c_model_dir=c_model_dir, extra_cxxflags=extra_cxxflags)
 
         exe_command(cmd)
 
@@ -118,9 +121,10 @@ def compile_source(src_path, build_path, debug=False, backend=BACKEND_OPTIMIZED)
 
 def link_sources(obj_list, build_path, src_path, backend=BACKEND_OPTIMIZED):
     additional_link_flags = ''
-    if backend != BACKEND_OPTIMIZED:
-        raise ValueError('Only cpp20 backend is supported')
+    if backend not in (BACKEND_OPTIMIZED, BACKEND_OPTIMIZED_I32):
+        raise ValueError('Only cpp20 and cpp20_i32 backends are supported')
     cxx_std = 'c++20'
+    extra_cxxflags = os.environ.get('FUNK_EXTRA_CXXFLAGS', '')
     c_model_dir = 'c_model_opt'
     c_model_cpp = 'funk_c_model_opt.cpp'
     sdl_cpp = 'sdl_simple.cpp'
@@ -129,22 +133,25 @@ def link_sources(obj_list, build_path, src_path, backend=BACKEND_OPTIMIZED):
         sdl_cflags, sdl_ldflags = get_sdl_flags()
         if sdl_ldflags:
             additional_link_flags += ' ' + sdl_ldflags
-        cmd = 'clang++ -g -c -std={cxx_std} {sdl_cflags} -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/../funk/core/{c_model_dir}/{sdl_cpp} -o {build_path}/sdl_simple.o'.format(
-            build_path=build_path, sdl_cflags=sdl_cflags, cxx_std=cxx_std, c_model_dir=c_model_dir, sdl_cpp=sdl_cpp)
+        cmd = 'clang++ -g -c -std={cxx_std} {extra_cxxflags} {sdl_cflags} -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/../funk/core/{c_model_dir}/{sdl_cpp} -o {build_path}/sdl_simple.o'.format(
+            build_path=build_path, sdl_cflags=sdl_cflags, cxx_std=cxx_std, c_model_dir=c_model_dir,
+            sdl_cpp=sdl_cpp, extra_cxxflags=extra_cxxflags)
         exe_command(cmd)
 
         obj_list.append('{}/{}'.format(build_path, 'sdl_simple.o'))
 
-    cmd = 'clang++ -g -c -std={cxx_std} -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/../funk/core/{c_model_dir}/{c_model_cpp} -o {build_path}/funk_c_model.o'.format(
-        build_path=build_path, cxx_std=cxx_std, c_model_dir=c_model_dir, c_model_cpp=c_model_cpp)
+    cmd = 'clang++ -g -c -std={cxx_std} {extra_cxxflags} -I{build_path}/../funk/core/{c_model_dir}/ {build_path}/../funk/core/{c_model_dir}/{c_model_cpp} -o {build_path}/funk_c_model.o'.format(
+        build_path=build_path, cxx_std=cxx_std, c_model_dir=c_model_dir,
+        c_model_cpp=c_model_cpp, extra_cxxflags=extra_cxxflags)
     exe_command(cmd)
 
     _, file_name = os.path.split(src_path)
     output = os.path.join(build_path, os.path.splitext(file_name)[0])
 
-    cmd = 'clang++ -std={cxx_std} -g {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/{c_model_dir}/ -o {output}'.format(
+    cmd = 'clang++ -std={cxx_std} -g {extra_cxxflags} {additional_link_flags} {objects} {build_path}/funk_c_model.o -I{build_path}/../funk/core/{c_model_dir}/ -o {output}'.format(
         build_path=build_path, output=output, objects=' '.join(obj_list),
-        additional_link_flags=additional_link_flags, cxx_std=cxx_std, c_model_dir=c_model_dir)
+        additional_link_flags=additional_link_flags, cxx_std=cxx_std, c_model_dir=c_model_dir,
+        extra_cxxflags=extra_cxxflags)
     exe_command(cmd)
 
 

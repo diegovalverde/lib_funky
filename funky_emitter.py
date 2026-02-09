@@ -69,12 +69,18 @@ class Emitter:
             result = self.create_anon()
             declare = 'TData'
 
+        positional_args = [e for e in arguments if e != 'etc']
         self.code += """
-       std::vector<TData> {anon} = {{ {arg_list} }};
-       """.format(anon=anon, arg_list=', '.join(str(e) for e in arguments if e != 'etc'))
+       std::vector<TData> {anon};
+       {anon}.reserve({arity});
+       """.format(anon=anon, arity=len(positional_args))
+
+        for arg in positional_args:
+            self.code += """
+            {anon}.emplace_back({arg});
+            """.format(anon=anon, arg=arg)
 
         if 'etc' in arguments:
-            arguments.remove('etc')
             self.code += """
             {anon}.insert( {anon}.end(), etc.begin(), etc.end() );
             """.format(anon=anon)
@@ -83,7 +89,7 @@ class Emitter:
         self.code += """
         {declare} {result} = funky::{name}({anon});
                  """.format(anon=anon, declare=declare, name=name,
-                            arity=len(arguments), result=result)
+                            arity=len(positional_args), result=result)
 
         return result
 

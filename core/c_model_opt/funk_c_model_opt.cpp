@@ -251,26 +251,38 @@ TData TData::GetLen() const {
   }
 }
 //-------------------------------------------------------
-TData TData::GetRange(std::vector<TData::RangeType>  ranges ) const {
-  const auto range = ranges.front();
-  ranges.erase(ranges.begin());
-  if (array.size() == 0 ) return TData(funky_type::array); //return empty array
-  std::size_t start = (range.start > 0) ? (range.start) % array.size() : (array.size() + range.start) % array.size();
-  std::size_t end = (range.end > 0) ? (range.end) % array.size() : (array.size() + range.end) % array.size();
-  if (ranges.size() == 0 && !range.isRange && start == end){
-      return TData(array[start]);
+static TData get_range_impl(const TData &node, const std::vector<TData::RangeType> &ranges, std::size_t idx) {
+  if (ranges.empty() || node.array.size() == 0) return TData(funky_type::array);
+
+  const auto &range = ranges[idx];
+  const std::size_t start = (range.start > 0) ? (range.start) % node.array.size()
+                                               : (node.array.size() + range.start) % node.array.size();
+  const std::size_t end = (range.end > 0) ? (range.end) % node.array.size()
+                                           : (node.array.size() + range.end) % node.array.size();
+
+  if ((idx + 1) == ranges.size() && !range.isRange && start == end) {
+    return TData(node.array[start]);
   }
+
   TData result(funky_type::array);
-  result.array.reserve((end - start) + 1);
-  for (int i = start; i <= end; i++){
-    TData element = (ranges.size() > 0) ? array[i].GetRange(ranges) : array[i];
-    if (range.isRange){
-      result.array.push_back(element);
+  if (end >= start) {
+    result.array.reserve((end - start) + 1);
+  }
+  for (int i = static_cast<int>(start); i <= static_cast<int>(end); i++) {
+    TData element = ((idx + 1) < ranges.size())
+                        ? get_range_impl(node.array[i], ranges, idx + 1)
+                        : TData(node.array[i]);
+    if (range.isRange) {
+      result.array.push_back(std::move(element));
     } else {
-      result = element;
+      result = std::move(element);
     }
   }
   return result;
+}
+
+TData TData::GetRange(std::vector<TData::RangeType> ranges) const {
+  return get_range_impl(*this, ranges, 0);
 }
 //-------------------------------------------------------
 static void flatten_into(const TData &src, ArrayStorage &out){
@@ -310,15 +322,16 @@ namespace funky
 {
 //-------------------------------------------------------
 TData Reshape(const TData & L, const std::int32_t r, const std::int32_t c){
-  const std::vector<TData> tmp(r);
-  TData ret(tmp);
+  TData ret(funky_type::array);
+  ret.array.reserve(r);
   if (r * c != L.GetLen().i32 * L.array[0].GetLen().i32) return L;
       for (int i = 0, k =0; i < r; i++) {
-        ret.array[i].type = funky_type::array;
-        ret.array[i].array.reserve(c);
+        TData row(funky_type::array);
+        row.array.reserve(c);
          for (int j = 0; j < c; j++) {
-            ret.array[i].array.push_back(L.array[k++]);
+            row.array.push_back(L.array[k++]);
          }
+         ret.array.push_back(std::move(row));
       }
   return ret;
 }

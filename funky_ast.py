@@ -83,7 +83,7 @@ def check_symbol_definition(funk, arg):
         return #arg.check_undefined_variables_in_scope()
 
     # ignore automatic variables
-    if re.match('anon_\d+', arg.name) or arg.name == 'etc':
+    if re.match(r'anon_\d+', arg.name) or arg.name == 'etc':
         return
 
     clause = funk.function_scope.current_function_clause
@@ -1205,6 +1205,119 @@ class FunctionMap:
         TData {function_name}(std::vector<TData> &);
         """.format(function_name=name)
 
+    def _i32_op_symbol(self, expr):
+        if isinstance(expr, Sum):
+            return '+'
+        if isinstance(expr, Sub):
+            return '-'
+        if isinstance(expr, Mul):
+            return '*'
+        if isinstance(expr, Div):
+            return '/'
+        if isinstance(expr, Mod):
+            return '%'
+        return None
+
+    def _i32_expr_to_cpp(self, expr, arg_pos_by_name, helper_name):
+        if isinstance(expr, IntegerConstant):
+            return str(expr.eval())
+        if isinstance(expr, Identifier):
+            if expr.name in arg_pos_by_name:
+                return 'arg{idx}'.format(idx=arg_pos_by_name[expr.name])
+            return None
+        if isinstance(expr, FunctionCall):
+            if expr.name != self.name or expr.args is None:
+                return None
+            if len(expr.args) != len(arg_pos_by_name):
+                return None
+            rendered_args = []
+            for a in expr.args:
+                cpp = self._i32_expr_to_cpp(a, arg_pos_by_name, helper_name)
+                if cpp is None:
+                    return None
+                rendered_args.append(cpp)
+            return '{helper}({args})'.format(helper=helper_name, args=', '.join(rendered_args))
+
+        op = self._i32_op_symbol(expr)
+        if op is not None:
+            lhs = self._i32_expr_to_cpp(expr.left, arg_pos_by_name, helper_name)
+            rhs = self._i32_expr_to_cpp(expr.right, arg_pos_by_name, helper_name)
+            if lhs is None or rhs is None:
+                return None
+            return '({lhs} {op} {rhs})'.format(lhs=lhs, op=op, rhs=rhs)
+
+        return None
+
+    def _build_i32_lowering(self):
+        if self.name == 'main':
+            return None
+        if not getattr(self.funk, 'enable_i32_lowering', False):
+            return None
+        if len(self.clauses) == 0:
+            return None
+
+        arity = self.clauses[0].arity
+        if arity <= 0:
+            return None
+        for clause in self.clauses:
+            if clause.arity != arity or not clause.check_arity or clause.fill_etc:
+                return None
+            if clause.preconditions is not None or len(clause.tail_pairs) > 0:
+                return None
+            if len(clause.body) != 1:
+                return None
+
+        arg_pos_by_name = {}
+        for clause in self.clauses:
+            for arg in clause.arguments:
+                if arg['val'] == '_':
+                    continue
+                if arg['val'] in arg_pos_by_name and arg_pos_by_name[arg['val']] != arg['pos']:
+                    return None
+                arg_pos_by_name[arg['val']] = arg['pos']
+        if len(arg_pos_by_name) == 0:
+            return None
+
+        helper_name = '__funk_i32_{name}_{arity}'.format(name=self.name, arity=arity)
+        helper_args = ', '.join('std::int32_t arg{idx}'.format(idx=i) for i in range(arity))
+        lines = ['static std::int32_t {name}({args}) {{'.format(name=helper_name, args=helper_args)]
+
+        for clause in self.clauses:
+            conds = []
+            if clause.pattern_matches is not None:
+                for pm in [p['val'] for p in clause.pattern_matches]:
+                    if not isinstance(pm, PatternMatchLiteral) or pm.type != funky_types.int:
+                        return None
+                    conds.append('arg{idx} == {val}'.format(idx=pm.position, val=pm.value))
+
+            expr_cpp = self._i32_expr_to_cpp(clause.body[-1], arg_pos_by_name, helper_name)
+            if expr_cpp is None:
+                return None
+
+            if len(conds) == 0:
+                lines.append('    return {expr};'.format(expr=expr_cpp))
+            else:
+                lines.append('    if ({conds}) return {expr};'.format(conds=' && '.join(conds), expr=expr_cpp))
+
+        lines.append('    std::fprintf(stderr, "No i32 overload for function {name}\\n");'.format(name=self.name))
+        lines.append('    std::exit(1);')
+        lines.append('}')
+
+        guard = """
+        if (argument_list.size() == {arity}{types_check}) {{
+            __retval__ = TData({helper_name}({arg_list}));
+            return __retval__;
+        }}
+        """.format(
+            arity=arity,
+            types_check=''.join(
+                ' && argument_list[{i}].type == funky_type::i32'.format(i=i) for i in range(arity)
+            ),
+            helper_name=helper_name,
+            arg_list=', '.join('argument_list[{i}].i32'.format(i=i) for i in range(arity)),
+        )
+        return {'helper_code': '\n'.join(lines) + '\n', 'guard_code': guard}
+
     def emit_main(self):
         if len(self.clauses) != 1:
             raise Exception('-E- \'emit_main\' Internal error')
@@ -1236,6 +1349,12 @@ class FunctionMap:
         """
 
     def emit_function(self):
+        i32_lowering = self._build_i32_lowering()
+        if i32_lowering is not None:
+            self.clauses[0].funk.emitter.code += """
+                {helper_code}
+            """.format(helper_code=i32_lowering['helper_code'])
+
         has_tail_recursion = any([insn.name == self.name and isinstance(insn, FunctionCall) for insn in
                                   [clause.body[-1] for clause in self.clauses]])
 
@@ -1243,8 +1362,8 @@ class FunctionMap:
             self.clauses[0].funk.emitter.code += """
 
                 TData {fn_name}(std::vector<TData> & original_argument_list) {{
-                    // copy for tail recursion
-                    std::vector<TData> argument_list = original_argument_list;
+                    // move into local storage for tail recursion rewrites
+                    std::vector<TData> argument_list = std::move(original_argument_list);
                     TData __retval__(funky_type::invalid);
                     label_function_start:
                     """.format(fn_name=self.name)
@@ -1253,6 +1372,9 @@ class FunctionMap:
                 TData {fn_name}(std::vector<TData> & argument_list) {{
                     TData __retval__(funky_type::invalid);
         """.format(fn_name=self.name)
+
+        if i32_lowering is not None:
+            self.clauses[0].funk.emitter.code += i32_lowering['guard_code']
 
         for clause_index, clause in enumerate(self.clauses):
 

@@ -9,8 +9,6 @@ from .funky_ast import check_symbol_definition, create_ast_anon_symbol
 
 
 def _maybe_move(name):
-    if re.match(r'^anon_\\d+$', str(name)):
-        return f'std::move({name})'
     return str(name)
 
 
@@ -48,16 +46,16 @@ def list_concat_head_opt(funk, left, right, result=None):
     L = left.eval()
     R = right.eval()
     R_val = _maybe_move(R)
-
+    result_init = "{ref} {result}".format(ref=ref, result=result) if ref != '' else "{result}".format(result=result)
     funk.emitter.code += """
-    {ref} {result} = {R_val};
+    {result_init} = {R_val};
     if ({result}.array.size() + 1 <= 8) {{
         {result}.array.insert({result}.array.begin(), {L});
     }} else {{
         {result}.array.reserve({result}.array.size() + 1);
         {result}.array.insert({result}.array.begin(), {L});
     }}
-    """.format(ref=ref, result=result, L=L, R_val=R_val)
+    """.format(result=result, result_init=result_init, L=L, R_val=R_val)
 
     return result
 
@@ -155,13 +153,11 @@ class ListUnion(funky_ast.ListUnion):
             TData {anon_l} = {L_val};
             TData {anon_r} = {R_val};
             if ({anon_l}.type != funky_type::array) {{
-                const std::vector<TData> tmp = {{ {L} }};
-                {anon_l} = TData(tmp);
+                {anon_l} = TData(std::vector<TData>{{ {L} }});
             }}
 
            if ({anon_r}.type != funky_type::array) {{
-                const std::vector<TData> tmp = {{ {R} }};
-                {anon_r} = TData(tmp);
+                {anon_r} = TData(std::vector<TData>{{ {R} }});
             }}
 
             {ref} {result} = std::move({anon_l});
@@ -228,28 +224,24 @@ class FunctionCall(funky_ast.FunctionCall):
                 return result
             if len(args_list) == 1 and 'etc' not in arguments:
                 self.funk.emitter.code += """
-            {ref} {result} = funky::call1({name}.fn, {arg0});
-            """.format(ref=ref, name=name, result=result, arg0=_maybe_move(args_list[0]))
+            {ref} {result} = funky::call1_i32_fast({name}.fn, {arg0});
+            """.format(ref=ref, name=name, result=result, arg0=args_list[0])
                 return result
             if len(args_list) == 2 and 'etc' not in arguments:
                 self.funk.emitter.code += """
-            {ref} {result} = funky::call2({name}.fn, {arg0}, {arg1});
-            """.format(ref=ref, name=name, result=result,
-                       arg0=_maybe_move(args_list[0]), arg1=_maybe_move(args_list[1]))
+            {ref} {result} = funky::call2_i32_fast({name}.fn, {arg0}, {arg1});
+            """.format(ref=ref, name=name, result=result, arg0=args_list[0], arg1=args_list[1])
                 return result
             if len(args_list) == 3 and 'etc' not in arguments:
                 self.funk.emitter.code += """
             {ref} {result} = funky::call3({name}.fn, {arg0}, {arg1}, {arg2});
-            """.format(ref=ref, name=name, result=result,
-                       arg0=_maybe_move(args_list[0]), arg1=_maybe_move(args_list[1]),
-                       arg2=_maybe_move(args_list[2]))
+            """.format(ref=ref, name=name, result=result, arg0=args_list[0], arg1=args_list[1], arg2=args_list[2])
                 return result
             if len(args_list) == 4 and 'etc' not in arguments:
                 self.funk.emitter.code += """
             {ref} {result} = funky::call4({name}.fn, {arg0}, {arg1}, {arg2}, {arg3});
             """.format(ref=ref, name=name, result=result,
-                       arg0=_maybe_move(args_list[0]), arg1=_maybe_move(args_list[1]),
-                       arg2=_maybe_move(args_list[2]), arg3=_maybe_move(args_list[3]))
+                       arg0=args_list[0], arg1=args_list[1], arg2=args_list[2], arg3=args_list[3])
                 return result
 
             anon = self.funk.emitter.create_anon()
@@ -260,7 +252,7 @@ class FunctionCall(funky_ast.FunctionCall):
             for arg in args_list:
                 self.funk.emitter.code += """
             {anon}.emplace_back({arg});
-            """.format(anon=anon, arg=_maybe_move(arg))
+            """.format(anon=anon, arg=arg)
 
             self.funk.emitter.code += """
             {ref} {result} = {name}.fn({anon});
@@ -268,7 +260,6 @@ class FunctionCall(funky_ast.FunctionCall):
             return result
 
         if name in self.funk.functions or '@{}'.format(name) in self.funk.functions:
-            # fast path for global functions with 1 or 2 args (no etc)
             args_list = [a for a in arguments if a != 'etc']
             if len(args_list) == 0 and 'etc' not in arguments:
                 if result is None:
@@ -283,17 +274,16 @@ class FunctionCall(funky_ast.FunctionCall):
                     result = self.funk.emitter.create_anon()
                     self.funk.emitter.code += "TData {result};".format(result=result)
                 self.funk.emitter.code += """
-            {result} = funky::call1(&funky::{name}, {arg0});
-            """.format(result=result, name=name, arg0=_maybe_move(args_list[0]))
+            {result} = funky::call1_i32_fast(&funky::{name}, {arg0});
+            """.format(result=result, name=name, arg0=args_list[0])
                 return result
             if len(args_list) == 2 and 'etc' not in arguments:
                 if result is None:
                     result = self.funk.emitter.create_anon()
                     self.funk.emitter.code += "TData {result};".format(result=result)
                 self.funk.emitter.code += """
-            {result} = funky::call2(&funky::{name}, {arg0}, {arg1});
-            """.format(result=result, name=name,
-                       arg0=_maybe_move(args_list[0]), arg1=_maybe_move(args_list[1]))
+            {result} = funky::call2_i32_fast(&funky::{name}, {arg0}, {arg1});
+            """.format(result=result, name=name, arg0=args_list[0], arg1=args_list[1])
                 return result
             if len(args_list) == 3 and 'etc' not in arguments:
                 if result is None:
@@ -301,9 +291,7 @@ class FunctionCall(funky_ast.FunctionCall):
                     self.funk.emitter.code += "TData {result};".format(result=result)
                 self.funk.emitter.code += """
             {result} = funky::call3(&funky::{name}, {arg0}, {arg1}, {arg2});
-            """.format(result=result, name=name,
-                       arg0=_maybe_move(args_list[0]), arg1=_maybe_move(args_list[1]),
-                       arg2=_maybe_move(args_list[2]))
+            """.format(result=result, name=name, arg0=args_list[0], arg1=args_list[1], arg2=args_list[2])
                 return result
             if len(args_list) == 4 and 'etc' not in arguments:
                 if result is None:
@@ -312,8 +300,7 @@ class FunctionCall(funky_ast.FunctionCall):
                 self.funk.emitter.code += """
             {result} = funky::call4(&funky::{name}, {arg0}, {arg1}, {arg2}, {arg3});
             """.format(result=result, name=name,
-                       arg0=_maybe_move(args_list[0]), arg1=_maybe_move(args_list[1]),
-                       arg2=_maybe_move(args_list[2]), arg3=_maybe_move(args_list[3]))
+                       arg0=args_list[0], arg1=args_list[1], arg2=args_list[2], arg3=args_list[3])
                 return result
             return self.funk.emitter.call_function(name, arguments, result=result)
 

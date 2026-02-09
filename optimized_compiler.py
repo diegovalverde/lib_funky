@@ -15,7 +15,8 @@ class OptimizedFunk(Funk):
         super().__init__(ll1_path=ll1_path,
                          debug=debug,
                          emitter_class=OptimizedEmitter,
-                         c_model_header='funk_c_model_opt.h')
+                         c_model_header='funk_c_model_opt.h',
+                         enable_i32_lowering=False)
 
         # Patch AST classes to move-aware optimized versions
         funky_ast.Sum = optimized_ast.Sum
@@ -38,3 +39,9 @@ class OptimizedFunk(Funk):
         funky_ast.Len = optimized_sys_ast.Len
         funky_ast.Flatten = optimized_sys_ast.Flatten
         funky_ast.FunkSum = optimized_sys_ast.FunkSum
+
+
+class OptimizedFunkI32(OptimizedFunk):
+    def __init__(self, ll1_path=None, debug=False):
+        super().__init__(ll1_path=ll1_path, debug=debug)
+        self.enable_i32_lowering = True

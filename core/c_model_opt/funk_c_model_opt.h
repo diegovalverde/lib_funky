@@ -246,54 +246,57 @@ inline ArgStack &arg_stack() {
     return stack;
 }
 
+template <typename... Args>
+inline TData calln(TData (*fn)(std::vector<TData> &), Args&&... args) {
+    std::vector<TData> v;
+    v.reserve(sizeof...(Args));
+    (v.emplace_back(std::forward<Args>(args)), ...);
+    return fn(v);
+}
+
 inline TData call0(TData (*fn)(std::vector<TData> &)) {
-    auto &stack = arg_stack();
-    auto &v = stack.get(0);
-    TData res = fn(v);
-    stack.pop();
-    return res;
+    return calln(fn);
 }
 
 inline TData call1(TData (*fn)(std::vector<TData> &), const TData &a) {
-    auto &stack = arg_stack();
-    auto &v = stack.get(1);
-    v.emplace_back(a);
-    TData res = fn(v);
-    stack.pop();
-    return res;
+    return calln(fn, a);
 }
 
 inline TData call2(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b) {
-    auto &stack = arg_stack();
-    auto &v = stack.get(2);
-    v.emplace_back(a);
-    v.emplace_back(b);
-    TData res = fn(v);
-    stack.pop();
-    return res;
+    return calln(fn, a, b);
 }
 
 inline TData call3(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b, const TData &c) {
-    auto &stack = arg_stack();
-    auto &v = stack.get(3);
-    v.emplace_back(a);
-    v.emplace_back(b);
-    v.emplace_back(c);
-    TData res = fn(v);
-    stack.pop();
-    return res;
+    return calln(fn, a, b, c);
 }
 
 inline TData call4(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b, const TData &c, const TData &d) {
-    auto &stack = arg_stack();
-    auto &v = stack.get(4);
-    v.emplace_back(a);
-    v.emplace_back(b);
-    v.emplace_back(c);
-    v.emplace_back(d);
-    TData res = fn(v);
-    stack.pop();
-    return res;
+    return calln(fn, a, b, c, d);
+}
+
+inline TData call1_i32_fast(TData (*fn)(std::vector<TData> &), const TData &a) {
+#ifdef FUNK_I32_FASTPATH
+    if (a.type == funky_type::i32) {
+        std::vector<TData> v;
+        v.reserve(1);
+        v.emplace_back(a.i32);
+        return fn(v);
+    }
+#endif
+    return call1(fn, a);
+}
+
+inline TData call2_i32_fast(TData (*fn)(std::vector<TData> &), const TData &a, const TData &b) {
+#ifdef FUNK_I32_FASTPATH
+    if (a.type == funky_type::i32 && b.type == funky_type::i32) {
+        std::vector<TData> v;
+        v.reserve(2);
+        v.emplace_back(a.i32);
+        v.emplace_back(b.i32);
+        return fn(v);
+    }
+#endif
+    return call2(fn, a, b);
 }
 }
 #endif
