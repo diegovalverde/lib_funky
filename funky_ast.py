@@ -1454,6 +1454,403 @@ class FunctionMap:
         )
         return {'helper_code': '\n'.join(lines) + '\n', 'guard_code': guard}
 
+    def _d64_literal_cpp(self, value):
+        return repr(float(value))
+
+    def _d64_expr_to_cpp(self, expr, arg_pos_by_name, helper_name_by_fn, allow_calls_set):
+        if isinstance(expr, DoubleConstant):
+            return self._d64_literal_cpp(expr.eval())
+        if isinstance(expr, IntegerConstant):
+            return 'static_cast<double>({val})'.format(val=expr.eval())
+        if isinstance(expr, Identifier):
+            if expr.name in arg_pos_by_name:
+                return 'arg{idx}'.format(idx=arg_pos_by_name[expr.name])
+            return None
+        if isinstance(expr, FunctionCall):
+            if expr.args is None:
+                return None
+            callee = expr.name
+            if callee not in allow_calls_set:
+                return None
+            helper_name = helper_name_by_fn.get(callee)
+            if helper_name is None:
+                return None
+            callee_map = getattr(self.funk, 'function_map', {}).get(callee)
+            if callee_map is None or len(callee_map.clauses) == 0:
+                return None
+            if len(expr.args) != callee_map.clauses[0].arity:
+                return None
+            rendered_args = []
+            for a in expr.args:
+                cpp = self._d64_expr_to_cpp(a, arg_pos_by_name, helper_name_by_fn, allow_calls_set)
+                if cpp is None:
+                    return None
+                rendered_args.append(cpp)
+            return '{helper}({args})'.format(helper=helper_name, args=', '.join(rendered_args))
+
+        op = self._i32_op_symbol(expr)
+        if op is not None:
+            if op == '%':
+                return None
+            lhs = self._d64_expr_to_cpp(expr.left, arg_pos_by_name, helper_name_by_fn, allow_calls_set)
+            rhs = self._d64_expr_to_cpp(expr.right, arg_pos_by_name, helper_name_by_fn, allow_calls_set)
+            if lhs is None or rhs is None:
+                return None
+            return '({lhs} {op} {rhs})'.format(lhs=lhs, op=op, rhs=rhs)
+
+        return None
+
+    def _d64_structural_ok(self):
+        if self.name == 'main':
+            return False
+        if len(self.clauses) == 0:
+            return False
+        arity = self.clauses[0].arity
+        if arity <= 0:
+            return False
+        for clause in self.clauses:
+            if clause.arity != arity or not clause.check_arity or clause.fill_etc:
+                return False
+            if len(clause.tail_pairs) > 0:
+                return False
+            if len(clause.body) != 1:
+                return False
+            if clause.pattern_matches is not None:
+                for pm in [p['val'] for p in clause.pattern_matches]:
+                    if not isinstance(pm, PatternMatchLiteral):
+                        return False
+                    if pm.type not in (funky_types.int, funky_types.double):
+                        return False
+        arg_pos_by_name = self._i32_arg_pos_by_name()
+        if arg_pos_by_name is None or len(arg_pos_by_name) == 0:
+            return False
+        return True
+
+    def _d64_helper_name(self):
+        arity = self.clauses[0].arity
+        return '__funk_d64_{name}_{arity}'.format(name=self.name, arity=arity)
+
+    def _compute_d64_lowerable_registry(self):
+        cache = getattr(self.funk, '_d64_lowering_registry', None)
+        if cache is not None:
+            return cache
+
+        fn_map = getattr(self.funk, 'function_map', {})
+        structural = {name for name, fmap in fn_map.items() if fmap._d64_structural_ok()}
+        lowerable = set(structural)
+
+        changed = True
+        while changed:
+            changed = False
+            helper_name_by_fn = {name: fn_map[name]._d64_helper_name() for name in lowerable}
+            for name in list(lowerable):
+                fmap = fn_map[name]
+                arg_pos_by_name = fmap._i32_arg_pos_by_name()
+                if arg_pos_by_name is None or len(arg_pos_by_name) == 0:
+                    lowerable.remove(name)
+                    changed = True
+                    continue
+                ok = True
+                for clause in fmap.clauses:
+                    exprs = []
+                    if clause.preconditions is not None:
+                        exprs.append(clause.preconditions)
+                    exprs.append(clause.body[-1])
+                    for expr in exprs:
+                        cpp = fmap._d64_expr_to_cpp(expr, arg_pos_by_name, helper_name_by_fn, lowerable)
+                        if cpp is None:
+                            ok = False
+                            break
+                    if not ok:
+                        break
+                if not ok:
+                    lowerable.remove(name)
+                    changed = True
+
+        helper_name_by_fn = {name: fn_map[name]._d64_helper_name() for name in lowerable}
+        registry = {
+            'lowerable': lowerable,
+            'helper_name_by_fn': helper_name_by_fn,
+        }
+        self.funk._d64_lowering_registry = registry
+        return registry
+
+    def _build_d64_lowering(self):
+        if self.name == 'main':
+            return None
+        if not getattr(self.funk, 'enable_d64_lowering', False):
+            return None
+        if len(self.clauses) == 0:
+            return None
+
+        registry = self._compute_d64_lowerable_registry()
+        if self.name not in registry['lowerable']:
+            return None
+
+        arity = self.clauses[0].arity
+        arg_pos_by_name = self._i32_arg_pos_by_name()
+        helper_name_by_fn = registry['helper_name_by_fn']
+        helper_name = helper_name_by_fn[self.name]
+        helper_args = ', '.join('double arg{idx}'.format(idx=i) for i in range(arity))
+        lines = []
+
+        called_helpers = set()
+        for clause in self.clauses:
+            exprs = [clause.body[-1]]
+            if clause.preconditions is not None:
+                exprs.append(clause.preconditions)
+            for expr in exprs:
+                stack = [expr]
+                while len(stack) > 0:
+                    node = stack.pop()
+                    if isinstance(node, FunctionCall):
+                        callee = node.name
+                        if callee != self.name and callee in helper_name_by_fn:
+                            called_helpers.add(callee)
+                        if node.args is not None:
+                            stack.extend([a for a in node.args if a is not None])
+                    else:
+                        if hasattr(node, 'left') and node.left is not None:
+                            stack.append(node.left)
+                        if hasattr(node, 'right') and node.right is not None:
+                            stack.append(node.right)
+        for callee in sorted(called_helpers):
+            callee_arity = self.funk.function_map[callee].clauses[0].arity
+            callee_args = ', '.join('double arg{idx}'.format(idx=i) for i in range(callee_arity))
+            lines.append('static double {name}({args});'.format(name=helper_name_by_fn[callee], args=callee_args))
+        lines.append('static double {name}({args}) {{'.format(name=helper_name, args=helper_args))
+
+        for clause in self.clauses:
+            conds = []
+            if clause.pattern_matches is not None:
+                for pm in [p['val'] for p in clause.pattern_matches]:
+                    if not isinstance(pm, PatternMatchLiteral):
+                        return None
+                    if pm.type == funky_types.int:
+                        conds.append(
+                            'arg{idx} == static_cast<double>({val})'.format(idx=pm.position, val=pm.value)
+                        )
+                    elif pm.type == funky_types.double:
+                        conds.append(
+                            'arg{idx} == {val}'.format(idx=pm.position, val=self._d64_literal_cpp(pm.value))
+                        )
+                    else:
+                        return None
+
+            if clause.preconditions is not None:
+                guard_cpp = self._d64_expr_to_cpp(
+                    clause.preconditions, arg_pos_by_name, helper_name_by_fn, registry['lowerable']
+                )
+                if guard_cpp is None:
+                    return None
+                conds.append('({guard})'.format(guard=guard_cpp))
+
+            expr_cpp = self._d64_expr_to_cpp(
+                clause.body[-1], arg_pos_by_name, helper_name_by_fn, registry['lowerable']
+            )
+            if expr_cpp is None:
+                return None
+
+            if len(conds) == 0:
+                lines.append('    return {expr};'.format(expr=expr_cpp))
+            else:
+                lines.append('    if ({conds}) return {expr};'.format(conds=' && '.join(conds), expr=expr_cpp))
+
+        lines.append('    std::fprintf(stderr, "No d64 overload for function {name}\\n");'.format(name=self.name))
+        lines.append('    std::exit(1);')
+        lines.append('}')
+
+        guard = """
+        if (argument_list.size() == {arity}{types_check}) {{
+            __retval__ = TData({helper_name}({arg_list}));
+            return __retval__;
+        }}
+        """.format(
+            arity=arity,
+            types_check=''.join(
+                ' && argument_list[{i}].type == funky_type::d64'.format(i=i) for i in range(arity)
+            ),
+            helper_name=helper_name,
+            arg_list=', '.join('argument_list[{i}].d64'.format(i=i) for i in range(arity)),
+        )
+        return {'helper_code': '\n'.join(lines) + '\n', 'guard_code': guard}
+
+    def _d64_array_tailrec_expr_to_cpp(self, expr, scalar_pos_by_name, head_to_array_name):
+        if isinstance(expr, DoubleConstant):
+            return self._d64_literal_cpp(expr.eval())
+        if isinstance(expr, IntegerConstant):
+            return 'static_cast<double>({val})'.format(val=expr.eval())
+        if isinstance(expr, Identifier):
+            if expr.name in scalar_pos_by_name:
+                return 'arg{idx}'.format(idx=scalar_pos_by_name[expr.name])
+            if expr.name in head_to_array_name:
+                arr_name = head_to_array_name[expr.name]
+                return '{arr}.array[idx].d64'.format(arr=arr_name)
+            return None
+
+        op = self._i32_op_symbol(expr)
+        if op is not None:
+            if op == '%':
+                return None
+            lhs = self._d64_array_tailrec_expr_to_cpp(expr.left, scalar_pos_by_name, head_to_array_name)
+            rhs = self._d64_array_tailrec_expr_to_cpp(expr.right, scalar_pos_by_name, head_to_array_name)
+            if lhs is None or rhs is None:
+                return None
+            return '({lhs} {op} {rhs})'.format(lhs=lhs, op=op, rhs=rhs)
+        return None
+
+    def _build_d64_array_tailrec_lowering(self):
+        if self.name == 'main':
+            return None
+        if not getattr(self.funk, 'enable_d64_lowering', False):
+            return None
+        if len(self.clauses) != 2:
+            return None
+        if len(self.clauses[0].body) != 1 or len(self.clauses[1].body) != 1:
+            return None
+
+        arity = self.clauses[0].arity
+        if arity <= 0 or self.clauses[1].arity != arity:
+            return None
+
+        # Find recursive clause: must end in self tail call and have list head/tail destructuring.
+        recursive_clause = None
+        base_clause = None
+        for clause in self.clauses:
+            insn = clause.body[-1]
+            is_tail_self = isinstance(insn, FunctionCall) and insn.name == self.name and len(insn.args) == arity
+            if is_tail_self and len(clause.tail_pairs) > 0:
+                recursive_clause = clause
+            else:
+                base_clause = clause
+        if recursive_clause is None or base_clause is None:
+            return None
+
+        # Map list argument positions by matching head variable names.
+        list_pos_to_head_tail = {}
+        for tail_pair in recursive_clause.tail_pairs:
+            head_name = tail_pair['head']
+            tail_name = tail_pair['tail']
+            pos = None
+            for argument in recursive_clause.arguments:
+                if argument['val'] == head_name:
+                    pos = argument['pos']
+                    break
+            if pos is None:
+                return None
+            list_pos_to_head_tail[pos] = (head_name, tail_name)
+        if len(list_pos_to_head_tail) == 0:
+            return None
+
+        # Base clause must pattern-match all list positions as empty lists.
+        if base_clause.pattern_matches is None:
+            return None
+        empty_positions = set()
+        for pm in [p['val'] for p in base_clause.pattern_matches]:
+            if isinstance(pm, PatternMatchEmptyList):
+                empty_positions.add(pm.position)
+        if set(list_pos_to_head_tail.keys()) != empty_positions:
+            return None
+
+        recursive_call = recursive_clause.body[-1]
+
+        # Recursive call list args must pass tail symbols directly.
+        for pos, (_, tail_name) in list_pos_to_head_tail.items():
+            arg = recursive_call.args[pos]
+            if not isinstance(arg, Identifier) or arg.name != tail_name:
+                return None
+
+        scalar_positions = [i for i in range(arity) if i not in list_pos_to_head_tail]
+        if len(scalar_positions) == 0:
+            return None
+
+        scalar_pos_by_name = {}
+        for argument in recursive_clause.arguments:
+            pos = argument['pos']
+            name = argument['val']
+            if pos in scalar_positions and name != '_':
+                scalar_pos_by_name[name] = pos
+        if len(scalar_pos_by_name) == 0:
+            return None
+
+        # Build mapping from head symbol to array argument alias used in helper.
+        head_to_array_name = {}
+        for pos, (head_name, _) in list_pos_to_head_tail.items():
+            head_to_array_name[head_name] = 'arr{idx}'.format(idx=pos)
+
+        # Precondition support for loop clause is intentionally conservative.
+        if recursive_clause.preconditions is not None:
+            return None
+
+        # Build scalar updates for each loop iteration from recursive tail call args.
+        update_expr_by_pos = {}
+        for pos in scalar_positions:
+            cpp = self._d64_array_tailrec_expr_to_cpp(
+                recursive_call.args[pos], scalar_pos_by_name, head_to_array_name
+            )
+            if cpp is None:
+                return None
+            update_expr_by_pos[pos] = cpp
+
+        # Build final expression (base clause return) using final scalar values.
+        base_expr_cpp = self._d64_array_tailrec_expr_to_cpp(
+            base_clause.body[-1], scalar_pos_by_name, {}
+        )
+        if base_expr_cpp is None:
+            return None
+
+        helper_name = '__funk_d64_arrtail_{name}_{arity}'.format(name=self.name, arity=arity)
+        helper_args = ', '.join('const TData &a{idx}'.format(idx=i) for i in range(arity))
+
+        lines = []
+        lines.append('static double {name}({args}) {{'.format(name=helper_name, args=helper_args))
+        list_positions_sorted = sorted(list_pos_to_head_tail.keys())
+        for pos in list_positions_sorted:
+            lines.append('    const TData &arr{idx} = a{idx};'.format(idx=pos))
+        if len(list_positions_sorted) > 0:
+            first_pos = list_positions_sorted[0]
+            lines.append('    const std::size_t n = arr{idx}.array.size();'.format(idx=first_pos))
+            for pos in list_positions_sorted[1:]:
+                lines.append('    if (arr{idx}.array.size() != n) {{'.format(idx=pos))
+                lines.append('        std::fprintf(stderr, "Mismatched list lengths in {name}\\n");'.format(name=self.name))
+                lines.append('        std::exit(1);')
+                lines.append('    }')
+
+        for pos in scalar_positions:
+            lines.append('    double arg{idx} = a{idx}.d64;'.format(idx=pos))
+
+        lines.append('    for (std::size_t idx = 0; idx < n; idx++) {')
+        for pos in scalar_positions:
+            lines.append('        const double next_arg{idx} = {expr};'.format(idx=pos, expr=update_expr_by_pos[pos]))
+        for pos in scalar_positions:
+            lines.append('        arg{idx} = next_arg{idx};'.format(idx=pos))
+        lines.append('    }')
+        lines.append('    return {expr};'.format(expr=base_expr_cpp))
+        lines.append('}')
+
+        list_type_checks = ''.join(
+            ' && argument_list[{i}].type == funky_type::array && funky::is_homogeneous_d64_array(argument_list[{i}])'.format(i=i)
+            for i in list_positions_sorted
+        )
+        scalar_type_checks = ''.join(
+            ' && argument_list[{i}].type == funky_type::d64'.format(i=i)
+            for i in scalar_positions
+        )
+        call_args = ', '.join('argument_list[{i}]'.format(i=i) for i in range(arity))
+        guard = """
+        if (argument_list.size() == {arity}{list_checks}{scalar_checks}) {{
+            __retval__ = TData({helper_name}({call_args}));
+            return __retval__;
+        }}
+        """.format(
+            arity=arity,
+            list_checks=list_type_checks,
+            scalar_checks=scalar_type_checks,
+            helper_name=helper_name,
+            call_args=call_args
+        )
+        return {'helper_code': '\n'.join(lines) + '\n', 'guard_code': guard}
+
     def emit_main(self):
         if len(self.clauses) != 1:
             raise Exception('-E- \'emit_main\' Internal error')
@@ -1485,11 +1882,21 @@ class FunctionMap:
         """
 
     def emit_function(self):
+        d64_array_tailrec_lowering = self._build_d64_array_tailrec_lowering()
         i32_lowering = self._build_i32_lowering()
+        d64_lowering = self._build_d64_lowering()
+        if d64_array_tailrec_lowering is not None:
+            self.clauses[0].funk.emitter.code += """
+                {helper_code}
+            """.format(helper_code=d64_array_tailrec_lowering['helper_code'])
         if i32_lowering is not None:
             self.clauses[0].funk.emitter.code += """
                 {helper_code}
             """.format(helper_code=i32_lowering['helper_code'])
+        if d64_lowering is not None:
+            self.clauses[0].funk.emitter.code += """
+                {helper_code}
+            """.format(helper_code=d64_lowering['helper_code'])
 
         has_tail_recursion = any([insn.name == self.name and isinstance(insn, FunctionCall) for insn in
                                   [clause.body[-1] for clause in self.clauses]])
@@ -1509,8 +1916,12 @@ class FunctionMap:
                     TData __retval__(funky_type::invalid);
         """.format(fn_name=self.name)
 
+        if d64_array_tailrec_lowering is not None:
+            self.clauses[0].funk.emitter.code += d64_array_tailrec_lowering['guard_code']
         if i32_lowering is not None:
             self.clauses[0].funk.emitter.code += i32_lowering['guard_code']
+        if d64_lowering is not None:
+            self.clauses[0].funk.emitter.code += d64_lowering['guard_code']
 
         for clause_index, clause in enumerate(self.clauses):
 
@@ -1596,7 +2007,7 @@ class FunctionMap:
             for argument in clause.arguments:
                 if argument['val'] != '_':
                     ref = ''
-                    if not last_insn_is_tail_recursive and len(clause.tail_pairs) == 0:
+                    if len(clause.tail_pairs) == 0:
                         ref = '&'
                     clause.funk.emitter.code += """
         TData {ref} {argument} = argument_list[{i}];   """.format(argument=argument['val'], i=argument['pos'], ref=ref)
@@ -1638,11 +2049,18 @@ class FunctionMap:
                 // tail recursion
 
                 """
+                next_args = []
                 for i, arg in enumerate(clause.body[-1].args):
-                    arg = arg.eval()
+                    next_arg = clause.funk.emitter.create_anon()
+                    clause.funk.emitter.code += """
+                TData {next_arg};
+                """.format(next_arg=next_arg)
+                    arg.eval(result=next_arg)
+                    next_args.append(next_arg)
+                for i, next_arg in enumerate(next_args):
                     clause.funk.emitter.code += """
                 argument_list[{i}] = {function_parameter};
-                """.format(i=i, function_parameter=arg)
+                """.format(i=i, function_parameter=next_arg)
                 clause.funk.emitter.code += """
                 goto label_function_start;
                 """

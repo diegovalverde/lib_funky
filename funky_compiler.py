@@ -41,12 +41,13 @@ class FunctionScope:
 
 class Funk:
     def __init__(self, ll1_path=None, debug=False, emitter_class=Emitter, c_model_header='funk_c_model.h',
-                 enable_i32_lowering=False):
+                 enable_i32_lowering=False, enable_d64_lowering=False):
 
         self.debug = debug
         self.forwarded_functions = []
         self.emitter_class = emitter_class
         self.enable_i32_lowering = enable_i32_lowering
+        self.enable_d64_lowering = enable_d64_lowering
         self.known_functions = set()
 
         if self.debug:

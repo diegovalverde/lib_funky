@@ -16,7 +16,8 @@ class OptimizedFunk(Funk):
                          debug=debug,
                          emitter_class=OptimizedEmitter,
                          c_model_header='funk_c_model_opt.h',
-                         enable_i32_lowering=False)
+                         enable_i32_lowering=True,
+                         enable_d64_lowering=True)
 
         # Patch AST classes to move-aware optimized versions
         funky_ast.Sum = optimized_ast.Sum
@@ -45,3 +46,5 @@ class OptimizedFunkI32(OptimizedFunk):
     def __init__(self, ll1_path=None, debug=False):
         super().__init__(ll1_path=ll1_path, debug=debug)
         self.enable_i32_lowering = True
+        # Keep explicit for clarity: cpp20_i32 remains typed-lowering enabled.
+        self.enable_d64_lowering = True

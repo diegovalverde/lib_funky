@@ -144,8 +144,10 @@ class ListUnion(funky_ast.ListUnion):
 
         anon_l = self.funk.emitter.create_anon()
         anon_r = self.funk.emitter.create_anon()
+        anon_fast = self.funk.emitter.create_anon()
         L_val = _maybe_move(L)
         R_val = _maybe_move(R)
+        result_init = "{ref} {result}".format(ref=ref, result=result) if ref != '' else "{result}".format(result=result)
 
         self.funk.emitter.code += """
             // List Union
@@ -160,16 +162,27 @@ class ListUnion(funky_ast.ListUnion):
                 {anon_r} = TData(std::vector<TData>{{ {R} }});
             }}
 
-            {ref} {result} = std::move({anon_l});
-            if ({result}.array.size() + {anon_r}.array.size() <= 8) {{
-                for (const auto &__e : {anon_r}.array) {{
-                    {result}.array.push_back(__e);
-                }}
+            // Try homogeneous numeric concatenation first (i32/d64),
+            // then fallback to the generic TData concatenation path.
+            {result_init} = TData(funky_type::invalid);
+            TData {anon_fast} = funky::concat_homogeneous_numeric_arrays({anon_l}, {anon_r});
+            if ({anon_fast}.type != funky_type::invalid) {{
+                {result} = std::move({anon_fast});
             }} else {{
-                {result}.array.reserve({result}.array.size() + {anon_r}.array.size());
-                {result}.array.insert({result}.array.end(), {anon_r}.array.begin(), {anon_r}.array.end());
+                {result} = std::move({anon_l});
+                if ({result}.array.size() + {anon_r}.array.size() <= 8) {{
+                    for (const auto &__e : {anon_r}.array) {{
+                        {result}.array.push_back(__e);
+                    }}
+                }} else {{
+                    {result}.array.reserve({result}.array.size() + {anon_r}.array.size());
+                    {result}.array.insert({result}.array.end(), {anon_r}.array.begin(), {anon_r}.array.end());
+                }}
             }}
-        """.format(result=result, L=L, R=R, ref=ref, anon_l=anon_l, anon_r=anon_r, L_val=L_val, R_val=R_val)
+        """.format(
+            result=result, L=L, R=R, ref=ref, anon_l=anon_l, anon_r=anon_r, anon_fast=anon_fast,
+            L_val=L_val, R_val=R_val, result_init=result_init
+        )
 
         return result
 

@@ -296,6 +296,19 @@ inline TData call1_i32_fast(TData (*fn)(std::vector<TData> &), const TData &a) {
             throw;
         }
     }
+    if (a.type == funky_type::d64) {
+        auto &stack = arg_stack();
+        auto &v = stack.get(1);
+        v.emplace_back(a.d64);
+        try {
+            TData ret = fn(v);
+            stack.pop();
+            return ret;
+        } catch (...) {
+            stack.pop();
+            throw;
+        }
+    }
 #endif
     return call1(fn, a);
 }
@@ -316,8 +329,68 @@ inline TData call2_i32_fast(TData (*fn)(std::vector<TData> &), const TData &a, c
             throw;
         }
     }
+    if (a.type == funky_type::d64 && b.type == funky_type::d64) {
+        auto &stack = arg_stack();
+        auto &v = stack.get(2);
+        v.emplace_back(a.d64);
+        v.emplace_back(b.d64);
+        try {
+            TData ret = fn(v);
+            stack.pop();
+            return ret;
+        } catch (...) {
+            stack.pop();
+            throw;
+        }
+    }
 #endif
     return call2(fn, a, b);
+}
+
+inline bool is_homogeneous_i32_array(const TData &a) {
+    if (a.type != funky_type::array) return false;
+    for (const auto &e : a.array) {
+        if (e.type != funky_type::i32) return false;
+    }
+    return true;
+}
+
+inline bool is_homogeneous_d64_array(const TData &a) {
+    if (a.type != funky_type::array) return false;
+    for (const auto &e : a.array) {
+        if (e.type != funky_type::d64) return false;
+    }
+    return true;
+}
+
+// Fast path for homogeneous numeric array concatenation.
+// This keeps semantics unchanged while avoiding generic TData copy paths.
+inline TData concat_homogeneous_numeric_arrays(const TData &a, const TData &b) {
+    if (a.type != funky_type::array || b.type != funky_type::array) {
+        return TData(funky_type::invalid);
+    }
+
+    const bool a_i32 = is_homogeneous_i32_array(a);
+    const bool b_i32 = is_homogeneous_i32_array(b);
+    if (a_i32 && b_i32) {
+        std::vector<TData> out;
+        out.reserve(a.array.size() + b.array.size());
+        for (const auto &e : a.array) out.emplace_back(e.i32);
+        for (const auto &e : b.array) out.emplace_back(e.i32);
+        return TData(std::move(out));
+    }
+
+    const bool a_d64 = is_homogeneous_d64_array(a);
+    const bool b_d64 = is_homogeneous_d64_array(b);
+    if (a_d64 && b_d64) {
+        std::vector<TData> out;
+        out.reserve(a.array.size() + b.array.size());
+        for (const auto &e : a.array) out.emplace_back(e.d64);
+        for (const auto &e : b.array) out.emplace_back(e.d64);
+        return TData(std::move(out));
+    }
+
+    return TData(funky_type::invalid);
 }
 }
 #endif

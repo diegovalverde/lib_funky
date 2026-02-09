@@ -90,6 +90,14 @@ OptStats::~OptStats() {
   std::fprintf(stderr, "array_elems_moved: %llu\n", array_elems_moved.load());
 }
 
+static inline bool is_numeric_type(const funky_type t) {
+  return t == funky_type::i32 || t == funky_type::d64;
+}
+
+static inline double as_d64(const TData &x) {
+  return (x.type == funky_type::d64) ? x.d64 : static_cast<double>(x.i32);
+}
+
 TData ArithOpDifferentType(const TData &a, const TData & b){ return TData(funky_type::invalid); }
 TData BoolOpEq(const TData &a, const TData & b){ return TData(0); }
 TData BoolOpNe(const TData &a, const TData & b){ return TData(1); }
@@ -108,7 +116,12 @@ BOOL_RETVAL(BoolNeRetVal, any_of)
 
 #define OPERATOR_ARITH(op, a, b) \
 TData operator op(const TData &a, const TData &b) {\
-    if (a.type != b.type) return ArithOpDifferentType(a,b); \
+    if (a.type != b.type) { \
+      if (is_numeric_type(a.type) && is_numeric_type(b.type)) { \
+        return TData(as_d64(a) op as_d64(b)); \
+      } \
+      return ArithOpDifferentType(a,b); \
+    } \
     switch (a.type) { \
     case funky_type::i32: return TData((std::int32_t) (a.i32 op b.i32)); \
     case funky_type::d64: return D64_DEFAULT(op); \
@@ -127,7 +140,12 @@ TData operator op(const TData &a, const TData &b) {\
 
 #define OPERATOR_BOOL(op, a, b, MismatchFn, RetFn) \
 TData operator op(const TData &a, const TData &b) {\
-    if (a.type != b.type) return MismatchFn(a,b); \
+    if (a.type != b.type) { \
+      if (is_numeric_type(a.type) && is_numeric_type(b.type)) { \
+        return TData((std::int32_t) (as_d64(a) op as_d64(b))); \
+      } \
+      return MismatchFn(a,b); \
+    } \
     switch (a.type) { \
     case funky_type::i32: return TData((std::int32_t) (a.i32 op b.i32)); \
     case funky_type::d64: return D64_BOOL(op); \
@@ -176,7 +194,16 @@ OPERATOR_BOOL(||,a,b, BoolOpEq, BoolEqRetVal)
 
 #define OPERATOR_MOVE_LR(op) \
 TData operator op(TData &&a, const TData &b) {\
-    if (a.type != b.type) return ArithOpDifferentType(a,b); \
+    if (a.type != b.type) { \
+      if (is_numeric_type(a.type) && is_numeric_type(b.type)) { \
+        const double lhs = as_d64(a); \
+        const double rhs = as_d64(b); \
+        a.type = funky_type::d64; \
+        a.d64 = lhs op rhs; \
+        return std::move(a); \
+      } \
+      return ArithOpDifferentType(a,b); \
+    } \
     switch (a.type) { \
     case funky_type::i32: a.i32 = (std::int32_t) (a.i32 op b.i32); return std::move(a); \
     case funky_type::d64: a.d64 = a.d64 op b.d64; return std::move(a); \
