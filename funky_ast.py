@@ -1239,6 +1239,24 @@ class FunctionMap:
             return '<='
         return None
 
+    def _strip_outer_parens(self, cpp_expr):
+        expr = cpp_expr.strip()
+        while len(expr) >= 2 and expr[0] == '(' and expr[-1] == ')':
+            depth = 0
+            fully_wrapped = True
+            for i, ch in enumerate(expr):
+                if ch == '(':
+                    depth += 1
+                elif ch == ')':
+                    depth -= 1
+                    if depth == 0 and i != len(expr) - 1:
+                        fully_wrapped = False
+                        break
+            if not fully_wrapped or depth != 0:
+                break
+            expr = expr[1:-1].strip()
+        return expr
+
     def _i32_expr_to_cpp(self, expr, arg_pos_by_name, helper_name_by_fn, allow_calls_set):
         if isinstance(expr, IntegerConstant):
             return str(expr.eval())
@@ -1422,7 +1440,7 @@ class FunctionMap:
                 )
                 if guard_cpp is None:
                     return None
-                conds.append('({guard})'.format(guard=guard_cpp))
+                conds.append(self._strip_outer_parens(guard_cpp))
 
             expr_cpp = self._i32_expr_to_cpp(
                 clause.body[-1], arg_pos_by_name, helper_name_by_fn, registry['lowerable']
@@ -1643,7 +1661,7 @@ class FunctionMap:
                 )
                 if guard_cpp is None:
                     return None
-                conds.append('({guard})'.format(guard=guard_cpp))
+                conds.append(self._strip_outer_parens(guard_cpp))
 
             expr_cpp = self._d64_expr_to_cpp(
                 clause.body[-1], arg_pos_by_name, helper_name_by_fn, registry['lowerable']
