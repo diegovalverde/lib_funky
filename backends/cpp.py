@@ -36,6 +36,12 @@ class CppBackend(Backend):
             return OptimizedFunkI32(debug=debug)
         return OptimizedFunk(debug=debug)
 
+    def _c_model_root(self):
+        # Resolve against repository source tree, not build dir depth.
+        return os.path.abspath(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "core", "c_model_opt")
+        )
+
     def compile_source(self, src_path, src_text, build_path, debug, exe_command, include_paths=None):
         funk = self._build_compiler(debug=debug)
         funk.compile(src_text)
@@ -53,16 +59,15 @@ class CppBackend(Backend):
             exe_command(cmd)
 
         cxx_std = "c++20"
-        c_model_dir = "c_model_opt"
+        c_model_root = self._c_model_root()
         extra_cxxflags = os.environ.get("FUNK_EXTRA_CXXFLAGS", "")
         cmd = (
             "clang++ -std={cxx_std} -g {extra_cxxflags} -c "
-            "-I{build_path}/../funk/core/{c_model_dir}/ "
+            "-I{c_model_root} "
             "{cpp_path} -o {object_path}"
         ).format(
-            build_path=build_path,
             cxx_std=cxx_std,
-            c_model_dir=c_model_dir,
+            c_model_root=c_model_root,
             extra_cxxflags=extra_cxxflags,
             cpp_path=cpp_path,
             object_path=object_path,
@@ -74,7 +79,7 @@ class CppBackend(Backend):
         additional_link_flags = ""
         cxx_std = "c++20"
         extra_cxxflags = os.environ.get("FUNK_EXTRA_CXXFLAGS", "")
-        c_model_dir = "c_model_opt"
+        c_model_root = self._c_model_root()
         c_model_cpp = "funk_c_model_opt.cpp"
         sdl_cpp = "sdl_simple.cpp"
 
@@ -85,14 +90,14 @@ class CppBackend(Backend):
                 additional_link_flags += " " + sdl_ldflags
             cmd = (
                 "clang++ -g -c -std={cxx_std} {extra_cxxflags} {sdl_cflags} "
-                "-I{build_path}/../funk/core/{c_model_dir}/ "
-                "{build_path}/../funk/core/{c_model_dir}/{sdl_cpp} "
+                "-I{c_model_root} "
+                "{c_model_root}/{sdl_cpp} "
                 "-o {build_path}/sdl_simple.o"
             ).format(
                 build_path=build_path,
+                c_model_root=c_model_root,
                 sdl_cflags=sdl_cflags,
                 cxx_std=cxx_std,
-                c_model_dir=c_model_dir,
                 sdl_cpp=sdl_cpp,
                 extra_cxxflags=extra_cxxflags,
             )
@@ -101,13 +106,13 @@ class CppBackend(Backend):
 
         cmd = (
             "clang++ -g -c -std={cxx_std} {extra_cxxflags} "
-            "-I{build_path}/../funk/core/{c_model_dir}/ "
-            "{build_path}/../funk/core/{c_model_dir}/{c_model_cpp} "
+            "-I{c_model_root} "
+            "{c_model_root}/{c_model_cpp} "
             "-o {build_path}/funk_c_model.o"
         ).format(
             build_path=build_path,
             cxx_std=cxx_std,
-            c_model_dir=c_model_dir,
+            c_model_root=c_model_root,
             c_model_cpp=c_model_cpp,
             extra_cxxflags=extra_cxxflags,
         )
@@ -118,14 +123,14 @@ class CppBackend(Backend):
         cmd = (
             "clang++ -std={cxx_std} -g {extra_cxxflags} {additional_link_flags} "
             "{objects} {build_path}/funk_c_model.o "
-            "-I{build_path}/../funk/core/{c_model_dir}/ -o {output}"
+            "-I{c_model_root} -o {output}"
         ).format(
             build_path=build_path,
             output=output,
             objects=" ".join(artifacts),
             additional_link_flags=additional_link_flags,
             cxx_std=cxx_std,
-            c_model_dir=c_model_dir,
+            c_model_root=c_model_root,
             extra_cxxflags=extra_cxxflags,
         )
         exe_command(cmd)
