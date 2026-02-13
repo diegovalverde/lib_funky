@@ -222,6 +222,12 @@ class BytecodeLowerer:
             if expr.args is None:
                 raise LoweringUnsupported("function call without args list is not supported")
             callee = expr.name
+            if callee == "len":
+                if len(expr.args) != 1:
+                    raise LoweringUnsupported("len expects exactly one argument")
+                self._lower_expr(code, locals_by_name, expr.args[0])
+                code.append(Instruction(op=OpCode.LEN))
+                return
             if callee in BUILTIN_ID_BY_CALL:
                 for arg in expr.args:
                     self._lower_expr(code, locals_by_name, arg)
