@@ -327,12 +327,16 @@ class Identifier:
 
                 is_range = 'true'
 
-                if isinstance(idx.left, IntegerConstant):
+                if idx.left is None:
+                    start = '0'
+                elif isinstance(idx.left, IntegerConstant):
                     start = '{}'.format(idx.left.eval())
                 else:
                     start = '{}.i32'.format(idx.left.eval())
 
-                if isinstance(idx.right, IntegerConstant):
+                if idx.right is None:
+                    end = '-1'
+                elif isinstance(idx.right, IntegerConstant):
                     end = '{}'.format(idx.right.eval())
                 else:
                     end = '{}.i32'.format(idx.right.eval())

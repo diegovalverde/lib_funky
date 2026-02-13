@@ -414,6 +414,10 @@ class TreeToAst(Transformer):
         return remove_invalid(flatten(token))
 
     @staticmethod
+    def index_elements(token):
+        return remove_invalid(flatten(token))
+
+    @staticmethod
     def list_initialization(token):
         return token[0]
 
@@ -423,6 +427,10 @@ class TreeToAst(Transformer):
 
     @staticmethod
     def more_list_elements(token):
+        return token
+
+    @staticmethod
+    def more_index_elements(token):
         return token
 
     @staticmethod
@@ -480,12 +488,35 @@ class TreeToAst(Transformer):
         tokens = remove_invalid(flatten(tokens))
 
         variable = tokens.pop(0)
-        if len(tokens) >= 2 and isinstance(tokens[1], funky_ast.Range) and tokens[1].left is None:
-            tokens[1].left = tokens[0]
-            tokens.pop(0)
-
         variable.indexes = tokens
         return variable
+
+    def action_index_range_tail(self, tokens):
+        tokens = remove_invalid(flatten(tokens))
+        if len(tokens) == 0:
+            return funky_ast.Range(self.funk, rhs=None)
+        return funky_ast.Range(self.funk, rhs=tokens[0])
+
+    def action_index_open_range(self, tokens):
+        tokens = remove_invalid(flatten(tokens))
+        if len(tokens) == 0:
+            return funky_ast.Range(self.funk, lhs=None, rhs=None)
+        return funky_ast.Range(self.funk, lhs=None, rhs=tokens[0])
+
+    @staticmethod
+    def action_comma_separated_index_element(tokens):
+        return tokens
+
+    def action_index_element(self, tokens):
+        tokens = remove_invalid(flatten(tokens))
+        if len(tokens) == 0:
+            return None
+        if len(tokens) == 1:
+            return tokens[0]
+        if len(tokens) == 2 and isinstance(tokens[1], funky_ast.Range):
+            tokens[1].left = tokens[0]
+            return tokens[1]
+        return tokens[0]
 
     def action_sign_negative(self, token):
         return -1

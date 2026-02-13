@@ -62,7 +62,16 @@
 
     factor: "(" expr ")"  | list  | number | function_call | string | indexed_array
 
-    indexed_array: identifier "[" expr [more_list_elements] "]" -> action_indexed_array
+    indexed_array: identifier "[" index_elements "]" -> action_indexed_array
+
+    index_elements: index_element [more_index_elements]
+
+    more_index_elements: "," [_NEWLINE] index_element [more_index_elements] -> action_comma_separated_index_element
+
+    index_element: expr [index_range_tail] -> action_index_element
+                 | ".." [expr] -> action_index_open_range
+
+    index_range_tail: ".." [expr] -> action_index_range_tail
 
 
     ///////////////////////////////////////////
@@ -184,4 +193,3 @@
     %ignore /\\[\t \f]*\r?\n/   // LINE_CONT
     %ignore COMMENT
     %declare _INDENT _DEDENT
-
