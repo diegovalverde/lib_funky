@@ -17,6 +17,12 @@ BUILTIN_ID_BY_OP = {
     "Or": 32,
 }
 
+BUILTIN_ID_BY_CALL = {
+    "say": 2,
+    "neg": 34,
+    "len": 36,
+}
+
 
 class LoweringUnsupported(Exception):
     pass
@@ -66,9 +72,6 @@ class BytecodeLowerer:
             raise LoweringUnsupported("pattern matches are not lowered yet")
         if len(clause.tail_pairs) > 0:
             raise LoweringUnsupported("head/tail patterns are not lowered yet")
-        if len(clause.body) != 1:
-            raise LoweringUnsupported("only single-expression bodies are lowered")
-
         locals_by_name = {}
         for arg in clause.arguments:
             arg_name = arg["val"]
@@ -78,8 +81,15 @@ class BytecodeLowerer:
                 raise LoweringUnsupported("duplicate argument names are not supported")
             locals_by_name[arg_name] = arg["pos"]
 
+        if len(clause.body) == 0:
+            raise LoweringUnsupported("empty function body")
+
         code = []
-        self._lower_expr(code, locals_by_name, clause.body[0])
+        next_local = clause.arity
+        for stmt in clause.body[:-1]:
+            next_local = self._lower_statement(code, locals_by_name, next_local, stmt)
+
+        self._lower_expr(code, locals_by_name, clause.body[-1])
         code.append(Instruction(op=OpCode.RETURN))
         return FunctionBytecode(
             name=name,
@@ -87,6 +97,25 @@ class BytecodeLowerer:
             captures=0,
             code=code,
         )
+
+    def _lower_statement(self, code, locals_by_name, next_local, stmt):
+        type_name = type(stmt).__name__
+        if type_name == "Assignment":
+            if type(stmt.left).__name__ != "Identifier":
+                raise LoweringUnsupported("only identifier assignment is lowered")
+            name = stmt.left.name
+            if name in locals_by_name:
+                raise LoweringUnsupported("reassignment is not lowered yet")
+            self._lower_expr(code, locals_by_name, stmt.right)
+            slot = next_local
+            next_local += 1
+            locals_by_name[name] = slot
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=slot))
+            return next_local
+
+        self._lower_expr(code, locals_by_name, stmt)
+        code.append(Instruction(op=OpCode.POP))
+        return next_local
 
     def _trap_function(self, name, fn_map, reason):
         arity = fn_map.clauses[0].arity if len(fn_map.clauses) > 0 else 0
@@ -133,6 +162,17 @@ class BytecodeLowerer:
             if expr.args is None:
                 raise LoweringUnsupported("function call without args list is not supported")
             callee = expr.name
+            if callee in BUILTIN_ID_BY_CALL:
+                for arg in expr.args:
+                    self._lower_expr(code, locals_by_name, arg)
+                code.append(
+                    Instruction(
+                        op=OpCode.CALL_BUILTIN,
+                        id=BUILTIN_ID_BY_CALL[callee],
+                        argc=len(expr.args),
+                    )
+                )
+                return
             if callee not in self.function_id:
                 raise LoweringUnsupported("call target '{}' not in current module".format(callee))
             for arg in expr.args:
@@ -144,6 +184,13 @@ class BytecodeLowerer:
                     argc=len(expr.args),
                 )
             )
+            return
+
+        if type_name == "String":
+            value = expr.fmt_str
+            if value.startswith('"') and value.endswith('"') and len(value) >= 2:
+                value = value[1:-1]
+            code.append(Instruction(op=OpCode.PUSH_STRING, arg=self._intern_string(value)))
             return
 
         raise LoweringUnsupported("expression '{}' is not lowered yet".format(type_name))
