@@ -27,6 +27,8 @@ BUILTIN_ID_BY_CALL = {
     "flatten": 39,
 }
 
+BUILTIN_ID_SLICE = 40
+
 
 class LoweringUnsupported(Exception):
     pass
@@ -202,9 +204,20 @@ class BytecodeLowerer:
                     if idx is None:
                         continue
                     if type(idx).__name__ == "Range":
-                        raise LoweringUnsupported("range indexing is not lowered yet")
-                    self._lower_expr(code, locals_by_name, idx)
-                    code.append(Instruction(op=OpCode.GET_INDEX))
+                        if idx.left is None or idx.right is None:
+                            raise LoweringUnsupported("open-ended range indexing is not lowered yet")
+                        self._lower_expr(code, locals_by_name, idx.left)
+                        self._lower_expr(code, locals_by_name, idx.right)
+                        code.append(
+                            Instruction(
+                                op=OpCode.CALL_BUILTIN,
+                                id=BUILTIN_ID_SLICE,
+                                argc=3,
+                            )
+                        )
+                    else:
+                        self._lower_expr(code, locals_by_name, idx)
+                        code.append(Instruction(op=OpCode.GET_INDEX))
             return
 
         if type_name in BUILTIN_ID_BY_OP:
