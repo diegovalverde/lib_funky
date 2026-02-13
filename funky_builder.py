@@ -112,16 +112,6 @@ def build(src_path, include_paths, build_path, debug, backend=BACKEND_OPTIMIZED)
         print(e.__str__())
 
 
-def src_is_newer(src_path, artifact_path):
-    if not os.path.exists(artifact_path):
-        return True
-
-    obj_time = os.path.getmtime(artifact_path)
-    src_time = os.path.getmtime(src_path)
-
-    return src_time > obj_time
-
-
 def find_dependencies(src_path, include_paths):
     if not os.path.isfile(src_path):
         src_path = os.path.join(os.getcwd(), src_path)
@@ -146,7 +136,7 @@ def compile_sources(src_path, include_paths, build_path, backend_impl, debug=Fal
     artifact_paths = []
     for src_file in source_files:
         artifact_path = backend_impl.artifact_path(build_path, src_file)
-        if src_is_newer(src_file, artifact_path):
+        if backend_impl.should_recompile(src_file, artifact_path):
             print('{} ... '.format(src_file), end='')
             artifact_path = compile_source(src_file, build_path=build_path, debug=debug, backend_impl=backend_impl)
             print('Done')

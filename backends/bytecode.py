@@ -9,6 +9,11 @@ class BytecodeBackend(Backend):
     name = "bytecode"
     artifact_extension = ".fkb.json"
 
+    def should_recompile(self, src_path, artifact_path):
+        # Bytecode lowering is evolving rapidly; always rebuild to avoid
+        # stale artifacts when backend logic changes independently of source mtimes.
+        return True
+
     def compile_source(self, src_path, src_text, build_path, debug, exe_command):
         # Reuse the existing front-end pipeline (parse + semantic checks),
         # then lower what we support and trap unsupported function bodies.

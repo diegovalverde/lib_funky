@@ -10,6 +10,11 @@ class Backend(ABC):
         file_base_name = os.path.splitext(os.path.basename(src_path))[0]
         return os.path.join(build_path, "{}{}".format(file_base_name, self.artifact_extension))
 
+    def should_recompile(self, src_path, artifact_path):
+        if not os.path.exists(artifact_path):
+            return True
+        return os.path.getmtime(src_path) > os.path.getmtime(artifact_path)
+
     @abstractmethod
     def compile_source(self, src_path, src_text, build_path, debug, exe_command):
         pass
