@@ -1,0 +1,157 @@
+from .model import DecodedBytecode, FunctionBytecode, Instruction, OpCode
+
+
+BUILTIN_ID_BY_OP = {
+    "Sum": 20,
+    "Sub": 21,
+    "Mul": 22,
+    "Div": 23,
+    "Mod": 24,
+    "EqualThan": 25,
+    "NotEqualThan": 26,
+    "LessThan": 27,
+    "LessOrEqualThan": 28,
+    "GreaterThan": 29,
+    "GreaterOrEqualThan": 30,
+    "And": 31,
+    "Or": 32,
+}
+
+
+class LoweringUnsupported(Exception):
+    pass
+
+
+class BytecodeLowerer:
+    def __init__(self, funk):
+        self.funk = funk
+        self.function_names = sorted(list(funk.function_map.keys()))
+        self.function_id = {name: idx for idx, name in enumerate(self.function_names)}
+        self.strings = []
+        self.string_id = {}
+
+    def lower_program(self):
+        functions = []
+        for name in self.function_names:
+            fn_map = self.funk.function_map[name]
+            try:
+                functions.append(self._lower_function(name, fn_map))
+            except LoweringUnsupported as exc:
+                functions.append(self._trap_function(name, fn_map, str(exc)))
+
+        if len(functions) == 0:
+            trap_idx = self._intern_string("no functions available")
+            functions.append(
+                FunctionBytecode(
+                    name="<empty>",
+                    arity=0,
+                    captures=0,
+                    code=[Instruction(op=OpCode.TRAP, arg=trap_idx)],
+                )
+            )
+            entry_fn = 0
+        else:
+            entry_fn = self.function_id.get("main", 0)
+
+        return DecodedBytecode(strings=self.strings, functions=functions, entry_fn=entry_fn)
+
+    def _lower_function(self, name, fn_map):
+        if len(fn_map.clauses) != 1:
+            raise LoweringUnsupported("multi-clause functions are not lowered yet")
+
+        clause = fn_map.clauses[0]
+        if clause.preconditions is not None:
+            raise LoweringUnsupported("preconditions are not lowered yet")
+        if clause.pattern_matches not in (None, []):
+            raise LoweringUnsupported("pattern matches are not lowered yet")
+        if len(clause.tail_pairs) > 0:
+            raise LoweringUnsupported("head/tail patterns are not lowered yet")
+        if len(clause.body) != 1:
+            raise LoweringUnsupported("only single-expression bodies are lowered")
+
+        locals_by_name = {}
+        for arg in clause.arguments:
+            arg_name = arg["val"]
+            if arg_name == "_":
+                raise LoweringUnsupported("wildcard arguments are not lowered yet")
+            if arg_name in locals_by_name:
+                raise LoweringUnsupported("duplicate argument names are not supported")
+            locals_by_name[arg_name] = arg["pos"]
+
+        code = []
+        self._lower_expr(code, locals_by_name, clause.body[0])
+        code.append(Instruction(op=OpCode.RETURN))
+        return FunctionBytecode(
+            name=name,
+            arity=clause.arity,
+            captures=0,
+            code=code,
+        )
+
+    def _trap_function(self, name, fn_map, reason):
+        arity = fn_map.clauses[0].arity if len(fn_map.clauses) > 0 else 0
+        trap_idx = self._intern_string("function '{}': {}".format(name, reason))
+        return FunctionBytecode(
+            name=name,
+            arity=arity,
+            captures=0,
+            code=[Instruction(op=OpCode.TRAP, arg=trap_idx)],
+        )
+
+    def _lower_expr(self, code, locals_by_name, expr):
+        type_name = type(expr).__name__
+
+        if type_name == "IntegerConstant":
+            code.append(Instruction(op=OpCode.PUSH_INT, arg=expr.sign * int(expr.value)))
+            return
+
+        if type_name == "DoubleConstant":
+            code.append(Instruction(op=OpCode.PUSH_FLOAT, arg=expr.sign * float(expr.value)))
+            return
+
+        if type_name == "Identifier":
+            if expr.name not in locals_by_name:
+                raise LoweringUnsupported("identifier '{}' is unresolved".format(expr.name))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=locals_by_name[expr.name]))
+            return
+
+        if type_name in BUILTIN_ID_BY_OP:
+            if expr.left is None:
+                raise LoweringUnsupported("{} missing left operand".format(type_name))
+            self._lower_expr(code, locals_by_name, expr.left)
+            self._lower_expr(code, locals_by_name, expr.right)
+            code.append(
+                Instruction(
+                    op=OpCode.CALL_BUILTIN,
+                    id=BUILTIN_ID_BY_OP[type_name],
+                    argc=2,
+                )
+            )
+            return
+
+        if type_name == "FunctionCall":
+            if expr.args is None:
+                raise LoweringUnsupported("function call without args list is not supported")
+            callee = expr.name
+            if callee not in self.function_id:
+                raise LoweringUnsupported("call target '{}' not in current module".format(callee))
+            for arg in expr.args:
+                self._lower_expr(code, locals_by_name, arg)
+            code.append(
+                Instruction(
+                    op=OpCode.CALL_FN,
+                    arg=self.function_id[callee],
+                    argc=len(expr.args),
+                )
+            )
+            return
+
+        raise LoweringUnsupported("expression '{}' is not lowered yet".format(type_name))
+
+    def _intern_string(self, s):
+        if s in self.string_id:
+            return self.string_id[s]
+        idx = len(self.strings)
+        self.strings.append(s)
+        self.string_id[s] = idx
+        return idx
