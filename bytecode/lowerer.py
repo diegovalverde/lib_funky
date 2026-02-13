@@ -92,8 +92,6 @@ class BytecodeLowerer:
         )
 
     def _validate_clause_for_lowering(self, clause):
-        if clause.preconditions is not None:
-            raise LoweringUnsupported("preconditions are not lowered yet")
         if len(clause.tail_pairs) > 0:
             raise LoweringUnsupported("head/tail patterns are not lowered yet")
         if len(clause.body) == 0:
@@ -132,6 +130,13 @@ class BytecodeLowerer:
             else:
                 raise LoweringUnsupported("unsupported literal pattern type")
             code.append(Instruction(op=OpCode.CALL_BUILTIN, id=25, argc=2))
+            fail_jump = Instruction(op=OpCode.JUMP_IF_FALSE, arg=0)
+            code.append(fail_jump)
+            fail_jumps.append(fail_jump)
+
+        if clause.preconditions is not None:
+            local_view = self._clause_locals(clause)
+            self._lower_expr(code, local_view, clause.preconditions)
             fail_jump = Instruction(op=OpCode.JUMP_IF_FALSE, arg=0)
             code.append(fail_jump)
             fail_jumps.append(fail_jump)
