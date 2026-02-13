@@ -62,41 +62,80 @@ class BytecodeLowerer:
         return DecodedBytecode(strings=self.strings, functions=functions, entry_fn=entry_fn)
 
     def _lower_function(self, name, fn_map):
-        if len(fn_map.clauses) != 1:
-            raise LoweringUnsupported("multi-clause functions are not lowered yet")
+        if len(fn_map.clauses) == 0:
+            raise LoweringUnsupported("function has no clauses")
 
-        clause = fn_map.clauses[0]
+        code = []
+        for clause in fn_map.clauses:
+            self._validate_clause_for_lowering(clause)
+            locals_by_name = self._clause_locals(clause)
+            fail_jumps = self._emit_clause_checks(code, clause)
+
+            next_local = clause.arity
+            for stmt in clause.body[:-1]:
+                next_local = self._lower_statement(code, locals_by_name, next_local, stmt)
+
+            self._lower_expr(code, locals_by_name, clause.body[-1])
+            code.append(Instruction(op=OpCode.RETURN))
+
+            next_ip = len(code)
+            for jump_ins in fail_jumps:
+                jump_ins.arg = next_ip
+
+        trap_idx = self._intern_string("function '{}': no clause matched".format(name))
+        code.append(Instruction(op=OpCode.TRAP, arg=trap_idx))
+        return FunctionBytecode(
+            name=name,
+            arity=fn_map.clauses[0].arity,
+            captures=0,
+            code=code,
+        )
+
+    def _validate_clause_for_lowering(self, clause):
         if clause.preconditions is not None:
             raise LoweringUnsupported("preconditions are not lowered yet")
-        if clause.pattern_matches not in (None, []):
-            raise LoweringUnsupported("pattern matches are not lowered yet")
         if len(clause.tail_pairs) > 0:
             raise LoweringUnsupported("head/tail patterns are not lowered yet")
+        if len(clause.body) == 0:
+            raise LoweringUnsupported("empty function body")
+        if clause.pattern_matches not in (None, []):
+            for pm_entry in clause.pattern_matches:
+                pm = pm_entry["val"]
+                if type(pm).__name__ != "PatternMatchLiteral":
+                    raise LoweringUnsupported("only literal pattern matches are lowered")
+                if not isinstance(pm.value, (int, float)):
+                    raise LoweringUnsupported("literal pattern must be int/float")
+
+    def _clause_locals(self, clause):
         locals_by_name = {}
         for arg in clause.arguments:
             arg_name = arg["val"]
             if arg_name == "_":
-                raise LoweringUnsupported("wildcard arguments are not lowered yet")
+                continue
             if arg_name in locals_by_name:
                 raise LoweringUnsupported("duplicate argument names are not supported")
             locals_by_name[arg_name] = arg["pos"]
+        return locals_by_name
 
-        if len(clause.body) == 0:
-            raise LoweringUnsupported("empty function body")
-
-        code = []
-        next_local = clause.arity
-        for stmt in clause.body[:-1]:
-            next_local = self._lower_statement(code, locals_by_name, next_local, stmt)
-
-        self._lower_expr(code, locals_by_name, clause.body[-1])
-        code.append(Instruction(op=OpCode.RETURN))
-        return FunctionBytecode(
-            name=name,
-            arity=clause.arity,
-            captures=0,
-            code=code,
-        )
+    def _emit_clause_checks(self, code, clause):
+        fail_jumps = []
+        pattern_entries = clause.pattern_matches if clause.pattern_matches else []
+        for pm_entry in pattern_entries:
+            pm = pm_entry["val"]
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=pm.position))
+            if isinstance(pm.value, bool):
+                code.append(Instruction(op=OpCode.PUSH_BOOL, arg=pm.value))
+            elif isinstance(pm.value, int):
+                code.append(Instruction(op=OpCode.PUSH_INT, arg=pm.value))
+            elif isinstance(pm.value, float):
+                code.append(Instruction(op=OpCode.PUSH_FLOAT, arg=pm.value))
+            else:
+                raise LoweringUnsupported("unsupported literal pattern type")
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=25, argc=2))
+            fail_jump = Instruction(op=OpCode.JUMP_IF_FALSE, arg=0)
+            code.append(fail_jump)
+            fail_jumps.append(fail_jump)
+        return fail_jumps
 
     def _lower_statement(self, code, locals_by_name, next_local, stmt):
         type_name = type(stmt).__name__
