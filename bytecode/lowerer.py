@@ -19,6 +19,7 @@ BUILTIN_ID_BY_OP = {
 
 BUILTIN_ID_BY_CALL = {
     "say": 2,
+    "not": 33,
     "neg": 34,
     "len": 36,
 }
