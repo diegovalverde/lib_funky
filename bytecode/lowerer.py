@@ -204,10 +204,14 @@ class BytecodeLowerer:
                     if idx is None:
                         continue
                     if type(idx).__name__ == "Range":
-                        if idx.left is None or idx.right is None:
-                            raise LoweringUnsupported("open-ended range indexing is not lowered yet")
-                        self._lower_expr(code, locals_by_name, idx.left)
-                        self._lower_expr(code, locals_by_name, idx.right)
+                        if idx.left is None:
+                            code.append(Instruction(op=OpCode.PUSH_INT, arg=0))
+                        else:
+                            self._lower_expr(code, locals_by_name, idx.left)
+                        if idx.right is None:
+                            code.append(Instruction(op=OpCode.PUSH_INT, arg=-1))
+                        else:
+                            self._lower_expr(code, locals_by_name, idx.right)
                         code.append(
                             Instruction(
                                 op=OpCode.CALL_BUILTIN,
