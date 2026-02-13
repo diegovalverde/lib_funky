@@ -23,6 +23,7 @@ BUILTIN_ID_BY_CALL = {
     "neg": 34,
     "len": 36,
     "abs": 37,
+    "sum": 38,
 }
 
 
