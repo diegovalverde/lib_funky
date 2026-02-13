@@ -19,6 +19,7 @@ class OpCode(str, Enum):
     JUMP_IF_FALSE = "JUMP_IF_FALSE"
     CALL_BUILTIN = "CALL_BUILTIN"
     CALL_FN = "CALL_FN"
+    CALL_INDIRECT = "CALL_INDIRECT"
     RETURN = "RETURN"
     TRAP = "TRAP"
     MK_LIST = "MK_LIST"
@@ -138,6 +139,13 @@ def _validate_instruction_operands(strings, ins, code, ip, function_count):
             raise invalid_field("CALL_FN expects non-negative 'arg' and 'argc'")
         if ins.arg >= function_count:
             raise invalid_index("CALL_FN function id out of bounds")
+        return
+
+    if ins.op == OpCode.CALL_INDIRECT:
+        if not isinstance(ins.argc, int):
+            raise invalid_field("CALL_INDIRECT expects integer 'argc'")
+        if ins.argc < 0:
+            raise invalid_field("CALL_INDIRECT expects non-negative 'argc'")
         return
 
     if ins.op == OpCode.MK_LIST:
