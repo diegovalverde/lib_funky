@@ -1,7 +1,7 @@
 import os
 import re
 
-from ..bytecode import BytecodeLowerer, encode
+from ..bytecode import BytecodeLowerer, encode, encode_binary
 from ..optimized_compiler import OptimizedFunk
 from .base import Backend
 
@@ -95,6 +95,9 @@ class BytecodeBackend(Backend):
         payload = BytecodeLowerer(funk).lower_program()
         with open(output_path, "w") as f:
             f.write(encode(payload))
+        binary_path = output_path[: -len(".json")] if output_path.endswith(".json") else output_path + ".fkb"
+        with open(binary_path, "wb") as f:
+            f.write(encode_binary(payload))
         return output_path
 
     def link_sources(self, artifacts, build_path, src_path, link_with_sdl, exe_command, include_paths=None):
@@ -105,7 +108,7 @@ class BytecodeBackend(Backend):
             "format": "funk-bytecode-bundle-v1",
             "entry_source": os.path.basename(src_path),
             "artifacts": sorted(list(set(artifacts))),
-            "note": "Bytecode backend currently emits IR artifacts only; runtime execution is not wired yet.",
+            "note": "JSON (*.fkb.json) and binary (*.fkb) artifacts are emitted.",
         }
         with open(bundle_path, "w") as f:
             json.dump(payload, f, indent=2, sort_keys=True)
