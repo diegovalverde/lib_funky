@@ -193,6 +193,14 @@ class BytecodeLowerer:
             if expr.name not in locals_by_name:
                 raise LoweringUnsupported("identifier '{}' is unresolved".format(expr.name))
             code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=locals_by_name[expr.name]))
+            if expr.indexes is not None:
+                for idx in expr.indexes:
+                    if idx is None:
+                        continue
+                    if type(idx).__name__ == "Range":
+                        raise LoweringUnsupported("range indexing is not lowered yet")
+                    self._lower_expr(code, locals_by_name, idx)
+                    code.append(Instruction(op=OpCode.GET_INDEX))
             return
 
         if type_name in BUILTIN_ID_BY_OP:
