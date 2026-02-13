@@ -64,9 +64,12 @@ class BytecodeLowerer:
     def _lower_function(self, name, fn_map):
         if len(fn_map.clauses) == 0:
             raise LoweringUnsupported("function has no clauses")
+        expected_arity = fn_map.clauses[0].arity
 
         code = []
         for clause in fn_map.clauses:
+            if clause.arity != expected_arity:
+                raise LoweringUnsupported("all clauses must have same arity")
             self._validate_clause_for_lowering(clause)
             locals_by_name = self._clause_locals(clause)
             fail_jumps = self._emit_clause_checks(code, clause)
@@ -92,6 +95,10 @@ class BytecodeLowerer:
         )
 
     def _validate_clause_for_lowering(self, clause):
+        if clause.check_arity is False:
+            raise LoweringUnsupported("ellipsis arity clauses are not lowered yet")
+        if clause.fill_etc:
+            raise LoweringUnsupported("etc argument expansion is not lowered yet")
         if len(clause.tail_pairs) > 0:
             raise LoweringUnsupported("head/tail patterns are not lowered yet")
         if len(clause.body) == 0:
