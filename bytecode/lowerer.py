@@ -193,6 +193,19 @@ class BytecodeLowerer:
             code.append(Instruction(op=OpCode.PUSH_STRING, arg=self._intern_string(value)))
             return
 
+        if type_name == "List":
+            for element in expr.elements:
+                self._lower_expr(code, locals_by_name, element)
+            code.append(Instruction(op=OpCode.MK_LIST, argc=len(expr.elements)))
+            return
+
+        if type_name == "CompileTimeExprList":
+            elements = [e for e in expr.elements if e is not None]
+            for element in elements:
+                self._lower_expr(code, locals_by_name, element)
+            code.append(Instruction(op=OpCode.MK_LIST, argc=len(elements)))
+            return
+
         raise LoweringUnsupported("expression '{}' is not lowered yet".format(type_name))
 
     def _intern_string(self, s):
