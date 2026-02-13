@@ -24,6 +24,7 @@ BUILTIN_ID_BY_CALL = {
     "len": 36,
     "abs": 37,
     "sum": 38,
+    "flatten": 39,
 }
 
 
