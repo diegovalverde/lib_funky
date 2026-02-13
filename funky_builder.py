@@ -59,7 +59,7 @@ def exe_command(cmd):
         exit(1)
 
 
-def compile_source(src_path, build_path, backend_impl, debug=False):
+def compile_source(src_path, build_path, backend_impl, debug=False, include_paths=None):
     try:
         if not os.path.isfile(src_path):
             src_path = os.path.join(os.getcwd(),src_path)
@@ -73,6 +73,7 @@ def compile_source(src_path, build_path, backend_impl, debug=False):
             build_path=build_path,
             debug=debug,
             exe_command=exe_command,
+            include_paths=include_paths,
         )
 
     except IOError:
@@ -80,13 +81,14 @@ def compile_source(src_path, build_path, backend_impl, debug=False):
         exit()
 
 
-def link_sources(artifacts, build_path, src_path, backend_impl):
+def link_sources(artifacts, build_path, src_path, backend_impl, include_paths=None):
     return backend_impl.link_sources(
         artifacts=artifacts,
         build_path=build_path,
         src_path=src_path,
         link_with_sdl=link_with_sdl,
         exe_command=exe_command,
+        include_paths=include_paths,
     )
 
 
@@ -103,7 +105,7 @@ def build(src_path, include_paths, build_path, debug, backend=BACKEND_OPTIMIZED)
         artifacts = compile_sources(src_path, include_paths, build_path, backend_impl, debug)
 
         print('==== linking ====')
-        output = link_sources(artifacts, build_path, src_path, backend_impl)
+        output = link_sources(artifacts, build_path, src_path, backend_impl, include_paths=include_paths)
         if output:
             print('==== output ====')
             print(output)
@@ -138,7 +140,13 @@ def compile_sources(src_path, include_paths, build_path, backend_impl, debug=Fal
         artifact_path = backend_impl.artifact_path(build_path, src_file)
         if backend_impl.should_recompile(src_file, artifact_path):
             print('{} ... '.format(src_file), end='')
-            artifact_path = compile_source(src_file, build_path=build_path, debug=debug, backend_impl=backend_impl)
+            artifact_path = compile_source(
+                src_file,
+                build_path=build_path,
+                debug=debug,
+                backend_impl=backend_impl,
+                include_paths=include_paths,
+            )
             print('Done')
         artifact_paths.append(artifact_path)
 

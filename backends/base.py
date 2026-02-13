@@ -16,9 +16,9 @@ class Backend(ABC):
         return os.path.getmtime(src_path) > os.path.getmtime(artifact_path)
 
     @abstractmethod
-    def compile_source(self, src_path, src_text, build_path, debug, exe_command):
+    def compile_source(self, src_path, src_text, build_path, debug, exe_command, include_paths=None):
         pass
 
     @abstractmethod
-    def link_sources(self, artifacts, build_path, src_path, link_with_sdl, exe_command):
+    def link_sources(self, artifacts, build_path, src_path, link_with_sdl, exe_command, include_paths=None):
         pass

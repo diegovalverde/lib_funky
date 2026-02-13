@@ -15,14 +15,22 @@ BUILTIN_ID_BY_OP = {
     "GreaterOrEqualThan": 30,
     "And": 31,
     "Or": 32,
+    "ListConcat": 41,
+    "ListUnion": 42,
+    "ListConcatTail": 43,
+    "ListDifference": 44,
 }
 
 BUILTIN_ID_BY_CALL = {
     "say": 2,
+    "exit": 3,
     "not": 33,
     "neg": 34,
+    "infinity": 35,
     "len": 36,
     "abs": 37,
+    "reshape": 45,
+    "fread_list": 46,
     "sum": 38,
     "flatten": 39,
 }
@@ -37,19 +45,24 @@ class LoweringUnsupported(Exception):
 class BytecodeLowerer:
     def __init__(self, funk):
         self.funk = funk
-        self.function_names = sorted(list(funk.function_map.keys()))
-        self.function_id = {name: idx for idx, name in enumerate(self.function_names)}
+        self.function_sigs = []
+        for name, fn_map in funk.function_map.items():
+            arities = sorted({clause.arity for clause in fn_map.clauses})
+            for arity in arities:
+                self.function_sigs.append((name, arity))
+        self.function_sigs = sorted(self.function_sigs)
+        self.function_id = {sig: idx for idx, sig in enumerate(self.function_sigs)}
         self.strings = []
         self.string_id = {}
 
     def lower_program(self):
         functions = []
-        for name in self.function_names:
+        for name, arity in self.function_sigs:
             fn_map = self.funk.function_map[name]
             try:
-                functions.append(self._lower_function(name, fn_map))
+                functions.append(self._lower_function(name, arity, fn_map))
             except LoweringUnsupported as exc:
-                functions.append(self._trap_function(name, fn_map, str(exc)))
+                functions.append(self._trap_function(name, arity, fn_map, str(exc)))
 
         if len(functions) == 0:
             trap_idx = self._intern_string("no functions available")
@@ -63,19 +76,18 @@ class BytecodeLowerer:
             )
             entry_fn = 0
         else:
-            entry_fn = self.function_id.get("main", 0)
+            entry_fn = self.function_id.get(("main", 0), 0)
 
         return DecodedBytecode(strings=self.strings, functions=functions, entry_fn=entry_fn)
 
-    def _lower_function(self, name, fn_map):
+    def _lower_function(self, name, target_arity, fn_map):
         if len(fn_map.clauses) == 0:
             raise LoweringUnsupported("function has no clauses")
-        expected_arity = fn_map.clauses[0].arity
 
         code = []
         for clause in fn_map.clauses:
-            if clause.arity != expected_arity:
-                raise LoweringUnsupported("all clauses must have same arity")
+            if clause.arity != target_arity:
+                continue
             self._validate_clause_for_lowering(clause)
             locals_by_name = self._clause_locals(clause)
             fail_jumps = self._emit_clause_checks(code, clause)
@@ -94,8 +106,8 @@ class BytecodeLowerer:
         trap_idx = self._intern_string("function '{}': no clause matched".format(name))
         code.append(Instruction(op=OpCode.TRAP, arg=trap_idx))
         return FunctionBytecode(
-            name=name,
-            arity=fn_map.clauses[0].arity,
+            name="{}#{}".format(name, target_arity),
+            arity=target_arity,
             captures=0,
             code=code,
         )
@@ -174,11 +186,11 @@ class BytecodeLowerer:
         code.append(Instruction(op=OpCode.POP))
         return next_local
 
-    def _trap_function(self, name, fn_map, reason):
-        arity = fn_map.clauses[0].arity if len(fn_map.clauses) > 0 else 0
+    def _trap_function(self, name, target_arity, fn_map, reason):
+        arity = target_arity
         trap_idx = self._intern_string("function '{}': {}".format(name, reason))
         return FunctionBytecode(
-            name=name,
+            name="{}#{}".format(name, arity),
             arity=arity,
             captures=0,
             code=[Instruction(op=OpCode.TRAP, arg=trap_idx)],
@@ -259,14 +271,17 @@ class BytecodeLowerer:
                     )
                 )
                 return
-            if callee not in self.function_id:
-                raise LoweringUnsupported("call target '{}' not in current module".format(callee))
+            target_sig = (callee, len(expr.args))
+            if target_sig not in self.function_id:
+                raise LoweringUnsupported(
+                    "call target '{}/{}' not in current module".format(callee, len(expr.args))
+                )
             for arg in expr.args:
                 self._lower_expr(code, locals_by_name, arg)
             code.append(
                 Instruction(
                     op=OpCode.CALL_FN,
-                    arg=self.function_id[callee],
+                    arg=self.function_id[target_sig],
                     argc=len(expr.args),
                 )
             )

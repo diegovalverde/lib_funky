@@ -36,7 +36,7 @@ class CppBackend(Backend):
             return OptimizedFunkI32(debug=debug)
         return OptimizedFunk(debug=debug)
 
-    def compile_source(self, src_path, src_text, build_path, debug, exe_command):
+    def compile_source(self, src_path, src_text, build_path, debug, exe_command, include_paths=None):
         funk = self._build_compiler(debug=debug)
         funk.compile(src_text)
 
@@ -70,7 +70,7 @@ class CppBackend(Backend):
         exe_command(cmd)
         return object_path
 
-    def link_sources(self, artifacts, build_path, src_path, link_with_sdl, exe_command):
+    def link_sources(self, artifacts, build_path, src_path, link_with_sdl, exe_command, include_paths=None):
         additional_link_flags = ""
         cxx_std = "c++20"
         extra_cxxflags = os.environ.get("FUNK_EXTRA_CXXFLAGS", "")
