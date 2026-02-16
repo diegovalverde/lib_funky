@@ -1,7 +1,7 @@
 import os
-import re
 
 from ..bytecode import BytecodeLowerer, encode, encode_binary
+from ..host_effects import parse_use_dependencies, should_resolve_dependency
 from ..optimized_compiler import OptimizedFunk
 from .base import Backend
 
@@ -35,15 +35,10 @@ class BytecodeBackend(Backend):
 
     def _direct_dependencies(self, src_text):
         deps = []
-        for line in src_text.splitlines():
-            match = re.findall(r"^ *\t*use +(.*)", line)
-            if len(match) == 0:
+        for dep in parse_use_dependencies(src_text):
+            if not should_resolve_dependency(dep):
                 continue
-            for dep in match[0].split(","):
-                dep = dep.strip()
-                if dep == "sdl_simple" or dep == "":
-                    continue
-                deps.append(dep)
+            deps.append(dep)
         return deps
 
     def _resolve_dep_path(self, dep_name, search_paths):

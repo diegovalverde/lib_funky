@@ -1,8 +1,14 @@
 import os
-import re
 from .backends import BACKEND_OPTIMIZED, get_backend
+from .host_effects import (
+    collect_host_effect_libraries,
+    parse_use_dependencies,
+    requires_adapter,
+    should_resolve_dependency,
+)
 
 link_with_sdl = False
+active_effect_libraries = set()
 funk_build_cwd=format(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -18,30 +24,27 @@ def get_dependencies(src, include_paths=['.',os.getcwd()]):
     :return: list of paths to dependencies
     """
     dependencies = []
-    for line in src.splitlines():
-        global link_with_sdl, funk_build_cwd
-        match = re.findall('^ *\t*use +(.*)', line)
-        if len(match) == 0:
+    global link_with_sdl, active_effect_libraries, funk_build_cwd
+    active_effect_libraries |= collect_host_effect_libraries(src)
+    link_with_sdl = requires_adapter(active_effect_libraries, "sdl2")
+
+    for dep in parse_use_dependencies(src):
+        if not should_resolve_dependency(dep):
             continue
-        for dep in match[0].split(','):
-            dep = dep.strip()
-            if dep == 'sdl_simple':
-                link_with_sdl = True
-                continue
 
-            found = False
-            for include_path in include_paths:
-                dep_path = os.path.join(funk_build_cwd,include_path, '{}.f'.format(dep))
+        found = False
+        for include_path in include_paths:
+            dep_path = os.path.join(funk_build_cwd,include_path, '{}.f'.format(dep))
 
-                if os.path.isfile(dep_path):
-                    dependencies.append(dep_path)
-                    found = True
-                    break
+            if os.path.isfile(dep_path):
+                dependencies.append(dep_path)
+                found = True
+                break
 
-            if not found:
-                print('-E- Could not find source file {}.f'.format(dep))
-                print('-I- Include path ',include_paths)
-                exit(1)
+        if not found:
+            print('-E- Could not find source file {}.f'.format(dep))
+            print('-I- Include path ',include_paths)
+            exit(1)
 
     return list(set(dependencies))
 
@@ -94,8 +97,9 @@ def link_sources(artifacts, build_path, src_path, backend_impl, include_paths=No
 
 def build(src_path, include_paths, build_path, debug, backend=BACKEND_OPTIMIZED):
     try:
-        global link_with_sdl
+        global link_with_sdl, active_effect_libraries
         link_with_sdl = False
+        active_effect_libraries = set()
         backend_impl = get_backend(backend)
 
         if not os.path.exists(build_path):
