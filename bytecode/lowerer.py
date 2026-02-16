@@ -581,6 +581,8 @@ class BytecodeLowerer:
         if iterator is None or expr.expr is None:
             raise LoweringUnsupported("range expression without iterator body is not lowered yet")
         if expr.rhs_type == ":":
+            if self._try_lower_file_read_comprehension(code, locals_by_name, expr, iterator):
+                return
             if expr.right is None:
                 raise LoweringUnsupported("iterator-list comprehension missing source expression")
             iterable_slot = self._alloc_local()
@@ -707,6 +709,41 @@ class BytecodeLowerer:
 
         loop_exit.arg = len(code)
         code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+
+    def _try_lower_file_read_comprehension(self, code, locals_by_name, expr, iterator):
+        # Special-case canonical source pattern:
+        #   [ toi32(in(f)) | f : file(path, 'r') ]
+        # Lower directly to fread_list(path) builtin for VM/browser portability.
+        source_call = expr.right
+        if type(source_call).__name__ != "FunctionCall" or source_call.name != "file":
+            return False
+        if source_call.args is None or len(source_call.args) < 1:
+            return False
+        body_call = expr.expr
+        if type(body_call).__name__ != "FunctionCall" or body_call.name != "toi32":
+            return False
+        if body_call.args is None or len(body_call.args) != 1:
+            return False
+        inner = body_call.args[0]
+        if type(inner).__name__ != "FunctionCall" or inner.name != "in":
+            return False
+        if inner.args is None or len(inner.args) != 1:
+            return False
+        arg0 = inner.args[0]
+        if type(arg0).__name__ != "Identifier":
+            return False
+        if iterator is None or arg0.name != iterator.name:
+            return False
+
+        self._lower_expr(code, locals_by_name, source_call.args[0])
+        code.append(
+            Instruction(
+                op=OpCode.CALL_BUILTIN,
+                id=46,
+                argc=1,
+            )
+        )
+        return True
 
     def _is_inline_range_literal_node(self, node):
         if type(node).__name__ not in ("Range", "ExprRange"):
