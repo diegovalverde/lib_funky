@@ -20,6 +20,7 @@ class OpCode(str, Enum):
     CALL_BUILTIN = "CALL_BUILTIN"
     CALL_FN = "CALL_FN"
     CALL_INDIRECT = "CALL_INDIRECT"
+    CALL_HOST = "CALL_HOST"
     RETURN = "RETURN"
     TRAP = "TRAP"
     MK_LIST = "MK_LIST"
@@ -146,6 +147,15 @@ def _validate_instruction_operands(strings, ins, code, ip, function_count):
             raise invalid_field("CALL_INDIRECT expects integer 'argc'")
         if ins.argc < 0:
             raise invalid_field("CALL_INDIRECT expects non-negative 'argc'")
+        return
+
+    if ins.op == OpCode.CALL_HOST:
+        if not isinstance(ins.arg, int) or ins.arg < 0:
+            raise invalid_field("CALL_HOST expects non-negative integer 'arg' (string id)")
+        if ins.arg >= len(strings):
+            raise invalid_index("CALL_HOST host function string id out of bounds")
+        if not isinstance(ins.argc, int) or ins.argc < 0:
+            raise invalid_field("CALL_HOST expects non-negative integer 'argc'")
         return
 
     if ins.op == OpCode.MK_LIST:

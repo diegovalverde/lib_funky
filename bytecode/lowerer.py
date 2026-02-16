@@ -39,6 +39,9 @@ BUILTIN_ID_SLICE = 40
 BUILTIN_ID_IS_LIST = 47
 BUILTIN_ID_TAIL = 48
 BUILTIN_ID_LIST_SIZE = 49
+HOST_CALL_BY_NAME = {
+    "sdl_simple": "s2d.sdl_simple",
+}
 
 
 class LoweringUnsupported(Exception):
@@ -366,6 +369,17 @@ class BytecodeLowerer:
             if expr.args is None:
                 raise LoweringUnsupported("function call without args list is not supported")
             callee = expr.name
+            if callee in HOST_CALL_BY_NAME:
+                for arg in expr.args:
+                    self._lower_expr(code, locals_by_name, arg)
+                code.append(
+                    Instruction(
+                        op=OpCode.CALL_HOST,
+                        arg=self._intern_string(HOST_CALL_BY_NAME[callee]),
+                        argc=len(expr.args),
+                    )
+                )
+                return
             if callee == "len":
                 if len(expr.args) != 1:
                     raise LoweringUnsupported("len expects exactly one argument")

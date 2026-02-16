@@ -19,6 +19,7 @@ OPCODE_TO_BYTE = {
     OpCode.CALL_BUILTIN: 10,
     OpCode.CALL_FN: 11,
     OpCode.CALL_INDIRECT: 12,
+    OpCode.CALL_HOST: 18,
     OpCode.RETURN: 13,
     OpCode.TRAP: 14,
     OpCode.MK_LIST: 15,
