@@ -460,7 +460,23 @@ class BytecodeLowerer:
 
         if type_name == "CompileTimeExprList":
             elements = [e for e in expr.elements if e is not None]
+            if self._is_inline_range_literal_elements(elements):
+                self._lower_inline_range_literal(
+                    code,
+                    locals_by_name,
+                    start_expr=elements[0],
+                    end_expr=elements[1].right,
+                )
+                return
             if len(elements) == 1 and type(elements[0]).__name__ in ("ExprRange", "Range"):
+                if self._is_inline_range_literal_node(elements[0]):
+                    self._lower_inline_range_literal(
+                        code,
+                        locals_by_name,
+                        start_expr=elements[0].left,
+                        end_expr=elements[0].right,
+                    )
+                    return
                 self._lower_expr(code, locals_by_name, elements[0])
                 return
             for element in elements:
@@ -625,6 +641,74 @@ class BytecodeLowerer:
 
         code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
         self._lower_expr(code, body_locals, expr.expr)
+        code.append(Instruction(op=OpCode.MK_LIST, argc=1))
+        code.append(Instruction(op=OpCode.CALL_BUILTIN, id=42, argc=2))
+        code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
+
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+        code.append(Instruction(op=OpCode.PUSH_INT, arg=1))
+        code.append(Instruction(op=OpCode.CALL_BUILTIN, id=20, argc=2))
+        code.append(Instruction(op=OpCode.STORE_LOCAL, arg=idx_slot))
+        code.append(Instruction(op=OpCode.JUMP, arg=loop_start))
+
+        loop_exit.arg = len(code)
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+
+    def _is_inline_range_literal_node(self, node):
+        if type(node).__name__ not in ("Range", "ExprRange"):
+            return False
+        if getattr(node, "expr", None) is not None:
+            return False
+        if getattr(node, "identifier", None) is not None:
+            return False
+        if getattr(node, "iterator_symbol", None) is not None:
+            return False
+        return getattr(node, "left", None) is not None and getattr(node, "right", None) is not None
+
+    def _is_inline_range_literal_elements(self, elements):
+        if len(elements) != 2:
+            return False
+        tail = elements[1]
+        if type(tail).__name__ not in ("Range", "ExprRange"):
+            return False
+        if getattr(tail, "expr", None) is not None:
+            return False
+        if getattr(tail, "identifier", None) is not None:
+            return False
+        if getattr(tail, "iterator_symbol", None) is not None:
+            return False
+        if getattr(tail, "left", None) is not None:
+            return False
+        return getattr(tail, "right", None) is not None
+
+    def _lower_inline_range_literal(self, code, locals_by_name, start_expr, end_expr):
+        if start_expr is None or end_expr is None:
+            raise LoweringUnsupported("open-ended range literals are not lowered yet")
+
+        start_slot = self._alloc_local()
+        end_slot = self._alloc_local()
+        idx_slot = self._alloc_local()
+        acc_slot = self._alloc_local()
+
+        self._lower_expr(code, locals_by_name, start_expr)
+        code.append(Instruction(op=OpCode.STORE_LOCAL, arg=start_slot))
+        self._lower_expr(code, locals_by_name, end_expr)
+        code.append(Instruction(op=OpCode.STORE_LOCAL, arg=end_slot))
+
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=start_slot))
+        code.append(Instruction(op=OpCode.STORE_LOCAL, arg=idx_slot))
+        code.append(Instruction(op=OpCode.MK_LIST, argc=0))
+        code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
+
+        loop_start = len(code)
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=end_slot))
+        code.append(Instruction(op=OpCode.CALL_BUILTIN, id=28, argc=2))
+        loop_exit = Instruction(op=OpCode.JUMP_IF_FALSE, arg=0)
+        code.append(loop_exit)
+
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+        code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
         code.append(Instruction(op=OpCode.MK_LIST, argc=1))
         code.append(Instruction(op=OpCode.CALL_BUILTIN, id=42, argc=2))
         code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
