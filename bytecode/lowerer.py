@@ -574,8 +574,64 @@ class BytecodeLowerer:
         iterator = expr.iterator_symbol if hasattr(expr, "iterator_symbol") else expr.identifier
         if iterator is None and hasattr(expr, "identifier"):
             iterator = expr.identifier
+        if iterator is None and getattr(expr, "rhs_type", None) == ":":
+            left = getattr(expr, "left", None)
+            if type(left).__name__ == "Identifier":
+                iterator = left
         if iterator is None or expr.expr is None:
             raise LoweringUnsupported("range expression without iterator body is not lowered yet")
+        if expr.rhs_type == ":":
+            if self._try_lower_file_read_comprehension(code, locals_by_name, expr, iterator):
+                return
+            if expr.right is None:
+                raise LoweringUnsupported("iterator-list comprehension missing source expression")
+            iterable_slot = self._alloc_local()
+            idx_slot = self._alloc_local()
+            elem_slot = self._alloc_local()
+            limit_slot = self._alloc_local()
+            acc_slot = self._alloc_local()
+
+            self._lower_expr(code, locals_by_name, expr.right)
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=iterable_slot))
+            code.append(Instruction(op=OpCode.PUSH_INT, arg=0))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=iterable_slot))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=BUILTIN_ID_LIST_SIZE, argc=1))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=limit_slot))
+            code.append(Instruction(op=OpCode.MK_LIST, argc=0))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
+
+            loop_start = len(code)
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=limit_slot))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=27, argc=2))
+            loop_exit = Instruction(op=OpCode.JUMP_IF_FALSE, arg=0)
+            code.append(loop_exit)
+
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=iterable_slot))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.GET_INDEX))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=elem_slot))
+
+            body_locals = dict(locals_by_name)
+            body_locals[iterator.name] = elem_slot
+            self._bind_anon_iter_aliases(expr.expr, body_locals)
+
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+            self._lower_expr(code, body_locals, expr.expr)
+            code.append(Instruction(op=OpCode.MK_LIST, argc=1))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=42, argc=2))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
+
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.PUSH_INT, arg=1))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=20, argc=2))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.JUMP, arg=loop_start))
+
+            loop_exit.arg = len(code)
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+            return
         if expr.left is None or expr.right is None:
             raise LoweringUnsupported("open-ended range comprehensions are not lowered yet")
         if expr.lhs_type not in ("<", "<=") or expr.rhs_type not in ("<", "<="):
@@ -653,6 +709,41 @@ class BytecodeLowerer:
 
         loop_exit.arg = len(code)
         code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+
+    def _try_lower_file_read_comprehension(self, code, locals_by_name, expr, iterator):
+        # Special-case canonical source pattern:
+        #   [ toi32(in(f)) | f : file(path, 'r') ]
+        # Lower directly to fread_list(path) builtin for VM/browser portability.
+        source_call = expr.right
+        if type(source_call).__name__ != "FunctionCall" or source_call.name != "file":
+            return False
+        if source_call.args is None or len(source_call.args) < 1:
+            return False
+        body_call = expr.expr
+        if type(body_call).__name__ != "FunctionCall" or body_call.name != "toi32":
+            return False
+        if body_call.args is None or len(body_call.args) != 1:
+            return False
+        inner = body_call.args[0]
+        if type(inner).__name__ != "FunctionCall" or inner.name != "in":
+            return False
+        if inner.args is None or len(inner.args) != 1:
+            return False
+        arg0 = inner.args[0]
+        if type(arg0).__name__ != "Identifier":
+            return False
+        if iterator is None or arg0.name != iterator.name:
+            return False
+
+        self._lower_expr(code, locals_by_name, source_call.args[0])
+        code.append(
+            Instruction(
+                op=OpCode.CALL_BUILTIN,
+                id=46,
+                argc=1,
+            )
+        )
+        return True
 
     def _is_inline_range_literal_node(self, node):
         if type(node).__name__ not in ("Range", "ExprRange"):
