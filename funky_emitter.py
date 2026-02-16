@@ -113,3 +113,17 @@ class Emitter:
         """.format(result=result, ref=ref, src=src, anon=anon)
 
         return result
+
+    def rand_int(self, funk, arguments, result=None):
+        if len(arguments) != 2:
+            raise Exception("=== rand_int takes 2 parameters")
+        ref = ""
+        if result is None:
+            ref = "TData"
+            result = self.create_anon()
+        anon = self.create_anon()
+        self.code += """
+        std::uniform_int_distribution<std::int32_t> {anon}({min}, {max});
+        {ref} {result} = TData(static_cast<std::int32_t>({anon}(g_funky_random_engine)));
+        """.format(anon=anon, ref=ref, result=result, min=arguments[0].eval(), max=arguments[1].eval())
+        return result
