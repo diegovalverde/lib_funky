@@ -49,6 +49,7 @@ class Funk:
         self.enable_i32_lowering = enable_i32_lowering
         self.enable_d64_lowering = enable_d64_lowering
         self.known_functions = set()
+        self.allowed_forwarded_functions = set()
 
         if self.debug:
             print('-I- Initializing compiler')
@@ -144,6 +145,8 @@ TData sdl_set_user_ctx(const TData & arg);
                 ast_generator.function_map[fn].eval()
 
             for fn in list(set(self.forwarded_functions)):
+                if fn in self.allowed_forwarded_functions:
+                    continue
                 if fn not in ast_generator.function_definition_list:
                     raise Exception('Undefined function \'{}\''.format(fn))
 

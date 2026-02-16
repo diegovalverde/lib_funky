@@ -84,6 +84,8 @@ class BytecodeBackend(Backend):
             combined_src = src_text
 
         funk = OptimizedFunk(debug=debug)
+        # `host_call` is a bytecode-only intrinsic lowered to CALL_HOST.
+        funk.allowed_forwarded_functions.add("host_call")
         funk.compile(combined_src)
 
         output_path = self.artifact_path(build_path, src_path)
