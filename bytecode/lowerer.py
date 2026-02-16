@@ -369,6 +369,25 @@ class BytecodeLowerer:
             if expr.args is None:
                 raise LoweringUnsupported("function call without args list is not supported")
             callee = expr.name
+            if callee == "host_call":
+                if len(expr.args) < 1:
+                    raise LoweringUnsupported("host_call expects at least a host function string")
+                host_name_expr = expr.args[0]
+                if type(host_name_expr).__name__ != "String":
+                    raise LoweringUnsupported("host_call first argument must be string literal")
+                host_name = host_name_expr.fmt_str
+                if host_name.startswith('"') and host_name.endswith('"') and len(host_name) >= 2:
+                    host_name = host_name[1:-1]
+                for arg in expr.args[1:]:
+                    self._lower_expr(code, locals_by_name, arg)
+                code.append(
+                    Instruction(
+                        op=OpCode.CALL_HOST,
+                        arg=self._intern_string(host_name),
+                        argc=len(expr.args) - 1,
+                    )
+                )
+                return
             if callee in HOST_CALL_BY_NAME:
                 for arg in expr.args:
                     self._lower_expr(code, locals_by_name, arg)
