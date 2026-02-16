@@ -574,8 +574,62 @@ class BytecodeLowerer:
         iterator = expr.iterator_symbol if hasattr(expr, "iterator_symbol") else expr.identifier
         if iterator is None and hasattr(expr, "identifier"):
             iterator = expr.identifier
+        if iterator is None and getattr(expr, "rhs_type", None) == ":":
+            left = getattr(expr, "left", None)
+            if type(left).__name__ == "Identifier":
+                iterator = left
         if iterator is None or expr.expr is None:
             raise LoweringUnsupported("range expression without iterator body is not lowered yet")
+        if expr.rhs_type == ":":
+            if expr.right is None:
+                raise LoweringUnsupported("iterator-list comprehension missing source expression")
+            iterable_slot = self._alloc_local()
+            idx_slot = self._alloc_local()
+            elem_slot = self._alloc_local()
+            limit_slot = self._alloc_local()
+            acc_slot = self._alloc_local()
+
+            self._lower_expr(code, locals_by_name, expr.right)
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=iterable_slot))
+            code.append(Instruction(op=OpCode.PUSH_INT, arg=0))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=iterable_slot))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=BUILTIN_ID_LIST_SIZE, argc=1))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=limit_slot))
+            code.append(Instruction(op=OpCode.MK_LIST, argc=0))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
+
+            loop_start = len(code)
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=limit_slot))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=27, argc=2))
+            loop_exit = Instruction(op=OpCode.JUMP_IF_FALSE, arg=0)
+            code.append(loop_exit)
+
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=iterable_slot))
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.GET_INDEX))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=elem_slot))
+
+            body_locals = dict(locals_by_name)
+            body_locals[iterator.name] = elem_slot
+            self._bind_anon_iter_aliases(expr.expr, body_locals)
+
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+            self._lower_expr(code, body_locals, expr.expr)
+            code.append(Instruction(op=OpCode.MK_LIST, argc=1))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=42, argc=2))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=acc_slot))
+
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.PUSH_INT, arg=1))
+            code.append(Instruction(op=OpCode.CALL_BUILTIN, id=20, argc=2))
+            code.append(Instruction(op=OpCode.STORE_LOCAL, arg=idx_slot))
+            code.append(Instruction(op=OpCode.JUMP, arg=loop_start))
+
+            loop_exit.arg = len(code)
+            code.append(Instruction(op=OpCode.LOAD_LOCAL, arg=acc_slot))
+            return
         if expr.left is None or expr.right is None:
             raise LoweringUnsupported("open-ended range comprehensions are not lowered yet")
         if expr.lhs_type not in ("<", "<=") or expr.rhs_type not in ("<", "<="):
