@@ -1003,8 +1003,8 @@ class ExprRange(Range):
 
         self.expr.replace_symbol(Identifier(self.funk, i), Identifier(self.funk, offset))
         self.funk.emitter.code += """
-            uint32_t {length} = {end} - {start};
-            for (int {i} = 0; {i} < {length}; {i}++)
+            int32_t {length} = {end} - {start};
+            for (int32_t {i} = 0; {i} < {length}; {i}++)
             {{
                 TData {offset}({start} + {i});
         """.format(result=result, i=i, start=start, end=end, offset=offset, length=length)
@@ -1119,7 +1119,7 @@ class FunctionCall(Expression):
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
             std::cout << "FunkyRuntime Error: When running function '{function_signature}':\\n\\t The input provided as '{name}' is not a function" << std::endl;
-             for (int i = 0; i < argument_list.size(); i++){{
+             for (size_t i = 0; i < argument_list.size(); i++){{
                 std::cout << "args " << i << ": " << argument_list[i] << std::endl;
              }}
             std::cout << "========================================================================================" << std::endl;
@@ -1393,7 +1393,7 @@ class FunctionMap:
         arg_pos_by_name = self._i32_arg_pos_by_name()
         helper_name_by_fn = registry['helper_name_by_fn']
         helper_name = helper_name_by_fn[self.name]
-        helper_args = ', '.join('std::int32_t arg{idx}'.format(idx=i) for i in range(arity))
+        helper_args = ', '.join('[[maybe_unused]] std::int32_t arg{idx}'.format(idx=i) for i in range(arity))
         lines = []
 
         # Forward-declare helpers of callees in the same lowered set (supports mutual recursion).
@@ -1419,7 +1419,7 @@ class FunctionMap:
                             stack.append(node.right)
         for callee in sorted(called_helpers):
             callee_arity = self.funk.function_map[callee].clauses[0].arity
-            callee_args = ', '.join('std::int32_t arg{idx}'.format(idx=i) for i in range(callee_arity))
+            callee_args = ', '.join('[[maybe_unused]] std::int32_t arg{idx}'.format(idx=i) for i in range(callee_arity))
             lines.append('static std::int32_t {name}({args});'.format(name=helper_name_by_fn[callee], args=callee_args))
         lines.append('static std::int32_t {name}({args}) {{'.format(name=helper_name, args=helper_args))
 
@@ -1606,7 +1606,7 @@ class FunctionMap:
         arg_pos_by_name = self._i32_arg_pos_by_name()
         helper_name_by_fn = registry['helper_name_by_fn']
         helper_name = helper_name_by_fn[self.name]
-        helper_args = ', '.join('double arg{idx}'.format(idx=i) for i in range(arity))
+        helper_args = ', '.join('[[maybe_unused]] double arg{idx}'.format(idx=i) for i in range(arity))
         lines = []
 
         called_helpers = set()
@@ -1631,7 +1631,7 @@ class FunctionMap:
                             stack.append(node.right)
         for callee in sorted(called_helpers):
             callee_arity = self.funk.function_map[callee].clauses[0].arity
-            callee_args = ', '.join('double arg{idx}'.format(idx=i) for i in range(callee_arity))
+            callee_args = ', '.join('[[maybe_unused]] double arg{idx}'.format(idx=i) for i in range(callee_arity))
             lines.append('static double {name}({args});'.format(name=helper_name_by_fn[callee], args=callee_args))
         lines.append('static double {name}({args}) {{'.format(name=helper_name, args=helper_args))
 
@@ -2024,9 +2024,7 @@ class FunctionMap:
                     ref = ''
                     if len(clause.tail_pairs) == 0:
                         ref = '&'
-                    maybe_unused = ''
-                    if re.fullmatch(r'_[0-9]+', argument['val']):
-                        maybe_unused = '[[maybe_unused]] '
+                    maybe_unused = '[[maybe_unused]] '
                     clause.funk.emitter.code += """
         {maybe_unused}TData {ref} {argument} = argument_list[{i}];   """.format(
                         argument=argument['val'], i=argument['pos'], ref=ref, maybe_unused=maybe_unused)

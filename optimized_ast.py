@@ -210,7 +210,7 @@ class FunctionCall(funky_ast.FunctionCall):
         if ({name}.type != funky_type::function){{
             std::cout << "========================================================================================" << std::endl;
             std::cout << "FunkyRuntime Error: When running function '{function_signature}':\\n\\t The input provided as '{name}' is not a function" << std::endl;
-             for (int i = 0; i < argument_list.size(); i++){{
+             for (size_t i = 0; i < argument_list.size(); i++){{
                 std::cout << "args " << i << ": " << argument_list[i] << std::endl;
              }}
             std::cout << "========================================================================================" << std::endl;
