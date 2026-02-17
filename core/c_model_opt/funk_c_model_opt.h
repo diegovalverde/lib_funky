@@ -117,7 +117,7 @@ class TData
     }
     TData(const std::string & aStr): type(funky_type::str), str(aStr) { opt_stats().ctor_str_copy++; }
     TData(std::string && aStr): type(funky_type::str), str(std::move(aStr)) { opt_stats().ctor_str_move++; }
-    TData(TData (*fn)(std::vector<TData> &)) : fn(fn), type(funky_type::function) { opt_stats().ctor_type++; }
+    TData(TData (*fn)(std::vector<TData> &)) : type(funky_type::function), fn(fn) { opt_stats().ctor_type++; }
 
     TData(const TData &other)
         : type(other.type),
