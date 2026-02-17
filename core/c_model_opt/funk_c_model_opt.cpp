@@ -98,9 +98,9 @@ static inline double as_d64(const TData &x) {
   return (x.type == funky_type::d64) ? x.d64 : static_cast<double>(x.i32);
 }
 
-TData ArithOpDifferentType(const TData &a, const TData & b){ return TData(funky_type::invalid); }
-TData BoolOpEq(const TData &a, const TData & b){ return TData(0); }
-TData BoolOpNe(const TData &a, const TData & b){ return TData(1); }
+TData ArithOpDifferentType(const TData &, const TData &){ return TData(funky_type::invalid); }
+TData BoolOpEq(const TData &, const TData &){ return TData(0); }
+TData BoolOpNe(const TData &, const TData &){ return TData(1); }
 TData DefaultRetVal(const TData &r) { return TData(r); }
 
 #define BOOL_RETVAL(F,op) TData F(const TData &r){ \
