@@ -23,6 +23,7 @@ BUILTIN_ID_BY_OP = {
 
 BUILTIN_ID_BY_CALL = {
     "say": 2,
+    "putc": 52,
     "exit": 3,
     "rand_int": 50,
     "rand_float": 51,

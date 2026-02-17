@@ -68,7 +68,12 @@ def list_concat_head(funk, left, right, result=None):
 def create_ast_anon_symbol(funk, right):
     if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant) or isinstance(right, String):
         anon = funk.emitter.create_anon()
-        funk.emitter.code += """
+        if isinstance(right, String):
+            funk.emitter.code += """
+                TData {symbol_name} (std::string({val}));
+                """.format(symbol_name=anon, val=right.eval())
+        else:
+            funk.emitter.code += """
                 TData {symbol_name} ({val});
                 """.format(symbol_name=anon, val=right.eval())
         return anon
@@ -1060,6 +1065,7 @@ class FunctionCall(Expression):
             'rand_int': RandInt,
             'rand_float': RandFloat,
             'say': Print,
+            'putc': PutChar,
             'info': DebugInfo,
             'len': Len,
             'flatten': Flatten,
@@ -2169,7 +2175,7 @@ class String(Expression):
         if result is None:
             return self.fmt_str
         self.funk.emitter.code += """
-        {result} = TData({val});
+        {result} = TData(std::string({val}));
         """.format(result=result, val=self.fmt_str)
         return result
 
@@ -2268,6 +2274,26 @@ class Print:
 
     def eval(self, result=None):
         self.funk.emitter.print_funk(self.arg)
+
+
+class PutChar:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        if len(self.arg_list) != 1:
+            raise Exception("=== putc takes 1 parameter")
+        ch = create_ast_anon_symbol(self.funk, self.arg_list[0])
+        ref = ""
+        if result is None:
+            ref = "TData"
+            result = self.funk.emitter.create_anon()
+        self.funk.emitter.code += """
+        std::cout << static_cast<char>({ch}.i32);
+        {ref} {result} = TData(1);
+        """.format(ch=ch, ref=ref, result=result)
+        return result
 
 
 class RandInt:
