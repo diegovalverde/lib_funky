@@ -68,7 +68,12 @@ def list_concat_head(funk, left, right, result=None):
 def create_ast_anon_symbol(funk, right):
     if isinstance(right, IntegerConstant) or isinstance(right, DoubleConstant) or isinstance(right, String):
         anon = funk.emitter.create_anon()
-        funk.emitter.code += """
+        if isinstance(right, String):
+            funk.emitter.code += """
+                TData {symbol_name} (std::string({val}));
+                """.format(symbol_name=anon, val=right.eval())
+        else:
+            funk.emitter.code += """
                 TData {symbol_name} ({val});
                 """.format(symbol_name=anon, val=right.eval())
         return anon
@@ -1060,6 +1065,7 @@ class FunctionCall(Expression):
             'rand_int': RandInt,
             'rand_float': RandFloat,
             'say': Print,
+            'putc': PutChar,
             'info': DebugInfo,
             'len': Len,
             'flatten': Flatten,
@@ -1073,6 +1079,12 @@ class FunctionCall(Expression):
             'reverse': Reverse,
             'infinity': Infinity,
             'reshape': ReShape,
+            's2d': SDLCreateWindow,
+            's2d_set_color': SDLColor,
+            's2d_rect': SDLRect,
+            's2d_point': SDLPoint,
+            's2d_line': SDLLine,
+            's2d_set_user_ctx': SDLSetUserCtx,
         }
 
     def __repr__(self):
@@ -2160,7 +2172,12 @@ class String(Expression):
         return
 
     def eval(self, result=None):
-        return self.fmt_str
+        if result is None:
+            return self.fmt_str
+        self.funk.emitter.code += """
+        {result} = TData(std::string({val}));
+        """.format(result=result, val=self.fmt_str)
+        return result
 
 
 class FunkAbs(Expression):
@@ -2259,6 +2276,26 @@ class Print:
         self.funk.emitter.print_funk(self.arg)
 
 
+class PutChar:
+    def __init__(self, funk, arg_list):
+        self.funk = funk
+        self.arg_list = arg_list
+
+    def eval(self, result=None):
+        if len(self.arg_list) != 1:
+            raise Exception("=== putc takes 1 parameter")
+        ch = create_ast_anon_symbol(self.funk, self.arg_list[0])
+        ref = ""
+        if result is None:
+            ref = "TData"
+            result = self.funk.emitter.create_anon()
+        self.funk.emitter.code += """
+        std::cout << static_cast<char>({ch}.i32);
+        {ref} {result} = TData(1);
+        """.format(ch=ch, ref=ref, result=result)
+        return result
+
+
 class RandInt:
     def __init__(self, funk, arg_list):
         self.funk = funk
@@ -2301,8 +2338,13 @@ class FOpen:
         std::ifstream {result};
         {result}.open({path}.str.c_str());
         if (!{result}.is_open()){{
-            //throw std::exception("-E- Could not open file ");
-            std::cout << "-E- Could not open file " << {path}.str << std::endl;
+            const std::string __funk_open_path = {path}.str;
+            const std::string __funk_cwd = std::filesystem::current_path().string();
+            std::cout << "-E- Could not open file: '" << __funk_open_path << "'" << std::endl;
+            std::cout << "-E- cwd: '" << __funk_cwd << "'" << std::endl;
+            if (__funk_open_path.empty()) {{
+                std::cout << "-E- file path argument is empty" << std::endl;
+            }}
             exit(1);
         }}
         """.format(result=result, path=path, mode=mode)

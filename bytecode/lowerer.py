@@ -23,6 +23,7 @@ BUILTIN_ID_BY_OP = {
 
 BUILTIN_ID_BY_CALL = {
     "say": 2,
+    "putc": 52,
     "exit": 3,
     "rand_int": 50,
     "rand_float": 51,
@@ -43,6 +44,12 @@ BUILTIN_ID_TAIL = 48
 BUILTIN_ID_LIST_SIZE = 49
 HOST_CALL_BY_NAME = {
     "sdl_simple": "s2d.sdl_simple",
+    "s2d": "s2d.sdl_simple",
+    "s2d_set_user_ctx": "s2d.sdl_set_user_ctx",
+    "s2d_set_color": "s2d.sdl_set_color",
+    "s2d_point": "s2d.sdl_point",
+    "s2d_line": "s2d.sdl_line",
+    "s2d_rect": "s2d.sdl_rect",
 }
 
 

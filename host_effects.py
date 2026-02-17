@@ -7,6 +7,10 @@ HOST_EFFECT_LIBRARIES = {
     "sdl_simple": {
         "adapter": "sdl2",
         "resolve_source": False,
+    },
+    "s2d": {
+        "adapter": "sdl2",
+        "resolve_source": False,
     }
 }
 
