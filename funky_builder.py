@@ -1,4 +1,6 @@
 import os
+import shlex
+import subprocess
 from .backends import BACKEND_OPTIMIZED, get_backend
 from .host_effects import (
     collect_host_effect_libraries,
@@ -56,9 +58,14 @@ def get_file_base_name(src_path):
 
 
 def exe_command(cmd):
-    retval = os.system(cmd)
-    if retval != 0:
-        print(cmd)
+    if isinstance(cmd, str):
+        argv = shlex.split(cmd)
+    else:
+        argv = list(cmd)
+    try:
+        subprocess.run(argv, check=True)
+    except Exception:
+        print(" ".join(argv))
         exit(1)
 
 
