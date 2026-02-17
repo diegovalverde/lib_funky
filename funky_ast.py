@@ -2024,8 +2024,12 @@ class FunctionMap:
                     ref = ''
                     if len(clause.tail_pairs) == 0:
                         ref = '&'
+                    maybe_unused = ''
+                    if re.fullmatch(r'_[0-9]+', argument['val']):
+                        maybe_unused = '[[maybe_unused]] '
                     clause.funk.emitter.code += """
-        TData {ref} {argument} = argument_list[{i}];   """.format(argument=argument['val'], i=argument['pos'], ref=ref)
+        {maybe_unused}TData {ref} {argument} = argument_list[{i}];   """.format(
+                        argument=argument['val'], i=argument['pos'], ref=ref, maybe_unused=maybe_unused)
 
             for argument in clause.tail_pairs:
                 self.funk.emitter.create_anon()
