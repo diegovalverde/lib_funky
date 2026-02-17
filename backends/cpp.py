@@ -1,4 +1,5 @@
 import os
+import shlex
 import shutil
 
 from ..optimized_compiler import OptimizedFunk, OptimizedFunkI32
@@ -52,26 +53,24 @@ class CppBackend(Backend):
 
         funk.save_c(cpp_path)
         if shutil.which("clang-format"):
-            cmd = (
-                "clang-format -i --style=\"{{BasedOnStyle: llvm, IndentWidth: 8}}\" "
-                "{cpp_path}"
-            ).format(cpp_path=cpp_path)
+            cmd = [
+                "clang-format",
+                "-i",
+                "--style={BasedOnStyle: llvm, IndentWidth: 8}",
+                cpp_path,
+            ]
             exe_command(cmd)
 
         cxx_std = "c++20"
         c_model_root = self._c_model_root()
         extra_cxxflags = os.environ.get("FUNK_EXTRA_CXXFLAGS", "")
-        cmd = (
-            "clang++ -std={cxx_std} -g {extra_cxxflags} -c "
-            "-I{c_model_root} "
-            "{cpp_path} -o {object_path}"
-        ).format(
-            cxx_std=cxx_std,
-            c_model_root=c_model_root,
-            extra_cxxflags=extra_cxxflags,
-            cpp_path=cpp_path,
-            object_path=object_path,
-        )
+        cmd = ["clang++", "-std={}".format(cxx_std), "-g"] + shlex.split(extra_cxxflags) + [
+            "-c",
+            "-I{}".format(c_model_root),
+            cpp_path,
+            "-o",
+            object_path,
+        ]
         exe_command(cmd)
         return object_path
 
@@ -88,50 +87,34 @@ class CppBackend(Backend):
             sdl_cflags, sdl_ldflags = get_sdl_flags()
             if sdl_ldflags:
                 additional_link_flags += " " + sdl_ldflags
-            cmd = (
-                "clang++ -g -c -std={cxx_std} {extra_cxxflags} {sdl_cflags} "
-                "-I{c_model_root} "
-                "{c_model_root}/{sdl_cpp} "
-                "-o {build_path}/sdl_simple.o"
-            ).format(
-                build_path=build_path,
-                c_model_root=c_model_root,
-                sdl_cflags=sdl_cflags,
-                cxx_std=cxx_std,
-                sdl_cpp=sdl_cpp,
-                extra_cxxflags=extra_cxxflags,
-            )
+            cmd = ["clang++", "-g", "-c", "-std={}".format(cxx_std)] + shlex.split(
+                extra_cxxflags
+            ) + shlex.split(sdl_cflags) + [
+                "-I{}".format(c_model_root),
+                "{}/{}".format(c_model_root, sdl_cpp),
+                "-o",
+                "{}/sdl_simple.o".format(build_path),
+            ]
             exe_command(cmd)
             artifacts = list(artifacts) + ["{}/{}".format(build_path, "sdl_simple.o")]
 
-        cmd = (
-            "clang++ -g -c -std={cxx_std} {extra_cxxflags} "
-            "-I{c_model_root} "
-            "{c_model_root}/{c_model_cpp} "
-            "-o {build_path}/funk_c_model.o"
-        ).format(
-            build_path=build_path,
-            cxx_std=cxx_std,
-            c_model_root=c_model_root,
-            c_model_cpp=c_model_cpp,
-            extra_cxxflags=extra_cxxflags,
-        )
+        cmd = ["clang++", "-g", "-c", "-std={}".format(cxx_std)] + shlex.split(extra_cxxflags) + [
+            "-I{}".format(c_model_root),
+            "{}/{}".format(c_model_root, c_model_cpp),
+            "-o",
+            "{}/funk_c_model.o".format(build_path),
+        ]
         exe_command(cmd)
 
         file_name = os.path.basename(src_path)
         output = os.path.join(build_path, os.path.splitext(file_name)[0])
-        cmd = (
-            "clang++ -std={cxx_std} -g {extra_cxxflags} {additional_link_flags} "
-            "{objects} {build_path}/funk_c_model.o "
-            "-I{c_model_root} -o {output}"
-        ).format(
-            build_path=build_path,
-            output=output,
-            objects=" ".join(artifacts),
-            additional_link_flags=additional_link_flags,
-            cxx_std=cxx_std,
-            c_model_root=c_model_root,
-            extra_cxxflags=extra_cxxflags,
-        )
+        cmd = ["clang++", "-std={}".format(cxx_std), "-g"] + shlex.split(extra_cxxflags) + shlex.split(
+            additional_link_flags
+        ) + list(artifacts) + [
+            "{}/funk_c_model.o".format(build_path),
+            "-I{}".format(c_model_root),
+            "-o",
+            output,
+        ]
         exe_command(cmd)
         return output
