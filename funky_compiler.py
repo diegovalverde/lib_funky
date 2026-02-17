@@ -75,6 +75,7 @@ class Funk:
             """
 #include <{c_model_header}>
 #include <fstream>
+#include <filesystem>
 namespace funky {{
 // =============================================================== ;;
 //
@@ -87,6 +88,7 @@ void sdl_point( TData & x,  TData & y);
 void sdl_rect(int x, int y, int w, int h);
 void sdl_set_color(int r, int g, int b);
 TData sdl_set_user_ctx(const TData & arg);
+TData sdl_simple(std::vector<TData>&);
 
 """.format(c_model_header=c_model_header)
 

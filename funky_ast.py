@@ -1073,6 +1073,12 @@ class FunctionCall(Expression):
             'reverse': Reverse,
             'infinity': Infinity,
             'reshape': ReShape,
+            's2d': SDLCreateWindow,
+            's2d_set_color': SDLColor,
+            's2d_rect': SDLRect,
+            's2d_point': SDLPoint,
+            's2d_line': SDLLine,
+            's2d_set_user_ctx': SDLSetUserCtx,
         }
 
     def __repr__(self):
@@ -2160,7 +2166,12 @@ class String(Expression):
         return
 
     def eval(self, result=None):
-        return self.fmt_str
+        if result is None:
+            return self.fmt_str
+        self.funk.emitter.code += """
+        {result} = TData({val});
+        """.format(result=result, val=self.fmt_str)
+        return result
 
 
 class FunkAbs(Expression):
@@ -2301,8 +2312,13 @@ class FOpen:
         std::ifstream {result};
         {result}.open({path}.str.c_str());
         if (!{result}.is_open()){{
-            //throw std::exception("-E- Could not open file ");
-            std::cout << "-E- Could not open file " << {path}.str << std::endl;
+            const std::string __funk_open_path = {path}.str;
+            const std::string __funk_cwd = std::filesystem::current_path().string();
+            std::cout << "-E- Could not open file: '" << __funk_open_path << "'" << std::endl;
+            std::cout << "-E- cwd: '" << __funk_cwd << "'" << std::endl;
+            if (__funk_open_path.empty()) {{
+                std::cout << "-E- file path argument is empty" << std::endl;
+            }}
             exit(1);
         }}
         """.format(result=result, path=path, mode=mode)
