@@ -233,8 +233,10 @@ std::string TData::Print() const{
       oss << "inf";
     else if (i32 == -1*std::numeric_limits<std::int32_t>::max())
       oss << "-inf";
-    else
-      oss << i32; break;
+    else {
+      oss << i32;
+    }
+    break;
   case funky_type::d64: oss << d64; break;
   case funky_type::function: oss << "<fn: " << str << ">"; break;
   case funky_type::array:
